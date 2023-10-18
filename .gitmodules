@@ -1,0 +1,36 @@
+[submodule "turtlebot3"]
+	path = catkin_ws/src/turtlebot3
+	url = https://github.com/ROBOTIS-GIT/turtlebot3.git
+	branch = noetic-devel
+[submodule "turtlebot3_msgs"]
+	path = catkin_ws/src/turtlebot3_msgs
+	url = https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+	branch = noetic-devel
+[submodule "turtlebot3_simulations"]
+	path = catkin_ws/src/turtlebot3_simulations
+	url = https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+	branch = noetic-devel
+[submodule "DynamixelSDK"]
+	path = catkin_ws/src/turtlebot3_dynamixel_sdk
+	url = https://github.com/ROBOTIS-GIT/DynamixelSDK.git
+	branch = noetic-devel
+[submodule "aws-robomaker-small-house-world"]
+	path = catkin_ws/src/aws_robomaker_small_house_world
+	url = https://github.com/aws-robotics/aws-robomaker-small-house-world.git
+	branch = ros1
+[submodule "aws-robomaker-small-warehouse-world"]
+	path = catkin_ws/src/aws_robomaker_small_warehouse_world
+	url = https://github.com/aws-robotics/aws-robomaker-small-warehouse-world.git
+	branch = ros1
+[submodule "aws-robomaker-bookstore-world"]
+	path = catkin_ws/src/aws_robomaker_bookstore_world
+	url = https://github.com/aws-robotics/aws-robomaker-bookstore-world.git
+	branch = ros1
+[submodule "aws-robomaker-hospital-world"]
+	path = catkin_ws/src/aws_robomaker_hospital_world
+	url = https://github.com/aws-robotics/aws-robomaker-hospital-world.git
+	branch = ros1
+[submodule "aws-robomaker-racetrack-world"]
+	path = catkin_ws/src/aws_robomaker_racetrack_world
+	url = https://github.com/aws-robotics/aws-robomaker-racetrack-world.git
+	branch = ros1
