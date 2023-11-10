@@ -125,10 +125,12 @@
 
   <node pkg="tf" type="static_transform_publisher" name="map_to_odom_tf_broadcaster" args="0 0 0 0 0 0 /map /odom 100"/>
   <node pkg="tf" type="static_transform_publisher" name="odom_to_base_footprint_tf_broadcaster" args="0 0 0 0 0 0 /odom /base_footprint 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_base_link_tf_broadcaster" args="0 0 0 0 0 0 /base_footprint /base_link 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_base_scan_tf_broadcaster" args="0 0 0 0 0 0 /base_link /base_scan 100"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_$(arg first_tb3)_map_tf_broadcaster" args="0 0 0 0 0 0 /base_footprint /$(arg first_tb3)/map 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_$(arg second_tb3)_map_tf_broadcaster" args="0 0 0 0 0 0 /base_footprint /$(arg second_tb3)/map 100"/>
-  <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_$(arg third_tb3)_map_tf_broadcaster" args="0 0 0 0 0 0 /base_footprint /$(arg third_tb3)/map 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_$(arg first_tb3)_map_tf_broadcaster" args="0 0 0 0 0 0 /base_link /$(arg first_tb3)/map 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_$(arg second_tb3)_map_tf_broadcaster" args="0 0 0 0 0 0 /base_link /$(arg second_tb3)/map 100"/>
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_$(arg third_tb3)_map_tf_broadcaster" args="0 0 0 0 0 0 /base_link /$(arg third_tb3)/map 100"/>
 
   <node pkg="tf" type="static_transform_publisher" name="$(arg first_tb3)_odom_to_$(arg first_tb3)_base_footprint_tf_broadcaster" args="0 0 0 0 0 0 /$(arg first_tb3)/odom /$(arg first_tb3)/base_footprint 100"/>
   <node pkg="tf" type="static_transform_publisher" name="$(arg second_tb3)_odom_to_$(arg second_tb3)_base_footprint_tf_broadcaster" args="0 0 0 0 0 0 /$(arg second_tb3)/odom /$(arg second_tb3)/base_footprint 100"/>
