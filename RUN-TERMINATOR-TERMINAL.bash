@@ -15,8 +15,13 @@ cp ./terminator/config ~/.config/terminator/config
 
 # Run Terminator with the project's custom layout.
 if [ -z "$1" ]; then
-  terminator -m -l sde-term-11-simulation &
+  terminator -m -l sde-term-11-simulation
 else
-  terminator -m -l sde-term-11-$1 &
+  terminator -m -l sde-term-11-$1
 fi
 sleep 1
+
+################################################################################
+
+# Clear the container shell when returning to the host shell for readability.
+clear

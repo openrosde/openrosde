@@ -2,6 +2,11 @@
 
 ################################################################################
 
+# Clear the host shell when entering to the container shell for readability.
+clear
+
+################################################################################
+
 # Link the default shell 'sh' to Bash.
 alias sh='/bin/bash'
 
@@ -34,8 +39,8 @@ fi
 
 ################################################################################
 
-# Source the ROS environment.
-echo "Sourcing the ROS environment from '/opt/ros/noetic/setup.bash'."
+# Source the ROS distribution.
+echo "Sourcing the ROS distribution from '/opt/ros/noetic/setup.bash'."
 source /opt/ros/noetic/setup.bash
 
 # Source the Catkin workspace.
@@ -122,12 +127,18 @@ echo "ROS_IP is set to '${ROS_IP}'."
 
 export ROS_HOME=~/.ros
 
-alias simulation_mode='export ROS_MASTER_URI=http://localhost:11311; export PS1="\[[44;1;37m\]<local>\[[0m\]\w$ "'
-alias robot_mode='export ROS_MASTER_URI=http://localhost:11311; export PS1="\[[41;1;37m\]<robot>\[[0m\]\w$ "'
+PS1_DEFAULT="${PS1}"
+export local_mode='export ROS_MASTER_URI=http://localhost:11311; export PS1=" \[\e[44;1;37m\]<local>\[\e[0m\] ${PS1_DEFAULT}"'
+export remote_mode='export ROS_MASTER_URI=http://${ROBOT_HOSTNAME}:11311; export PS1="\[\e[41;1;37m\]<remote>\[\e[0m\] ${PS1_DEFAULT}"'
+
+alias local_mode="${local_mode}"
+alias remote_mode="${remote_mode}"
+
+eval ${local_mode}
 
 ################################################################################
 
-# Select the SDE model name.
+# Select the TurtleBot3 model name.
 # https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#set-turtlebot3-model-name-1
 
 export TURTLEBOT3_MODEL=waffle_pi
