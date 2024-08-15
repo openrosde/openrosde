@@ -16,7 +16,7 @@ DOCKER_PROJECT=$1
 if [ -z "${DOCKER_PROJECT}" ]; then
   DOCKER_PROJECT=${USER}
 fi
-DOCKER_CONTAINER="${DOCKER_PROJECT}_sde_1"
+DOCKER_CONTAINER="${DOCKER_PROJECT}-sde-1"
 echo "$0: DOCKER_PROJECT=${DOCKER_PROJECT}"
 echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
 
@@ -45,10 +45,10 @@ docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coaro
 # If the script runs in CI mode, build the image directly.
 # Otherwise, try to pull it from the registry. If it fails, build locally.
 if [[ "$DOCKER_PROJECT" == "gitlab-ci" ]]; then
-  docker-compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml build
+  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml build # --no-cache
 else
-  docker-compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml pull
+  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml pull
   if [[ "$?" -ne "0" ]]; then
-    docker-compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml build
+    docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml build
   fi
 fi

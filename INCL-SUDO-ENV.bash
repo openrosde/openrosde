@@ -2,15 +2,6 @@
 
 ################################################################################
 
-# Pin the versions of the core tools and packages for improved stability.
-CONTAINERD_VERSION="1.4.12-1"
-DOCKER_CE_VERSION="5:20.10.11~3-0~ubuntu-focal"
-DOCKER_COMPOSE_VERSION="1.29.2"
-NVIDIA_DOCKER_VERSION="2.8.0-1"
-NVIDIA_RUNTIME_VERSION="3.7.0-1"
-
-################################################################################
-
 # Pass the 'sudo' privileges if previously granted in parent scripts.
 if [ ! -z "$SUDO_USER" ]; then
   export USER=$SUDO_USER
@@ -18,46 +9,41 @@ fi
 
 ################################################################################
 
-# Install Docker Community Edition.
+# Install Docker Engine.
 # https://docs.docker.com/engine/install/ubuntu/
 
-# Remove the older versions of Docker if any.
-apt-get remove \
-  docker \
-  docker-engine \
-  docker.io \
-  containerd \
-  runc
+# Remove obsolete or unofficial Docker packages and dependencies to avoid conflicts during installation.
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc
+  do apt-get remove $pkg
+done
 
 # Gather the required packages for Docker installation.
 apt-get update && apt-get install -y \
-  apt-transport-https \
   ca-certificates \
-  curl \
-  gnupg-agent \
-  software-properties-common
+  curl
 
 # Add the official Docker GPG key.
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-apt-key fingerprint 0EBFCD88
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the Docker repository.
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+# Add the official Docker repository.
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Install Docker version 'DOCKER_CE_VERSION'.
-# Any existing installation will be replaced.
+# Install the Docker Engine packages.
 apt-get update && apt-get install -y \
-  docker-ce=${DOCKER_CE_VERSION} --allow-downgrades \
-  docker-ce-cli=${DOCKER_CE_VERSION} \
-  containerd.io=${CONTAINERD_VERSION}
+  docker-ce \
+  docker-ce-cli \
+  containerd.io \
+  docker-buildx-plugin \
+  docker-compose-plugin
 
-# Test the Docker installation after making sure that the service is running.
-service docker stop
-service docker start
-while ! pgrep dockerd > /dev/null; do
-  sleep 1
-done
+# Test the Docker Engine installation.
 docker version
+docker compose version
 docker run --rm hello-world
 
 ################################################################################
@@ -84,47 +70,27 @@ fi
 
 ################################################################################
 
-# Install Docker Compose.
-# https://docs.docker.com/compose/install/
-# https://github.com/docker/compose/releases
-
-# Install Docker Compose version 'DOCKER_COMPOSE_VERSION'.
-curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-
-# Install Bash command completion for Docker Compose version 'DOCKER_COMPOSE_VERSION'.
-curl -L https://raw.githubusercontent.com/docker/compose/${DOCKER_COMPOSE_VERSION}/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
-
-# Test the Docker Compose installation.
-docker-compose --version
-
-################################################################################
-
-# Install Nvidia Docker 2.
-# https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0)
-# https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker
+# Install Nvidia Container Toolkit (that replaced Nvidia Docker 2).
+# https://github.com/NVIDIA/nvidia-container-toolkit
+# https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
 
 # Remove 'nvidia-docker' and all existing GPU containers.
 docker volume ls -q -f driver=nvidia-docker | xargs -r -I{} -n1 docker ps -q -a -f volume={} | xargs -r docker rm -f
 apt-get purge -y nvidia-docker
 
-# Add the Nvidia Docker package repositories.
-curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | apt-key add -
-curl -s -L https://nvidia.github.io/nvidia-docker/ubuntu20.04/nvidia-docker.list | tee /etc/apt/sources.list.d/nvidia-docker.list
+# Add the 'nvidia-container-toolkit' repositories.
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --yes --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+&& curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 
-# Install 'nvidia-docker2' version 'NVIDIA_DOCKER_VERSION' and reload the Docker daemon configuration.
+# Install 'nvidia-container-toolkit' packages.
 apt-get update && apt-get install -y \
-  nvidia-docker2=${NVIDIA_DOCKER_VERSION} \
-  nvidia-container-runtime=${NVIDIA_RUNTIME_VERSION}
+  nvidia-container-toolkit
 
-# Test the Nvidia Docker installation after making sure that the service is running and that Nvidia drivers are found.
-service docker stop
-service docker start
-while ! pgrep dockerd > /dev/null; do
-  sleep 1
-done
+# Test the 'nvidia-container-toolkit' installation if Nvidia drivers are found.
 if [ -e /proc/driver/nvidia/version ]; then
-  docker run --runtime=nvidia --rm nvidia/cudagl:11.2.2-devel-ubuntu20.04 nvidia-smi
+  docker run --gpus all --rm nvidia/cuda:11.2.2-base-ubuntu20.04 nvidia-smi
 fi
 
 ################################################################################
