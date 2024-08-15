@@ -97,6 +97,13 @@ RUN pip3 install --upgrade pip
 
 ################################################################################
 
+# Redirect 'python' shebangs to 'python3' for compatibility with older ROS packages.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  python-is-python3 \
+  && rm -rf /var/lib/apt/lists/*
+
+################################################################################
+
 # Install common Ubuntu packages/tools.
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
