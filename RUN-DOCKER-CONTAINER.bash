@@ -66,14 +66,14 @@ case "$2" in
   ( "" )
   docker exec -i -t ${DOCKER_CONTAINER} bash
   ;;
-  ( "turtlebot3_robot_bringup_default.launch" | \
-    "turtlebot3_robot_bringup_multi.launch" | \
-    "turtlebot3_robot_rviz_default.launch" | \
-    "turtlebot3_robot_rviz_multi.launch" | \
-    "turtlebot3_simulation_gazebo_default.launch" | \
-    "turtlebot3_simulation_gazebo_multi.launch" | \
-    "turtlebot3_simulation_rviz_default.launch" | \
-    "turtlebot3_simulation_rviz_multi.launch" )
+  ( "turtlebot3_bringup_default_gazebo.launch" | \
+    "turtlebot3_bringup_default_realword.launch" | \
+    "turtlebot3_bringup_multi_gazebo.launch" | \
+    "turtlebot3_bringup_multi_realword.launch" | \
+    "turtlebot3_rviz_default_gazebo.launch" | \
+    "turtlebot3_rviz_default_realword.launch" | \
+    "turtlebot3_rviz_multi_gazebo.launch" | \
+    "turtlebot3_rviz_multi_realword.launch" )
   docker exec -i -t ${DOCKER_CONTAINER} bash -i -c "source ~/SDE/docker/sde-devel/scripts/run-roslaunch-repeatedly.bash $2"
   ;;
   ( * )
