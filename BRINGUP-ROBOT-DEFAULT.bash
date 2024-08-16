@@ -7,7 +7,7 @@
 # Usage: bash BRINGUP-TURTLEBOT3-ROBOT.bash <ros-master-hostname> [docker-project]
 #
 # <ros-master-hostname>: Host name or IP addess of the ROS master via 'ROS_MASTER_URI=http://<ros-master-hostname>:11311'.
-# [docker-project]: Used to name the Docker container and create multiple instances if needed. Default value is '$USER'.
+# [docker-project]:      Used to name the Docker container and create multiple instances if needed. Default value is '$USER'.
 
 ################################################################################
 
