@@ -43,12 +43,12 @@ ROBOT_IP=`avahi-resolve -4 --name ${ROBOT_HOSTNAME} | cut -f 2`
 if [ "$?" != "0" ]; then
   echo "Failed to execute 'avahi-resolve'. You may need to install 'avahi-utils'."
   docker exec -i ${DOCKER_CONTAINER} bash <<EOF
-sed -i 's/TMP_HOSTNAME/${ROBOT_HOSTNAME}/' ~/.bashrc
+sed -i 's/REMOTE_HOSTNAME/${ROBOT_HOSTNAME}/' ~/.bashrc
 EOF
 elif [ ! -z "${ROBOT_IP}" ]; then
   echo "Successfully resolved host name '${ROBOT_HOSTNAME}' as '${ROBOT_IP}': '/etc/hosts' in the container is automatically updated."
   docker exec -i ${DOCKER_CONTAINER} bash <<EOF
-sed -i 's/TMP_HOSTNAME/${ROBOT_HOSTNAME}/' ~/.bashrc
+sed -i 's/REMOTE_HOSTNAME/${ROBOT_HOSTNAME}/' ~/.bashrc
 sed -n -e '/^[^#[:space:]]*[[:space:]]\+${ROBOT_HOSTNAME}\$/!p' /etc/hosts > /etc/hosts.tmp;
 echo '${ROBOT_IP} ${ROBOT_HOSTNAME}' >> /etc/hosts.tmp
 cp /etc/hosts.tmp /etc/hosts;
@@ -66,21 +66,8 @@ xhost +
 ################################################################################
 
 # Enter the Docker container with a Bash shell (with or without preloading a custom [ros-launch] file).
-case "$2" in
-  ( "" )
+if [ -z "$2" ]; then
   docker exec -i -t ${DOCKER_CONTAINER} bash
-  ;;
-  ( "turtlebot3_bringup_default_gazebo.launch" | \
-    "turtlebot3_bringup_default_realword.launch" | \
-    "turtlebot3_bringup_multi_gazebo.launch" | \
-    "turtlebot3_bringup_multi_realword.launch" | \
-    "turtlebot3_rviz_default_gazebo.launch" | \
-    "turtlebot3_rviz_default_realword.launch" | \
-    "turtlebot3_rviz_multi_gazebo.launch" | \
-    "turtlebot3_rviz_multi_realword.launch" )
+else
   docker exec -i -t ${DOCKER_CONTAINER} bash -i -c "source ~/SDE/docker/sde-devel/scripts/run-roslaunch-repeatedly.bash $2"
-  ;;
-  ( * )
-  echo "Failed to enter the Docker container '${DOCKER_CONTAINER}': '$2' is not a valid argument value."
-  ;;
-esac
+fi

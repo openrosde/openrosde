@@ -128,8 +128,8 @@ COPY ./docker/sde-devel/scripts/. /root/SDE/docker/sde-devel/scripts/
 RUN chmod -R +x /root/SDE/docker/sde-devel/scripts/*
 
 # Setup the Bash shell environment with '/root/.bashrc'.
-# The value of 'TMP_HOSTNAME' is substituted by '../../RUN-DOCKER-CONTAINER.bash' when entering the container.
-RUN echo "ROBOT_HOSTNAME=\"TMP_HOSTNAME\"" >> /root/.bashrc
+# The value of 'REMOTE_HOSTNAME' is substituted by '../../RUN-DOCKER-CONTAINER.bash' when entering the container.
+RUN echo "ROBOT_HOSTNAME=\"REMOTE_HOSTNAME\"" >> /root/.bashrc
 RUN echo "source /root/SDE/docker/sde-devel/scripts/initialize-bash-shell.bash" >> /root/.bashrc
 
 # Force color prompt in terminal.
