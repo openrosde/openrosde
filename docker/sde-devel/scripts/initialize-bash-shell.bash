@@ -103,6 +103,13 @@ function sde-cleanup-output-data () {
   popd
 }
 
+function sde-kill-ros-nodes () {
+  # Store the current directory and execute scripts in the current shell process.
+  pushd .
+  source /root/SDE/docker/sde-devel/scripts/kill-ros-nodes.bash
+  popd
+}
+
 ################################################################################
 
 # Set the ROS network interface.
