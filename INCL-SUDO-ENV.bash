@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# This script performs the system-wide installations with 'sudo' and requires a system reboot or re-login to take effect.
+# It is included in 'SETUP-DEVEL-MACHINE.bash' by default.
+#
+# Usage: bash INCL-SUDO-ENV.bash
+
 ################################################################################
 
 # Pass the 'sudo' privileges if previously granted in parent scripts.
@@ -52,21 +57,6 @@ docker run --rm hello-world
 # Logging out and back in is required for the group change to take effect.
 usermod -a -G docker ${USER}
 echo "Added the current user '${USER}' to the 'docker' group."
-
-# Configure the host system so that 'adduser' command adds future new users to the 'docker' group automatically.
-# This enables new users to set up their environment without 'sudo' by only executing 'INCL-USER-ENV.sh'.
-ADDUSER_CONFIG=/etc/adduser.conf
-if [ ! -f ${ADDUSER_CONFIG} ]; then
-  echo "Failed to add future new users to the 'docker' group because the system configuration file '${ADDUSER_CONFIG}' was not found."
-else
-  if ! grep -q "#EXTRA_GROUPS=\"dialout cdrom floppy audio video plugdev users\"" ${ADDUSER_CONFIG}; then
-    echo "Failed to add future new users to the 'docker' group because 'EXTRA_GROUPS' in '${ADDUSER_CONFIG}' has already been customized."
-  else
-    sed -i 's/#EXTRA_GROUPS="dialout cdrom floppy audio video plugdev users"/EXTRA_GROUPS="dialout cdrom floppy audio video plugdev users docker"/' ${ADDUSER_CONFIG}
-    sed -i 's/#ADD_EXTRA_GROUPS=1/ADD_EXTRA_GROUPS=1/' ${ADDUSER_CONFIG}
-    echo "Modified '${ADDUSER_CONFIG}' to add all future new users to the 'docker' group upon creation."
-  fi
-fi
 
 ################################################################################
 

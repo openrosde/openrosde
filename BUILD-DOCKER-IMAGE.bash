@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # This script generates a Docker image with the relevant settings for the [docker-project].
-# The behavior is context-sensitive.
 #
 # Usage: bash BUILD-DOCKER-IMAGE.bash [docker-project]
 #
