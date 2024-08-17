@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This script tags and pushes the Docker image to the GitLab registry as 'latest'.
+#
+# Usage: bash PUSH-DOCKER-IMAGE.bash
+
 ################################################################################
 
 # Tag the Docker image with the Git short SHA associated to the latest 'Dockerfile' modification.

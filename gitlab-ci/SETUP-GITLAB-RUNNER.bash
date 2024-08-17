@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script installs GitLab Runner, its dependencies on the host, and registers one runner instance to GitLab.com.
-# Multiple executions of this script add multiple instances. However, a runner is designed to start multiple executors.
+# Multiple executions of this script add multiple runner instances even though one runner is designed to start multiple executors.
 # The generated configuration resides in '/etc/gitlab-runner/config.toml', where the amount of concurrent executors can also be set manually.
 #
 # Usage: bash SETUP-GITLAB-RUNNER.bash <gitlab-runner-registration-token>
@@ -13,15 +13,8 @@
 # Check if the user has provided the mandatory <gitlab-runner-registration-token> argument.
 if [[ "$#" -ne 1 ]]; then
   echo "Usage: bash SETUP-GITLAB-RUNNER.bash <gitlab-runner-registration-token>"
-  exit 0
+  exit 1
 fi
-
-################################################################################
-
-# Pin the versions of the core tools and packages for improved stability.
-CONTAINERD_VERSION="1.4.12-1"
-DOCKER_CE_VERSION="5:20.10.11~3-0~ubuntu-focal"
-GITLAB_RUNNER_VERSION="15.0.0"
 
 ################################################################################
 
@@ -32,48 +25,41 @@ sudo apt-get install -y \
 
 ################################################################################
 
-# Install Docker Community Edition.
+# Install Docker Engine.
 # https://docs.docker.com/engine/install/ubuntu/
 
-# Remove the older versions of Docker if any.
-sudo apt-get remove \
-  docker \
-  docker-engine \
-  docker.io \
-  containerd \
-  runc
+# Remove obsolete or unofficial Docker packages and dependencies to avoid conflicts during installation.
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc
+  do sudo apt-get remove $pkg
+done
 
 # Gather the required packages for Docker installation.
-sudo apt-get update
-sudo apt-get install -y \
-  apt-transport-https \
+sudo apt-get update && sudo apt-get install -y \
   ca-certificates \
-  curl \
-  gnupg-agent \
-  software-properties-common
+  curl
 
 # Add the official Docker GPG key.
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo apt-key fingerprint 0EBFCD88
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the Docker repository.
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+# Add the official Docker repository.
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Install Docker version 'DOCKER_CE_VERSION'.
-# Any existing installation will be replaced.
-sudo apt-get update
-sudo apt-get install -y \
-  docker-ce=${DOCKER_CE_VERSION} --allow-downgrades \
-  docker-ce-cli=${DOCKER_CE_VERSION} \
-  containerd.io=${CONTAINERD_VERSION}
+# Install the Docker Engine packages.
+sudo apt-get update && sudo apt-get install -y \
+  docker-ce \
+  docker-ce-cli \
+  containerd.io \
+  docker-buildx-plugin \
+  docker-compose-plugin
 
-# Test the Docker installation after making sure that the service is running.
-sudo service docker stop
-sudo service docker start
-while ! pgrep dockerd > /dev/null; do
-  sleep 1
-done
+# Test the Docker Engine installation.
 sudo docker version
+sudo docker compose version
 sudo docker run --rm hello-world
 
 ################################################################################
@@ -81,6 +67,7 @@ sudo docker run --rm hello-world
 # Add the current user to the 'docker' group to run Docker without 'sudo'.
 # Logging out and back in is required for the group change to take effect.
 sudo usermod -a -G docker ${USER}
+echo "Added the current user '${USER}' to the 'docker' group."
 
 ################################################################################
 
@@ -94,7 +81,7 @@ curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/s
 # Install GitLab Runner version 'GITLAB_RUNNER_VERSION'.
 sudo apt-get update
 sudo apt-get install -y \
-  gitlab-runner=${GITLAB_RUNNER_VERSION}
+  gitlab-runner
 
 # Register a new runner to GitLab.com using the CLI interface.
 # The configuration is generated into '/etc/gitlab-runner/config.toml'.

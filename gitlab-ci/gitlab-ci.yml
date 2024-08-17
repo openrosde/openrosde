@@ -21,12 +21,12 @@ stages:
 
 # Use Docker-in-Docker with TLS disabled in the Docker executor.
 # https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#docker-in-docker-with-tls-disabled-in-the-docker-executor
-image: docker:20.10.11
+image: docker:latest
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
 services:
-  - docker:20.10.11-dind
+  - docker:dind
 before_script:
   - docker info
 

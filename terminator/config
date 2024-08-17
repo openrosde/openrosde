@@ -9,7 +9,7 @@
     [[[window0]]]
       parent = ""
       type = Window
-  [[sde-term-11-simulation]]
+  [[sde-term-11-gazebo]]
     [[[child0]]]
       fullscreen = False
       last_active_window = True
@@ -99,13 +99,13 @@
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_simulation_gazebo_multi.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_bringup_multi_gazebo.launch
     [[[terminal14]]] #3
       order = 1
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_simulation_rviz_multi.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_rviz_multi_gazebo.launch
     [[[terminal18]]] #8
       order = 0
       parent = child17
@@ -164,20 +164,20 @@
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_simulation_gazebo_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_bringup_default_gazebo.launch
     [[[terminal7]]] #5
       order = 1
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_simulation_rviz_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_rviz_default_gazebo.launch
     [[[terminal9]]] #6
       order = 0
       parent = child8
       profile = default
       type = Terminal
       command = bash ./RUN-DOCKER-CONTAINER.bash ${USER}
-  [[sde-term-11-robot]]
+  [[sde-term-11-realworld]]
     [[[child0]]]
       fullscreen = False
       last_active_window = True
@@ -267,13 +267,13 @@
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_robot_bringup_multi.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_bringup_multi_realword.launch
     [[[terminal14]]] #3
       order = 1
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_robot_rviz_multi.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_rviz_multi_realword.launch
     [[[terminal18]]] #8
       order = 0
       parent = child17
@@ -332,13 +332,13 @@
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_robot_bringup_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_bringup_default_realword.launch
     [[[terminal7]]] #5
       order = 1
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_robot_rviz_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${USER} turtlebot3_rviz_default_realword.launch
     [[[terminal9]]] #6
       order = 0
       parent = child8
@@ -350,7 +350,7 @@
   [[default]]
     background_color = "#300a24"
     background_darkness = 0.9
-    background_image = None
+    # background_image = None
     background_type = transparent
     font = Ubuntu Mono 12
     foreground_color = "#ffffff"

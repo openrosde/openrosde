@@ -2,6 +2,11 @@
 
 ################################################################################
 
+# Clear the host shell when entering to the container shell for readability.
+clear
+
+################################################################################
+
 # Link the default shell 'sh' to Bash.
 alias sh='/bin/bash'
 
@@ -34,8 +39,8 @@ fi
 
 ################################################################################
 
-# Source the ROS environment.
-echo "Sourcing the ROS environment from '/opt/ros/noetic/setup.bash'."
+# Source the ROS distribution.
+echo "Sourcing the ROS distribution from '/opt/ros/noetic/setup.bash'."
 source /opt/ros/noetic/setup.bash
 
 # Source the Catkin workspace.
@@ -98,6 +103,13 @@ function sde-cleanup-output-data () {
   popd
 }
 
+function sde-kill-ros-nodes () {
+  # Store the current directory and execute scripts in the current shell process.
+  pushd .
+  source /root/SDE/docker/sde-devel/scripts/kill-ros-nodes.bash
+  popd
+}
+
 ################################################################################
 
 # Set the ROS network interface.
@@ -118,16 +130,21 @@ if [ -z "${ROS_IP}" ]; then
   # If the local 'ROS_IP' is still empty, default to the Docker network interface ('docker0') for sanity.
   export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
 fi
-echo "ROS_IP is set to '${ROS_IP}'."
 
 export ROS_HOME=~/.ros
 
-alias simulation_mode='export ROS_MASTER_URI=http://localhost:11311; export PS1="\[[44;1;37m\]<local>\[[0m\]\w$ "'
-alias robot_mode='export ROS_MASTER_URI=http://localhost:11311; export PS1="\[[41;1;37m\]<robot>\[[0m\]\w$ "'
+PS1_DEFAULT="${PS1}"
+export local_mode='export ROS_MASTER_URI=http://localhost:11311; echo "Setting local ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[44;1;37m\]<local>\[\e[0m\] ${PS1_DEFAULT}"'
+export remote_mode='export ROS_MASTER_URI=http://${ROBOT_HOSTNAME}:11311; echo "Setting remote ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[41;1;37m\]<remote>\[\e[0m\] ${PS1_DEFAULT}"'
+
+alias local_mode="${local_mode}"
+alias remote_mode="${remote_mode}"
+
+eval ${local_mode}
 
 ################################################################################
 
-# Select the SDE model name.
+# Select the TurtleBot3 model name.
 # https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#set-turtlebot3-model-name-1
 
 export TURTLEBOT3_MODEL=waffle_pi
