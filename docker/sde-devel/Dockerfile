@@ -52,7 +52,7 @@ RUN rosdep init
 # Install the TurtleBot3 ROS dependencies.
 # https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#pc-setup
 
-# Gather the dependencies from the ROS repositories.
+# Gather the TurtleBot3 dependencies from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-joy \
   ros-noetic-teleop-twist-joy \
@@ -77,11 +77,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-multirobot-map-merge \
   && rm -rf /var/lib/apt/lists/*
 
+# Gather the TurtleBot3 packages from the ROS repositories.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  ros-noetic-dynamixel-sdk \
+  ros-noetic-turtlebot3 \
+  ros-noetic-turtlebot3-msgs \
+  ros-noetic-turtlebot3-simulations \
+  && rm -rf /var/lib/apt/lists/*
+
 ################################################################################
 
 # Install common Python 3 packages/tools.
 
-# Gather the dependencies from the Ubuntu repositories.
+# Gather the Python 3 dependencies from the Ubuntu repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   python3-pip  \
   python3-setuptools \

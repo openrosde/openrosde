@@ -35,9 +35,7 @@ fi
 
 # Configure the known host names with '/etc/hosts' in the Docker container.
 
-for i in {1..3}
-do
-ROBOT_HOSTNAME=turtlebot3-0${i}.local
+ROBOT_HOSTNAME=turtlebot3.local
 echo "Now resolving local host name '${ROBOT_HOSTNAME}'..."
 ROBOT_IP=`avahi-resolve -4 --name ${ROBOT_HOSTNAME} | cut -f 2`
 if [ "$?" != "0" ]; then
@@ -56,7 +54,6 @@ EOF
 else
   echo "Failed to resolve host name '${ROBOT_HOSTNAME}': '/etc/hosts' in the container was not automatically updated."
 fi
-done
 
 ################################################################################
 

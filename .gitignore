@@ -1,30 +1,33 @@
-# Image files.
+# Image files:
 *.jpg
 *.png
 
-# Ubuntu auto-generated files.
+# Ubuntu auto-generated files:
 .Trash-0/
 *.trashinfo
 
-# macOS auto-generated files.
+# macOS auto-generated files:
 *.DS_Store
 
-# Python auto-generated files.
+# Python auto-generated files:
 *.pyc
 
-# 'catkin build' auto-generated files.
+# 'catkin build' auto-generated files:
 catkin_ws/CMakeLists.txt
 catkin_ws/.catkin_tools/
 catkin_ws/build/
 catkin_ws/devel/
 catkin_ws/logs/
 
-# 'catkin_make' auto-generated files.
+# 'catkin_make' auto-generated files:
 catkin_ws/src/CMakeLists.txt
 catkin_ws/.catkin_workspace
 catkin_ws/build/
 catkin_ws/devel/
 catkin_ws/install/
 
-# 'rosbag' files.
+# 'rosbag' files:
 *.bag
+
+# Terminator 'config' files:
+terminator/config.tmp

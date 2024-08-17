@@ -270,14 +270,14 @@ This project is configured to use up to 3 TurtleBot3 (Waffle Pi) robots simultan
 The default configuration of the TurtleBot3 (Waffle Pi) on-board computers is as follows, where `x` is the number corresponding to a specific robot:
 
 *   User name: `pi`
-*   Host name: `turtlebot3-0x.local`
+*   Host name: `turtlebot3.local`
 *   Password: `turtlebot`
 
 To connect to the Raspberry Pi on-board computer of the TurtleBot3 (Waffle Pi), run the following in a new terminal on the development machine:
 
 ```shell
-ping turtlebot3-0x.local
-ssh pi@turtlebot3-0x.local
+ping turtlebot3.local
+ssh pi@turtlebot3.local
 ```
 
 You can also bring up the TurtleBot3 (Waffle Pi) robots by executing the following script on the development machine:
@@ -293,13 +293,12 @@ cd ~/SDE/ && bash ./BRINGUP-TURTLEBOT3-ROBOT.bash #<rosmaster-hostname> #[docker
 ## Robot Installation
 
 Follow this step-by-step guide to set up or reinitialize a TurtleBot3 (Waffle Pi) robot.
-`x` is the number corresponding to a specific robot.
 
 > **Note:**
-  The instructions below contains only minor modifications from the TurtleBot3 (Waffle Pi) official manual, mainly to support mutiple robots and host names.
+  The instructions below contains only minor modifications from the TurtleBot3 (Waffle Pi) official manual.
 
 > **Note:**
-  Each TurtleBot3 (Waffle Pi) robot is set up using the older ROS Kinetic distribution because the ROS package that interfaces the Camera Module v2 is not compatible with the newer ROS distributions.
+  The TurtleBot3 (Waffle Pi) robot is set up using the older ROS Kinetic distribution because the ROS package that interfaces the Camera Module v2 is not compatible with the newer ROS distributions.
   Therefore, the ROS distribution in running in the robots does not match the ROS distribution of the development machine.
   This is not an optimal solution, but so far, it did not cause important issues.
 
@@ -315,14 +314,14 @@ SHA256: `eb8173f3727db08087990b2c4e2bb211e70bd54644644834771fc8b971856b97`.
 1.   Connect the power (either with USB or OpenCR) to turn on the Raspberry Pi.
 1.   After booting up the Raspberry Pi, use the GUI and input devices to connect to the Wi-Fi.
      The Raspberry Pi will automatically connect to known Wi-Fi networks after reboot.
-1.   Open the "Raspberry Pi Configuration" menu and set the host name to `turtlebot3-0x`.
+1.   Open the "Raspberry Pi Configuration" menu and verify that the host name is `turtlebot3`.
 1.   In the same "Raspberry Pi Configuration" menu, verify that the overscan is disabled, and that both SSH and the camera are enabled.
 1.   Reboot the Raspberry Pi and disconnect the monitor and input devices as the next steps can be performed from a remote development machine via SSH.
 1.   Connect to the Raspberry Pi via SSH (password: `turtlebot`):
 
      ```shell
-     ping turtlebot3-0x.local
-     ssh pi@turtlebot3-0x.local
+     ping turtlebot3.local
+     ssh pi@turtlebot3.local
      ```
 
 1.   Inside the Raspberry Pi, synchronize the time:
@@ -348,19 +347,19 @@ SHA256: `eb8173f3727db08087990b2c4e2bb211e70bd54644644834771fc8b971856b97`.
 1.   Connect once more to the Raspberry Pi via SSH (password: `turtlebot`):
 
      ```shell
-     ping turtlebot3-0x.local
-     ssh pi@turtlebot3-0x.local
+     ping turtlebot3.local
+     ssh pi@turtlebot3.local
      ```
 
 1.   Inside the Raspberry Pi, add the ROS network information to the Bash shell by running `nano ~/.bashrc` and adding the following lines at the bottom of the file:
 
      ```shell
-     export ROS_MASTER_URI=http://master.local:11311
-     export ROS_HOSTNAME=turtlebot3-0x.local
+     export ROS_MASTER_URI=http://<rosmaster-hostname>.local:11311
+     export ROS_HOSTNAME=turtlebot3.local
      export TURTLEBOT3_MODEL=waffle_pi
      ```
 
-     Note that `x` is the number corresponding to the robot and `master` is the host name of the development machine.
+     Note that `<rosmaster-hostname>` should be the host name of the development machine for better performance.
      Note also that `TURTLEBOT3_MODEL=waffle_pi`.
      Save the file and load the new settings into the current Bash shell with `source ~/.bashrc`.
 1.   Do not install the "NEW LDS-02 Configuration" unless you use TurtleBot3 (Waffle Pi) robots from 2022 or later.

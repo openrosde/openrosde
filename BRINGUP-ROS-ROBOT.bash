@@ -4,17 +4,17 @@
 # 1. Kill all existing ROS processes inside the robot.
 # 2. Execute the launch files that bring up the robot.
 #
-# Usage: bash BRINGUP-TURTLEBOT3-ROBOT.bash <rosmaster-hostname> [docker-project]
+# Usage: bash BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]
 #
 # <rosmaster-hostname>: Host name or IP addess of the ROS master via 'ROS_MASTER_URI=http://<rosmaster-hostname>:11311'.
-# [docker-project]:      Used to name the Docker container and create multiple instances if needed.
-#                        Default value is '$USER'.
+# [docker-project]:     Used to name the Docker container and create multiple instances if needed.
+#                       Default value is '$USER'.
 
 ################################################################################
 
 # Check if the user has provided the mandatory <rosmaster-hostname> argument.
 if [[ "$#" -ne 1 ]]; then
-  echo "Usage: bash BRINGUP-TURTLEBOT3-ROBOT.bash <rosmaster-hostname> [docker-project]"
+  echo "Usage: bash BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]"
   exit 1
 fi
 
@@ -26,7 +26,7 @@ DOCKER_PROJECT=$2
 if [ -z "${DOCKER_PROJECT}" ]; then
   DOCKER_PROJECT=${USER}
 fi
-DOCKER_CONTAINER="${DOCKER_PROJECT}_turtlebot3_1"
+DOCKER_CONTAINER="${DOCKER_PROJECT}-sde-1"
 echo "$0: DOCKER_PROJECT=${DOCKER_PROJECT}"
 echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
 
@@ -38,11 +38,11 @@ EOF
 
 ################################################################################
 
-ssh -f -t -l pi turtlebot3-01.local 'bash -c "
+ssh -f -t -l pi turtlebot3.local 'bash -c "
 source /opt/ros/kinetic/setup.bash;
 source ~/catkin_ws/devel/setup.bash;
 export ROS_MASTER_URI=http://'$1':11311;
-export ROS_HOSTNAME=turtlebot3-01.local;
+export ROS_HOSTNAME=turtlebot3.local;
 export TURTLEBOT3_MODEL=waffle_pi;
 killall -9 roscore;
 killall -9 rosmaster;

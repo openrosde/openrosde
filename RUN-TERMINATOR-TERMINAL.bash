@@ -22,23 +22,14 @@ echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
 
 ################################################################################
 
-# Make a backup of the user's original Terminator configuration.
-mkdir -p ~/.config/terminator/
-if [ ! -f ~/.config/terminator/config.backup ]; then
-  cp ~/.config/terminator/config ~/.config/terminator/config.backup
-fi
-
-# Update the user's current Terminator configuration with the project's one.
-cp ./terminator/config ~/.config/terminator/config
-
-################################################################################
-
-# Run Terminator with the project's custom layout.
+# Run Terminator with a custom configuration file and layout after injecting the required environment variables.
+sed "s/\${DOCKER_PROJECT}/${DOCKER_PROJECT}/g" ./terminator/config > ./terminator/config.tmp
 if [ -z "$2" ]; then
-  terminator -m -l sde-term-11-gazebo
+  terminator --maximise --config ./terminator/config.tmp --layout sde-term-11-default-gazebo
 else
-  terminator -m -l sde-term-11-$2
+  terminator --maximise --config ./terminator/config.tmp --layout sde-term-11-$2
 fi
+rm ./terminator/config.tmp
 sleep 1
 
 ################################################################################
