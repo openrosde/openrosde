@@ -4,17 +4,17 @@
 # 1. Kill all existing ROS processes inside the robots.
 # 2. Execute the launch files that bring up the robots.
 #
-# Usage: bash BRINGUP-TURTLEBOT3-MULTI.bash <ros-master-hostname> [docker-project]
+# Usage: bash BRINGUP-TURTLEBOT3-MULTI.bash <rosmaster-hostname> [docker-project]
 #
-# <ros-master-hostname>: Host name or IP addess of the ROS master via 'ROS_MASTER_URI=http://<ros-master-hostname>:11311'.
+# <rosmaster-hostname>: Host name or IP addess of the ROS master via 'ROS_MASTER_URI=http://<rosmaster-hostname>:11311'.
 # [docker-project]:      Used to name the Docker container and create multiple instances if needed.
 #                        Default value is '$USER'.
 
 ################################################################################
 
-# Check if the user has provided the mandatory <ros-master-hostname> argument.
+# Check if the user has provided the mandatory <rosmaster-hostname> argument.
 if [[ "$#" -ne 1 ]]; then
-  echo "Usage: bash BRINGUP-TURTLEBOT3-MULTI.bash <ros-master-hostname> [docker-project]"
+  echo "Usage: bash BRINGUP-TURTLEBOT3-MULTI.bash <rosmaster-hostname> [docker-project]"
   exit 1
 fi
 
