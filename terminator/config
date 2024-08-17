@@ -108,13 +108,13 @@
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_navigation_default_gazebo.launch
     [[[terminal14]]]  #3
       order = 1
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_mapping_default.launch
     [[[terminal18]]]  #8
       order = 0
       parent = child17
@@ -185,7 +185,7 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_common_default.launch
   [[sde-term-11-default-realworld]]
     [[[child0]]]
       fullscreen = False
@@ -276,13 +276,13 @@
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_navigation_default_realworld.launch
     [[[terminal14]]]  #3
       order = 1
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_mapping_default.launch
     [[[terminal18]]]  #8
       order = 0
       parent = child17
@@ -353,5 +353,5 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_common_default.launch
 [plugins]
