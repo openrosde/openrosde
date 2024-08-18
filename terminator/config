@@ -102,7 +102,7 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} flexbe_app_default.launch
     [[[terminal13]]]  #2
       order = 0
       parent = child12
@@ -270,7 +270,7 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} flexbe_app_default.launch
     [[[terminal13]]]  #2
       order = 0
       parent = child12

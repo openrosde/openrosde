@@ -87,6 +87,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ################################################################################
 
+# Install the FlexBE App dependencies.
+# https://github.com/FlexBE/flexbe_app
+
+# Gather the dependencies from the Ubuntu repositories.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  libxtst-dev \
+  libcanberra-gtk3-module \
+  upower \
+  && rm -rf /var/lib/apt/lists/*
+
+################################################################################
+
 # Install common Python 3 packages/tools.
 
 # Gather the Python 3 dependencies from the Ubuntu repositories.
@@ -122,6 +134,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   psmisc \
   unzip \
   wget \
+  x11-apps \
   && rm -rf /var/lib/apt/lists/*
 
 ################################################################################

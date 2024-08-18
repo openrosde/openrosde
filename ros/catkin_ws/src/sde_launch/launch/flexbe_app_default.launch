@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- Start both FlexBE Behavior Engine and FlexBE App for local behavior execution. -->
+
+  <include file="$(find flexbe_app)/launch/flexbe_full.launch" />
+
+</launch>

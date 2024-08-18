@@ -1,13 +1,18 @@
-<?xml version="1.0"?>
-<package format="2">
+<package>
   <name>sde_launch</name>
   <version>1.0.0</version>
-  <description>The 'sde_launch' package coordinates the robot tasks and behaviors across all packages using shared launch files.</description>
-
+  <description>
+    The 'sde_launch' package coordinates the robot tasks and behaviors across all packages using shared launch files.
+  </description>
   <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
+
   <license>MIT</license>
-  <url type="website">https://gitlab.com/emlab/TurtleBot3</url>
+
+  <url type="website">https://coarobo.com/</url>
+  <url type="repository">https://gitlab.com/coarobo/SDE</url>
+  <url type="bugtracker">https://gitlab.com/coarobo/SDE/-/issues</url>
   <author email="lotfi@coarobo.com">Lotfi El Hafi</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+
 </package>

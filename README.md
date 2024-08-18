@@ -54,11 +54,15 @@ Follow this step-by-step guide to perform the initial setup of the SDE on a deve
   This ensures that all the contributors work in the exact same software environment.
 
 > **Note:**
-  The SDE robot and simulator interfaces are primarily implemented with [ROS](http://www.ros.org/).
+  The SDE robot, simulator, visualization, and behavior interfaces are primarily implemented with [ROS](http://www.ros.org/), [Gazebo](http://gazebosim.org/), [Rviz](https://github.com/ros-visualization/rviz), and [FlexBE](http://flexbe.github.io/).
 
 > **Note:**
-  The SDE relies heavily on both hardware 3D graphic acceleration and Nvidia [CUDA](https://developer.nvidia.com/cuda-toolkit), thus a discrete Nvidia GPU is highly recommended although Intel CPU graphic acceleration is also supported.
-  In addition, virtual machines are only partially supported: 3D accelerated tools such as [Rviz](https://github.com/ros-visualization/rviz) and [Gazebo](http://gazebosim.org/) will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
+  The SDE primarily targets Nvidia GPU-equipped development machines and the Nvidia [CUDA](https://developer.nvidia.com/cuda-toolkit) platform.
+  Although the SDE can be run on other GPU platforms such as Intel integrated graphics, some 3D acceleration issues may arise.
+  For example, the [FlexBE App](https://github.com/FlexBE/flexbe_app) may appear partially broken due to [OpenGL](https://www.opengl.org/) errors.
+
+> **Note:**
+  Virtual machines are only partially supported: 3D accelerated tools such will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
 
 > **Note:**
   Although this initial setup is meant to be performed only once, you can run it again would you want to reset the development environment as the project evolves.
@@ -75,7 +79,7 @@ Follow this step-by-step guide to perform the initial setup of the SDE on a deve
 
 *   A Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) robot for full operability.
     If not, the TurtleBot3 (Waffle Pi) simulator running on Gazebo provides support for basic operations.
-*   An Nvidia GPU capable of running CUDA 11.2, or newer, to accelerate 3D graphics and deep learning computing.
+*   An Nvidia GPU capable of running CUDA 11.2, or newer, to accelerate 3D graphics and deep learning.
 
 ### Step 1: Set up the Development Environment
 
