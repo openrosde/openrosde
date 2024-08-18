@@ -2,11 +2,14 @@
 	path = ros/catkin_ws/src/flexbe_behavior_engine
 	url = https://github.com/FlexBE/flexbe_behavior_engine.git
 	branch = noetic
+	ignore = dirty
 [submodule "flexbe_app"]
 	path = ros/catkin_ws/src/flexbe_app
 	url = https://github.com/FlexBE/flexbe_app.git
 	branch = noetic
+	ignore = dirty
 [submodule "generic_flexbe_states"]
 	path = ros/catkin_ws/src/flexbe_generic_states
 	url = https://github.com/FlexBE/generic_flexbe_states.git
 	branch = master
+	ignore = dirty
