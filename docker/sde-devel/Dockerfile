@@ -94,6 +94,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y --no-install-recommends \
   libxtst-dev \
   libcanberra-gtk3-module \
+  upower \
   && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
@@ -133,6 +134,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   psmisc \
   unzip \
   wget \
+  x11-apps \
   && rm -rf /var/lib/apt/lists/*
 
 ################################################################################

@@ -57,8 +57,8 @@ fi
 
 ################################################################################
 
-# Display GUIs through X Server by granting full access to any external client.
-xhost +
+# Display GUIs through X Server by granting access to Docker.
+xhost +local:docker
 
 ################################################################################
 
