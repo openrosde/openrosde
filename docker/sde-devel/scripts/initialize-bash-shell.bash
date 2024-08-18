@@ -44,13 +44,13 @@ echo "Sourcing the ROS distribution from '/opt/ros/noetic/setup.bash'."
 source /opt/ros/noetic/setup.bash
 
 # Source the Catkin workspace.
-echo "Sourcing the Catkin workspace from '/root/SDE/catkin_ws/devel/setup.bash'."
-source /root/SDE/catkin_ws/devel/setup.bash
+echo "Sourcing the Catkin workspace from '/root/SDE/ros/catkin_ws/devel/setup.bash'."
+source /root/SDE/ros/catkin_ws/devel/setup.bash
 
 ################################################################################
 
 # Add the Catkin workspace to the 'ROS_PACKAGE_PATH'.
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/root/SDE/catkin_ws/src/
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/root/SDE/ros/catkin_ws/src/
 
 ################################################################################
 

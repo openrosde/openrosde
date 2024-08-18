@@ -6,7 +6,7 @@
 source /opt/ros/noetic/setup.bash
 
 # Build the Catkin workspace.
-cd /root/SDE/catkin_ws/ && catkin build
+cd /root/SDE/ros/catkin_ws/ && catkin build
 
 # Source the Catkin workspace.
-source /root/SDE/catkin_ws/devel/setup.bash
+source /root/SDE/ros/catkin_ws/devel/setup.bash

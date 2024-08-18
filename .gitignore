@@ -13,18 +13,18 @@
 *.pyc
 
 # 'catkin build' auto-generated files:
-catkin_ws/CMakeLists.txt
-catkin_ws/.catkin_tools/
-catkin_ws/build/
-catkin_ws/devel/
-catkin_ws/logs/
+ros/catkin_ws/CMakeLists.txt
+ros/catkin_ws/.catkin_tools/
+ros/catkin_ws/build/
+ros/catkin_ws/devel/
+ros/catkin_ws/logs/
 
 # 'catkin_make' auto-generated files:
-catkin_ws/src/CMakeLists.txt
-catkin_ws/.catkin_workspace
-catkin_ws/build/
-catkin_ws/devel/
-catkin_ws/install/
+ros/catkin_ws/src/CMakeLists.txt
+ros/catkin_ws/.catkin_workspace
+ros/catkin_ws/build/
+ros/catkin_ws/devel/
+ros/catkin_ws/install/
 
 # 'rosbag' files:
 *.bag

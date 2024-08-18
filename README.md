@@ -157,7 +157,7 @@ Enter a virtual instance of the Docker image (= Docker container) on the develop
      ```
 
      This function calls several scripts to download the required datasets and build the ROS environment (= Catkin workspace) inside the Docker container.
-     It will remove any existing Catkin workspace and build a new one inside `/root/SDE/catkin_ws/`.
+     It will remove any existing Catkin workspace and build a new one inside `/root/SDE/ros/catkin_ws/`.
      It will also automatically source the newly built ROS environment.
 4.   From there, you have everything ready to start using the SDE to develop new features.
 3.   Use `Ctrl+d` to exit the container at any time.
