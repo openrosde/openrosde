@@ -112,8 +112,8 @@ RUN pip3 install --upgrade pip
 
 # Install common Python 3 packages/tools.
 # RUN pip3 install \
-#   TODO==0.0.0 \
-#   TODO==0.0.0
+#   TODO \
+#   TODO
 
 ################################################################################
 

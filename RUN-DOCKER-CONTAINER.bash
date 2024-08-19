@@ -26,9 +26,9 @@ echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
 # Run the Docker container in the background.
 # Any changes made to './docker/docker-compose*.yml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml -f ./docker/docker-compose-gpu.yml up -d
+  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-gpu.yaml up -d
 else
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml up -d
+  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml up -d
 fi
 
 ################################################################################

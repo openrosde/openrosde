@@ -33,7 +33,7 @@ fi
 
 ################################################################################
 
-# Inject the 'Dockerfile' commit hash into the Docker container implicitly via a build argument in 'docker-compose.yml'.
+# Inject the 'Dockerfile' commit hash into the Docker container implicitly via a build argument in 'docker-compose.yaml'.
 export DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/sde-devel/Dockerfile)"
 
 ################################################################################
@@ -45,10 +45,10 @@ docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coaro
 # If the script runs in CI mode, build the image directly.
 # Otherwise, try to pull it from the registry. If it fails, build locally.
 if [[ "$DOCKER_PROJECT" == "gitlab-ci" ]]; then
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml build # --no-cache
+  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml build # --no-cache
 else
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml pull
+  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull
   if [[ "$?" -ne "0" ]]; then
-    docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yml build
+    docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml build
   fi
 fi

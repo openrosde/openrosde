@@ -62,7 +62,7 @@ Follow this step-by-step guide to perform the initial setup of the SDE on a deve
   For example, the [FlexBE App](https://github.com/FlexBE/flexbe_app) may appear partially broken due to [OpenGL](https://www.opengl.org/) errors.
 
 > **Note:**
-  Virtual machines are only partially supported: 3D accelerated tools such will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
+  Virtual machines are only partially supported: 3D accelerated tools will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
 
 > **Note:**
   Although this initial setup is meant to be performed only once, you can run it again would you want to reset the development environment as the project evolves.
@@ -152,7 +152,7 @@ Enter a virtual instance of the Docker image (= Docker container) on the develop
      cd ~/SDE/ && bash ./RUN-DOCKER-CONTAINER.bash #[docker-project] #[ros-launch]
      ```
 
-     This script creates or updates the container following the instructions found in `~/SDE/docker/docker-compose.yml`.
+     This script creates or updates the container following the instructions found in `~/SDE/docker/docker-compose.yaml`.
      It allows the container to share system resources, such as volumes and devices, with the development machine.
 2.   Configure the freshly built Docker container by executing the following Bash function inside it:
 
@@ -167,16 +167,16 @@ Enter a virtual instance of the Docker image (= Docker container) on the develop
 3.   Use `Ctrl+d` to exit the container at any time.
 
 > **Note:**
-  If Nvidia drivers are present in the development machine, the script `RUN-DOCKER-CONTAINER.bash` will run `docker-compose-gpu.yml` alongside `docker-compose-gpu.yml` to mount the GPUs into the Docker container via Nvidia Container Toolkit.
+  If Nvidia drivers are present in the development machine, the script `RUN-DOCKER-CONTAINER.bash` will run `docker-compose-gpu.yaml` alongside `docker-compose-gpu.yaml` to mount the GPUs into the Docker container via Nvidia Container Toolkit.
   If not the case, most 3D accelerated tools, including the Gazebo simulator, will be extremely slow to run.
 
 > **Note:**
-  The script `RUN-DOCKER-CONTAINER.bash` will try to resolve host name `turtlebot3-01.local` of the TurtleBot3 robot and add its IP address to `/etc/hosts`.
-  You can confirm the result with `ping turtlebot3-01.local` from inside the container.
-  Note that you can ignore the errors if you do not plan to use the TurtleBot3 robot at that time.
+  The script `RUN-DOCKER-CONTAINER.bash` will try to resolve host name `turtlebot3.local` of the TurtleBot3 (Waffle Pi) robot and add its IP address to `/etc/hosts`.
+  You can confirm the result with `ping turtlebot3.local` from inside the container.
+  Note that you can ignore the errors if you do not plan to use the TurtleBot3 (Waffle Pi) robot at that time.
 
 > **Note:**
-  Be careful if you need to modify `docker-compose.yml` or `docker-compose-gpu.yml` as the container will be recreated from scratch the next time you run `RUN-DOCKER-CONTAINER.bash`.
+  Be careful if you need to modify `docker-compose.yaml` or `docker-compose-gpu.yaml` as the container will be recreated from scratch the next time you run `RUN-DOCKER-CONTAINER.bash`.
 
 > **Note:**
   Note that the Bash function `sde-get-fully-started` should be used only once after instantiating a new container from the Docker image.
@@ -229,10 +229,10 @@ They can be found on the development machine at:
 
 *   `~/SDE/docker/sde-devel/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the image of the shared development environment.
     It mainly describes the installations of the project tools/dependencies required inside the container.
-*   `~/SDE/docker/docker-compose.yml`: Describes the interface between the development machine and the container.
+*   `~/SDE/docker/docker-compose.yaml`: Describes the interface between the development machine and the container.
     It includes external information from outside the container, such as device host names or network configuration.
     It is invoked when the container is (re)started, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
-*   `~/SDE/docker/sde-devel/scripts/initialize-docker-container.bash`: A startup script referenced in `docker-compose.yml` and thus also invoked when (re)starting the container, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
+*   `~/SDE/docker/sde-devel/scripts/initialize-docker-container.bash`: A startup script referenced in `docker-compose.yaml` and thus also invoked when (re)starting the container, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
     It executes the internal commands needed at the startup of the container (for example, to maintain the container running in the background).
 *   `~/SDE/docker/sde-devel/scripts/initialize-bash-shell.bash`: A shell script appended to `/root/.bashrc` at the end of the `Dockerfile` to set up the Bash shell environment inside the container (terminal colors, shell functions, symbolic links, binary paths, environment sourcing, etc.).
     Theoretically, its content could be written directly in the `Dockerfile`, but this would result in complex lines of code as helpful Bash syntaxes like here-documents are not supported by Docker.
