@@ -12,18 +12,6 @@ alias sh='/bin/bash'
 
 ################################################################################
 
-# Configure the terminal.
-
-# Disable flow control. If enabled, inputting 'ctrl+s' locks the terminal until inputting 'ctrl+q'.
-stty -ixon
-
-################################################################################
-
-# Configure 'umask' for giving read/write/execute permission to group members.
-umask 0002
-
-################################################################################
-
 # Display the Docker container version.
 
 # TODO: If switched from Dockerfile-sensitive generation to folder-sensitive generation,
