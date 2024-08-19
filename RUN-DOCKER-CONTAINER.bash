@@ -23,6 +23,14 @@ echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
 
 ################################################################################
 
+# Export current user and group IDs to 'docker-compose.yaml'.
+USER_ID="$(id -u)"
+GROUP_ID="$(id -g)"
+export USER_ID
+export GROUP_ID
+
+################################################################################
+
 # Run the Docker container in the background.
 # Any changes made to './docker/docker-compose*.yml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then
