@@ -47,16 +47,16 @@ export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/root/SDE/ros/catkin_ws/src/
 function sde-build-catkin-workspace () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
   source /root/SDE/docker/sde-devel/scripts/build-catkin-workspace.bash
+  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-reset-catkin-workspace () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
   source /root/SDE/docker/sde-devel/scripts/reset-catkin-workspace.bash
+  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
   popd
 }
 
@@ -70,17 +70,17 @@ function sde-fix-permission-issues () {
 function sde-download-model-data () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
   source /root/SDE/docker/sde-devel/scripts/download-model-data.bash
+  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-get-fully-started () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
   source /root/SDE/docker/sde-devel/scripts/download-model-data.bash
   source /root/SDE/docker/sde-devel/scripts/reset-catkin-workspace.bash
+  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
   popd
 }
 

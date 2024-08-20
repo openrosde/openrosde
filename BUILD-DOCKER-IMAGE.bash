@@ -39,7 +39,7 @@ export DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/s
 ################################################################################
 
 # Ask the user credentials to login into the GitLab Docker registry.
-echo "Login into 'registry.gitlab.com'. Enter your GitLab credentials below:"
+echo "Login into 'registry.gitlab.com' using a deploy token."
 docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
 
 # If the script runs in CI mode, build the image directly.
