@@ -36,7 +36,6 @@ EOF
   else
     continue;
   fi;
-  echo "ROS_MASTER_URI: ${ROS_MASTER_URI}";
   roslaunch sde_launch ${LAUNCH_FILE};
   echo "" # Display an empty line.
 done

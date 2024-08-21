@@ -12,6 +12,13 @@ alias sh='/bin/bash'
 
 ################################################################################
 
+# Configure the terminal.
+
+# Disable flow control to prevent accidentally locking the terminal with 'Ctrl+s' (until it is unlocked with 'Ctrl+q').
+stty -ixon
+
+################################################################################
+
 # Display the Docker container version.
 
 # TODO: If switched from Dockerfile-sensitive generation to folder-sensitive generation,
