@@ -160,8 +160,8 @@ RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' /root/.bashrc
 ARG DOCKERFILE_COMMIT_SHORT_SHA
 ENV DOCKER_IMAGE_VERSION=${DOCKERFILE_COMMIT_SHORT_SHA}
 
-# Add the '/root/SDE/' directory to the safe Git repository list.
-RUN git config --global --add safe.directory /root/SDE/
+# Add the '/root/SDE/' directory to the safe Git repository list (no trailing '/' here).
+RUN git config --global --add safe.directory /root/SDE
 
 # Overwrite the entry point of the parent image.
 ENTRYPOINT []

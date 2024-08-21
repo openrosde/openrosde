@@ -12,4 +12,4 @@ echo "No additional data requires download at the moment."
 # SERVER_USER="TODO"
 # SERVER_PASSWORD="TODO"
 # mkdir -p /root/SDE/ros/catkin_ws/src/package/data/download/
-# wget --http-user=${SERVER_USER} --http-password=${SERVER_PASSWORD} ${SERVER_DOMAIN}/path/data.ext -N -P /root/SDE/ros/catkin_ws/src/package/data/download
+# wget --http-user=${SERVER_USER} --http-password=${SERVER_PASSWORD} ${SERVER_DOMAIN}/path/data.ext -N -P /root/SDE/ros/catkin_ws/src/package/data/download # No trailing '/' here.
