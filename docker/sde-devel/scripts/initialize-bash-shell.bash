@@ -128,13 +128,14 @@ fi
 
 export ROS_HOME=~/.ros
 
+# Set the ROS master network location.
 PS1_DEFAULT="${PS1}"
 export local_mode='export ROS_MASTER_URI=http://localhost:11311; echo "Setting local ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[44;1;37m\]<local>\[\e[0m\] ${PS1_DEFAULT}"'
 export remote_mode='export ROS_MASTER_URI=http://${ROBOT_HOSTNAME}:11311; echo "Setting remote ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[41;1;37m\]<remote>\[\e[0m\] ${PS1_DEFAULT}"'
-
 alias local_mode="${local_mode}"
 alias remote_mode="${remote_mode}"
 
+# Set the default ROS network mode.
 eval ${local_mode}
 
 ################################################################################
