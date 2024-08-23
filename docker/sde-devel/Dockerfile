@@ -128,6 +128,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   git \
+  iproute2 \
   iputils-ping \
   mesa-utils \
   nano \
