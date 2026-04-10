@@ -7,7 +7,7 @@ apt-get update
 
 # Install system dependencies required by specific ROS packages.
 # http://wiki.ros.org/rosdep
-rosdep update
+rosdep update --include-eol-distros
 
 ################################################################################
 

@@ -34,6 +34,9 @@ fi
 
 ################################################################################
 
+# Disable ROS end-of-life warning messages.
+export DISABLE_ROS1_EOL_WARNINGS=1
+
 # Source the ROS distribution.
 echo "Sourcing the ROS distribution from '/opt/ros/noetic/setup.bash'."
 source /opt/ros/noetic/setup.bash
