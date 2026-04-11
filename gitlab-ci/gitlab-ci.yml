@@ -50,7 +50,7 @@ after_script:
 
 ################################################################################
 
-# Build the Catkin workspace inside a Docker container instance of the 'sde-devel' image.
+# Build the Catkin workspace inside a Docker container instance of the 'sde-base' image.
 
 build-catkin-workspace-job:
   stage: build-stage
@@ -60,7 +60,7 @@ build-catkin-workspace-job:
     - docker run
       -e CI=${CI}
       -v ${MOUNT_POINT}/:/root/SDE/
-      ${CI_REGISTRY_IMAGE}/sde-devel:latest /root/SDE/docker/sde-devel/scripts/reset-catkin-workspace.bash
+      ${CI_REGISTRY_IMAGE}/sde-base:latest /root/SDE/docker/sde-base/scripts/reset-catkin-workspace.bash
   # Save the build result to pass it to the next jobs.
   artifacts:
     name: ${CI_COMMIT_SHA}
@@ -77,7 +77,7 @@ build-catkin-workspace-job:
 
 ################################################################################
 
-# Run unit tests inside Docker container instances of the 'sde-devel' image.
+# Run unit tests inside Docker container instances of the 'sde-base' image.
 
 run-unit-test1-job:
   stage: test-stage
@@ -92,7 +92,7 @@ run-unit-test2-job:
 
 ################################################################################
 
-# Deploy results of the unit tests inside a Docker container instance of the 'sde-devel' image.
+# Deploy results of the unit tests inside a Docker container instance of the 'sde-base' image.
 
 deploy-test-results-job:
   stage: deploy-stage

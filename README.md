@@ -132,7 +132,7 @@ Create a virtual environment using Docker (= Docker image) on the development ma
      cd ~/SDE/ && bash ./BUILD-DOCKER-IMAGE.bash #[docker-project]
      ```
 
-     This script builds the image following the instructions found in `~/SDE/docker/sde-devel/Dockerfile`.
+     This script builds the image following the instructions found in `~/SDE/docker/sde-base/Dockerfile`.
      Enter your GitLab developer credentials if prompted.
 
 > **Note:**
@@ -200,7 +200,7 @@ Including, but not limited to:
 *   `sde-kill-ros-nodes`: Kill all ROS nodes as well as [`roscore`](https://wiki.ros.org/roscore) and [`rosmaster`](https://wiki.ros.org/rosmaster) still running in the Docker container.
 
 > **Note:**
-  These Bash functions are based on helper scripts that can be found in `/root/SDE/docker/sde-devel/scripts/` in the Docker container or in `~/SDE/docker/sde-devel/scripts/` in the development machine.
+  These Bash functions are based on helper scripts that can be found in `/root/SDE/docker/sde-base/scripts/` in the Docker container or in `~/SDE/docker/sde-base/scripts/` in the development machine.
   You can see their definitions in `~/.bashrc` inside the container.
 
 > **Note:**
@@ -227,14 +227,14 @@ A cascade of scripts performs the initialization of the Docker container.
 Although the boundaries between them can sometimes be blurry, each one has a specific function, and future implementations/revisions should keep these functions separated as much as possible.
 They can be found on the development machine at:
 
-*   `~/SDE/docker/sde-devel/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the image of the shared development environment.
+*   `~/SDE/docker/sde-base/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the image of the shared development environment.
     It mainly describes the installations of the project tools/dependencies required inside the container.
 *   `~/SDE/docker/docker-compose.yaml`: Describes the interface between the development machine and the container.
     It includes external information from outside the container, such as device host names or network configuration.
     It is invoked when the container is (re)started, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
-*   `~/SDE/docker/sde-devel/scripts/initialize-docker-container.bash`: A startup script referenced in `docker-compose.yaml` and thus also invoked when (re)starting the container, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
+*   `~/SDE/docker/sde-base/scripts/initialize-docker-container.bash`: A startup script referenced in `docker-compose.yaml` and thus also invoked when (re)starting the container, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
     It executes the internal commands needed at the startup of the container (for example, to maintain the container running in the background).
-*   `~/SDE/docker/sde-devel/scripts/initialize-bash-shell.bash`: A shell script appended to `/root/.bashrc` at the end of the `Dockerfile` to set up the Bash shell environment inside the container (terminal colors, shell functions, symbolic links, binary paths, environment sourcing, etc.).
+*   `~/SDE/docker/sde-base/scripts/initialize-bash-shell.bash`: A shell script appended to `/root/.bashrc` at the end of the `Dockerfile` to set up the Bash shell environment inside the container (terminal colors, shell functions, symbolic links, binary paths, environment sourcing, etc.).
     Theoretically, its content could be written directly in the `Dockerfile`, but this would result in complex lines of code as helpful Bash syntaxes like here-documents are not supported by Docker.
     It is automatically sourced by `/root/.bashrc` every time the user enters the Bash shell inside the container, most likely every time `RUN-DOCKER-CONTAINER.bash` is run.
 

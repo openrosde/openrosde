@@ -44,4 +44,4 @@ done
 ################################################################################
 
 # Build both workspaces.
-source /root/SDE/docker/sde-devel/scripts/build-catkin-workspace.bash
+source /root/SDE/docker/sde-base/scripts/build-catkin-workspace.bash

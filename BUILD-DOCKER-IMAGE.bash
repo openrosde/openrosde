@@ -61,13 +61,15 @@ docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coaro
 # Build the base image first, then the platform image.
 # If the script runs in CI mode, build the images directly.
 # Otherwise, try to pull them from the registry. If it fails, build locally.
+SDE_BASE_IMAGE="registry.gitlab.com/coarobo/sde/sde-base:latest"
+
 if [[ "$SDE_DOCKER_PROJECT" == "gitlab-ci" ]]; then
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
+  docker build -t ${SDE_BASE_IMAGE} --build-arg SDE_DOCKERFILE_COMMIT_SHORT_SHA -f ./docker/sde-base/Dockerfile .
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde # --no-cache
 else
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde-base
+  docker pull ${SDE_BASE_IMAGE}
   if [[ "$?" -ne "0" ]]; then
-    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
+    docker build -t ${SDE_BASE_IMAGE} --build-arg SDE_DOCKERFILE_COMMIT_SHORT_SHA -f ./docker/sde-base/Dockerfile .
   fi
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde
   if [[ "$?" -ne "0" ]]; then

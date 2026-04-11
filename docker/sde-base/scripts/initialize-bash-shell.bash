@@ -77,54 +77,54 @@ export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_P
 function sde-build-catkin-workspace () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/build-catkin-workspace.bash
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
+  source /root/SDE/docker/sde-base/scripts/build-catkin-workspace.bash
+  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-reset-catkin-workspace () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/reset-catkin-workspace.bash
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
+  source /root/SDE/docker/sde-base/scripts/reset-catkin-workspace.bash
+  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-fix-permission-issues () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
+  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-download-model-data () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/download-model-data.bash
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
+  source /root/SDE/docker/sde-base/scripts/download-model-data.bash
+  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-get-fully-started () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/download-model-data.bash
-  source /root/SDE/docker/sde-devel/scripts/reset-catkin-workspace.bash
-  source /root/SDE/docker/sde-devel/scripts/fix-permission-issues.bash
+  source /root/SDE/docker/sde-base/scripts/download-model-data.bash
+  source /root/SDE/docker/sde-base/scripts/reset-catkin-workspace.bash
+  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-cleanup-output-data () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/cleanup-output-data.bash
+  source /root/SDE/docker/sde-base/scripts/cleanup-output-data.bash
   popd
 }
 
 function sde-kill-ros-nodes () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-devel/scripts/kill-ros-nodes.bash
+  source /root/SDE/docker/sde-base/scripts/kill-ros-nodes.bash
   popd
 }
 
@@ -147,7 +147,7 @@ else
   else
     # If the ROS master host name is found, set the local 'ROS_IP' using the network interface that connects to the ROS master.
     # TODO: Use Bash instead of Python.
-    export ROS_IP=`python3 /root/SDE/docker/sde-devel/scripts/print-interface-ip.py ${SDE_ROS_MASTER_IP}`
+    export ROS_IP=`python3 /root/SDE/docker/sde-base/scripts/print-interface-ip.py ${SDE_ROS_MASTER_IP}`
   fi
   if [ -z "${ROS_IP}" ]; then
     # If the local 'ROS_IP' is still empty, default to the Docker network interface ('docker0') for sanity.

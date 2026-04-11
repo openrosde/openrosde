@@ -3,21 +3,10 @@
 ################################################################################
 
 services:
-  sde-base:
-    image: registry.gitlab.com/coarobo/sde/sde-devel:latest
-    build:
-      context: ../
-      dockerfile: ./docker/sde-devel/Dockerfile
-      args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA
-
   sde:
     hostname: sde-${SDE_PLATFORM:-turtlebot3}
     container_name: sde_${SDE_PLATFORM:-turtlebot3}_${SDE_DOCKER_PROJECT:-user}-1
     privileged: true
-    depends_on:
-      sde-base:
-        condition: service_started
     environment:
       # Pass current user and group IDs.
       - USER_ID=${USER_ID:-1000}
@@ -36,7 +25,7 @@ services:
       args:
         - SDE_DOCKERFILE_COMMIT_SHORT_SHA
         - SDE_PLATFORM=${SDE_PLATFORM:-turtlebot3}
-        - BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-devel:latest
+        - BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
     volumes:
       # Map repository root for convenient access.
       - ../:/root/SDE/
@@ -49,4 +38,4 @@ services:
     network_mode: host
     ipc: host
     pid: host
-    command: /root/SDE/docker/sde-devel/scripts/initialize-docker-container.bash
+    command: /root/SDE/docker/sde-base/scripts/initialize-docker-container.bash
