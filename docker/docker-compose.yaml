@@ -3,29 +3,36 @@
 ################################################################################
 
 services:
+  sde-base:
+    image: registry.gitlab.com/coarobo/sde/sde-base:latest
+    build:
+      context: ../
+      dockerfile: ./docker/sde-base/Dockerfile
+      args:
+        - SDE_DOCKERFILE_COMMIT_SHORT_SHA
+
   sde:
-    hostname: sde-${SDE_PLATFORM:-turtlebot3}
-    container_name: sde_${SDE_PLATFORM:-turtlebot3}_${SDE_DOCKER_PROJECT:-user}-1
+    hostname: sde-${SDE_PLATFORM}
+    container_name: sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1
     privileged: true
     environment:
       # Pass current user and group IDs.
-      - USER_ID=${USER_ID:-1000}
-      - GROUP_ID=${GROUP_ID:-1000}
+      - USER_ID=${USER_ID}
+      - GROUP_ID=${GROUP_ID}
       # Display X Server GUIs.
-      - DISPLAY=${DISPLAY:-:1}
+      - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
       # Configure the PulseAudio interface.
       - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
       # Pass the platform identifier to the container.
-      - SDE_PLATFORM=${SDE_PLATFORM:-turtlebot3}
-    image: registry.gitlab.com/coarobo/sde/${SDE_PLATFORM:-turtlebot3}-devel:latest
+      - SDE_PLATFORM=${SDE_PLATFORM}
+    image: registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:latest
     build:
       context: ../
-      dockerfile: ./docker/${SDE_PLATFORM:-turtlebot3}-devel/Dockerfile
+      dockerfile: ./docker/${SDE_PLATFORM}-devel/Dockerfile
       args:
         - SDE_DOCKERFILE_COMMIT_SHORT_SHA
-        - SDE_PLATFORM=${SDE_PLATFORM:-turtlebot3}
-        - BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
+        - SDE_PLATFORM=${SDE_PLATFORM}
     volumes:
       # Map repository root for convenient access.
       - ../:/root/SDE/

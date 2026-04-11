@@ -3,16 +3,6 @@
 
 ################################################################################
 
-# This is the base Docker image shared by all platform-specific images
-# (e.g. turtlebot3-devel, ur5e-devel). It provides:
-# - CUDA/cuDNN runtime
-# - ROS Noetic (desktop-full)
-# - FlexBE App dependencies
-# - Common Python 3 and Ubuntu tools
-# - Bash shell environment setup
-
-################################################################################
-
 # Pull the Ubuntu 20.04 (Focal Fossa) parent Docker image with CUDA/cuDNN support from the official Nvidia registry.
 # https://hub.docker.com/r/nvidia/cuda/
 FROM nvidia/cuda:11.2.2-cudnn8-devel-ubuntu20.04
@@ -29,6 +19,24 @@ RUN echo ${TIMEZONE} > /etc/timezone \
 RUN apt-get update && apt-get install -y --no-install-recommends \
   tzdata \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+################################################################################
+
+# Set up Python 3 with Setuptools for ROS-based development.
+
+# Gather the Python 3 tools from the Ubuntu repositories.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  python3-pip  \
+  python3-setuptools \
+  && rm -rf /var/lib/apt/lists/*
+
+# Upgrade Python Pip.
+RUN pip3 install --upgrade pip
+
+# Redirect 'python' shebangs to 'python3' for compatibility with older ROS packages.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  python-is-python3 \
+  && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 
@@ -62,7 +70,7 @@ RUN rosdep init
 # Install the FlexBE App dependencies.
 # https://github.com/FlexBE/flexbe_app
 
-# Gather the dependencies from the Ubuntu repositories.
+# Gather the FlexBE App dependencies from the Ubuntu repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   libxtst-dev \
   libcanberra-gtk3-module \
@@ -71,33 +79,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ################################################################################
 
-# Install common Python 3 packages/tools.
-
-# Gather the Python 3 dependencies from the Ubuntu repositories.
+# Install miscellaneous ROS packages/tools.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  python3-pip  \
-  python3-setuptools \
-  && rm -rf /var/lib/apt/lists/*
-
-# Upgrade Python Pip.
-RUN pip3 install --upgrade pip
-
-# Install common Python 3 packages/tools.
-# RUN pip3 install \
-#   TODO \
-#   TODO
-
-################################################################################
-
-# Redirect 'python' shebangs to 'python3' for compatibility with older ROS packages.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  python-is-python3 \
+  ros-noetic-moveit \
+  ros-noetic-moveit-servo \
+  ros-noetic-rosbridge-suite \
   && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 
-# Install common Ubuntu packages/tools.
-
+# Install miscellaneous Ubuntu packages/tools.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   git \
   iproute2 \
@@ -110,6 +101,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   wget \
   x11-apps \
   && rm -rf /var/lib/apt/lists/*
+
+################################################################################
+
+# Install miscellaneous Python 3 packages/tools.
+# RUN pip3 install \
+#   TODO \
+#   TODO
 
 ################################################################################
 

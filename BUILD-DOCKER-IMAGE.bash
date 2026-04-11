@@ -18,9 +18,6 @@ if [ -f ./.env.custom ]; then
   source ./.env.custom
 fi
 
-export SDE_PLATFORM
-echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
-
 ################################################################################
 
 # Set the Docker container name from the [docker-project] argument.
@@ -30,8 +27,13 @@ if [ -z "${SDE_DOCKER_PROJECT}" ]; then
   SDE_DOCKER_PROJECT=${USER}
 fi
 SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
-echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
-echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
+
+################################################################################
+
+# Export variables so that they can be interpolated in 'docker-compose.yaml'.
+export SDE_PLATFORM
+export SDE_DOCKER_PROJECT
+export SDE_DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
 
 ################################################################################
 
@@ -46,30 +48,21 @@ fi
 
 ################################################################################
 
-# Inject the 'Dockerfile' commit hash into the Docker container implicitly via a build argument in 'docker-compose.yaml'.
-export SDE_DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
-
-# Export SDE_DOCKER_PROJECT so that it can be interpolated in 'docker-compose.yaml' for the container name.
-export SDE_DOCKER_PROJECT
-
-################################################################################
-
 # Ask the user credentials to login into the GitLab Docker registry.
 echo "Login into 'registry.gitlab.com' using a deploy token."
 docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
 
-# Build the base image first, then the platform image.
-# If the script runs in CI mode, build the images directly.
-# Otherwise, try to pull them from the registry. If it fails, build locally.
-SDE_BASE_IMAGE="registry.gitlab.com/coarobo/sde/sde-base:latest"
+# Build the SDE base image first, then the platform-specific image.
+# If the script runs in CI mode, build the images from scratch without cached data.
+# Otherwise, try to pull them from the registry, and if it fails, build locally using cached data.
 
 if [[ "$SDE_DOCKER_PROJECT" == "gitlab-ci" ]]; then
-  docker build -t ${SDE_BASE_IMAGE} --build-arg SDE_DOCKERFILE_COMMIT_SHORT_SHA -f ./docker/sde-base/Dockerfile .
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde # --no-cache
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde --no-cache
 else
-  docker pull ${SDE_BASE_IMAGE}
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde-base
   if [[ "$?" -ne "0" ]]; then
-    docker build -t ${SDE_BASE_IMAGE} --build-arg SDE_DOCKERFILE_COMMIT_SHORT_SHA -f ./docker/sde-base/Dockerfile .
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
   fi
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde
   if [[ "$?" -ne "0" ]]; then

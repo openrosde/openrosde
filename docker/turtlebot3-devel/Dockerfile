@@ -5,15 +5,15 @@
 
 # Inherit from the SDE base image which provides CUDA, ROS Noetic, FlexBE,
 # common tools, and the Bash shell environment.
-ARG BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
-FROM ${BASE_IMAGE}
+ARG SDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
+FROM ${SDE_BASE_IMAGE}
 
 ################################################################################
 
-# Install the TurtleBot3 ROS dependencies.
+# Install the TurtleBot3 robot ROS dependencies.
 # https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#pc-setup
 
-# Gather the TurtleBot3 dependencies from the ROS repositories.
+# Gather the TurtleBot3 robot dependencies from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-joy \
   ros-noetic-teleop-twist-joy \
@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-multirobot-map-merge \
   && rm -rf /var/lib/apt/lists/*
 
-# Gather the TurtleBot3 packages from the ROS repositories.
+# Gather the TurtleBot3 robot packages from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-dynamixel-sdk \
   ros-noetic-turtlebot3 \

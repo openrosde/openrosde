@@ -5,13 +5,14 @@
 
 # Inherit from the SDE base image which provides CUDA, ROS Noetic, FlexBE,
 # common tools, and the Bash shell environment.
-ARG BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
-FROM ${BASE_IMAGE}
+ARG SDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
+FROM ${SDE_BASE_IMAGE}
 
 ################################################################################
 
-# Install the ROS dependencies of Universal Robots UR5e robot.
+# Install the Universal Robots UR5e robot ROS dependencies.
 
+# Gather the UR5e robot driver packages and dependencies from the ROS repositories.
 # https://github.com/UniversalRobots/Universal_Robots_ROS_Driver
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-ur-robot-driver \
@@ -19,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-rqt-joint-trajectory-controller \
   && rm -rf /var/lib/apt/lists/*
 
+# Gather the UR5e simulation model packages from the ROS repositories.
 # https://github.com/ros-industrial/universal_robot
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-universal-robots \
@@ -26,10 +28,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ################################################################################
 
-# Install dependencies for Intel RealSense cameras.
+# Install the OnRobot RG2/RG6/VG10/VGC10 grippers ROS dependencies.
+# https://github.com/UOsaka-Harada-Laboratory/onrobot
+
+# Gather the OnRobot packages dependencies from the ROS repositories.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  ros-noetic-ros-control \
+  ros-noetic-ros-controllers \
+  && rm -rf /var/lib/apt/lists/*
+
+# Gather the OnRobot packages dependencies from the Python 3 repositories.
+RUN pip3 install \
+  pymodbus==2.5.3
+
+################################################################################
+
+# Install the Intel RealSense cameras ROS dependencies.
 # https://github.com/IntelRealSense/realsense-ros
 
-# Gather dependencies from the Ubuntu repositories.
+# Gather the RealSense cameras packages from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-realsense2-camera \
   ros-noetic-realsense2-description \
@@ -37,44 +54,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ################################################################################
 
-# Install dependencies for OnRobot RG2/RG6/VG10/VGC10 grippers.
-# https://github.com/UOsaka-Harada-Laboratory/onrobot
-
-# Gather dependencies from the Ubuntu repositories.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  ros-noetic-ros-control \
-  ros-noetic-ros-controllers \
-  && rm -rf /var/lib/apt/lists/*
-
-# Gather dependencies from the Python 3 repositories.
-RUN pip3 install \
-  pymodbus==2.5.3
-
-################################################################################
-
-# Install dependencies for 3Dconnexion SpaceMouse controllers.
+# Install the 3Dconnexion SpaceNavigator/SpaceMouse controllers ROS dependencies.
 # https://wiki.ros.org/spacenav_node
 
-# Gather dependencies from the Ubuntu repositories.
+# Gather the SpaceNavigator/SpaceMouse packages dependencies from the Ubuntu repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   spacenavd \
+  && rm -rf /var/lib/apt/lists/*
+
+# Gather the SpaceNavigator/SpaceMouse packages dependencies from the ROS repositories.
+RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-spacenav-node \
-  && rm -rf /var/lib/apt/lists/*
-
-################################################################################
-
-# Install miscellaneous ROS dependencies (incl. MoveIt and Rosbridge).
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  ros-noetic-moveit \
-  ros-noetic-moveit-servo \
-  ros-noetic-rosbridge-suite \
-  && rm -rf /var/lib/apt/lists/*
-
-################################################################################
-
-# Install common optional packages/tools.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  python3-tk \
   && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
