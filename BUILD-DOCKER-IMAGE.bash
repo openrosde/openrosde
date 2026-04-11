@@ -10,6 +10,19 @@
 
 ################################################################################
 
+# Load the default environment variables from the '.env' file:
+source ./.env
+
+# Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
+if [ -f ./.env.custom ]; then
+  source ./.env.custom
+fi
+
+export SDE_PLATFORM
+echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
+
+################################################################################
+
 # Set the Docker container name from the [docker-project] argument.
 # If no [docker-project] is given, use the current user name as the Docker project name.
 DOCKER_PROJECT=$1
@@ -34,7 +47,7 @@ fi
 ################################################################################
 
 # Inject the 'Dockerfile' commit hash into the Docker container implicitly via a build argument in 'docker-compose.yaml'.
-export DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/sde-devel/Dockerfile)"
+export DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
 
 ################################################################################
 

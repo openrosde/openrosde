@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+    <!-- https://github.com/UniversalRobots/Universal_Robots_ROS_Driver -->
+
+    <arg name="robot_ip" default="192.168.1.200" />
+    <arg name="kinematics_config" default="$(find sde_ur5e_launch)/config/ur5e/robot_calibration_snXXXXXXXXXXX.yaml" />
+    <arg name="headless_mode" default="true" />
+
+    <include file="$(find ur_robot_driver)/launch/ur5e_bringup.launch">
+        <arg name="robot_ip" default="$(arg robot_ip)" />
+        <arg name="kinematics_config" default="$(arg kinematics_config)" />
+        <arg name="headless_mode" default="$(arg headless_mode)" />
+    </include>
+
+</launch>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<arg name="controller_mode" default="trajectory" />
+	<arg name="require_enable_button" default="true" />
+	<arg name="reverse_for_front_view" default="true" />
+	<arg name="linear_x_scale" default="2.0" />
+	<arg name="linear_y_scale" default="2.0" />
+	<arg name="linear_z_scale" default="2.0" />
+	<arg name="angular_x_scale" default="4.0" />
+	<arg name="angular_y_scale" default="4.0" />
+	<arg name="angular_z_scale" default="4.0" />
+
+	<include file="$(find coarobo_teleop)/launch/ur5e_teleop.launch">
+		<arg name="controller_mode" value="$(arg controller_mode)" />
+		<arg name="require_enable_button" value="$(arg require_enable_button)" />
+		<arg name="reverse_for_front_view" value="$(arg reverse_for_front_view)" />
+		<arg name="linear_x_scale" value="$(arg linear_x_scale)" />
+		<arg name="linear_y_scale" value="$(arg linear_y_scale)" />
+		<arg name="linear_z_scale" value="$(arg linear_z_scale)" />
+		<arg name="angular_x_scale" value="$(arg angular_x_scale)" />
+		<arg name="angular_y_scale" value="$(arg angular_y_scale)" />
+		<arg name="angular_z_scale" value="$(arg angular_z_scale)" />
+	</include>
+
+</launch>

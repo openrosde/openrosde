@@ -36,7 +36,7 @@ EOF
   else
     continue;
   fi;
-  roslaunch sde_launch ${LAUNCH_FILE};
+  roslaunch ${SDE_LAUNCH_PACKAGE} ${LAUNCH_FILE};
   echo "" # Display an empty line.
 done
 

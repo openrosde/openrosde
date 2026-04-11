@@ -10,6 +10,18 @@
 
 ################################################################################
 
+# Load the default environment variables from the '.env' file:
+source ./.env
+
+# Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
+if [ -f ./.env.custom ]; then
+  source ./.env.custom
+fi
+
+echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
+
+################################################################################
+
 # Set the Docker container name from the [docker-project] argument.
 # If no [docker-project] is given, use the current user name as the Docker project name.
 DOCKER_PROJECT=$1
@@ -25,9 +37,9 @@ echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
 # Run Terminator with a custom configuration file and layout after injecting the required environment variables.
 sed "s/\${DOCKER_PROJECT}/${DOCKER_PROJECT}/g" ./terminator/config > ./terminator/config.tmp
 if [ -z "$2" ]; then
-  terminator --maximise --config ./terminator/config.tmp --layout sde-term-11-default-gazebo
+  terminator --maximise --config ./terminator/config.tmp --layout sde-${SDE_PLATFORM}-term-11-default-gazebo
 else
-  terminator --maximise --config ./terminator/config.tmp --layout sde-term-11-$2
+  terminator --maximise --config ./terminator/config.tmp --layout sde-${SDE_PLATFORM}-term-11-$2
 fi
 rm ./terminator/config.tmp
 sleep 1

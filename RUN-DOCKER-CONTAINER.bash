@@ -11,6 +11,19 @@
 
 ################################################################################
 
+# Load the default environment variables from the '.env' file:
+source ./.env
+
+# Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
+if [ -f ./.env.custom ]; then
+  source ./.env.custom
+fi
+
+export SDE_PLATFORM
+echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
+
+################################################################################
+
 # Set the Docker container name from the [docker-project] argument.
 # If no [docker-project] is given, use the current user name as the Docker project name.
 DOCKER_PROJECT=$1
@@ -43,24 +56,22 @@ fi
 
 # Configure the known host names with '/etc/hosts' in the Docker container.
 
-ROBOT_HOSTNAME=turtlebot3.local
-echo "Now resolving local host name '${ROBOT_HOSTNAME}'..."
-ROBOT_IP=`avahi-resolve -4 --name ${ROBOT_HOSTNAME} | cut -f 2`
-if [ "$?" != "0" ]; then
-  echo "Failed to execute 'avahi-resolve'. You may need to install 'avahi-utils'."
-  docker exec -i ${DOCKER_CONTAINER} bash <<EOF
-sed -i 's/REMOTE_HOSTNAME/${ROBOT_HOSTNAME}/' ~/.bashrc
-EOF
-elif [ ! -z "${ROBOT_IP}" ]; then
-  echo "Successfully resolved host name '${ROBOT_HOSTNAME}' as '${ROBOT_IP}': '/etc/hosts' in the container is automatically updated."
-  docker exec -i ${DOCKER_CONTAINER} bash <<EOF
-sed -i 's/REMOTE_HOSTNAME/${ROBOT_HOSTNAME}/' ~/.bashrc
+if [ -n "${ENV_ROBOT_HOSTNAME}" ]; then
+  ROBOT_HOSTNAME=${ENV_ROBOT_HOSTNAME}
+  echo "Now resolving local host name '${ROBOT_HOSTNAME}'..."
+  ROBOT_IP=`avahi-resolve -4 --name ${ROBOT_HOSTNAME} | cut -f 2`
+  if [ "$?" != "0" ]; then
+    echo "Failed to execute 'avahi-resolve'. You may need to install 'avahi-utils'."
+  elif [ ! -z "${ROBOT_IP}" ]; then
+    echo "Successfully resolved host name '${ROBOT_HOSTNAME}' as '${ROBOT_IP}': '/etc/hosts' in the container is automatically updated."
+    docker exec -i ${DOCKER_CONTAINER} bash <<EOF
 sed -n -e '/^[^#[:space:]]*[[:space:]]\+${ROBOT_HOSTNAME}\$/!p' /etc/hosts > /etc/hosts.tmp;
 echo '${ROBOT_IP} ${ROBOT_HOSTNAME}' >> /etc/hosts.tmp
 cp /etc/hosts.tmp /etc/hosts;
 EOF
-else
-  echo "Failed to resolve host name '${ROBOT_HOSTNAME}': '/etc/hosts' in the container was not automatically updated."
+  else
+    echo "Failed to resolve host name '${ROBOT_HOSTNAME}': '/etc/hosts' in the container was not automatically updated."
+  fi
 fi
 
 ################################################################################

@@ -2,6 +2,19 @@
 
 ################################################################################
 
+# Load the default environment variables from the '.env' file:
+source /root/SDE/.env
+
+# Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
+if [ -f /root/SDE/.env.custom ]; then
+  source /root/SDE/.env.custom
+fi
+
+# Derive the platform-specific catkin workspace path.
+SDE_CATKIN_WS="/root/SDE/ros/${SDE_PLATFORM}_catkin_ws"
+
+################################################################################
+
 # Clear the host shell when entering to the container shell for readability.
 clear
 
@@ -22,14 +35,14 @@ stty -ixon
 # Display the Docker container version.
 
 # TODO: If switched from Dockerfile-sensitive generation to folder-sensitive generation,
-# then show latest commit of the 'sde-devel' folder with 'git log -n 1 --format="%h %aN %s %ad" -- $directory'.
-DOCKERFILE_LATEST_HASH=$(git -C /root/SDE/ log -n 1 --no-merges --pretty=format:%h ./docker/sde-devel/Dockerfile)
-DOCKERFILE_LATEST_DATE=$(git -C /root/SDE/ log -n 1 --no-merges --pretty=format:%cd ./docker/sde-devel/Dockerfile)
+# then show latest commit of the platform-devel folder with 'git log -n 1 --format="%h %aN %s %ad" -- $directory'.
+DOCKERFILE_LATEST_HASH=$(git -C /root/SDE/ log -n 1 --no-merges --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)
+DOCKERFILE_LATEST_DATE=$(git -C /root/SDE/ log -n 1 --no-merges --pretty=format:%cd ./docker/${SDE_PLATFORM}-devel/Dockerfile)
 DOCKERFILE_CREATION_DATE=$(git -C /root/SDE/ show --no-patch --no-notes --pretty='%cd' ${DOCKER_IMAGE_VERSION})
 
-echo -e "Container version: sde-devel:${DOCKER_IMAGE_VERSION:0:7} from ${DOCKERFILE_CREATION_DATE}"
+echo -e "Container version: ${SDE_PLATFORM}-devel:${DOCKER_IMAGE_VERSION:0:7} from ${DOCKERFILE_CREATION_DATE}"
 if [[ "${DOCKERFILE_CREATION_DATE}" != "${DOCKERFILE_LATEST_DATE}" ]]; then
-  echo -e "Newer image available: sde-devel:${DOCKERFILE_LATEST_HASH} from ${DOCKERFILE_LATEST_DATE}"
+  echo -e "Newer image available: ${SDE_PLATFORM}-devel:${DOCKERFILE_LATEST_HASH} from ${DOCKERFILE_LATEST_DATE}"
 fi
 
 ################################################################################
@@ -42,13 +55,13 @@ echo "Sourcing the ROS distribution from '/opt/ros/noetic/setup.bash'."
 source /opt/ros/noetic/setup.bash
 
 # Source the Catkin workspace.
-echo "Sourcing the Catkin workspace from '/root/SDE/ros/catkin_ws/devel/setup.bash'."
-source /root/SDE/ros/catkin_ws/devel/setup.bash
+echo "Sourcing the Catkin workspace from '${SDE_CATKIN_WS}/devel/setup.bash'."
+source ${SDE_CATKIN_WS}/devel/setup.bash
 
 ################################################################################
 
 # Add the Catkin workspace to the 'ROS_PACKAGE_PATH'.
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/root/SDE/ros/catkin_ws/src/
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_CATKIN_WS}/src/
 
 ################################################################################
 
@@ -112,21 +125,27 @@ function sde-kill-ros-nodes () {
 
 # Set the ROS network interface.
 
-# Look for the robot host name inside the local network and resolve it to get its IP address.
-# The value of 'ROBOT_HOSTNAME' should be initialized in '~/.bashrc' by './RUN-DOCKER-CONTAINER.bash' when entering the container.
-ROBOT_IP=`getent hosts ${ROBOT_HOSTNAME} | cut -d ' ' -f 1`
+# Set the ROS master hostname from the '.env' configuration.
+export ROS_MASTER_HOSTNAME=${ENV_ROS_MASTER_HOSTNAME}
 
-if [ -z "${ROBOT_IP}" ]; then
-  # If no robot host name is found, set the local 'ROS_IP' using the default Docker network interface ('docker0').
-  export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+# Set 'ROS_IP' with 'ENV_ROS_CLIENT_IP' found in '.env.custom' (if not empty).
+if [ -n "${ENV_ROS_CLIENT_IP}" ]; then
+  export ROS_IP="${ENV_ROS_CLIENT_IP}"
 else
-  # If the robot host name is found, set the local 'ROS_IP' using the network interface that connects to the robot.
-  # TODO: Use Bash instead of Python.
-  export ROS_IP=`python3 /root/SDE/docker/sde-devel/scripts/print-interface-ip.py ${ROBOT_IP}`
-fi
-if [ -z "${ROS_IP}" ]; then
-  # If the local 'ROS_IP' is still empty, default to the Docker network interface ('docker0') for sanity.
-  export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+  # Look for the ROS master host name inside the local network and resolve it to get its IP address.
+  ROS_MASTER_IP=`getent hosts ${ROS_MASTER_HOSTNAME} | cut -d ' ' -f 1`
+  if [ -z "${ROS_MASTER_IP}" ]; then
+    # If no ROS master host name is found, set the local 'ROS_IP' using the default Docker network interface ('docker0').
+    export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+  else
+    # If the ROS master host name is found, set the local 'ROS_IP' using the network interface that connects to the ROS master.
+    # TODO: Use Bash instead of Python.
+    export ROS_IP=`python3 /root/SDE/docker/sde-devel/scripts/print-interface-ip.py ${ROS_MASTER_IP}`
+  fi
+  if [ -z "${ROS_IP}" ]; then
+    # If the local 'ROS_IP' is still empty, default to the Docker network interface ('docker0') for sanity.
+    export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+  fi
 fi
 
 export ROS_HOME=~/.ros
@@ -134,19 +153,34 @@ export ROS_HOME=~/.ros
 # Set the ROS master network location.
 PS1_DEFAULT="${PS1}"
 export local_mode='export ROS_MASTER_URI=http://localhost:11311; echo "Setting local ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[44;1;37m\]<local>\[\e[0m\] ${PS1_DEFAULT}"'
-export remote_mode='export ROS_MASTER_URI=http://${ROBOT_HOSTNAME}:11311; echo "Setting remote ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[41;1;37m\]<remote>\[\e[0m\] ${PS1_DEFAULT}"'
+export remote_mode='export ROS_MASTER_URI=http://${ROS_MASTER_HOSTNAME}:11311; echo "Setting remote ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[41;1;37m\]<remote>\[\e[0m\] ${PS1_DEFAULT}"'
 alias local_mode="${local_mode}"
 alias remote_mode="${remote_mode}"
 
-# Set the default ROS network mode.
-eval ${local_mode}
+# Set the default ROS network mode based on configuration.
+if [ "${ENV_ROS_MASTER_HOSTNAME}" = "localhost" ]; then
+  eval ${local_mode}
+else
+  eval ${remote_mode}
+fi
 
 ################################################################################
 
-# Select the TurtleBot3 model name.
-# https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#set-turtlebot3-model-name-1
+# Set platform-specific configuration.
 
-export TURTLEBOT3_MODEL=waffle_pi
+case "${SDE_PLATFORM}" in
+  turtlebot3)
+    # Select the TurtleBot3 model name.
+    # https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#set-turtlebot3-model-name-1
+    export TURTLEBOT3_MODEL=waffle_pi
+    SDE_LAUNCH_PACKAGE="${SDE_LAUNCH_PACKAGE:-sde_turtlebot3_launch}"
+    ;;
+  ur5e)
+    SDE_LAUNCH_PACKAGE="${SDE_LAUNCH_PACKAGE:-sde_ur5e_launch}"
+    ;;
+esac
+
+export SDE_LAUNCH_PACKAGE
 
 ################################################################################
 

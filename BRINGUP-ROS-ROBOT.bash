@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script connects by SSH to the TurtleBot3 robot and executes the commands to:
+# This script connects by SSH to the robot and executes the commands to:
 # 1. Kill all existing ROS processes inside the robot.
 # 2. Execute the launch files that bring up the robot.
 #
@@ -9,6 +9,18 @@
 # <rosmaster-hostname>: Host name or IP addess of the ROS master via 'ROS_MASTER_URI=http://<rosmaster-hostname>:11311'.
 # [docker-project]:     Used to name the Docker container and create multiple instances if needed.
 #                       Default value is '$USER'.
+
+################################################################################
+
+# Load the default environment variables from the '.env' file:
+source ./.env
+
+# Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
+if [ -f ./.env.custom ]; then
+  source ./.env.custom
+fi
+
+echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
 
 ################################################################################
 
@@ -38,7 +50,10 @@ EOF
 
 ################################################################################
 
-ssh -f -t -l pi turtlebot3.local 'bash -c "
+# Platform-specific robot bringup commands.
+case "${SDE_PLATFORM}" in
+  turtlebot3)
+    ssh -f -t -l pi turtlebot3.local 'bash -c "
 source /opt/ros/kinetic/setup.bash;
 source ~/catkin_ws/devel/setup.bash;
 export ROS_MASTER_URI=http://'$1':11311;
@@ -55,3 +70,11 @@ rosrun image_transport republish compressed in:=/raspicam_node/image image_trans
 sleep 5;
 echo "Done"
 "'
+    ;;
+  ur5e)
+    echo "UR5e robot bringup is not yet configured. Please start the robot manually."
+    ;;
+  *)
+    echo "Unknown platform '${SDE_PLATFORM}'. No bringup commands available."
+    ;;
+esac

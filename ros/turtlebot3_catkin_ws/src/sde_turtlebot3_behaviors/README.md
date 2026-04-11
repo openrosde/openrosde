@@ -1,6 +1,6 @@
-# sde_behaviors
+# sde_turtlebot3_behaviors
 
-The `sde_behaviors` package contains all the SDE behaviors implemented with FlexBE.
+The `sde_turtlebot3_behaviors` package contains all the SDE behaviors implemented with FlexBE.
 
 * Maintainer: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
 * Author: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
