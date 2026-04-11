@@ -10,8 +10,9 @@ if [ -f /root/SDE/.env.custom ]; then
   source /root/SDE/.env.custom
 fi
 
-# Derive the platform-specific catkin workspace path.
-SDE_CATKIN_WS="/root/SDE/ros/${SDE_PLATFORM}_catkin_ws"
+# Derive the shared and platform-specific catkin workspace paths.
+SDE_SHARED_CATKIN_WS="/root/SDE/ros/sde_catkin_ws"
+SDE_PLATFORM_CATKIN_WS="/root/SDE/ros/${SDE_PLATFORM}_catkin_ws"
 
 ################################################################################
 
@@ -54,14 +55,20 @@ export DISABLE_ROS1_EOL_WARNINGS=1
 echo "Sourcing the ROS distribution from '/opt/ros/noetic/setup.bash'."
 source /opt/ros/noetic/setup.bash
 
-# Source the Catkin workspace.
-echo "Sourcing the Catkin workspace from '${SDE_CATKIN_WS}/devel/setup.bash'."
-source ${SDE_CATKIN_WS}/devel/setup.bash
+# Source the shared Catkin workspace.
+echo "Sourcing the shared Catkin workspace from '${SDE_SHARED_CATKIN_WS}/devel/setup.bash'."
+if [ -f ${SDE_SHARED_CATKIN_WS}/devel/setup.bash ]; then
+  source ${SDE_SHARED_CATKIN_WS}/devel/setup.bash
+fi
+
+# Source the platform-specific Catkin workspace.
+echo "Sourcing the platform Catkin workspace from '${SDE_PLATFORM_CATKIN_WS}/devel/setup.bash'."
+source ${SDE_PLATFORM_CATKIN_WS}/devel/setup.bash
 
 ################################################################################
 
-# Add the Catkin workspace to the 'ROS_PACKAGE_PATH'.
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_CATKIN_WS}/src/
+# Add both Catkin workspaces to the 'ROS_PACKAGE_PATH'.
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_PLATFORM_CATKIN_WS}/src/
 
 ################################################################################
 
