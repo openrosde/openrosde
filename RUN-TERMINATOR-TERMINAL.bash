@@ -24,18 +24,18 @@ echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
 
 # Set the Docker container name from the [docker-project] argument.
 # If no [docker-project] is given, use the current user name as the Docker project name.
-DOCKER_PROJECT=$1
-if [ -z "${DOCKER_PROJECT}" ]; then
-  DOCKER_PROJECT=${USER}
+SDE_DOCKER_PROJECT=$1
+if [ -z "${SDE_DOCKER_PROJECT}" ]; then
+  SDE_DOCKER_PROJECT=${USER}
 fi
-DOCKER_CONTAINER="${DOCKER_PROJECT}-sde-1"
-echo "$0: DOCKER_PROJECT=${DOCKER_PROJECT}"
-echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
+SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
+echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
+echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
 
 ################################################################################
 
 # Run Terminator with a custom configuration file and layout after injecting the required environment variables.
-sed "s/\${DOCKER_PROJECT}/${DOCKER_PROJECT}/g" ./terminator/config > ./terminator/config.tmp
+sed "s/\${SDE_DOCKER_PROJECT}/${SDE_DOCKER_PROJECT}/g" ./terminator/config > ./terminator/config.tmp
 if [ -z "$2" ]; then
   terminator --maximise --config ./terminator/config.tmp --layout sde-${SDE_PLATFORM}-term-11-default-gazebo
 else

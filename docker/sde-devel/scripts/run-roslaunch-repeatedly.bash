@@ -2,23 +2,23 @@
 
 ################################################################################
 
-LAUNCH_FILE=$1
+SDE_LAUNCH_FILE=$1
 
-if [ -z "${LAUNCH_FILE}" ]; then
+if [ -z "${SDE_LAUNCH_FILE}" ]; then
   echo "No launch file is specified."
   exit 1
 fi
 
 ################################################################################
 
-PROMPT_START=$'\e[4m\e[1m'
-PROMPT_END=$'\e[0m'
-KEY_START=$'\e[7m'
-KEY_END=$'\e[0m'${PROMPT_START}
-PROMPT="${PROMPT_START}Run '${LAUNCH_FILE}'? Press:"$'\n'"'${KEY_START}r${KEY_END}' to run as remote,"$'\n'"'${KEY_START}l${KEY_END}' to run as local,"$'\n'"'${KEY_START}c${KEY_END}' to enter a child shell."$'\n'"${PROMPT_END}"
+SDE_PROMPT_START=$'\e[4m\e[1m'
+SDE_PROMPT_END=$'\e[0m'
+SDE_KEY_START=$'\e[7m'
+SDE_KEY_END=$'\e[0m'${SDE_PROMPT_START}
+SDE_PROMPT="${SDE_PROMPT_START}Run '${SDE_LAUNCH_FILE}'? Press:"$'\n'"'${SDE_KEY_START}r${SDE_KEY_END}' to run as remote,"$'\n'"'${SDE_KEY_START}l${SDE_KEY_END}' to run as local,"$'\n'"'${SDE_KEY_START}c${SDE_KEY_END}' to enter a child shell."$'\n'"${SDE_PROMPT_END}"
 
 while true; do
-  read -n 1 -s -p "${PROMPT}" input;
+  read -n 1 -s -p "${SDE_PROMPT}" input;
   if [ "${input}" = "r" ]; then
     remote_mode;
   elif [ "${input}" = "l" ]; then
@@ -36,7 +36,7 @@ EOF
   else
     continue;
   fi;
-  roslaunch ${SDE_LAUNCH_PACKAGE} ${LAUNCH_FILE};
+  roslaunch ${SDE_LAUNCH_PACKAGE} ${SDE_LAUNCH_FILE};
   echo "" # Display an empty line.
 done
 

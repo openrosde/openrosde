@@ -25,29 +25,32 @@ echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
 
 # Set the Docker container name from the [docker-project] argument.
 # If no [docker-project] is given, use the current user name as the Docker project name.
-DOCKER_PROJECT=$1
-if [ -z "${DOCKER_PROJECT}" ]; then
-  DOCKER_PROJECT=${USER}
+SDE_DOCKER_PROJECT=$1
+if [ -z "${SDE_DOCKER_PROJECT}" ]; then
+  SDE_DOCKER_PROJECT=${USER}
 fi
-DOCKER_CONTAINER="${DOCKER_PROJECT}-sde-1"
-echo "$0: DOCKER_PROJECT=${DOCKER_PROJECT}"
-echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
+SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
+echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
+echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
 
 ################################################################################
 
 # Stop and remove the Docker container if it exists already.
-EXISTING_DOCKER_CONTAINER_ID=`docker ps -aq -f name=${DOCKER_CONTAINER}`
-if [ ! -z "${EXISTING_DOCKER_CONTAINER_ID}" ]; then
-  echo "Stop the container ${DOCKER_CONTAINER} with ID: ${EXISTING_DOCKER_CONTAINER_ID}."
-  docker stop ${EXISTING_DOCKER_CONTAINER_ID}
-  echo "Remove the container ${DOCKER_CONTAINER} with ID: ${EXISTING_DOCKER_CONTAINER_ID}."
-  docker rm ${EXISTING_DOCKER_CONTAINER_ID}
+SDE_EXISTING_DOCKER_CONTAINER_ID=`docker ps -aq -f name=${SDE_DOCKER_CONTAINER}`
+if [ ! -z "${SDE_EXISTING_DOCKER_CONTAINER_ID}" ]; then
+  echo "Stop the container ${SDE_DOCKER_CONTAINER} with ID: ${SDE_EXISTING_DOCKER_CONTAINER_ID}."
+  docker stop ${SDE_EXISTING_DOCKER_CONTAINER_ID}
+  echo "Remove the container ${SDE_DOCKER_CONTAINER} with ID: ${SDE_EXISTING_DOCKER_CONTAINER_ID}."
+  docker rm ${SDE_EXISTING_DOCKER_CONTAINER_ID}
 fi
 
 ################################################################################
 
 # Inject the 'Dockerfile' commit hash into the Docker container implicitly via a build argument in 'docker-compose.yaml'.
-export DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
+export SDE_DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
+
+# Export SDE_DOCKER_PROJECT so that it can be interpolated in 'docker-compose.yaml' for the container name.
+export SDE_DOCKER_PROJECT
 
 ################################################################################
 
@@ -55,13 +58,19 @@ export DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/$
 echo "Login into 'registry.gitlab.com' using a deploy token."
 docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
 
-# If the script runs in CI mode, build the image directly.
-# Otherwise, try to pull it from the registry. If it fails, build locally.
-if [[ "$DOCKER_PROJECT" == "gitlab-ci" ]]; then
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml build # --no-cache
+# Build the base image first, then the platform image.
+# If the script runs in CI mode, build the images directly.
+# Otherwise, try to pull them from the registry. If it fails, build locally.
+if [[ "$SDE_DOCKER_PROJECT" == "gitlab-ci" ]]; then
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde # --no-cache
 else
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde-base
   if [[ "$?" -ne "0" ]]; then
-    docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml build
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
+  fi
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde
+  if [[ "$?" -ne "0" ]]; then
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde
   fi
 fi

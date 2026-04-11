@@ -102,67 +102,67 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} flexbe_app_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} flexbe_app_default.launch
     [[[terminal13]]] # Number: 2
       order = 0
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_navigation_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_navigation_default_gazebo.launch
     [[[terminal14]]] # Number: 3
       order = 1
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_mapping_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_mapping_default.launch
     [[[terminal18]]] # Number: 8
       order = 0
       parent = child17
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal19]]] # Number: 9
       order = 1
       parent = child17
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal21]]] # Number: 10
       order = 0
       parent = child20
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal22]]] # Number: 11
       order = 1
       parent = child20
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal25]]] # Number: 12
       order = 0
       parent = child24
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal26]]] # Number: 13
       order = 1
       parent = child24
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal28]]] # Number: 14
       order = 0
       parent = child27
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal29]]] # Number: 15
       order = 1
       parent = child27
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal3]]] # Number: 1
       order = 0
       parent = child2
@@ -173,19 +173,19 @@
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_bringup_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_bringup_default_gazebo.launch
     [[[terminal7]]] # Number: 5
       order = 1
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_rviz_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_rviz_default_gazebo.launch
     [[[terminal9]]] # Number: 6
       order = 0
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_common_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_common_default.launch
   [[sde-turtlebot3-term-11-default-realworld]]
     [[[child0]]]
       fullscreen = False
@@ -270,67 +270,67 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} flexbe_app_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} flexbe_app_default.launch
     [[[terminal13]]] # Number: 2
       order = 0
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_navigation_default_realworld.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_navigation_default_realworld.launch
     [[[terminal14]]] # Number: 3
       order = 1
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_mapping_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_mapping_default.launch
     [[[terminal18]]] # Number: 8
       order = 0
       parent = child17
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal19]]] # Number: 9
       order = 1
       parent = child17
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal21]]] # Number: 10
       order = 0
       parent = child20
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal22]]] # Number: 11
       order = 1
       parent = child20
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal25]]] # Number: 12
       order = 0
       parent = child24
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal26]]] # Number: 13
       order = 1
       parent = child24
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal28]]] # Number: 14
       order = 0
       parent = child27
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal29]]] # Number: 15
       order = 1
       parent = child27
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal3]]] # Number: 1
       order = 0
       parent = child2
@@ -341,19 +341,19 @@
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_bringup_default_realword.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_bringup_default_realword.launch
     [[[terminal7]]] # Number: 5
       order = 1
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_rviz_default_realword.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_rviz_default_realword.launch
     [[[terminal9]]] # Number: 6
       order = 0
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} turtlebot3_common_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_common_default.launch
   [[sde-ur5e-term-11-default-gazebo]]
     [[[child0]]]
       fullscreen = False
@@ -438,67 +438,67 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} ur5e_realsense_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_realsense_default_gazebo.launch
     [[[terminal13]]] # Number: 2
       order = 0
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} onrobot_rg_control_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} onrobot_rg_control_default_gazebo.launch
     [[[terminal14]]] # Number: 3
       order = 1
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} coarobo_ur5e_teleop_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} coarobo_ur5e_teleop_default_gazebo.launch
     [[[terminal18]]] # Number: 8
       order = 0
       parent = child17
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal19]]] # Number: 9
       order = 1
       parent = child17
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal21]]] # Number: 10
       order = 0
       parent = child20
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal22]]] # Number: 11
       order = 1
       parent = child20
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal25]]] # Number: 12
       order = 0
       parent = child24
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal26]]] # Number: 13
       order = 1
       parent = child24
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal28]]] # Number: 14
       order = 0
       parent = child27
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal29]]] # Number: 15
       order = 1
       parent = child27
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal3]]] # Number: 1
       order = 0
       parent = child2
@@ -509,19 +509,19 @@
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} ur5e_bringup_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_bringup_default_gazebo.launch
     [[[terminal7]]] # Number: 5
       order = 1
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} ur5e_moveit_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_moveit_default_gazebo.launch
     [[[terminal9]]] # Number: 6
       order = 0
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} ur5e_rviz_default_gazebo.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_rviz_default_gazebo.launch
   [[sde-ur5e-term-11-default-realworld]]
     [[[child0]]]
       fullscreen = False
@@ -606,67 +606,67 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} ur5e_realsense_default_realworld.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_realsense_default_realworld.launch
     [[[terminal13]]] # Number: 2
       order = 0
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} onrobot_rg_control_default_realword.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} onrobot_rg_control_default_realword.launch
     [[[terminal14]]] # Number: 3
       order = 1
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} coarobo_ur5e_teleop_default_realworld.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} coarobo_ur5e_teleop_default_realworld.launch
     [[[terminal18]]] # Number: 8
       order = 0
       parent = child17
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal19]]] # Number: 9
       order = 1
       parent = child17
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal21]]] # Number: 10
       order = 0
       parent = child20
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal22]]] # Number: 11
       order = 1
       parent = child20
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal25]]] # Number: 12
       order = 0
       parent = child24
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal26]]] # Number: 13
       order = 1
       parent = child24
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal28]]] # Number: 14
       order = 0
       parent = child27
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal29]]] # Number: 15
       order = 1
       parent = child27
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT}
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT}
     [[[terminal3]]] # Number: 1
       order = 0
       parent = child2
@@ -677,17 +677,17 @@
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} ur5e_bringup_default_realworld.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_bringup_default_realworld.launch
     [[[terminal7]]] # Number: 5
       order = 1
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} ur5e_moveit_default_realworld.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_moveit_default_realworld.launch
     [[[terminal9]]] # Number: 6
       order = 0
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${DOCKER_PROJECT} ur5e_rviz_default_realworld.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_rviz_default_realworld.launch
 [plugins]

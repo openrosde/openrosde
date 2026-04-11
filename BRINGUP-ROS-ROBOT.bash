@@ -34,17 +34,17 @@ fi
 
 # Set the Docker container name from the [docker-project] argument.
 # If no [docker-project] is given, use the current user name as the Docker project name.
-DOCKER_PROJECT=$2
-if [ -z "${DOCKER_PROJECT}" ]; then
-  DOCKER_PROJECT=${USER}
+SDE_DOCKER_PROJECT=$2
+if [ -z "${SDE_DOCKER_PROJECT}" ]; then
+  SDE_DOCKER_PROJECT=${USER}
 fi
-DOCKER_CONTAINER="${DOCKER_PROJECT}-sde-1"
-echo "$0: DOCKER_PROJECT=${DOCKER_PROJECT}"
-echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
+SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
+echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
+echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
 
 ################################################################################
 
-docker exec -i ${DOCKER_CONTAINER} bash <<EOF
+docker exec -i ${SDE_DOCKER_CONTAINER} bash <<EOF
 ntpdate ntp.ubuntu.com
 EOF
 
