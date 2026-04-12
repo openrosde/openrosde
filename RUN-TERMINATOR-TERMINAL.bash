@@ -10,30 +10,8 @@
 
 ################################################################################
 
-# Load the default environment variables from the '.env' file:
-source ./.env
-
-# Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
-if [ -f ./.env.custom ]; then
-  source ./.env.custom
-fi
-
-################################################################################
-
-# Set the Docker container name from the [docker-project] argument.
-# If no [docker-project] is given, use the current user name as the Docker project name.
-SDE_DOCKER_PROJECT=$1
-if [ -z "${SDE_DOCKER_PROJECT}" ]; then
-  SDE_DOCKER_PROJECT=${USER}
-fi
-SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
-
-################################################################################
-
-# Print the variables for debugging purposes.
-echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
-echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
-echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
+# Load the SDE environment variables.
+source ./INCL-SDE-ENV.bash "$1"
 
 ################################################################################
 

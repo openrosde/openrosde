@@ -12,35 +12,16 @@
 
 ################################################################################
 
-# Load the default environment variables from the '.env' file:
-source ./.env
-
-# Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
-if [ -f ./.env.custom ]; then
-  source ./.env.custom
-fi
-
-echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
-
-################################################################################
-
 # Check if the user has provided the mandatory <rosmaster-hostname> argument.
-if [[ "$#" -ne 1 ]]; then
+if [[ "$#" -lt 1 ]]; then
   echo "Usage: bash BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]"
   exit 1
 fi
 
 ################################################################################
 
-# Set the Docker container name from the [docker-project] argument.
-# If no [docker-project] is given, use the current user name as the Docker project name.
-SDE_DOCKER_PROJECT=$2
-if [ -z "${SDE_DOCKER_PROJECT}" ]; then
-  SDE_DOCKER_PROJECT=${USER}
-fi
-SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
-echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
-echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
+# Load the SDE environment variables.
+source ./INCL-SDE-ENV.bash "$2"
 
 ################################################################################
 
