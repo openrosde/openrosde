@@ -37,6 +37,14 @@ export SDE_DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./dock
 
 ################################################################################
 
+# Print the variables for debugging purposes.
+echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
+echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
+echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
+echo "$0: SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_DOCKERFILE_COMMIT_SHORT_SHA}"
+
+################################################################################
+
 # Stop and remove the Docker container if it exists already.
 SDE_EXISTING_DOCKER_CONTAINER_ID=`docker ps -aq -f name=${SDE_DOCKER_CONTAINER}`
 if [ ! -z "${SDE_EXISTING_DOCKER_CONTAINER_ID}" ]; then

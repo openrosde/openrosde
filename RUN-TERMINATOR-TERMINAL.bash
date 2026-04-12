@@ -18,8 +18,6 @@ if [ -f ./.env.custom ]; then
   source ./.env.custom
 fi
 
-echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
-
 ################################################################################
 
 # Set the Docker container name from the [docker-project] argument.
@@ -29,6 +27,11 @@ if [ -z "${SDE_DOCKER_PROJECT}" ]; then
   SDE_DOCKER_PROJECT=${USER}
 fi
 SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
+
+################################################################################
+
+# Print the variables for debugging purposes.
+echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
 echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
 echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
 

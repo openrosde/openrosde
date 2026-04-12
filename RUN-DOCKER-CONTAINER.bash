@@ -19,9 +19,6 @@ if [ -f ./.env.custom ]; then
   source ./.env.custom
 fi
 
-export SDE_PLATFORM
-echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
-
 ################################################################################
 
 # Set the Docker container name from the [docker-project] argument.
@@ -31,17 +28,23 @@ if [ -z "${SDE_DOCKER_PROJECT}" ]; then
   SDE_DOCKER_PROJECT=${USER}
 fi
 SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
-echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
-echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
 
 ################################################################################
 
-# Export current user and group IDs to 'docker-compose.yaml'.
-USER_ID="$(id -u)"
-GROUP_ID="$(id -g)"
-export USER_ID
-export GROUP_ID
+# Export variables so that they can be interpolated in 'docker-compose.yaml', including current user and group IDs..
+export SDE_USER_ID="$(id -u)"
+export SDE_GROUP_ID="$(id -g)"
+export SDE_PLATFORM
 export SDE_DOCKER_PROJECT
+
+################################################################################
+
+# Print the variables for debugging purposes.
+echo "$0: SDE_USER_ID=${SDE_USER_ID}"
+echo "$0: SDE_GROUP_ID=${SDE_GROUP_ID}"
+echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
+echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
+echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
 
 ################################################################################
 
