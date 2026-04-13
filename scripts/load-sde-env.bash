@@ -3,19 +3,22 @@
 # This script loads the SDE environment variables and derives the Docker container name.
 # It is sourced by the other SDE scripts to avoid code duplication.
 #
-# Usage: source ./INCL-SDE-ENV.bash [docker-project]
+# Usage: source ./scripts/load-sde-env.bash [docker-project]
 #
 # [docker-project]: Used to name the Docker container and create multiple instances if needed.
 #                   Default value is '$USER'.
 
 ################################################################################
 
+# Resolve the repository root directory relative to this script.
+SDE_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 # Load the default environment variables from the '.env' file:
-source ./.env
+source "${SDE_ROOT_DIR}/.env"
 
 # Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
-if [ -f ./.env.custom ]; then
-  source ./.env.custom
+if [ -f "${SDE_ROOT_DIR}/.env.custom" ]; then
+  source "${SDE_ROOT_DIR}/.env.custom"
 fi
 
 ################################################################################
@@ -35,7 +38,8 @@ export SDE_USER_ID="$(id -u)"
 export SDE_GROUP_ID="$(id -g)"
 export SDE_PLATFORM
 export SDE_DOCKER_PROJECT
-export SDE_DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
+export SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/sde-base/Dockerfile)"
+export SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
 
 ################################################################################
 
@@ -45,4 +49,5 @@ echo "$0: SDE_GROUP_ID=${SDE_GROUP_ID}"
 echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
 echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
 echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
-echo "$0: SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_DOCKERFILE_COMMIT_SHORT_SHA}"
+echo "$0: SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}"
+echo "$0: SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}"

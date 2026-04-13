@@ -42,7 +42,7 @@ before_script:
   - git submodule update --init --recursive
   # Copy the content of the project workspace to the mount point.
   - mkdir -p ${MOUNT_POINT}/
-  - cp -r ./ros/catkin_ws/ ./docker/ ${MOUNT_POINT}/
+  - cp -r ./ros/ ./docker/ ./scripts/ ./.env ${MOUNT_POINT}/
 after_script:
   # Copy the content of the mount point back to the project workspace.
   # Note: This extra step is required due to some path limitations with the GitLab CI 'artifacts' command.
@@ -50,34 +50,35 @@ after_script:
 
 ################################################################################
 
-# Build the Catkin workspace inside a Docker container instance of the 'sde-base' image.
+# Build the Catkin workspace inside a Docker container instance of the platform-specific image.
 
 build-catkin-workspace-job:
   stage: build-stage
+  parallel:
+    matrix:
+      - SDE_PLATFORM: [turtlebot3, ur5e]
   script:
     # Build the Catkin workspace inside the Docker container of the project workspace that is mapped to the mount point.
     - docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
     - docker run
       -e CI=${CI}
+      -e SDE_PLATFORM=${SDE_PLATFORM}
       -v ${MOUNT_POINT}/:/root/SDE/
-      ${CI_REGISTRY_IMAGE}/sde-base:latest /root/SDE/docker/sde-base/scripts/reset-catkin-workspace.bash
+      ${CI_REGISTRY_IMAGE}/${SDE_PLATFORM}-devel:latest /root/SDE/docker/sde-base/scripts/reset-catkin-workspace.bash
   # Save the build result to pass it to the next jobs.
   artifacts:
-    name: ${CI_COMMIT_SHA}
+    name: ${CI_COMMIT_SHA}-${SDE_PLATFORM}
     paths:
       # Note: Only paths relative to the project workspace can be used, thus '${MOUNT_POINT}/' is not permitted.
       # https://docs.gitlab.com/ee/ci/yaml/#artifacts
       # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/15530
-      - ./ros/catkin_ws/.catkin_tools/
-      - ./ros/catkin_ws/build/
-      - ./ros/catkin_ws/devel/
-      - ./ros/catkin_ws/logs/
-      - ./ros/catkin_ws/CMakeLists.txt
+      - ./ros/sde_catkin_ws/
+      - ./ros/${SDE_PLATFORM}_catkin_ws/
     expire_in: 1 week
 
 ################################################################################
 
-# Run unit tests inside Docker container instances of the 'sde-base' image.
+# Run unit tests inside Docker container instances of the platform-specific image.
 
 run-unit-test1-job:
   stage: test-stage
@@ -92,7 +93,7 @@ run-unit-test2-job:
 
 ################################################################################
 
-# Deploy results of the unit tests inside a Docker container instance of the 'sde-base' image.
+# Deploy results of the unit tests inside a Docker container instance of the platform-specific image.
 
 deploy-test-results-job:
   stage: deploy-stage

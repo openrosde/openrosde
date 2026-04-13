@@ -9,7 +9,7 @@ services:
       context: ../
       dockerfile: ./docker/sde-base/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA
+        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
 
   sde:
     hostname: sde-${SDE_PLATFORM}
@@ -17,8 +17,8 @@ services:
     privileged: true
     environment:
       # Pass current user and group IDs.
-      - USER_ID=${USER_ID}
-      - GROUP_ID=${GROUP_ID}
+      - SDE_USER_ID=${SDE_USER_ID}
+      - SDE_GROUP_ID=${SDE_GROUP_ID}
       # Display X Server GUIs.
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
@@ -31,7 +31,7 @@ services:
       context: ../
       dockerfile: ./docker/${SDE_PLATFORM}-devel/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA
+        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
         - SDE_PLATFORM=${SDE_PLATFORM}
     volumes:
       # Map repository root for convenient access.

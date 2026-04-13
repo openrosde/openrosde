@@ -113,9 +113,9 @@ Set up the environment of the development machine with the following instruction
      ```
 
 > **Note:**
-  The `SETUP-DEVEL-MACHINE.bash` script is actually divided into `INCL-SUDO-ENV.bash` and `INCL-USER-ENV.bash`.
-  The execution of `INCL-SUDO-ENV.bash` makes system-wide changes and thus requires `sudo` permissions.
-  However, if your system has already all the necessary tools installed, you can directly set up your local user environment with `cd ~/SDE/ && bash ./INCL-USER-ENV.bash` which does not require `sudo` permissions.
+  The `SETUP-DEVEL-MACHINE.bash` script is divided into two parts: system-wide installations (with `sudo`) and local user environment setup (without `sudo`).
+  The system-wide part makes changes that require a reboot or re-login to take effect.
+  However, if your system already has the necessary tools installed (Docker, Nvidia Container Toolkit, Terminator), you can skip the script and manually initialize the Git submodules with `cd ~/SDE/ && git submodule update --init --recursive`.
 
 > **Note:**
   You do not need to reboot if your local user has already been added to the `docker` group.
