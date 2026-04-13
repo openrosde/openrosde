@@ -6,10 +6,18 @@
 # Usage: bash run-roslaunch-repeatedly.bash <launch-file>
 #
 # <launch-file>: The ROS launch file to run (e.g., 'example_roslaunch_file.launch').
+#                Optionally, specify the ROS package with the 'package:file.launch' format.
+#                If no package is specified, the 'SDE_LAUNCH_PACKAGE' environment variable is used.
 
 ################################################################################
 
-SDE_LAUNCH_FILE=$1
+# Parse the optional 'package:file.launch' format from the argument.
+if [[ "$1" == *":"* ]]; then
+  SDE_LAUNCH_PACKAGE="${1%%:*}"
+  SDE_LAUNCH_FILE="${1#*:}"
+else
+  SDE_LAUNCH_FILE=$1
+fi
 
 if [ -z "${SDE_LAUNCH_FILE}" ]; then
   echo "No launch file is specified."

@@ -161,7 +161,7 @@ roslaunch sde_ur5e_launch ur5e_realsense_default_realworld.launch
 To start the OnRobot RG2 gripper controller via Modbus TCP:
 
 ```shell
-roslaunch sde_ur5e_launch onrobot_rg_control_default_realword.launch
+roslaunch sde_ur5e_launch onrobot_rg_control_default_realworld.launch
 ```
 
 The gripper can be controlled via the ROS service `/onrobot_rg/set_command`.
@@ -196,7 +196,7 @@ The following launch files are available for the Universal Robots UR5e platform 
 | `ur5e_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
 | `ur5e_realsense_default_realworld.launch` | Intel RealSense D435i camera |
 | `ur5e_realsense_default_gazebo.launch` | Intel RealSense camera (Gazebo) |
-| `onrobot_rg_control_default_realword.launch` | OnRobot RG2 gripper via Modbus TCP |
+| `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper via Modbus TCP |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper (Gazebo) |
 | `coarobo_ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceNavigator teleoperation (real robot) |
 | `coarobo_ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceNavigator teleoperation (Gazebo) |

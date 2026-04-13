@@ -95,8 +95,9 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - Use `source` instead of `.` for sourcing scripts.
 - Use `pushd` / `popd` for temporary directory changes in functions.
 - Quote variables in paths: `"${SDE_ROOT_DIR}"` (host scripts) but `${SDE_CONTAINER_ROOT_DIR}` (container scripts where paths are controlled).
-- Top-level scripts (`BUILD-DOCKER-IMAGE.bash`, `RUN-DOCKER-CONTAINER.bash`, etc.) are `UPPER-CASE-KEBAB.bash`.
-- Shared helper scripts in `scripts/` and `docker/sde-base/scripts/` are `lower-case-kebab.bash`.
+- Top-level entry-point scripts (`BUILD-DOCKER-IMAGE.bash`, `RUN-DOCKER-CONTAINER.bash`, etc.) are `UPPER-CASE-KEBAB.bash`.
+- Helper scripts in `scripts/` and `docker/sde-base/scripts/` are `lower-case-kebab.bash`.
+- Name scripts with exactly three kebab-case words, starting with a verb (e.g., `BUILD-DOCKER-IMAGE`, `initialize-bash-shell`).
 
 Example header:
 
@@ -144,6 +145,21 @@ fi
 - Add inline comments with `#` to explain non-obvious fields.
 - Do not use fallback default syntax (`${VAR:-default}`); all defaults belong in `.env`.
 - Variable interpolation uses `${VAR}` syntax.
+
+### ROS Launch Files
+
+Launch files live in platform-specific `sde_<platform>_launch` packages (e.g., `sde_turtlebot3_launch`, `sde_ur5e_launch`).
+
+File names follow the pattern: `<component>_<variant>_<environment>.launch`
+
+- `<component>`: The subsystem or feature (e.g., `turtlebot3_bringup`, `ur5e_moveit`, `onrobot_rg_control`).
+- `<variant>`:
+  - `default`: Configured as close as possible to the official documentation by including upstream default launch files.
+  - `custom`: Customized launch file for specific SDE use cases.
+- `<environment>`:
+  - `gazebo`: For use in the Gazebo simulator.
+  - `realworld`: For use with the real (physical) robot.
+  - Omitted when the launch file applies to both environments (e.g., `turtlebot3_mapping_default.launch`).
 
 ### Markdown (README & Documentation)
 

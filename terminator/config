@@ -102,7 +102,7 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} flexbe_app_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} sde_launch:flexbe_app_default.launch
     [[[terminal13]]] # Number: 2
       order = 0
       parent = child12
@@ -270,7 +270,7 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} flexbe_app_default.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} sde_launch:flexbe_app_default.launch
     [[[terminal13]]] # Number: 2
       order = 0
       parent = child12
@@ -341,13 +341,13 @@
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_bringup_default_realword.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_bringup_default_realworld.launch
     [[[terminal7]]] # Number: 5
       order = 1
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_rviz_default_realword.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_rviz_default_realworld.launch
     [[[terminal9]]] # Number: 6
       order = 0
       parent = child8
@@ -612,7 +612,7 @@
       parent = child12
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} onrobot_rg_control_default_realword.launch
+      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} onrobot_rg_control_default_realworld.launch
     [[[terminal14]]] # Number: 3
       order = 1
       parent = child12
