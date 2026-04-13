@@ -4,6 +4,6 @@
 
   <!-- Display Rviz with a custom layout to monitor the TurtleBot3 robot. -->
 
-  <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find sde_launch)/config/rviz/turtlebot3_rviz_default_gazebo.rviz" />
+  <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find sde_turtlebot3_launch)/config/rviz/turtlebot3_rviz_default_gazebo.rviz" />
 
 </launch>
