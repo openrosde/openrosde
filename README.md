@@ -15,6 +15,10 @@ Open-source reference implementation of the Software Development Environment (SD
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
+> [!TIP]
+> Join the [SDE Community](https://coarobo.com/en/sde-community/) for support, discussions, and updates.
+> Looking for a production-ready version with additional features? Check out [Coarobo](https://coarobo.com/), the commercial version of the SDE.
+
 ## Content
 
 [[_TOC_]]

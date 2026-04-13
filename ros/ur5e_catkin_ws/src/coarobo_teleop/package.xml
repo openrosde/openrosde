@@ -1,4 +1,4 @@
-<package>
+<package format="2">
   <name>coarobo_teleop</name>
   <version>1.0.0</version>
   <description>
@@ -9,25 +9,19 @@
 
   <license>Copyright (c) 2026 Coarobo GK</license>
 
-  <url type="website">https://coarobo.com/</url>
-  <url type="repository">https://gitlab.com/emlab/UR5e</url>
-  <url type="bugtracker">https://gitlab.com/emlab/UR5e/-/issues</url>
+  <url type="website">https://coarobo.com/SDE</url>
+  <url type="repository">https://gitlab.com/coarobo/SDE</url>
+  <url type="bugtracker">https://gitlab.com/coarobo/SDE/-/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>onrobot_rg_control</build_depend>
-  <build_depend>controller_manager_msgs</build_depend>
-  <build_depend>rospy</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>std_msgs</build_depend>
+  <depend>controller_manager_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>onrobot_rg_control</depend>
+  <depend>rospy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
 
-  <run_depend>controller_manager_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>moveit_servo</run_depend>
-  <run_depend>onrobot_rg_control</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>spacenav_node</run_depend>
-  <run_depend>std_msgs</run_depend>
+  <exec_depend>moveit_servo</exec_depend>
+  <exec_depend>spacenav_node</exec_depend>
 </package>

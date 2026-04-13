@@ -171,6 +171,13 @@ Custom ROS packages in this project follow these conventions:
 - `README.md`: Title (`# package_name`), one-line description, Maintainer/Author with `- ` list items, optional Gazebo section with recommended startup order and Terminator command, and a `## Launch Files` table listing all `.launch` files with descriptions.
 - Include a `.gitignore` file in every package (can be empty).
 
+Packages prefixed with `coarobo_` (e.g., `coarobo_teleop` in `ur5e_catkin_ws`) are proprietary Coarobo GK packages.
+They may contain Python nodes, config files, and URDF in addition to launch files.
+They follow the same `package.xml` and `README.md` conventions above, except:
+
+- License: `Copyright (c) <year> Coarobo GK` (proprietary, not MIT).
+- `CMakeLists.txt`: Includes `catkin_install_python` for Python node scripts.
+
 ### Markdown (README & Documentation)
 
 - Use [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) (GFM) syntax.

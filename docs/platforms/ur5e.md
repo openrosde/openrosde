@@ -60,6 +60,7 @@ Although host names would be preferred for convenience, the Universal Robots UR5
 > [!NOTE]
 > The OnRobot Compute Box factory default IP (`192.168.1.1`) may need to be changed to `192.168.1.201` after a factory reset.
 > Connect to it directly via Ethernet and access its web interface at `http://192.168.1.1` to change the IP.
+> The default username is `admin` and the default password is `OnRobot`.
 
 ## Robot Bootup
 
