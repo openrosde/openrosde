@@ -30,10 +30,14 @@ sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyring
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 
 # Add the official Docker repository.
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
 
 # Install the Docker Engine packages.
 sudo apt-get update && sudo apt-get install -y \
@@ -77,6 +81,9 @@ sudo apt-get update && sudo apt-get install -y \
 
 # Test the 'nvidia-container-toolkit' installation if Nvidia drivers are found.
 if [ -e /proc/driver/nvidia/version ]; then
+  # Configure Docker to use the Nvidia Container Runtime.
+  sudo nvidia-ctk runtime configure --runtime=docker
+  sudo systemctl restart docker
   docker run --gpus all --rm nvidia/cuda:11.2.2-base-ubuntu20.04 nvidia-smi
 fi
 
@@ -90,7 +97,9 @@ sudo apt-get update && sudo apt-get install -y \
   terminator
 
 # Prevent the Terminator installation to replace the default Ubuntu terminal.
-sudo update-alternatives --set x-terminal-emulator /usr/bin/gnome-terminal.wrapper
+if [ -e /usr/bin/gnome-terminal.wrapper ]; then
+  sudo update-alternatives --set x-terminal-emulator /usr/bin/gnome-terminal.wrapper
+fi
 
 ################################################################################
 # Local user environment setup (no 'sudo' required).

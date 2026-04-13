@@ -33,7 +33,8 @@ It provides a containerized, multi-platform development environment based on Doc
   - `turtlebot3-devel/`: TurtleBot3 platform image.
   - `ur5e-devel/`: UR5e platform image.
   - `docker-compose.yaml`: Service definitions.
-  - `docker-compose-gpu.yaml`: Nvidia GPU overlay.
+  - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
+  - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.

@@ -19,7 +19,11 @@ source ./scripts/load-sde-env.bash "$1"
 # Run the Docker container in the background.
 # Any changes made to './docker/docker-compose*.yaml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-gpu.yaml up -d
+  # Native Nvidia GPU detected: enable GPU acceleration via Nvidia Container Toolkit.
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-nvidia.yaml up -d
+elif [ -e /dev/dxg ]; then
+  # WSL 2 GPU detected: enable GPU-accelerated rendering via the WSLg D3D12 Mesa driver.
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-wsl.yaml up -d
 else
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml up -d
 fi

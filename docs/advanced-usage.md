@@ -79,6 +79,7 @@ They can be found on the Ubuntu development machine at:
 - `docker/docker-compose.yaml`: Describes the interface between the Ubuntu development machine and the container.
   It includes external information from outside the container, such as device host names or network configuration.
   It is invoked when the container is (re)started, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (Ubuntu development machine reboot) or rebuilt.
+  Two optional overlays extend it depending on the detected GPU environment: `docker/docker-compose-nvidia.yaml` (native Nvidia GPU via Nvidia Container Toolkit) and `docker/docker-compose-wsl.yaml` (WSL 2 GPU via the WSLg D3D12 Mesa driver).
 - `docker/sde-base/scripts/initialize-docker-container.bash`: A startup script referenced in `docker-compose.yaml` and thus also invoked when (re)starting the container, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (Ubuntu development machine reboot) or rebuilt.
   It executes the internal commands needed at the startup of the container (for example, to maintain the container running in the background).
 - `docker/sde-base/scripts/initialize-bash-shell.bash`: A shell script appended to `/root/.bashrc` at the end of the `Dockerfile` to set up the Bash shell environment inside the container (terminal colors, shell functions, symbolic links, binary paths, environment sourcing, etc.).

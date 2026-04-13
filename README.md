@@ -123,7 +123,8 @@ scripts/
   load-sde-env.bash                      # Shared environment loader.
 docker/
   docker-compose.yaml                    # Docker service definitions.
-  docker-compose-gpu.yaml                # GPU overlay for Nvidia support.
+  docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
+  docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
   sde-base/                              # Shared base Docker image.
     Dockerfile
     scripts/                             # Container helper scripts.

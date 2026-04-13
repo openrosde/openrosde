@@ -15,7 +15,10 @@ Follow this step-by-step guide to perform the initial setup of the SDE on an [Ub
 > For example, the [FlexBE App](https://github.com/FlexBE/flexbe_app) may appear partially broken due to [OpenGL](https://www.opengl.org/) errors.
 
 > [!NOTE]
-> Virtual machines are only partially supported: 3D accelerated tools will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
+> The SDE also supports [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) on Windows 11 with GPU-accelerated rendering via the [WSLg](https://github.com/microsoft/wslg) D3D12 Mesa driver.
+> Performance will be lower than on a native Ubuntu installation due to the OpenGL-to-D3D12 translation layer, but 3D tools such as Gazebo, RViz, and FlexBE are usable.
+> The GPU acceleration is automatically enabled when `RUN-DOCKER-CONTAINER.bash` detects the WSL 2 GPU device (`/dev/dxg`).
+> Virtual machines (other than WSL 2) are only partially supported: 3D accelerated tools will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
 
 > [!NOTE]
 > Although this initial setup is meant to be performed only once, you can run it again should you want to reset the development environment as the project evolves.
@@ -25,7 +28,7 @@ Follow this step-by-step guide to perform the initial setup of the SDE on an [Ub
 
 **Mandatory:**
 
-- An Ubuntu 22.04 LTS (Jammy Jellyfish) development machine based on the AMD64 architecture.
+- An Ubuntu 24.04 LTS (Noble Numbat) development machine based on the AMD64 architecture, either natively or via [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) on Windows 11.
 - Access to administrator privileges (`sudo`) on the Ubuntu machine.
 
 **Recommended:**
@@ -139,15 +142,16 @@ Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu 
 4. Use `Ctrl+d` to exit the container at any time.
 
 > [!NOTE]
-> If Nvidia drivers are present in the Ubuntu development machine, the script `RUN-DOCKER-CONTAINER.bash` will run `docker-compose-gpu.yaml` alongside `docker-compose.yaml` to mount the GPUs into the Docker container via Nvidia Container Toolkit.
-> If not the case, most 3D accelerated tools, including the Gazebo simulator, will be extremely slow to run.
+> If Nvidia drivers are present in the Ubuntu development machine, the script `RUN-DOCKER-CONTAINER.bash` will run `docker-compose-nvidia.yaml` alongside `docker-compose.yaml` to mount the GPUs into the Docker container via Nvidia Container Toolkit.
+> On WSL 2, the script detects the GPU device (`/dev/dxg`) and runs `docker-compose-wsl.yaml` instead, enabling GPU-accelerated rendering via the WSLg D3D12 Mesa driver.
+> If neither is detected, most 3D accelerated tools, including the Gazebo simulator, will be extremely slow to run.
 
 > [!NOTE]
 > The script `RUN-DOCKER-CONTAINER.bash` will try to resolve the robot host name defined in `SDE_ROBOT_HOSTNAME` and add its IP address to `/etc/hosts`.
 > Note that you can ignore the errors if you do not plan to use a physical robot at that time.
 
 > [!NOTE]
-> Be careful if you need to modify `docker-compose.yaml` or `docker-compose-gpu.yaml` as the container will be recreated from scratch the next time you run `RUN-DOCKER-CONTAINER.bash`.
+> Be careful if you need to modify `docker-compose.yaml`, `docker-compose-nvidia.yaml`, or `docker-compose-wsl.yaml` as the container will be recreated from scratch the next time you run `RUN-DOCKER-CONTAINER.bash`.
 
 > [!NOTE]
 > Note that the Bash function `sde-get-fully-started` should be used only once after instantiating a new container from the Docker image.
