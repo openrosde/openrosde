@@ -17,7 +17,7 @@ source ./scripts/load-sde-env.bash "$1"
 ################################################################################
 
 # Run the Docker container in the background.
-# Any changes made to './docker/docker-compose*.yml' will recreate and overwrite the container.
+# Any changes made to './docker/docker-compose*.yaml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-gpu.yaml up -d
 else

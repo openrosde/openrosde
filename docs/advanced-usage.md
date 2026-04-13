@@ -73,17 +73,17 @@ Although the boundaries between them can sometimes be blurry, each one has a spe
 They can be found on the development machine at:
 
 - `~/SDE/docker/sde-base/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the image of the shared development environment.
-    It mainly describes the installations of the project tools/dependencies required inside the container.
+  It mainly describes the installations of the project tools/dependencies required inside the container.
 - `~/SDE/docker/${SDE_PLATFORM}-devel/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the platform-specific image on top of the shared base.
-    It installs platform-specific tools and dependencies.
+  It installs platform-specific tools and dependencies.
 - `~/SDE/docker/docker-compose.yaml`: Describes the interface between the development machine and the container.
-    It includes external information from outside the container, such as device host names or network configuration.
-    It is invoked when the container is (re)started, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
+  It includes external information from outside the container, such as device host names or network configuration.
+  It is invoked when the container is (re)started, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
 - `~/SDE/docker/sde-base/scripts/initialize-docker-container.bash`: A startup script referenced in `docker-compose.yaml` and thus also invoked when (re)starting the container, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
-    It executes the internal commands needed at the startup of the container (for example, to maintain the container running in the background).
+  It executes the internal commands needed at the startup of the container (for example, to maintain the container running in the background).
 - `~/SDE/docker/sde-base/scripts/initialize-bash-shell.bash`: A shell script appended to `/root/.bashrc` at the end of the `Dockerfile` to set up the Bash shell environment inside the container (terminal colors, shell functions, symbolic links, binary paths, environment sourcing, etc.).
-    Theoretically, its content could be written directly in the `Dockerfile`, but this would result in complex lines of code as helpful Bash syntaxes like here-documents are not supported by Docker.
-    It is automatically sourced by `/root/.bashrc` every time the user enters the Bash shell inside the container, most likely every time `RUN-DOCKER-CONTAINER.bash` is run.
+  Theoretically, its content could be written directly in the `Dockerfile`, but this would result in complex lines of code as helpful Bash syntaxes like here-documents are not supported by Docker.
+  It is automatically sourced by `/root/.bashrc` every time the user enters the Bash shell inside the container, most likely every time `RUN-DOCKER-CONTAINER.bash` is run.
 
 > **Note:**
   The SDE installation path inside the Docker container defaults to `/root/SDE/` and can be changed with the `SDE_CONTAINER_ROOT_DIR` variable in `.env`.
@@ -92,7 +92,7 @@ They can be found on the development machine at:
 
 The SDE uses a two-file configuration system:
 
-- `.env`: Contains the default configuration variables. Do not modify this file directly.
+- `.env`: Contains the default configuration variables (committed to Git). Use `.env.custom` for personal overrides.
 - `.env.custom`: User-specific overrides (created from `.env.custom.example`). This file is ignored by Git.
 
 Key configuration variables:

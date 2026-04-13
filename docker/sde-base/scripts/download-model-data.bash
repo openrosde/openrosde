@@ -15,6 +15,6 @@ echo "No additional data requires download at the moment."
 # SDE_DATA_SERVER_DOMAIN="https://TODO.com"
 # SDE_DATA_SERVER_USER="TODO"
 # SDE_DATA_SERVER_PASSWORD="TODO"
-# SDE_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_PLATFORM:-turtlebot3}_catkin_ws"
+# SDE_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_PLATFORM}_catkin_ws"
 # mkdir -p ${SDE_PLATFORM_CATKIN_WS}/src/package/data/download/
 # wget --http-user=${SDE_DATA_SERVER_USER} --http-password=${SDE_DATA_SERVER_PASSWORD} ${SDE_DATA_SERVER_DOMAIN}/path/data.ext -N -P ${SDE_PLATFORM_CATKIN_WS}/src/package/data/download # No trailing '/' here.

@@ -18,7 +18,7 @@ Follow this step-by-step guide to perform the initial setup of the SDE on a deve
   Virtual machines are only partially supported: 3D accelerated tools will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
 
 > **Note:**
-  Although this initial setup is meant to be performed only once, you can run it again would you want to reset the development environment as the project evolves.
+  Although this initial setup is meant to be performed only once, you can run it again should you want to reset the development environment as the project evolves.
   However, make sure to backup your latest changes beforehand.
 
 ## Step 0: Verify the Prerequisites
@@ -31,7 +31,7 @@ Follow this step-by-step guide to perform the initial setup of the SDE on a deve
 **Recommended:**
 
 - A physical robot for full operability (see [Platform Documentation](platforms/)).
-    If not, a Gazebo simulation provides support for basic operations.
+  If not, a Gazebo simulation provides support for basic operations.
 - An Nvidia GPU capable of running CUDA 11.2, or newer, to accelerate 3D graphics and deep learning.
 
 ## Step 1: Set up the Development Environment
@@ -106,7 +106,7 @@ Create a virtual environment using Docker (= Docker image) on the development ma
 > **Note:**
   The script `BUILD-DOCKER-IMAGE.bash` first tries to download the image from the [container registry](https://gitlab.com/coarobo/SDE/container_registry) of the project.
   If, for whatever reason, the image cannot be downloaded, the script will build it locally.
-  The later process is slow and can take up to 1 hour.
+  The latter process is slow and can take up to 1 hour.
   In both cases, avoid using a Wi-Fi connection to greatly accelerate the process.
   Note that future local builds will reuse cached data whenever possible.
 

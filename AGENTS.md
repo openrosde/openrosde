@@ -90,7 +90,7 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - Use single quotes `' '` around code-related references in comments (e.g., `# Load the default environment variables from the '.env' file:`).
 - Use `${VARIABLE}` syntax (with curly braces) for all variable references.
 - Prefix all custom variables with `SDE_` (e.g., `SDE_PLATFORM`, not `PLATFORM`).
-- Do not use fallback default syntax (`${VAR:-default}`) in `docker-compose.yaml`; all defaults belong in `.env`.
+- Do not use fallback default syntax (`${VAR:-default}`) in scripts; all defaults belong in `.env`.
 - Use `source` instead of `.` for sourcing scripts.
 - Use `pushd` / `popd` for temporary directory changes in functions.
 - Quote variables in paths: `"${SDE_ROOT_DIR}"` (host scripts) but `${SDE_CONTAINER_ROOT_DIR}` (container scripts where paths are controlled).
@@ -149,8 +149,9 @@ fi
 - Follow the [Make a README](https://www.makeareadme.com/) structure for `README.md`: title, badges, description, quick start, directory structure, documentation links, publications, external resources, issues, contributing, authors, license.
 - Use `[[_TOC_]]` for GitLab auto-generated table of contents (GitLab-specific, harmless on other platforms).
 - Use `- ` (dash + space) for unordered list items.
-- Use `1. ` (number + period + space) for ordered list items.
-- Use 4 spaces to indent continuation content (code blocks, paragraphs) inside list items.
+- Use `1. `, `2. `, `3. ` (sequential numbers) for ordered list items.
+- Align continuation content (code blocks, paragraphs, nested lists) with the text of the parent list item: 2 spaces after `- `, 4 spaces after `N. `.
+- Write one sentence per line for cleaner Git diffs.
 - Use backticks `` ` ` `` around inline code, file names, commands, variables, functions, and paths.
 - Use `> **Note:**` blocks for important remarks (with 2 spaces before the text on the continuation line).
 - Use `> **Important:**` blocks for critical safety information.

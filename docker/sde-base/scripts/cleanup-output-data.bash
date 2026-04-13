@@ -12,4 +12,5 @@ echo "No output data requires clean-up at the moment."
 ################################################################################
 
 # Delete all output data inside the 'package' package.
-# rm -r ${SDE_CONTAINER_ROOT_DIR}/ros/catkin_ws/src/package/data/output/*
+# SDE_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_PLATFORM}_catkin_ws"
+# rm -r ${SDE_PLATFORM_CATKIN_WS}/src/package/data/output/*
