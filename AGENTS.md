@@ -146,6 +146,7 @@ fi
 
 ### Markdown (README & Documentation)
 
+- Use [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) (GFM) syntax.
 - Follow the [Make a README](https://www.makeareadme.com/) structure for `README.md`: title, badges, description, quick start, directory structure, documentation links, publications, external resources, issues, contributing, authors, license.
 - Use `[[_TOC_]]` for GitLab auto-generated table of contents (GitLab-specific, harmless on other platforms).
 - Use `- ` (dash + space) for unordered list items.
@@ -153,9 +154,14 @@ fi
 - Align continuation content (code blocks, paragraphs, nested lists) with the text of the parent list item: 2 spaces after `- `, 4 spaces after `N. `.
 - Write one sentence per line for cleaner Git diffs.
 - Use backticks `` ` ` `` around inline code, file names, commands, variables, functions, and paths.
-- Use [GitHub alerts](https://github.com/orgs/community/discussions/16925) for callout blocks: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`.
+- Use GitHub alerts for callout blocks: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`.
   Each continuation line must be prefixed with `> `.
 - Use `shell` as the language identifier for shell code blocks.
+- Use `mermaid` fenced code blocks for diagrams (rendered natively by GitHub, GitLab, and VS Code with extensions).
+  Use the `neutral` theme via a YAML frontmatter config block.
+  Use `<br/>` for line breaks inside node labels.
+  Wrap code-related names in single quotes `' '` inside labels.
+  Use sentence capitalization for labels and edge text.
 - Use `#[optional-arg]` and `<required-arg>` syntax in command usage examples.
 - Keep `README.md` concise with links to detailed guides in `docs/`.
 - Platform-specific documentation goes in `docs/platforms/`.

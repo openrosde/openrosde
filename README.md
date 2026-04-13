@@ -26,6 +26,47 @@ Open-source reference implementation of the Software Development Environment (SD
 | `turtlebot3` | Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/platforms/turtlebot3.md](docs/platforms/turtlebot3.md) |
 | `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/platforms/ur5e.md](docs/platforms/ur5e.md) |
 
+## Overview
+
+```mermaid
+---
+config:
+  theme: neutral
+---
+flowchart TD
+    subgraph host["Ubuntu development machine"]
+        env["'.env' / '.env.custom'"]
+        loader["'scripts/load-sde-env.bash'"]
+        setup["'SETUP-DEVEL-MACHINE.bash'"]
+        build["'BUILD-DOCKER-IMAGE.bash'"]
+        run["'RUN-DOCKER-CONTAINER.bash'"]
+        env --> loader
+        setup -->|"Install Docker, CUDA, etc."| build
+        loader --> build
+        loader --> run
+    end
+
+    subgraph images["Docker images"]
+        base["'sde-base'<br/>(Ubuntu 20.04, ROS Noetic,<br/>Gazebo, FlexBE, etc.)"]
+        tb3["'turtlebot3-devel'"]
+        ur5e["'ur5e-devel'"]
+        base --> tb3
+        base --> ur5e
+    end
+
+    subgraph container["Docker container"]
+        shared["'sde_catkin_ws'<br/>(shared packages)"]
+        platws["'SDE_ROBOT_PLATFORM_catkin_ws'<br/>(platform packages)"]
+        rosenv["ROS environment<br/>(Gazebo, RViz, FlexBE, etc.)"]
+        shared --> rosenv
+        platws --> rosenv
+    end
+
+    build -->|"Build / pull images"| images
+    images -.->|"Selected by<br/>'SDE_ROBOT_PLATFORM'"| container
+    run -->|"Enter container shell"| container
+```
+
 ## Quick Start
 
 > [!NOTE]
@@ -128,13 +169,6 @@ Summaries of the development history, requirements, vision, and goals of the SDE
   - Official website: [https://coarobo.com/](https://coarobo.com/)
   - GitLab group: [https://gitlab.com/coarobo](https://gitlab.com/coarobo)
   - GitHub organization: [https://github.com/coarobo](https://github.com/coarobo)
-- Robotis TurtleBot3 (Waffle Pi):
-  - Official manual: [https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/)
-  - GitHub repository: [https://github.com/ROBOTIS-GIT/turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3)
-  - ROS wiki: [http://wiki.ros.org/turtlebot3](http://wiki.ros.org/turtlebot3)
-- Universal Robots UR5e:
-  - Official website: [https://www.universal-robots.com/products/ur5e/](https://www.universal-robots.com/products/ur5e/)
-  - ROS Driver: [https://github.com/UniversalRobots/Universal_Robots_ROS_Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)
 
 ## Reporting Issues
 
@@ -147,13 +181,36 @@ This project relies on [`AGENTS.md`](AGENTS.md) for project context and instruct
 
 ## Authors & Acknowledgment
 
+### Maintainers
+
 - Lotfi El Hafi (lotfi@coarobo.com)
 - Sebastian Carrera (sebastian@coarobo.com)
-- Gustavo Alfonso Garcia Ricardez
+
+### Authors
+
 - Felix von Drigalski
-- Yukiyasu Domae
+- Gustavo Alfonso Garcia Ricardez
 - Masaki Yamamoto
-- Tadahiro Yamamoto
+- Shigemichi Matsuzaki
+- Shunki Itadera
+- Tadahiro Taniguchi
+- Takashi Yamamoto
+- Yoshinobu Hagiwara
+- Yuki Inoue
+
+### Contributors
+
+- Hiroyuki Okada
+- Kazuki Miyzawa
+- Keisuke Takeshita
+- Kensuke Iwata
+- Luis Contreras
+- Nobuyuki Matsuno
+- Takato Horii
+- Tatsuya Matsushima
+- Tomohiro Ono
+- Yaonan Zhu
+- Yoshiaki Asahara
 
 ## License
 

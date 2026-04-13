@@ -18,7 +18,7 @@ Platform-specific documentation for the [Universal Robots UR5e](https://www.univ
 The Universal Robots UR5e platform consists of the following components:
 
 - **Robot arm:** [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) collaborative robot (serial number: `XXXXXXXXXXX`).
-- **Gripper:** [OnRobot RG2](https://onrobot.com/products/rg2) electric parallel gripper, mounted on an [OnRobot Quick Changer](https://onrobot.com/products/quick-changer) (robot side), itself attached to the Universal Robots UR5e tool flange.
+- **Gripper:** [OnRobot RG2](https://onrobot.com/products/rg2) electric parallel gripper, mounted on an [OnRobot Quick Changer](https://onrobot.com/products/quick-changer) (Robot Side 109498 QC-R v3), itself attached to the Universal Robots UR5e tool flange.
 - **Camera:** [Intel RealSense D435i](https://www.intelrealsense.com/depth-camera-d435i/) depth camera, mounted between the Universal Robots UR5e tool flange and the OnRobot Quick Changer using a [camera adapter from PickNik Robotics](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1).
 - **Gripper controller:** OnRobot Compute Box from the OnRobot Robot Kit, connected to the gripper via the OnRobot Quick Changer and to the network via Ethernet.
   It communicates with the Ubuntu development machine over Modbus TCP (port `502`).

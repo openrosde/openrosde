@@ -102,5 +102,5 @@ Key configuration variables:
 | `SDE_ROBOT_PLATFORM` | Target robot platform | `turtlebot3` |
 | `SDE_CONTAINER_ROOT_DIR` | SDE root path inside the container | `/root/SDE` |
 | `SDE_ROS_MASTER_HOSTNAME` | ROS master host name or IP | `localhost` |
-| `SDE_ROS_CLIENT_IP` | Development machine IP (optional) | *(empty)* |
+| `SDE_ROS_CLIENT_IP` | Ubuntu development machine IP (optional) | *(empty)* |
 | `SDE_ROBOT_HOSTNAME` | Robot mDNS host name for auto-discovery | `turtlebot3.local` |
