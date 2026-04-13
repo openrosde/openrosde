@@ -31,4 +31,4 @@ ros/*_catkin_ws/install/
 *.bag
 
 # Terminator 'config' files:
-terminator/config.tmp
+terminator/*.config.tmp

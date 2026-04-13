@@ -8,6 +8,7 @@
 #                   Default value is '$USER'.
 # [ros-launch]:     Used to automatically preload a ROS launch file when entering the Docker container for convenience.
 #                   Format is 'filename.launch'.
+#                   Use '--no-exec' to start the container without entering it.
 
 ################################################################################
 
@@ -16,16 +17,27 @@ source ./scripts/load-sde-env.bash "$1"
 
 ################################################################################
 
+# Stop and remove any SDE container from a different platform under the same Docker project.
+# This allows switching platforms by simply changing '.env.custom' without manual cleanup.
+# Uses 'docker compose down' to properly clean up the Docker Compose project state.
+SDE_OTHER_CONTAINERS=$(docker ps -a --format "{{.Names}}" | grep "sde_.*_${SDE_DOCKER_PROJECT}-1" | grep -v "^${SDE_DOCKER_CONTAINER}$")
+if [ -n "${SDE_OTHER_CONTAINERS}" ]; then
+  echo "Switching platform: stopping previous container(s)..."
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml down 2>/dev/null
+fi
+
+################################################################################
+
 # Run the Docker container in the background.
 # Any changes made to './docker/docker-compose*.yaml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then
   # Native Nvidia GPU detected: enable GPU acceleration via Nvidia Container Toolkit.
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-nvidia.yaml up -d
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-nvidia.yaml up -d sde
 elif [ -e /dev/dxg ]; then
   # WSL 2 GPU detected: enable GPU-accelerated rendering via the WSLg D3D12 Mesa driver.
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-wsl.yaml up -d
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-wsl.yaml up -d sde
 else
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml up -d
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml up -d sde
 fi
 
 ################################################################################
@@ -58,7 +70,10 @@ xhost +local:docker
 ################################################################################
 
 # Enter the Docker container with a Bash shell (with or without preloading a custom [ros-launch] file).
-if [ -z "$2" ]; then
+# Skip entering the container if '--no-exec' is passed as the second argument.
+if [ "$2" = "--no-exec" ]; then
+  exit 0
+elif [ -z "$2" ]; then
   docker exec -i -t ${SDE_DOCKER_CONTAINER} bash
 else
   docker exec -i -t ${SDE_DOCKER_CONTAINER} bash -i -c "source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/run-roslaunch-repeatedly.bash $2"
