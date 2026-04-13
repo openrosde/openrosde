@@ -2,16 +2,16 @@
   <name>sde_ur5e_launch</name>
   <version>1.0.0</version>
   <description>
-    The 'sde_ur5e_launch' package coordinates the robot tasks and behaviors across all packages using shared launch files.
+    The 'sde_ur5e_launch' package provides launch files for the Universal Robots UR5e platform.
   </description>
-  <maintainer email="lotfi.elhafi@em.ci.ritsumei.ac.jp">Lotfi El Hafi</maintainer>
+  <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
 
-  <license>Copyright (c) 2024 Ritsumeikan University</license>
+  <license>MIT</license>
 
-  <url type="website">http://www.em.ci.ritsumei.ac.jp/</url>
-  <url type="repository">https://gitlab.com/emlab/UR5e</url>
-  <url type="bugtracker">https://gitlab.com/emlab/UR5e/-/issues</url>
-  <author email="lotfi.elhafi@em.ci.ritsumei.ac.jp">Lotfi El Hafi</author>
+  <url type="website">https://coarobo.com/</url>
+  <url type="repository">https://gitlab.com/coarobo/SDE</url>
+  <url type="bugtracker">https://gitlab.com/coarobo/SDE/-/issues</url>
+  <author email="lotfi@coarobo.com">Lotfi El Hafi</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 

@@ -2,7 +2,7 @@
   <name>sde_launch</name>
   <version>1.0.0</version>
   <description>
-    The 'sde_launch' package coordinates shared robot tasks and behaviors across all platforms using common launch files.
+    The 'sde_launch' package provides shared launch files common to all platforms.
   </description>
   <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
 

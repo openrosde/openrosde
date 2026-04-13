@@ -185,7 +185,6 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_common_default.launch
   [[sde-turtlebot3-term-11-default-realworld]]
     [[[child0]]]
       fullscreen = False
@@ -341,7 +340,6 @@
       parent = child5
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_bringup_default_realworld.launch
     [[[terminal7]]] # Number: 5
       order = 1
       parent = child5
@@ -353,7 +351,6 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} turtlebot3_common_default.launch
   [[sde-ur5e-term-11-default-gazebo]]
     [[[child0]]]
       fullscreen = False
@@ -438,7 +435,6 @@
       parent = child8
       profile = default
       type = Terminal
-      command = bash ./RUN-DOCKER-CONTAINER.bash ${SDE_DOCKER_PROJECT} ur5e_realsense_default_gazebo.launch
     [[[terminal13]]] # Number: 2
       order = 0
       parent = child12

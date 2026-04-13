@@ -161,6 +161,16 @@ File names follow the pattern: `<component>_<variant>_<environment>.launch`
   - `realworld`: For use with the real (physical) robot.
   - Omitted when the launch file applies to both environments (e.g., `turtlebot3_mapping_default.launch`).
 
+### ROS Packages
+
+Custom ROS packages in this project follow these conventions:
+
+- Naming: `sde_launch` for shared launch files (in `sde_catkin_ws`), `sde_<platform>_launch` for platform-specific launch files (in `<platform>_catkin_ws`).
+- `package.xml`: Use format 2 (`<package format="2">`), MIT license, `lotfi@coarobo.com` as maintainer/author email, `https://coarobo.com/SDE` as website URL, `https://gitlab.com/coarobo/SDE` as repository URL.
+- `CMakeLists.txt`: Minimal template for launch-only packages (no C++ or Python nodes): `cmake_minimum_required`, `find_package(catkin REQUIRED COMPONENTS)`, `catkin_package()`, `include_directories`.
+- `README.md`: Title (`# package_name`), one-line description, Maintainer/Author with `- ` list items, optional Gazebo section with recommended startup order and Terminator command, and a `## Launch Files` table listing all `.launch` files with descriptions.
+- Include a `.gitignore` file in every package (can be empty).
+
 ### Markdown (README & Documentation)
 
 - Use [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) (GFM) syntax.
