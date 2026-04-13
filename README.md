@@ -24,33 +24,33 @@ Open-source reference implementation of the Software Development Environment (SD
 | Platform | Robot | Documentation |
 | --- | --- | --- |
 | `turtlebot3` | Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/platforms/turtlebot3.md](docs/platforms/turtlebot3.md) |
-| `ur5e` | [Universal Robot UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/platforms/ur5e.md](docs/platforms/ur5e.md) |
+| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/platforms/ur5e.md](docs/platforms/ur5e.md) |
 
 ## Quick Start
 
-> **Note:**
-  The whole SDE is containerized/virtualized using [Docker](https://www.docker.com/).
-  This ensures that all the contributors work in the exact same software environment.
+> [!NOTE]
+> The whole SDE is containerized/virtualized using [Docker](https://www.docker.com/).
+> This ensures that all the contributors work in the exact same software environment.
 
 1. Clone and set up:
 
     ```shell
     sudo apt-get update && sudo apt-get install -y git
-    cd ~/ && git clone https://gitlab.com/coarobo/SDE.git
-    cd ~/SDE/ && bash ./SETUP-DEVEL-MACHINE.bash
+    git clone https://gitlab.com/coarobo/SDE.git && cd SDE/
+    bash ./SETUP-DEVEL-MACHINE.bash
     sudo reboot
     ```
 
 2. Build the Docker image:
 
     ```shell
-    cd ~/SDE/ && bash ./BUILD-DOCKER-IMAGE.bash
+    bash ./BUILD-DOCKER-IMAGE.bash
     ```
 
 3. Run the Docker container:
 
     ```shell
-    cd ~/SDE/ && bash ./RUN-DOCKER-CONTAINER.bash
+    bash ./RUN-DOCKER-CONTAINER.bash
     ```
 
 4. Inside the container, initialize the environment:
@@ -105,8 +105,8 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 | --- | --- |
 | [Getting Started](docs/getting-started.md) | Full setup guide: prerequisites, installation, build, and run |
 | [Advanced Usage](docs/advanced-usage.md) | Bash functions, multiple terminals, Docker configuration, environment variables |
-| [TurtleBot3](docs/platforms/turtlebot3.md) | TurtleBot3 robot configuration, installation, and operation |
-| [UR5e](docs/platforms/ur5e.md) | UR5e robot setup, network, ROS communication, and operation |
+| [TurtleBot3](docs/platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
+| [UR5e](docs/platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
 
 ## Related Publications
 
@@ -118,9 +118,9 @@ Summaries of the development history, requirements, vision, and goals of the SDE
   - L. El Hafi, S. Matsuzaki, S. Itadera, and T. Yamamoto, "**Deployment of a Containerized Software Development Environment for Human Support Robots**", in *Proceedings of 2019 Annual Conference of the Robotics Society of Japan (RSJ 2019)*, ref. RSJ2019AC3K1-03, pp. 1-2, Tokyo, Japan, Sep. 3, 2019.
   - L. El Hafi, Y. Hagiwara, and T. Taniguchi, "**Abstraction-Rich Workflow for Agile Collaborative Development and Deployment of Robotic Solutions**", in *Proceedings of 2018 Annual Conference of the Robotics Society of Japan (RSJ 2018)*, ref. RSJ2018AC3D3-02, pp. 1-3, Kasugai, Japan, Sep. 5, 2018.
 
-> **Note:**
-  Cite these papers if you are using the SDE to implement your research!
-  It is crucially important to disseminate the SDE across the robotics research community.
+> [!NOTE]
+> Cite these papers if you are using the SDE to implement your research!
+> It is crucially important to disseminate the SDE across the robotics research community.
 
 ## External Resources
 
@@ -132,7 +132,7 @@ Summaries of the development history, requirements, vision, and goals of the SDE
   - Official manual: [https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/)
   - GitHub repository: [https://github.com/ROBOTIS-GIT/turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3)
   - ROS wiki: [http://wiki.ros.org/turtlebot3](http://wiki.ros.org/turtlebot3)
-- Universal Robot UR5e:
+- Universal Robots UR5e:
   - Official website: [https://www.universal-robots.com/products/ur5e/](https://www.universal-robots.com/products/ur5e/)
   - ROS Driver: [https://github.com/UniversalRobots/Universal_Robots_ROS_Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)
 

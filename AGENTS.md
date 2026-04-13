@@ -153,13 +153,15 @@ fi
 - Align continuation content (code blocks, paragraphs, nested lists) with the text of the parent list item: 2 spaces after `- `, 4 spaces after `N. `.
 - Write one sentence per line for cleaner Git diffs.
 - Use backticks `` ` ` `` around inline code, file names, commands, variables, functions, and paths.
-- Use `> **Note:**` blocks for important remarks (with 2 spaces before the text on the continuation line).
-- Use `> **Important:**` blocks for critical safety information.
+- Use [GitHub alerts](https://github.com/orgs/community/discussions/16925) for callout blocks: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`.
+  Each continuation line must be prefixed with `> `.
 - Use `shell` as the language identifier for shell code blocks.
 - Use `#[optional-arg]` and `<required-arg>` syntax in command usage examples.
 - Keep `README.md` concise with links to detailed guides in `docs/`.
 - Platform-specific documentation goes in `docs/platforms/`.
 - Use badges following the `[![Label](badge-url)](link-url)` pattern.
+- Prefix product names with their maker name (e.g., Universal Robots UR5e, OnRobot RG2, Intel RealSense D435i, Robotis TurtleBot3, 3Dconnexion SpaceNavigator).
+- Reference the host machine as "Ubuntu development machine".
 
 ### GitLab CI
 
@@ -169,7 +171,7 @@ fi
 
 ## Build Commands
 
-- Build Docker images: `cd ~/SDE/ && bash ./BUILD-DOCKER-IMAGE.bash`.
+- Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
 - Build Catkin workspace (inside container): `sde-reset-catkin-workspace` or `sde-build-catkin-workspace`.
 
 ## Testing Pipeline
