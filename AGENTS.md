@@ -42,9 +42,9 @@ It provides a containerized, multi-platform development environment based on Doc
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`).
 - `docs/`: Documentation.
-  - `getting-started.md`: Full setup guide.
+  - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
-  - `platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`).
+  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`).
 - `terminator/`: Terminator layout configuration.
 - `gitlab-ci/`: GitLab CI/CD pipeline scripts.
 
@@ -199,7 +199,7 @@ They follow the same `package.xml` and `README.md` conventions above, except:
   Use sentence capitalization for labels and edge text.
 - Use `#[optional-arg]` and `<required-arg>` syntax in command usage examples.
 - Keep `README.md` concise with links to detailed guides in `docs/`.
-- Platform-specific documentation goes in `docs/platforms/`.
+- Platform-specific documentation goes in `docs/robot-platforms/`.
 - Use badges following the `[![Label](badge-url)](link-url)` pattern.
 - Prefix product names with their maker name (e.g., Universal Robots UR5e, OnRobot RG2, Intel RealSense D435i, Robotis TurtleBot3, 3Dconnexion SpaceNavigator).
 - Reference the host machine as "Ubuntu development machine".

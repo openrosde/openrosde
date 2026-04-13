@@ -33,7 +33,7 @@ Follow this step-by-step guide to perform the initial setup of the SDE on an [Ub
 
 **Recommended:**
 
-- A physical robot for full operability (see [Platform Documentation](platforms/)).
+- A physical robot for full operability (see [Robot Platform Documentation](robot-platforms/)).
   If not, a Gazebo simulation provides support for basic operations.
 - An Nvidia GPU capable of running CUDA 11.2, or newer, to accelerate 3D graphics and deep learning.
 
@@ -95,7 +95,7 @@ Select the target robot platform by editing the `.env` file at the root of the r
     cp env/turtlebot3.env .env.custom
     ```
 
-For platform-specific details, refer to the [Platform Documentation](platforms/).
+For platform-specific details, refer to the [Robot Platform Documentation](robot-platforms/).
 
 ## Step 3: Build the Docker Image
 

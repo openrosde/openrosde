@@ -23,12 +23,19 @@ Open-source reference implementation of the Software Development Environment (SD
 
 [[_TOC_]]
 
-## Supported Platforms
+## Supported Robot Platforms
 
 | Platform | Robot | Documentation |
 | --- | --- | --- |
-| `turtlebot3` | Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/platforms/turtlebot3.md](docs/platforms/turtlebot3.md) |
-| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/platforms/ur5e.md](docs/platforms/ur5e.md) |
+| `turtlebot3` | Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/robot-platforms/turtlebot3.md](docs/robot-platforms/turtlebot3.md) |
+| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) |
+
+## Supported Software Platforms
+
+| Platform | GPU Acceleration | Notes |
+| --- | --- | --- |
+| Ubuntu 24.04 LTS (native) | Nvidia GPU via [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html) | Recommended setup |
+| Ubuntu 24.04 LTS on Windows 11 via [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) | [WSLg](https://github.com/microsoft/wslg) D3D12 Mesa driver | Lower 3D performance than native |
 
 ## Overview
 
@@ -104,7 +111,7 @@ flowchart TD
     sde-get-fully-started
     ```
 
-For detailed instructions, see the [Getting Started](docs/getting-started.md) guide.
+For detailed instructions, see the [Basic Usage](docs/basic-usage.md) guide.
 For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
 
 ## Directory Structure
@@ -137,9 +144,9 @@ ros/
   turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
   ur5e_catkin_ws/                        # UR5e Catkin workspace.
 docs/                                    # Documentation.
-  getting-started.md
+  basic-usage.md
   advanced-usage.md
-  platforms/
+  robot-platforms/
     turtlebot3.md
     ur5e.md
 terminator/
@@ -151,10 +158,10 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 
 | Document | Description |
 | --- | --- |
-| [Getting Started](docs/getting-started.md) | Full setup guide: prerequisites, installation, build, and run |
+| [Basic Usage](docs/basic-usage.md) | Full setup guide: prerequisites, installation, build, and run |
 | [Advanced Usage](docs/advanced-usage.md) | Bash functions, multiple terminals, Docker configuration, environment variables |
-| [TurtleBot3](docs/platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
-| [UR5e](docs/platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
+| [TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
+| [UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
 
 ## Related Publications
 
