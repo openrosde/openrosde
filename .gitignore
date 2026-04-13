@@ -12,7 +12,7 @@
 # Python auto-generated files:
 *.pyc
 
-# User-specific environment overrides:
+# User-specific environment overrides (created from a platform template in 'env/'):
 .env.custom
 
 # 'catkin build' auto-generated files (for all platforms):

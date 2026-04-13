@@ -86,7 +86,11 @@ Select the target robot platform by editing the `.env` file at the root of the r
     SDE_ROBOT_PLATFORM=turtlebot3
     ```
 
-2. Optionally, create a `.env.custom` file to override default settings (see `.env.custom.example` for reference).
+2. Optionally, create a `.env.custom` file to override default settings by copying a platform template from `env/`:
+
+    ```shell
+    cp env/turtlebot3.env .env.custom
+    ```
 
 For platform-specific details, refer to the [Platform Documentation](platforms/).
 

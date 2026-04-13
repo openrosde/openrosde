@@ -26,12 +26,15 @@ To use the TurtleBot3 platform, set the following in `.env`:
 SDE_ROBOT_PLATFORM=turtlebot3
 ```
 
-The default `.env` configuration is pre-configured for the TurtleBot3 platform with:
+Optionally, create `.env.custom` from the platform template:
 
 ```shell
-SDE_ROS_MASTER_HOSTNAME=localhost
-SDE_ROBOT_HOSTNAME=turtlebot3.local
+cp env/turtlebot3.env .env.custom
 ```
+
+> [!NOTE]
+> The default `.env` configuration is already pre-configured for the Robotis TurtleBot3 platform.
+> Creating `.env.custom` is only necessary to override specific settings.
 
 ## Network Configuration
 

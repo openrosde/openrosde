@@ -31,11 +31,10 @@ To use the Universal Robots UR5e platform, set the following in `.env`:
 SDE_ROBOT_PLATFORM=ur5e
 ```
 
-Then configure the ROS network settings in `.env.custom`:
+Then create `.env.custom` from the platform template:
 
 ```shell
-SDE_ROS_MASTER_HOSTNAME=localhost
-SDE_ROBOT_HOSTNAME=
+cp env/ur5e.env .env.custom
 ```
 
 > [!NOTE]
@@ -50,7 +49,7 @@ Although host names would be preferred for convenience, the Universal Robots UR5
 
 | Device | SDE Default IP | Factory Default IP |
 | --- | --- | --- |
-| Universal Robots UR5e | `192.168.1.10` | Unknown |
+| Universal Robots UR5e | `192.168.1.200` | `192.168.1.10` |
 | OnRobot Compute Box | `192.168.1.201` | `192.168.1.1` |
 | Ubuntu development machine | `192.168.1.202` | n/a |
 

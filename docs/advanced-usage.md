@@ -93,7 +93,7 @@ They can be found on the Ubuntu development machine at:
 The SDE uses a two-file configuration system:
 
 - `.env`: Contains the default configuration variables (committed to Git). Use `.env.custom` for personal overrides.
-- `.env.custom`: User-specific overrides (created from `.env.custom.example`). This file is ignored by Git.
+- `.env.custom`: User-specific overrides (created from a platform template in `env/`). This file is ignored by Git.
 
 Key configuration variables:
 

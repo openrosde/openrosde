@@ -107,7 +107,9 @@ For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
 
 ```
 .env                                     # Default platform configuration.
-.env.custom.example                      # Template for user overrides.
+env/
+  turtlebot3.env                         # TurtleBot3 platform template.
+  ur5e.env                               # UR5e platform template.
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
 RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.

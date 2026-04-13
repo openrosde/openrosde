@@ -39,6 +39,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
   - `ur5e_catkin_ws/`: UR5e workspace.
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
+- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`).
 - `docs/`: Documentation.
   - `getting-started.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
@@ -65,7 +66,7 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 ### Configuration System
 
 - `.env`: Default configuration (committed to Git). Do not add fallback defaults (`:-`) in scripts; all defaults live here.
-- `.env.custom`: User overrides (Git-ignored, created from `.env.custom.example`).
+- `.env.custom`: User overrides (Git-ignored, created from a platform template in `env/`).
 - `scripts/load-sde-env.bash`: Shared loader sourced by all top-level `*.bash` scripts. Resolves `SDE_ROOT_DIR`, loads `.env`/`.env.custom`, exports variables for `docker-compose.yaml` interpolation.
 
 ### Variable Naming Convention
