@@ -3,8 +3,8 @@
 ################################################################################
 
 # Derive the shared and platform-specific catkin workspace paths.
-SDE_SHARED_CATKIN_WS="/root/SDE/ros/sde_catkin_ws"
-SDE_PLATFORM_CATKIN_WS="/root/SDE/ros/${SDE_PLATFORM:-turtlebot3}_catkin_ws"
+SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
+SDE_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_PLATFORM:-turtlebot3}_catkin_ws"
 
 ################################################################################
 
@@ -19,7 +19,7 @@ rosdep update --include-eol-distros
 
 # Remove all Catkin workspace leftovers (all workspaces under ros/).
 
-for SDE_WS in /root/SDE/ros/*_catkin_ws; do
+for SDE_WS in ${SDE_CONTAINER_ROOT_DIR}/ros/*_catkin_ws; do
   [ -d "${SDE_WS}" ] || continue
   echo "Cleaning workspace: ${SDE_WS}"
 
@@ -44,4 +44,4 @@ done
 ################################################################################
 
 # Build both workspaces.
-source /root/SDE/docker/sde-base/scripts/build-catkin-workspace.bash
+source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/build-catkin-workspace.bash

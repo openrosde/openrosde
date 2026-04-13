@@ -10,6 +10,7 @@ services:
       dockerfile: ./docker/sde-base/Dockerfile
       args:
         - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
+        - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
 
   sde:
     hostname: sde-${SDE_PLATFORM}
@@ -26,6 +27,8 @@ services:
       - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
       # Pass the platform identifier to the container.
       - SDE_PLATFORM=${SDE_PLATFORM}
+      # Pass the SDE root directory path.
+      - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
     image: registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:latest
     build:
       context: ../
@@ -35,7 +38,7 @@ services:
         - SDE_PLATFORM=${SDE_PLATFORM}
     volumes:
       # Map repository root for convenient access.
-      - ../:/root/SDE/
+      - ../:${SDE_CONTAINER_ROOT_DIR}/
       # Grant display access to X Server.
       - /tmp/.X11-unix:/tmp/.X11-unix
       # Grant audio access to PulseAudio.
@@ -45,4 +48,4 @@ services:
     network_mode: host
     ipc: host
     pid: host
-    command: /root/SDE/docker/sde-base/scripts/initialize-docker-container.bash
+    command: ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/initialize-docker-container.bash

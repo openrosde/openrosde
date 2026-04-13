@@ -161,7 +161,7 @@ Enter a virtual instance of the Docker image (= Docker container) on the develop
      ```
 
      This function calls several scripts to download the required datasets and build the ROS environment (= Catkin workspace) inside the Docker container.
-     It will remove any existing Catkin workspace and build a new one inside `/root/SDE/ros/catkin_ws/`.
+     It will remove any existing Catkin workspace and build a new one inside `${SDE_CONTAINER_ROOT_DIR}/ros/`.
      It will also automatically source the newly built ROS environment.
 4.   From there, you have everything ready to start using the SDE to develop new features.
 3.   Use `Ctrl+d` to exit the container at any time.
@@ -200,7 +200,7 @@ Including, but not limited to:
 *   `sde-kill-ros-nodes`: Kill all ROS nodes as well as [`roscore`](https://wiki.ros.org/roscore) and [`rosmaster`](https://wiki.ros.org/rosmaster) still running in the Docker container.
 
 > **Note:**
-  These Bash functions are based on helper scripts that can be found in `/root/SDE/docker/sde-base/scripts/` in the Docker container or in `~/SDE/docker/sde-base/scripts/` in the development machine.
+  These Bash functions are based on helper scripts that can be found in `${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/` in the Docker container or in `~/SDE/docker/sde-base/scripts/` in the development machine.
   You can see their definitions in `~/.bashrc` inside the container.
 
 > **Note:**
@@ -237,6 +237,9 @@ They can be found on the development machine at:
 *   `~/SDE/docker/sde-base/scripts/initialize-bash-shell.bash`: A shell script appended to `/root/.bashrc` at the end of the `Dockerfile` to set up the Bash shell environment inside the container (terminal colors, shell functions, symbolic links, binary paths, environment sourcing, etc.).
     Theoretically, its content could be written directly in the `Dockerfile`, but this would result in complex lines of code as helpful Bash syntaxes like here-documents are not supported by Docker.
     It is automatically sourced by `/root/.bashrc` every time the user enters the Bash shell inside the container, most likely every time `RUN-DOCKER-CONTAINER.bash` is run.
+
+> **Note:**
+  The SDE installation path inside the Docker container defaults to `/root/SDE/` and can be changed with the `SDE_CONTAINER_ROOT_DIR` variable in `.env`.
 
 ### Step 5: Develop on the Simulator/Robot
 

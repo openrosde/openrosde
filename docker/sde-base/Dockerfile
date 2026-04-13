@@ -116,12 +116,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Define the working directory.
 WORKDIR /root/
 
+# Set the SDE root directory inside the container.
+ARG SDE_CONTAINER_ROOT_DIR=/root/SDE
+ENV SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
+
 # Copy the helper scripts to the working directory.
-COPY ./docker/sde-base/scripts/. /root/SDE/docker/sde-base/scripts/
-RUN chmod -R +x /root/SDE/docker/sde-base/scripts/*
+COPY ./docker/sde-base/scripts/. ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/
+RUN chmod -R +x ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/*
 
 # Setup the Bash shell environment with '/root/.bashrc'.
-RUN echo "source /root/SDE/docker/sde-base/scripts/initialize-bash-shell.bash" >> /root/.bashrc
+RUN echo "source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/initialize-bash-shell.bash" >> /root/.bashrc
 
 # Force color prompt in terminal.
 RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' /root/.bashrc
@@ -130,8 +134,8 @@ RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' /root/.bashrc
 ARG SDE_DOCKERFILE_COMMIT_SHORT_SHA
 ENV SDE_DOCKER_IMAGE_VERSION=${SDE_DOCKERFILE_COMMIT_SHORT_SHA}
 
-# Add the '/root/SDE/' directory to the safe Git repository list (no trailing '/' here).
-RUN git config --global --add safe.directory /root/SDE
+# Add the SDE root directory to the safe Git repository list.
+RUN git config --global --add safe.directory ${SDE_CONTAINER_ROOT_DIR}
 
 # Overwrite the entry point of the parent image.
 ENTRYPOINT []

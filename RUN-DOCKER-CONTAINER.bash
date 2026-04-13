@@ -57,5 +57,5 @@ xhost +local:docker
 if [ -z "$2" ]; then
   docker exec -i -t ${SDE_DOCKER_CONTAINER} bash
 else
-  docker exec -i -t ${SDE_DOCKER_CONTAINER} bash -i -c "source ~/SDE/docker/sde-base/scripts/run-roslaunch-repeatedly.bash $2"
+  docker exec -i -t ${SDE_DOCKER_CONTAINER} bash -i -c "source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/run-roslaunch-repeatedly.bash $2"
 fi

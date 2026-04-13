@@ -3,16 +3,16 @@
 ################################################################################
 
 # Load the default environment variables from the '.env' file:
-source /root/SDE/.env
+source ${SDE_CONTAINER_ROOT_DIR}/.env
 
 # Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
-if [ -f /root/SDE/.env.custom ]; then
-  source /root/SDE/.env.custom
+if [ -f ${SDE_CONTAINER_ROOT_DIR}/.env.custom ]; then
+  source ${SDE_CONTAINER_ROOT_DIR}/.env.custom
 fi
 
 # Derive the shared and platform-specific catkin workspace paths.
-SDE_SHARED_CATKIN_WS="/root/SDE/ros/sde_catkin_ws"
-SDE_PLATFORM_CATKIN_WS="/root/SDE/ros/${SDE_PLATFORM}_catkin_ws"
+SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
+SDE_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_PLATFORM}_catkin_ws"
 
 ################################################################################
 
@@ -37,9 +37,9 @@ stty -ixon
 
 # TODO: If switched from Dockerfile-sensitive generation to folder-sensitive generation,
 # then show latest commit of the platform-devel folder with 'git log -n 1 --format="%h %aN %s %ad" -- $directory'.
-SDE_DOCKERFILE_LATEST_HASH=$(git -C /root/SDE/ log -n 1 --no-merges --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)
-SDE_DOCKERFILE_LATEST_DATE=$(git -C /root/SDE/ log -n 1 --no-merges --pretty=format:%cd ./docker/${SDE_PLATFORM}-devel/Dockerfile)
-SDE_DOCKERFILE_CREATION_DATE=$(git -C /root/SDE/ show --no-patch --no-notes --pretty='%cd' ${SDE_DOCKER_IMAGE_VERSION})
+SDE_DOCKERFILE_LATEST_HASH=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)
+SDE_DOCKERFILE_LATEST_DATE=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%cd ./docker/${SDE_PLATFORM}-devel/Dockerfile)
+SDE_DOCKERFILE_CREATION_DATE=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ show --no-patch --no-notes --pretty='%cd' ${SDE_DOCKER_IMAGE_VERSION})
 
 echo -e "Container version: ${SDE_PLATFORM}-devel:${SDE_DOCKER_IMAGE_VERSION:0:7} from ${SDE_DOCKERFILE_CREATION_DATE}"
 if [[ "${SDE_DOCKERFILE_CREATION_DATE}" != "${SDE_DOCKERFILE_LATEST_DATE}" ]]; then
@@ -77,54 +77,54 @@ export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_P
 function sde-build-catkin-workspace () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-base/scripts/build-catkin-workspace.bash
-  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/build-catkin-workspace.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-reset-catkin-workspace () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-base/scripts/reset-catkin-workspace.bash
-  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspace.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-fix-permission-issues () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-download-model-data () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-base/scripts/download-model-data.bash
-  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/download-model-data.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-get-fully-started () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-base/scripts/download-model-data.bash
-  source /root/SDE/docker/sde-base/scripts/reset-catkin-workspace.bash
-  source /root/SDE/docker/sde-base/scripts/fix-permission-issues.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/download-model-data.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspace.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/fix-permission-issues.bash
   popd
 }
 
 function sde-cleanup-output-data () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-base/scripts/cleanup-output-data.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/cleanup-output-data.bash
   popd
 }
 
 function sde-kill-ros-nodes () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
-  source /root/SDE/docker/sde-base/scripts/kill-ros-nodes.bash
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/kill-ros-nodes.bash
   popd
 }
 
@@ -147,7 +147,7 @@ else
   else
     # If the ROS master host name is found, set the local 'ROS_IP' using the network interface that connects to the ROS master.
     # TODO: Use Bash instead of Python.
-    export ROS_IP=`python3 /root/SDE/docker/sde-base/scripts/print-interface-ip.py ${SDE_ROS_MASTER_IP}`
+    export ROS_IP=`python3 ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/print-interface-ip.py ${SDE_ROS_MASTER_IP}`
   fi
   if [ -z "${ROS_IP}" ]; then
     # If the local 'ROS_IP' is still empty, default to the Docker network interface ('docker0') for sanity.
@@ -192,4 +192,4 @@ export SDE_LAUNCH_PACKAGE
 ################################################################################
 
 # Move to the working directory.
-cd /root/SDE/
+cd ${SDE_CONTAINER_ROOT_DIR}/
