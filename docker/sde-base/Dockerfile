@@ -48,11 +48,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   curl \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Add the ROS repository to the sources list.
-RUN echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros-latest.list
-
 # Add the ROS repository key.
-RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
+# https://wiki.ros.org/noetic/Installation/Ubuntu
+RUN curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc -o /usr/share/keyrings/ros-archive-keyring.asc
+
+# Add the ROS repository to the sources list.
+RUN echo "deb [signed-by=/usr/share/keyrings/ros-archive-keyring.asc] http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros-latest.list
 
 # Install the recommended ROS 'desktop' packages and developer tools.
 RUN apt-get update && apt-get install -y --no-install-recommends \

@@ -7,6 +7,11 @@
 
 ################################################################################
 
+# Refresh the ROS repository key to prevent signature verification errors on older images.
+curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc -o /usr/share/keyrings/ros-archive-keyring.asc
+
+################################################################################
+
 # Start the D-Bus daemon.
 service dbus start
 
