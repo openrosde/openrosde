@@ -26,17 +26,21 @@ fi
 
 ################################################################################
 
-# Ask the user credentials to login into the GitLab Docker registry.
-echo "Login into 'registry.gitlab.com' using a deploy token."
+# Login into the GitLab Docker registry using a read-only deploy token.
+echo "Login into 'registry.gitlab.com' using a read-only deploy token."
 docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
 
-# Build the SDE base image first, then the platform-specific image.
-# If the script runs in CI mode, build the images from scratch without cached data.
-# Otherwise, try to pull them from the registry, and if it fails, build locally using cached data.
-
-if [[ "$SDE_DOCKER_PROJECT" == "gitlab-ci" ]]; then
+# Pull the SDE base image and the platform-specific image from the registry.
+# If pulling fails, build both images locally using cached data.
+# When passing the 'gitlab-ci' argument, build all platform-specific images without cached data.
+if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde --no-cache
+  for SDE_PLATFORM in turtlebot3 ur5e; do
+    export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
+    export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
+    echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde --no-cache
+  done
 else
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde-base
   if [[ "$?" -ne "0" ]]; then

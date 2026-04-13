@@ -65,6 +65,7 @@ sudo apt-get update && sudo apt-get install -y \
 sudo docker version
 sudo docker compose version
 sudo docker run --rm hello-world
+sudo docker rmi hello-world
 
 ################################################################################
 

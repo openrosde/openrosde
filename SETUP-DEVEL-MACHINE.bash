@@ -51,6 +51,7 @@ sudo apt-get update && sudo apt-get install -y \
 docker version
 docker compose version
 docker run --rm hello-world
+docker rmi hello-world
 
 ################################################################################
 
@@ -85,6 +86,7 @@ if [ -e /proc/driver/nvidia/version ]; then
   sudo nvidia-ctk runtime configure --runtime=docker
   sudo systemctl restart docker
   docker run --gpus all --rm nvidia/cuda:11.2.2-base-ubuntu20.04 nvidia-smi
+  docker rmi nvidia/cuda:11.2.2-base-ubuntu20.04
 fi
 
 ################################################################################
