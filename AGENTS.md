@@ -210,6 +210,13 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Use `SDE_` prefix for all custom CI variables.
 - Use parallel matrix builds for multi-platform CI jobs.
 
+### Submodule Patches
+
+- Patch files for Git submodules live in `patches/` mirroring the full submodule path (e.g., `patches/ros/sde_catkin_ws/src/flexbe_app/`).
+- Name patch files with a numbered prefix and three kebab-case words starting with a verb: `0001-fix-curl-redirect.patch`.
+- Patches are applied idempotently by `scripts/apply-submodule-patches.bash` after `git submodule update --init --recursive` in `SETUP-DEVEL-MACHINE.bash`.
+- To create a patch: make changes in the submodule, run `git diff > <patch-file>`, then reset the submodule with `git checkout .`.
+
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.

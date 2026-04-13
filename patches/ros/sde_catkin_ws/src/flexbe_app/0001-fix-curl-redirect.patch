@@ -1,0 +1,13 @@
+diff --git a/bin/nwjs_install b/bin/nwjs_install
+index b8db8f3..970ef02 100755
+--- a/bin/nwjs_install
++++ b/bin/nwjs_install
+@@ -36,7 +36,7 @@ fi
+ 
+ # ready to go
+ echo "Downloading nwjs..."
+-curl -s -o $TEMPFILE https://dl.nwjs.io/$VERSION/nwjs-$VERSION-$OS-$ARCH.tar.gz
++curl -L -o $TEMPFILE https://dl.nwjs.io/$VERSION/nwjs-$VERSION-$OS-$ARCH.tar.gz
+ 
+ echo "Unpacking..."
+ tar -xzf $TEMPFILE --strip-components 1

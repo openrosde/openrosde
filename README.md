@@ -151,6 +151,7 @@ docs/                                    # Documentation.
     ur5e.md
 terminator/
   config                                 # Terminator layout configuration.
+patches/                                 # Submodule patch files.
 gitlab-ci/                               # GitLab CI/CD scripts.
 ```
 

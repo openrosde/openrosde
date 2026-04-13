@@ -109,6 +109,9 @@ fi
 # https://git-scm.com/book/en/v2/Git-Tools-Submodules
 git submodule update --init --recursive
 
+# Apply patches to the Git submodules (if any).
+source ./scripts/apply-submodule-patches.bash
+
 ################################################################################
 
 # Setup the Bash shell environment with '~/.bashrc'.
