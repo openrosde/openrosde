@@ -22,21 +22,20 @@ stages:
 # Use Docker-in-Docker with TLS disabled in the Docker executor.
 # https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#docker-in-docker-with-tls-disabled-in-the-docker-executor
 image: docker:latest
-variables:
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
-services:
-  - docker:dind
-before_script:
-  - docker info
 
 # Create a mount point to share files between the Docker-in-Docker container and the child containers.
 # https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#limitations-of-docker-in-docker
 # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41227
 variables:
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
   SDE_MOUNT_POINT: /builds/${CI_PROJECT_PATH}/mnt
   SDE_CONTAINER_ROOT_DIR: /root/SDE
+services:
+  - docker:dind
+
 before_script:
+  - docker info
   # Download all the missing Git submodules inside the project workspace.
   - apk update
   - apk add git
@@ -44,6 +43,7 @@ before_script:
   # Copy the content of the project workspace to the mount point.
   - mkdir -p ${SDE_MOUNT_POINT}/
   - cp -r ./ros/ ./docker/ ./scripts/ ./.env ${SDE_MOUNT_POINT}/
+
 after_script:
   # Copy the content of the mount point back to the project workspace.
   # Note: This extra step is required due to some path limitations with the GitLab CI 'artifacts' command.
@@ -60,7 +60,7 @@ build-catkin-workspace-job:
       - SDE_ROBOT_PLATFORM: [turtlebot3, ur5e]
   script:
     # Build the Catkin workspace inside the Docker container of the project workspace that is mapped to the mount point.
-    - docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
+    - docker login -u ${SDE_DEPLOY_TOKEN_USERNAME} --password-stdin ${CI_REGISTRY}
     - docker run
       -e CI=${CI}
       -e SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
