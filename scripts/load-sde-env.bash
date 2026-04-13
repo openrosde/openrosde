@@ -29,27 +29,27 @@ SDE_DOCKER_PROJECT=$1
 if [ -z "${SDE_DOCKER_PROJECT}" ]; then
   SDE_DOCKER_PROJECT=${USER}
 fi
-SDE_DOCKER_CONTAINER="sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
+SDE_DOCKER_CONTAINER="sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
 
 ################################################################################
 
 # Export variables so that they can be interpolated in 'docker-compose.yaml'.
 export SDE_USER_ID="$(id -u)"
 export SDE_GROUP_ID="$(id -g)"
-export SDE_PLATFORM
+export SDE_ROBOT_PLATFORM
 export SDE_CONTAINER_ROOT_DIR
 export SDE_DOCKER_PROJECT
 export SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/sde-base/Dockerfile)"
-export SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
+export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
 
 ################################################################################
 
 # Print the variables for debugging purposes.
 echo "$0: SDE_USER_ID=${SDE_USER_ID}"
 echo "$0: SDE_GROUP_ID=${SDE_GROUP_ID}"
-echo "$0: SDE_PLATFORM=${SDE_PLATFORM}"
+echo "$0: SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}"
 echo "$0: SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}"
 echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
 echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
 echo "$0: SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}"
-echo "$0: SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}"
+echo "$0: SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}"

@@ -26,8 +26,8 @@ docker push registry.gitlab.com/coarobo/sde/sde-base:latest
 ################################################################################
 
 # Tag and push the platform-specific image (e.g. turtlebot3-devel, ur5e-devel).
-docker tag registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:latest registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:${SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
+docker tag registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
 
-echo "Pushing ${SDE_PLATFORM}-devel image..."
-docker push registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:${SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
-docker push registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:latest
+echo "Pushing ${SDE_ROBOT_PLATFORM}-devel image..."
+docker push registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
+docker push registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest

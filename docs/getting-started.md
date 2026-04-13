@@ -79,11 +79,11 @@ Set up the environment of the Ubuntu development machine with the following inst
 
 Select the target robot platform by editing the `.env` file at the root of the repository.
 
-1. Set the `SDE_PLATFORM` variable to the desired platform:
+1. Set the `SDE_ROBOT_PLATFORM` variable to the desired platform:
 
     ```shell
     # Platform to use: turtlebot3, ur5e
-    SDE_PLATFORM=turtlebot3
+    SDE_ROBOT_PLATFORM=turtlebot3
     ```
 
 2. Optionally, create a `.env.custom` file to override default settings (see `.env.custom.example` for reference).
@@ -100,7 +100,7 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
     bash ./BUILD-DOCKER-IMAGE.bash #[docker-project]
     ```
 
-    This script builds the shared base image (`sde-base`) and the platform-specific image (`${SDE_PLATFORM}-devel`) following the instructions found in `docker/`.
+    This script builds the shared base image (`sde-base`) and the platform-specific image (`${SDE_ROBOT_PLATFORM}-devel`) following the instructions found in `docker/`.
     Enter your GitLab developer credentials if prompted.
 
 > [!NOTE]

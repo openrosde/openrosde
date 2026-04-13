@@ -18,9 +18,9 @@ source ./scripts/load-sde-env.bash "$1"
 # Run Terminator with a custom configuration file and layout after injecting the required environment variables.
 sed "s/\${SDE_DOCKER_PROJECT}/${SDE_DOCKER_PROJECT}/g" ./terminator/config > ./terminator/config.tmp
 if [ -z "$2" ]; then
-  terminator --maximise --config ./terminator/config.tmp --layout sde-${SDE_PLATFORM}-term-11-default-gazebo
+  terminator --maximise --config ./terminator/config.tmp --layout sde-${SDE_ROBOT_PLATFORM}-term-11-default-gazebo
 else
-  terminator --maximise --config ./terminator/config.tmp --layout sde-${SDE_PLATFORM}-term-11-$2
+  terminator --maximise --config ./terminator/config.tmp --layout sde-${SDE_ROBOT_PLATFORM}-term-11-$2
 fi
 rm ./terminator/config.tmp
 sleep 1

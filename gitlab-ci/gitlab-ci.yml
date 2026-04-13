@@ -57,25 +57,25 @@ build-catkin-workspace-job:
   stage: build-stage
   parallel:
     matrix:
-      - SDE_PLATFORM: [turtlebot3, ur5e]
+      - SDE_ROBOT_PLATFORM: [turtlebot3, ur5e]
   script:
     # Build the Catkin workspace inside the Docker container of the project workspace that is mapped to the mount point.
     - docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
     - docker run
       -e CI=${CI}
-      -e SDE_PLATFORM=${SDE_PLATFORM}
+      -e SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
       -e SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
       -v ${SDE_MOUNT_POINT}/:${SDE_CONTAINER_ROOT_DIR}/
-      ${CI_REGISTRY_IMAGE}/${SDE_PLATFORM}-devel:latest ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspace.bash
+      ${CI_REGISTRY_IMAGE}/${SDE_ROBOT_PLATFORM}-devel:latest ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspace.bash
   # Save the build result to pass it to the next jobs.
   artifacts:
-    name: ${CI_COMMIT_SHA}-${SDE_PLATFORM}
+    name: ${CI_COMMIT_SHA}-${SDE_ROBOT_PLATFORM}
     paths:
       # Note: Only paths relative to the project workspace can be used, thus '${SDE_MOUNT_POINT}/' is not permitted.
       # https://docs.gitlab.com/ee/ci/yaml/#artifacts
       # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/15530
       - ./ros/sde_catkin_ws/
-      - ./ros/${SDE_PLATFORM}_catkin_ws/
+      - ./ros/${SDE_ROBOT_PLATFORM}_catkin_ws/
     expire_in: 1 week
 
 ################################################################################

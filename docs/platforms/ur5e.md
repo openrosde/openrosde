@@ -28,7 +28,7 @@ The Universal Robots UR5e platform consists of the following components:
 To use the Universal Robots UR5e platform, set the following in `.env`:
 
 ```shell
-SDE_PLATFORM=ur5e
+SDE_ROBOT_PLATFORM=ur5e
 ```
 
 Then configure the ROS network settings in `.env.custom`:

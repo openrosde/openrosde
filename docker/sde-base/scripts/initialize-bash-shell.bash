@@ -17,7 +17,7 @@ fi
 
 # Derive the shared and platform-specific catkin workspace paths.
 SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
-SDE_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_PLATFORM}_catkin_ws"
+SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
 
 ################################################################################
 
@@ -42,13 +42,13 @@ stty -ixon
 
 # TODO: If switched from Dockerfile-sensitive generation to folder-sensitive generation,
 # then show latest commit of the platform-devel folder with 'git log -n 1 --format="%h %aN %s %ad" -- $directory'.
-SDE_DOCKERFILE_LATEST_HASH=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)
-SDE_DOCKERFILE_LATEST_DATE=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%cd ./docker/${SDE_PLATFORM}-devel/Dockerfile)
+SDE_DOCKERFILE_LATEST_HASH=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)
+SDE_DOCKERFILE_LATEST_DATE=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%cd ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)
 SDE_DOCKERFILE_CREATION_DATE=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ show --no-patch --no-notes --pretty='%cd' ${SDE_DOCKER_IMAGE_VERSION})
 
-echo -e "Container version: ${SDE_PLATFORM}-devel:${SDE_DOCKER_IMAGE_VERSION:0:7} from ${SDE_DOCKERFILE_CREATION_DATE}"
+echo -e "Container version: ${SDE_ROBOT_PLATFORM}-devel:${SDE_DOCKER_IMAGE_VERSION:0:7} from ${SDE_DOCKERFILE_CREATION_DATE}"
 if [[ "${SDE_DOCKERFILE_CREATION_DATE}" != "${SDE_DOCKERFILE_LATEST_DATE}" ]]; then
-  echo -e "Newer image available: ${SDE_PLATFORM}-devel:${SDE_DOCKERFILE_LATEST_HASH} from ${SDE_DOCKERFILE_LATEST_DATE}"
+  echo -e "Newer image available: ${SDE_ROBOT_PLATFORM}-devel:${SDE_DOCKERFILE_LATEST_HASH} from ${SDE_DOCKERFILE_LATEST_DATE}"
 fi
 
 ################################################################################
@@ -67,13 +67,13 @@ if [ -f ${SDE_SHARED_CATKIN_WS}/devel/setup.bash ]; then
 fi
 
 # Source the platform-specific Catkin workspace.
-echo "Sourcing the platform Catkin workspace from '${SDE_PLATFORM_CATKIN_WS}/devel/setup.bash'."
-source ${SDE_PLATFORM_CATKIN_WS}/devel/setup.bash
+echo "Sourcing the platform Catkin workspace from '${SDE_ROBOT_PLATFORM_CATKIN_WS}/devel/setup.bash'."
+source ${SDE_ROBOT_PLATFORM_CATKIN_WS}/devel/setup.bash
 
 ################################################################################
 
 # Add both Catkin workspaces to the 'ROS_PACKAGE_PATH'.
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_PLATFORM_CATKIN_WS}/src/
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_ROBOT_PLATFORM_CATKIN_WS}/src/
 
 ################################################################################
 
@@ -180,7 +180,7 @@ fi
 
 # Set platform-specific configuration.
 
-case "${SDE_PLATFORM}" in
+case "${SDE_ROBOT_PLATFORM}" in
   turtlebot3)
     # Select the TurtleBot3 model name.
     # https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#set-turtlebot3-model-name-1

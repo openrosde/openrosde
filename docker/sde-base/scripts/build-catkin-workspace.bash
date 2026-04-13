@@ -8,7 +8,7 @@
 
 # Derive the shared and platform-specific catkin workspace paths.
 SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
-SDE_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_PLATFORM}_catkin_ws"
+SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
 
 # Source the ROS distribution environment.
 source /opt/ros/noetic/setup.bash
@@ -20,7 +20,7 @@ cd ${SDE_SHARED_CATKIN_WS} && catkin build
 source ${SDE_SHARED_CATKIN_WS}/devel/setup.bash
 
 # Build the platform-specific Catkin workspace.
-cd ${SDE_PLATFORM_CATKIN_WS} && catkin build
+cd ${SDE_ROBOT_PLATFORM_CATKIN_WS} && catkin build
 
 # Source the platform-specific Catkin workspace.
-source ${SDE_PLATFORM_CATKIN_WS}/devel/setup.bash
+source ${SDE_ROBOT_PLATFORM_CATKIN_WS}/devel/setup.bash

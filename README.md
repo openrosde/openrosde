@@ -85,9 +85,9 @@ docker/
   ur5e-devel/                            # UR5e platform image.
     Dockerfile
 ros/
-  sde_catkin_ws/                          # Shared Catkin workspace.
-  turtlebot3_catkin_ws/                   # TurtleBot3 Catkin workspace.
-  ur5e_catkin_ws/                         # UR5e Catkin workspace.
+  sde_catkin_ws/                         # Shared Catkin workspace.
+  turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
+  ur5e_catkin_ws/                        # UR5e Catkin workspace.
 docs/                                    # Documentation.
   getting-started.md
   advanced-usage.md

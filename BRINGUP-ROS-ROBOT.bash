@@ -32,7 +32,7 @@ EOF
 ################################################################################
 
 # Platform-specific robot bringup commands.
-case "${SDE_PLATFORM}" in
+case "${SDE_ROBOT_PLATFORM}" in
   turtlebot3)
     ssh -f -t -l pi turtlebot3.local 'bash -c "
 source /opt/ros/kinetic/setup.bash;
@@ -56,6 +56,6 @@ echo "Done"
     echo "UR5e robot bringup is not yet configured. Please start the robot manually."
     ;;
   *)
-    echo "Unknown platform '${SDE_PLATFORM}'. No bringup commands available."
+    echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No bringup commands available."
     ;;
 esac

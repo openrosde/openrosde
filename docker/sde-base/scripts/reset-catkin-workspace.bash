@@ -8,7 +8,7 @@
 
 # Derive the shared and platform-specific catkin workspace paths.
 SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
-SDE_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_PLATFORM}_catkin_ws"
+SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
 
 ################################################################################
 
@@ -40,7 +40,7 @@ done
 
 # Initialize and build only the shared and platform-specific workspaces.
 
-for SDE_WS in "${SDE_SHARED_CATKIN_WS}" "${SDE_PLATFORM_CATKIN_WS}"; do
+for SDE_WS in "${SDE_SHARED_CATKIN_WS}" "${SDE_ROBOT_PLATFORM_CATKIN_WS}"; do
   echo "Initializing workspace: ${SDE_WS}"
   cd ${SDE_WS}/src/ && catkin_init_workspace
 done

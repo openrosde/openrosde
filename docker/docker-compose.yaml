@@ -13,8 +13,8 @@ services:
         - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
 
   sde:
-    hostname: sde-${SDE_PLATFORM}
-    container_name: sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1
+    hostname: sde-${SDE_ROBOT_PLATFORM}
+    container_name: sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1
     privileged: true
     environment:
       # Pass current user and group IDs.
@@ -26,16 +26,16 @@ services:
       # Configure the PulseAudio interface.
       - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
       # Pass the platform identifier to the container.
-      - SDE_PLATFORM=${SDE_PLATFORM}
+      - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
       # Pass the SDE root directory path.
       - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
-    image: registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:latest
+    image: registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest
     build:
       context: ../
-      dockerfile: ./docker/${SDE_PLATFORM}-devel/Dockerfile
+      dockerfile: ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
-        - SDE_PLATFORM=${SDE_PLATFORM}
+        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
+        - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
     volumes:
       # Map repository root for convenient access.
       - ../:${SDE_CONTAINER_ROOT_DIR}/

@@ -55,12 +55,12 @@ You have expertise in Docker, ROS, Bash scripting, and Linux system administrati
 
 ### Multi-Platform Design
 
-The SDE supports multiple robot platforms through a single codebase controlled by the `SDE_PLATFORM` variable in `.env`:
+The SDE supports multiple robot platforms through a single codebase controlled by the `SDE_ROBOT_PLATFORM` variable in `.env`:
 
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
 - Platform-specific images (`turtlebot3-devel`, `ur5e-devel`) extend the base with robot-specific packages.
-- Two Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`) then platform-specific (`${SDE_PLATFORM}_catkin_ws`).
-- All scripts derive their behavior from `SDE_PLATFORM` loaded via `scripts/load-sde-env.bash`.
+- Two Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`) then platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`).
+- All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
 
 ### Configuration System
 
@@ -71,13 +71,13 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 ### Variable Naming Convention
 
 All custom environment variables use the `SDE_` prefix. Examples:
-- `SDE_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`).
+- `SDE_ROBOT_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`).
 - `SDE_CONTAINER_ROOT_DIR`: SDE root path inside the Docker container.
 - `SDE_ROOT_DIR`: SDE root path on the host (auto-resolved, not in `.env`).
 - `SDE_DOCKER_PROJECT`: Docker project name for container naming.
-- `SDE_DOCKER_CONTAINER`: Derived container name (`sde_${SDE_PLATFORM}_${SDE_DOCKER_PROJECT}-1`).
+- `SDE_DOCKER_CONTAINER`: Derived container name (`sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1`).
 - `SDE_USER_ID` / `SDE_GROUP_ID`: Host user/group IDs passed to the container.
-- `SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA` / `SDE_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA`: Git commit hashes for image traceability.
+- `SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA` / `SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA`: Git commit hashes for image traceability.
 
 ## Code Style
 
@@ -89,7 +89,7 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - Add a comment before each logical block explaining its purpose.
 - Use single quotes `' '` around code-related references in comments (e.g., `# Load the default environment variables from the '.env' file:`).
 - Use `${VARIABLE}` syntax (with curly braces) for all variable references.
-- Prefix all custom variables with `SDE_` (e.g., `SDE_PLATFORM`, not `PLATFORM`).
+- Prefix all custom variables with `SDE_` (e.g., `SDE_ROBOT_PLATFORM`, not `PLATFORM`).
 - Do not use fallback default syntax (`${VAR:-default}`) in scripts; all defaults belong in `.env`.
 - Use `source` instead of `.` for sourcing scripts.
 - Use `pushd` / `popd` for temporary directory changes in functions.

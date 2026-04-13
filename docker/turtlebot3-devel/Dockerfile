@@ -49,8 +49,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ################################################################################
 
 # Set the platform identifier as an environment variable.
-ARG SDE_PLATFORM=turtlebot3
-ENV SDE_PLATFORM=${SDE_PLATFORM}
+ARG SDE_ROBOT_PLATFORM=turtlebot3
+ENV SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
 
 # Pass variables for version traceability.
 ARG SDE_DOCKERFILE_COMMIT_SHORT_SHA

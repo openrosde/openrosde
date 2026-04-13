@@ -74,7 +74,7 @@ They can be found on the Ubuntu development machine at:
 
 - `docker/sde-base/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the image of the shared development environment.
   It mainly describes the installations of the project tools/dependencies required inside the container.
-- `docker/${SDE_PLATFORM}-devel/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the platform-specific image on top of the shared base.
+- `docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the platform-specific image on top of the shared base.
   It installs platform-specific tools and dependencies.
 - `docker/docker-compose.yaml`: Describes the interface between the Ubuntu development machine and the container.
   It includes external information from outside the container, such as device host names or network configuration.
@@ -99,7 +99,7 @@ Key configuration variables:
 
 | Variable | Description | Default |
 | --- | --- | --- |
-| `SDE_PLATFORM` | Target robot platform | `turtlebot3` |
+| `SDE_ROBOT_PLATFORM` | Target robot platform | `turtlebot3` |
 | `SDE_CONTAINER_ROOT_DIR` | SDE root path inside the container | `/root/SDE` |
 | `SDE_ROS_MASTER_HOSTNAME` | ROS master host name or IP | `localhost` |
 | `SDE_ROS_CLIENT_IP` | Development machine IP (optional) | *(empty)* |
