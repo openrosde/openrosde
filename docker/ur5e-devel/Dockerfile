@@ -18,26 +18,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-ur-robot-driver \
   ros-noetic-ur-calibration \
   ros-noetic-rqt-joint-trajectory-controller \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Gather the UR5e simulation model packages from the ROS repositories.
 # https://github.com/ros-industrial/universal_robot
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-universal-robots \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 
 # Install the OnRobot RG2/RG6/VG10/VGC10 grippers ROS dependencies.
 # https://github.com/UOsaka-Harada-Laboratory/onrobot
 
-# Gather the OnRobot packages dependencies from the ROS repositories.
+# Gather the OnRobot package dependencies from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-ros-control \
   ros-noetic-ros-controllers \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Gather the OnRobot packages dependencies from the Python 3 repositories.
+# Gather the OnRobot package dependencies from the Python 3 repositories.
 RUN pip3 install \
   pymodbus==2.5.3
 
@@ -46,26 +46,26 @@ RUN pip3 install \
 # Install the Intel RealSense cameras ROS dependencies.
 # https://github.com/IntelRealSense/realsense-ros
 
-# Gather the RealSense cameras packages from the ROS repositories.
+# Gather the Intel RealSense camera packages from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-realsense2-camera \
   ros-noetic-realsense2-description \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 
 # Install the 3Dconnexion SpaceNavigator/SpaceMouse controllers ROS dependencies.
 # https://wiki.ros.org/spacenav_node
 
-# Gather the SpaceNavigator/SpaceMouse packages dependencies from the Ubuntu repositories.
+# Gather the SpaceNavigator/SpaceMouse package dependencies from the Ubuntu repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   spacenavd \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Gather the SpaceNavigator/SpaceMouse packages dependencies from the ROS repositories.
+# Gather the SpaceNavigator/SpaceMouse package dependencies from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-spacenav-node \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 

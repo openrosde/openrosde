@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-navigation \
   ros-noetic-interactive-markers \
   ros-noetic-multirobot-map-merge \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Gather the TurtleBot3 robot packages from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-turtlebot3 \
   ros-noetic-turtlebot3-msgs \
   ros-noetic-turtlebot3-simulations \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 

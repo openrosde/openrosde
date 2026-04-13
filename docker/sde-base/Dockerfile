@@ -26,9 +26,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Gather the Python 3 tools from the Ubuntu repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  python3-pip  \
+  python3-pip \
   python3-setuptools \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Upgrade Python Pip.
 RUN pip3 install --upgrade pip
@@ -36,7 +36,7 @@ RUN pip3 install --upgrade pip
 # Redirect 'python' shebangs to 'python3' for compatibility with older ROS packages.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   python-is-python3 \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 
@@ -46,7 +46,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install tools required for the ROS installation.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   curl \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add the ROS repository to the sources list.
 RUN echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros-latest.list
@@ -59,7 +59,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-desktop-full \
   python3-catkin-tools \
   python3-rosdep \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Initialize 'rosdep'.
 # http://wiki.ros.org/rosdep
@@ -75,7 +75,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libxtst-dev \
   libcanberra-gtk3-module \
   upower \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 
@@ -84,7 +84,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-moveit \
   ros-noetic-moveit-servo \
   ros-noetic-rosbridge-suite \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 
@@ -100,7 +100,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   unzip \
   wget \
   x11-apps \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################
 
