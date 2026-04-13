@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# This script initializes the Docker container at startup by starting required services and keeping the container running in the background.
+# It is referenced in 'docker-compose.yaml' and invoked when the container is (re)started.
+#
+# Usage: bash initialize-docker-container.bash
+
 ################################################################################
 
 # Start the D-Bus daemon.

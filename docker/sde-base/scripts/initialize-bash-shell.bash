@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# This script sets up the Bash shell environment inside the Docker container (terminal colors, shell functions, symbolic links, binary paths, environment sourcing, etc.).
+# It is appended to '/root/.bashrc' at the end of the Dockerfile and sourced every time the user enters the Bash shell inside the container.
+#
+# Usage: source initialize-bash-shell.bash
+
 ################################################################################
 
 # Load the default environment variables from the '.env' file:

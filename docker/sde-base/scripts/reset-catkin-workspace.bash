@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This script removes all Catkin workspace build artifacts, installs system dependencies, and cleanly rebuilds and sources the workspaces.
+#
+# Usage: bash reset-catkin-workspace.bash
+
 ################################################################################
 
 # Derive the shared and platform-specific catkin workspace paths.

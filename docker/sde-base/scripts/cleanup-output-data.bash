@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This script deletes files and data output at runtime to clean up the environment between experiment trials.
+#
+# Usage: bash cleanup-output-data.bash
+
 ################################################################################
 
 # Print message when there is no data to clean up.

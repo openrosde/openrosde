@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# This script runs a ROS launch file and prompts the user to select the execution mode (remote, local, or child shell).
+# It is used by Terminator sub-terminals to conveniently preload launch files.
+#
+# Usage: bash run-roslaunch-repeatedly.bash <launch-file>
+#
+# <launch-file>: The ROS launch file to run (e.g., 'example_roslaunch_file.launch').
+
 ################################################################################
 
 SDE_LAUNCH_FILE=$1
