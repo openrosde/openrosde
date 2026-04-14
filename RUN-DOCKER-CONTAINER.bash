@@ -2,7 +2,7 @@
 
 # This script runs a Docker container instance with a name based on [docker-project].
 #
-# Usage: bash RUN-DOCKER-CONTAINER.bash [docker-project] [ros-launch]
+# Usage: bash ./RUN-DOCKER-CONTAINER.bash [docker-project] [ros-launch]
 #
 # [docker-project]: Used to name the Docker container and create multiple instances if needed.
 #                   Default value is '$USER'.
@@ -20,7 +20,7 @@ source ./scripts/load-sde-env.bash "$1"
 # Stop and remove any SDE container from a different platform under the same Docker project.
 # This allows switching platforms by simply changing '.env.custom' without manual cleanup.
 # Uses 'docker compose down' to properly clean up the Docker Compose project state.
-SDE_OTHER_CONTAINERS=$(docker ps -a --format "{{.Names}}" | grep "sde_.*_${SDE_DOCKER_PROJECT}-1" | grep -v "^${SDE_DOCKER_CONTAINER}$")
+SDE_OTHER_CONTAINERS=$(docker ps -a --format "{{.Names}}" | grep "sde-.*-${SDE_DOCKER_PROJECT}-1" | grep -v "^${SDE_DOCKER_CONTAINER}$")
 if [ -n "${SDE_OTHER_CONTAINERS}" ]; then
   echo "Switching platform: stopping previous container(s)..."
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml down 2>/dev/null
@@ -28,16 +28,24 @@ fi
 
 ################################################################################
 
+# Build the list of Docker Compose files.
+SDE_COMPOSE_FILES="-f ./docker/docker-compose.yaml"
+
+# Add platform-specific overlay if available.
+if [ -f "./docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml" ]; then
+  SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ./docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml"
+fi
+
 # Run the Docker container in the background.
 # Any changes made to './docker/docker-compose*.yaml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then
   # Native Nvidia GPU detected: enable GPU acceleration via Nvidia Container Toolkit.
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-nvidia.yaml up -d sde
+  docker compose -p ${SDE_DOCKER_PROJECT} ${SDE_COMPOSE_FILES} -f ./docker/docker-compose-nvidia.yaml up -d sde
 elif [ -e /dev/dxg ]; then
   # WSL 2 GPU detected: enable GPU-accelerated rendering via the WSLg D3D12 Mesa driver.
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-wsl.yaml up -d sde
+  docker compose -p ${SDE_DOCKER_PROJECT} ${SDE_COMPOSE_FILES} -f ./docker/docker-compose-wsl.yaml up -d sde
 else
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml up -d sde
+  docker compose -p ${SDE_DOCKER_PROJECT} ${SDE_COMPOSE_FILES} up -d sde
 fi
 
 ################################################################################

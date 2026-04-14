@@ -15,7 +15,7 @@ roslaunch coarobo_teleop ur5e_teleop.launch
 ```
 
 This is the main entry point for teleoperation.
-It starts MoveIt Servo, starts the 3Dconnexion SpaceMouse bridge, and performs the controller switch automatically based on `controller_mode`.
+It starts the `spacenavd` daemon if not already running, starts MoveIt Servo, starts the 3Dconnexion SpaceMouse bridge, and performs the controller switch automatically based on `controller_mode`.
 By default it starts in trajectory mode.
 Velocity mode is still experimental.
 
@@ -62,7 +62,7 @@ Before launching the teleoperation bridge, make sure the rest of the robot stack
 - A running Universal Robots UR5e driver publishing robot state and accepting the controller type used by the selected teleop mode.
 - A valid MoveIt configuration and planning scene for the robot.
 - The OnRobot RG2 command service at `/onrobot_rg/set_command` if gripper toggling is enabled.
-- `spacenavd` running on the machine connected to the 3Dconnexion SpaceMouse.
+- `spacenavd` running on the machine connected to the 3Dconnexion SpaceMouse (started automatically by `start-spacenavd-daemon.bash`).
 
 This package does not launch the robot driver, controllers, MoveIt configuration, or the OnRobot RG2 backend service.
 
@@ -70,7 +70,7 @@ This package does not launch the robot driver, controllers, MoveIt configuration
 
 1. Bring up the robot driver and controllers outside this package.
 2. Ensure the MoveIt model for the robot is available.
-3. Start `spacenavd` on the machine that sees the 3Dconnexion SpaceMouse.
+3. The `spacenavd` daemon is started automatically by the launch file.
 4. Launch `ur5e_teleop.launch` from this package.
 5. Hold Button 0 as the deadman and move the 3Dconnexion SpaceMouse to send twist commands.
 6. Press Button 1 to toggle the OnRobot RG2 gripper when gripper control is enabled.
@@ -155,6 +155,7 @@ The Gazebo wrapper in `sde_ur5e_launch` keeps these same user-facing defaults so
 
 ### `ur5e_teleop.launch`
 
+- `start_spacenavd`: If `true`, starts the `spacenavd` daemon before launching the teleop stack. Defaults to `true`.
 - `controller_mode`: Selects the UR controller path. Use `velocity` or `trajectory`. Defaults to `trajectory`.
 - `reverse_for_front_view`: If `true`, flips `linear_x`, `linear_y`, `angular_x`, and `angular_y` so front-of-robot operation feels natural. Defaults to `false`.
 

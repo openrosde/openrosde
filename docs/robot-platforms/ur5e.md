@@ -2,7 +2,7 @@
 
 Platform-specific documentation for the [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) within the SDE.
 
-## External Resources
+## 🔗 External Resources
 
 - Official website: [https://www.universal-robots.com/products/ur5e/](https://www.universal-robots.com/products/ur5e/)
 - Official manual: [https://www.universal-robots.com/download/manuals-e-series/user/ur5e/510/user-manual-ur5e-e-series-sw-510-english-international-en/](https://www.universal-robots.com/download/manuals-e-series/user/ur5e/510/user-manual-ur5e-e-series-sw-510-english-international-en/)
@@ -13,7 +13,7 @@ Platform-specific documentation for the [Universal Robots UR5e](https://www.univ
 - ROS SpaceNavigator: [https://wiki.ros.org/spacenav_node](https://wiki.ros.org/spacenav_node)
 - PickNik Robotics UR5 RealSense Camera Adapter: [https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1)
 
-## Hardware Overview
+## 🔩 Hardware Overview
 
 The Universal Robots UR5e platform consists of the following components:
 
@@ -23,18 +23,12 @@ The Universal Robots UR5e platform consists of the following components:
 - **Gripper controller:** OnRobot Compute Box from the OnRobot Robot Kit, connected to the gripper via the OnRobot Quick Changer and to the network via Ethernet.
   It communicates with the Ubuntu development machine over Modbus TCP (port `502`).
 
-## Platform Configuration
+## ⚙️ Platform Configuration
 
-To use the Universal Robots UR5e platform, set the following in `.env`:
-
-```shell
-SDE_ROBOT_PLATFORM=ur5e
-```
-
-Then create `.env.custom` from the platform template:
+Switch to the Universal Robots UR5e platform:
 
 ```shell
-cp env/ur5e.env .env.custom
+bash ./SWITCH-ROBOT-PLATFORM.bash ur5e
 ```
 
 > [!NOTE]
@@ -42,7 +36,7 @@ cp env/ur5e.env .env.custom
 > Static IP addresses must be used instead (see [Network Configuration](#network-configuration)).
 > For this reason, `SDE_ROBOT_HOSTNAME` should be left empty.
 
-## Network Configuration
+## 🌐 Network Configuration
 
 All devices are connected to the same local network using fixed IP addresses.
 Although host names would be preferred for convenience, the Universal Robots UR5e and the OnRobot Compute Box do not broadcast any host name, so defaulting to fixed IPs is necessary.
@@ -62,7 +56,7 @@ Although host names would be preferred for convenience, the Universal Robots UR5
 > Connect to it directly via Ethernet and access its web interface at `http://192.168.1.1` to change the IP.
 > The default username is `admin` and the default password is `OnRobot`.
 
-## Robot Bootup
+## 🔌 Robot Bootup
 
 - Turn on the robot by pressing the power button on the teach pendant.
 - Initialize the robot by pressing the red LED icon in the bottom left corner.
@@ -70,7 +64,7 @@ Although host names would be preferred for convenience, the Universal Robots UR5
   The robot will make some sound while releasing the motor brakes.
 - Operate the robot by clicking on the move icon at the top of the teach pendant or by pressing the free drive button (the side button at the top of the teach pendant) if you want to move the robot by guiding it with your hand.
 
-## Robot Setup
+## 🛠️ Robot Setup
 
 These configurations are only necessary for a new robot or after a factory reset.
 
@@ -92,17 +86,17 @@ These configurations are only necessary for a new robot or after a factory reset
   Select the "External Control URCap" and save the program.
   For more detailed information, read the official [Universal Robots](https://www.universal-robots.com/download/manuals-e-series/user/ur5e/510/user-manual-ur5e-e-series-sw-510-english-international-en/) manual or the [Universal Robots ROS Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/install_urcap_e_series.md) documentation.
 
-## Robot Shutdown
+## ⏹️ Robot Shutdown
 
 - Stop any running code on the teach pendant by pressing the "Stop" button.
 - If necessary, move the robot to a safe position using the teach pendant move option or the free drive button (the side button at the top of the teach pendant).
 - To turn off the robot, press the power button on the teach pendant and then press "Power off", or press the 3-line icon at the top right corner of the teach pendant and select "Power off".
 
-## ROS Communication
+## 📡 ROS Communication
 
 The Universal Robots UR5e driver supports two modes of operation: **teach pendant mode** and **headless mode**.
 
-### Teach Pendant Mode
+### 🏛️ Teach Pendant Mode
 
 In this mode, the teach pendant must be set to **Local** mode and the `external_control` program must be started manually from the teach pendant.
 
@@ -119,7 +113,7 @@ In this mode, the teach pendant must be set to **Local** mode and the `external_
   If everything is OK, the teach pendant program should change its status from "Loading" to "Running".
   Also, the ROS terminal should display "Robot ready to receive control commands".
 
-### Headless Mode
+### 🤖 Headless Mode
 
 In this mode, the teach pendant must be set to **Remote** mode, allowing the driver to start the `external_control` program automatically without manual interaction on the teach pendant.
 This is the default mode used by the launch files.
@@ -138,7 +132,7 @@ This is the default mode used by the launch files.
 > In headless mode, you can still use the teach pendant to monitor the robot, but you cannot start or stop programs from it.
 > Switch back to **Local** mode if you need manual control from the teach pendant.
 
-### MoveIt and Visualization
+### 📊 MoveIt and Visualization
 
 After bringing up the driver (in either mode), launch MoveIt and RViz:
 
@@ -149,7 +143,7 @@ roslaunch sde_ur5e_launch ur5e_rviz_default_realworld.launch
 
 You should be able to plan and execute motions from RViz.
 
-### Intel RealSense Camera
+### 📷 Intel RealSense Camera
 
 To start the Intel RealSense D435i camera stream with point cloud generation:
 
@@ -157,7 +151,7 @@ To start the Intel RealSense D435i camera stream with point cloud generation:
 roslaunch sde_ur5e_launch ur5e_realsense_default_realworld.launch
 ```
 
-### OnRobot RG2 Gripper
+### 🦾 OnRobot RG2 Gripper
 
 To start the OnRobot RG2 gripper controller via Modbus TCP:
 
@@ -171,7 +165,7 @@ The gripper can be controlled via the ROS service `/onrobot_rg/set_command`.
 > Always have the emergency stop button in your hand while using the robot.
 > In the case of any collision or emergency, press it immediately!
 
-## Emergency Button
+## 🚨 Emergency Button
 
 If you have pressed the emergency button, you have to initialize the robot again.
 
@@ -183,7 +177,7 @@ If you have pressed the emergency button, you have to initialize the robot again
 > [!NOTE]
 > If the teach pendant is in **Remote** mode and you need to reinitialize after an emergency stop, you may need to switch back to **Local** mode first.
 
-## Launch Files Reference
+## 📋 Launch Files Reference
 
 The following launch files are available for the Universal Robots UR5e platform (package: `sde_ur5e_launch`):
 

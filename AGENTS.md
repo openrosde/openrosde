@@ -32,9 +32,10 @@ It provides a containerized, multi-platform development environment based on Doc
   - `sde-base/`: Shared base image (`Dockerfile`, helper `scripts/`).
   - `turtlebot3-devel/`: TurtleBot3 platform image.
   - `ur5e-devel/`: UR5e platform image.
-  - `docker-compose.yaml`: Service definitions.
+  - `docker-compose.yaml`: Base service definitions.
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
+  - `docker-compose-ur5e.yaml`: UR5e platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
@@ -72,13 +73,18 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 
 ### Platform Switching
 
-Switching platforms requires only changing `.env.custom` (e.g., `cp env/ur5e.env .env.custom`).
+Switching platforms requires only running `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 `RUN-DOCKER-CONTAINER.bash` automatically detects containers from a different platform under the same Docker project and runs `docker compose down` to cleanly remove them before starting the new platform's container.
 
 ### Docker Compose Service Targeting
 
 `docker-compose.yaml` defines two services: `sde-base` (build-only base image) and `sde` (platform-specific runtime container).
 Always target the `sde` service explicitly with `docker compose up -d sde` to avoid accidentally starting the `sde-base` service, which has no `container_name` and causes naming conflicts.
+
+### Docker Compose Platform Overlays
+
+Platform-specific Docker Compose overlays (e.g., `docker-compose-ur5e.yaml`) pass platform-specific environment variables to the container.
+`RUN-DOCKER-CONTAINER.bash` automatically includes `docker-compose-${SDE_ROBOT_PLATFORM}.yaml` if the file exists, so new platforms can add their own overlay without modifying the script.
 
 ### Terminator Layouts
 
@@ -94,7 +100,7 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - `SDE_CONTAINER_ROOT_DIR`: SDE root path inside the Docker container.
 - `SDE_ROOT_DIR`: SDE root path on the host (auto-resolved, not in `.env`).
 - `SDE_DOCKER_PROJECT`: Docker project name for container naming.
-- `SDE_DOCKER_CONTAINER`: Derived container name (`sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1`).
+- `SDE_DOCKER_CONTAINER`: Derived container name (`sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1`).
 - `SDE_USER_ID` / `SDE_GROUP_ID`: Host user/group IDs passed to the container.
 - `SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA` / `SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA`: Git commit hashes for image traceability.
 
@@ -127,7 +133,7 @@ Example header:
 
 # This script does X for Y purpose.
 #
-# Usage: bash SCRIPT-NAME.bash [arg1] [arg2]
+# Usage: bash ./SCRIPT-NAME.bash [arg1] [arg2]
 #
 # [arg1]: Description of arg1.
 #         Default value is '$USER'.
@@ -223,6 +229,9 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Use badges following the `[![Label](badge-url)](link-url)` pattern.
 - Prefix product names with their maker name (e.g., Universal Robots UR5e, OnRobot RG2, Intel RealSense D435i, Robotis TurtleBot3, 3Dconnexion SpaceNavigator).
 - Reference the host machine as "Ubuntu development machine".
+- Decorate all `##` and `###` headers with a leading emoji in `README.md` and `docs/` files only (not in package-level READMEs or `AGENTS.md`).
+  Use a single emoji that reflects the section topic, placed before the header text (e.g., `## 🚀 Quick Start`).
+  Reuse the same emoji for semantically equivalent headers across files (e.g., `🔗 External Resources`, `⚙️ Platform Configuration`).
 
 ### GitLab CI
 
@@ -240,8 +249,8 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
-- Build Catkin workspace (inside container): `sde-reset-catkin-workspace` or `sde-build-catkin-workspace`.
-- Switch platform: `cp env/<platform>.env .env.custom` (e.g., `cp env/ur5e.env .env.custom`).
+- Build Catkin workspaces (inside container): `sde-reset-catkin-workspaces` or `sde-build-catkin-workspaces`.
+- Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
 - Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash`.
 - Push Docker images: `bash gitlab-ci/PUSH-DOCKER-IMAGE.bash` (uses `docker logout`/`docker login` to force re-authentication).
@@ -249,7 +258,7 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 ## Testing Pipeline
 
 - Verify Docker images build successfully with `bash ./BUILD-DOCKER-IMAGE.bash`.
-- Verify Catkin workspaces build inside the container with `sde-reset-catkin-workspace`.
+- Verify Catkin workspaces build inside the container with `sde-reset-catkin-workspaces`.
 - Check for hardcoded paths: `grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .`
 
 ## Deployment Considerations
@@ -258,3 +267,9 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Docker images are pushed to `registry.gitlab.com/coarobo/sde/`.
 - CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
+
+## Versioning & Commits
+
+- Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages.
+- Follow [Semantic Versioning](https://semver.org/) for releases.
+- Follow the [Make a README](https://www.makeareadme.com/) guidelines for `README.md` structure.

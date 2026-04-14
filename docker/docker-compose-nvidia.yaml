@@ -2,6 +2,11 @@
 
 ################################################################################
 
+# Nvidia GPU overlay for the SDE.
+# Enables GPU acceleration via the Nvidia Container Toolkit.
+
+################################################################################
+
 services:
   sde:
     deploy:

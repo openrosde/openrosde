@@ -2,7 +2,7 @@
 
 # This script runs multiple terminals in a single window using Terminator with a custom layout.
 #
-# Usage: bash RUN-TERMINATOR-TERMINAL.bash [docker-project] [terminator-layout]
+# Usage: bash ./RUN-TERMINATOR-TERMINAL.bash [docker-project] [terminator-layout]
 #
 # [docker-project]:    Used to name the Docker container and create multiple instances if needed.
 #                      Default value is '$USER'.

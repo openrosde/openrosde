@@ -2,6 +2,10 @@
 
 <launch>
 
+    <arg name="start_spacenavd" default="true" />
+
+    <node if="$(arg start_spacenavd)" pkg="coarobo_teleop" type="start-spacenavd-daemon.bash" name="start_spacenavd" output="screen" />
+
     <arg name="planning_frame" default="base_link" />
     <arg name="ee_frame_name" default="flange" />
     <arg name="robot_link_command_frame" default="base_link" />

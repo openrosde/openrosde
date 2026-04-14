@@ -2,6 +2,12 @@
 
 ################################################################################
 
+# Base Docker Compose file for the SDE.
+# Defines two services: 'sde-base' (build-only base image) and 'sde'
+# (platform-specific runtime container with shared configuration).
+
+################################################################################
+
 services:
   sde-base:
     image: registry.gitlab.com/coarobo/sde/sde-base:latest
@@ -14,7 +20,7 @@ services:
 
   sde:
     hostname: sde-${SDE_ROBOT_PLATFORM}
-    container_name: sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1
+    container_name: sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1
     privileged: true
     environment:
       # Pass current user and group IDs.
