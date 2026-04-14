@@ -25,16 +25,10 @@ The Universal Robots UR5e platform consists of the following components:
 
 ## Platform Configuration
 
-To use the Universal Robots UR5e platform, set the following in `.env`:
+Switch to the Universal Robots UR5e platform:
 
 ```shell
-SDE_ROBOT_PLATFORM=ur5e
-```
-
-Then create `.env.custom` from the platform template:
-
-```shell
-cp env/ur5e.env .env.custom
+bash ./SWITCH-ROBOT-PLATFORM.bash ur5e
 ```
 
 > [!NOTE]

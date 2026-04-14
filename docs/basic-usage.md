@@ -80,19 +80,12 @@ Set up the environment of the Ubuntu development machine with the following inst
 
 ## Step 2: Configure the Platform
 
-Select the target robot platform by editing the `.env` file at the root of the repository.
+Select the target robot platform with the following instructions.
 
-1. Set the `SDE_ROBOT_PLATFORM` variable to the desired platform:
-
-    ```shell
-    # Platform to use: turtlebot3, ur5e
-    SDE_ROBOT_PLATFORM=turtlebot3
-    ```
-
-2. Optionally, create a `.env.custom` file to override default settings by copying a platform template from `env/`:
+1. Switch to the desired platform:
 
     ```shell
-    cp env/turtlebot3.env .env.custom
+    bash ./SWITCH-ROBOT-PLATFORM.bash turtlebot3
     ```
 
 For platform-specific details, refer to the [Robot Platform Documentation](robot-platforms/).

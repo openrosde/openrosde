@@ -4,7 +4,7 @@
 # 1. Kill all existing ROS processes inside the robot.
 # 2. Execute the launch files that bring up the robot.
 #
-# Usage: bash BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]
+# Usage: bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]
 #
 # <rosmaster-hostname>: Host name or IP address of the ROS master via 'ROS_MASTER_URI=http://<rosmaster-hostname>:11311'.
 # [docker-project]:     Used to name the Docker container and create multiple instances if needed.

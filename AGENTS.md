@@ -72,7 +72,7 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 
 ### Platform Switching
 
-Switching platforms requires only changing `.env.custom` (e.g., `cp env/ur5e.env .env.custom`).
+Switching platforms requires only running `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 `RUN-DOCKER-CONTAINER.bash` automatically detects containers from a different platform under the same Docker project and runs `docker compose down` to cleanly remove them before starting the new platform's container.
 
 ### Docker Compose Service Targeting
@@ -127,7 +127,7 @@ Example header:
 
 # This script does X for Y purpose.
 #
-# Usage: bash SCRIPT-NAME.bash [arg1] [arg2]
+# Usage: bash ./SCRIPT-NAME.bash [arg1] [arg2]
 #
 # [arg1]: Description of arg1.
 #         Default value is '$USER'.
@@ -241,7 +241,7 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
 - Build Catkin workspace (inside container): `sde-reset-catkin-workspace` or `sde-build-catkin-workspace`.
-- Switch platform: `cp env/<platform>.env .env.custom` (e.g., `cp env/ur5e.env .env.custom`).
+- Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
 - Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash`.
 - Push Docker images: `bash gitlab-ci/PUSH-DOCKER-IMAGE.bash` (uses `docker logout`/`docker login` to force re-authentication).

@@ -5,7 +5,7 @@
 # 1. System-wide installations with 'sudo' that require a system reboot or re-login to take effect.
 # 2. Local user environment setup without requiring 'sudo' or a system reboot or re-login to take effect.
 #
-# Usage: bash SETUP-DEVEL-MACHINE.bash
+# Usage: bash ./SETUP-DEVEL-MACHINE.bash
 
 ################################################################################
 # System-wide installations (requires 'sudo').

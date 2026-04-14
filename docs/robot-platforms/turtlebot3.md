@@ -20,16 +20,10 @@ The Robotis TurtleBot3 (Waffle Pi) platform consists of the following components
 
 ## Platform Configuration
 
-To use the TurtleBot3 platform, set the following in `.env`:
+Switch to the Robotis TurtleBot3 platform:
 
 ```shell
-SDE_ROBOT_PLATFORM=turtlebot3
-```
-
-Optionally, create `.env.custom` from the platform template:
-
-```shell
-cp env/turtlebot3.env .env.custom
+bash ./SWITCH-ROBOT-PLATFORM.bash turtlebot3
 ```
 
 > [!NOTE]

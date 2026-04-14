@@ -2,7 +2,7 @@
 
 # This script runs a Docker container instance with a name based on [docker-project].
 #
-# Usage: bash RUN-DOCKER-CONTAINER.bash [docker-project] [ros-launch]
+# Usage: bash ./RUN-DOCKER-CONTAINER.bash [docker-project] [ros-launch]
 #
 # [docker-project]: Used to name the Docker container and create multiple instances if needed.
 #                   Default value is '$USER'.

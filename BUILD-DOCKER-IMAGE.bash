@@ -2,7 +2,7 @@
 
 # This script generates a Docker image with the relevant settings for the [docker-project].
 #
-# Usage: bash BUILD-DOCKER-IMAGE.bash [docker-project]
+# Usage: bash ./BUILD-DOCKER-IMAGE.bash [docker-project]
 #
 # [docker-project]: Used to name the Docker container and create multiple instances if needed.
 #                   If the [docker-project] is 'gitlab-ci', the image is built from scratch, as if done in GitLab CI, without trying to download it.
