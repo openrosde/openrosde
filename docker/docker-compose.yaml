@@ -3,27 +3,42 @@
 ################################################################################
 
 services:
+  sde-base:
+    image: registry.gitlab.com/coarobo/sde/sde-base:latest
+    build:
+      context: ../
+      dockerfile: ./docker/sde-base/Dockerfile
+      args:
+        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
+        - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
+
   sde:
-    hostname: sde
+    hostname: sde-${SDE_ROBOT_PLATFORM}
+    container_name: sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1
     privileged: true
     environment:
       # Pass current user and group IDs.
-      - USER_ID=${USER_ID:-1000}
-      - GROUP_ID=${GROUP_ID:-1000}
+      - SDE_USER_ID=${SDE_USER_ID}
+      - SDE_GROUP_ID=${SDE_GROUP_ID}
       # Display X Server GUIs.
-      - DISPLAY=${DISPLAY:-:1}
+      - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
       # Configure the PulseAudio interface.
       - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
-    image: registry.gitlab.com/coarobo/sde/sde-devel:latest
+      # Pass the platform identifier to the container.
+      - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+      # Pass the SDE root directory path.
+      - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
+    image: registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest
     build:
       context: ../
-      dockerfile: ./docker/sde-devel/Dockerfile
+      dockerfile: ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile
       args:
-        - DOCKERFILE_COMMIT_SHORT_SHA
+        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
+        - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
     volumes:
       # Map repository root for convenient access.
-      - ../:/root/SDE/
+      - ../:${SDE_CONTAINER_ROOT_DIR}/
       # Grant display access to X Server.
       - /tmp/.X11-unix:/tmp/.X11-unix
       # Grant audio access to PulseAudio.
@@ -33,4 +48,4 @@ services:
     network_mode: host
     ipc: host
     pid: host
-    command: /root/SDE/docker/sde-devel/scripts/initialize-docker-container.bash
+    command: ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/initialize-docker-container.bash

@@ -8,59 +8,58 @@
 #                   Default value is '$USER'.
 # [ros-launch]:     Used to automatically preload a ROS launch file when entering the Docker container for convenience.
 #                   Format is 'filename.launch'.
+#                   Use '--no-exec' to start the container without entering it.
 
 ################################################################################
 
-# Set the Docker container name from the [docker-project] argument.
-# If no [docker-project] is given, use the current user name as the Docker project name.
-DOCKER_PROJECT=$1
-if [ -z "${DOCKER_PROJECT}" ]; then
-  DOCKER_PROJECT=${USER}
+# Load the SDE environment variables.
+source ./scripts/load-sde-env.bash "$1"
+
+################################################################################
+
+# Stop and remove any SDE container from a different platform under the same Docker project.
+# This allows switching platforms by simply changing '.env.custom' without manual cleanup.
+# Uses 'docker compose down' to properly clean up the Docker Compose project state.
+SDE_OTHER_CONTAINERS=$(docker ps -a --format "{{.Names}}" | grep "sde_.*_${SDE_DOCKER_PROJECT}-1" | grep -v "^${SDE_DOCKER_CONTAINER}$")
+if [ -n "${SDE_OTHER_CONTAINERS}" ]; then
+  echo "Switching platform: stopping previous container(s)..."
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml down 2>/dev/null
 fi
-DOCKER_CONTAINER="${DOCKER_PROJECT}-sde-1"
-echo "$0: DOCKER_PROJECT=${DOCKER_PROJECT}"
-echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
-
-################################################################################
-
-# Export current user and group IDs to 'docker-compose.yaml'.
-USER_ID="$(id -u)"
-GROUP_ID="$(id -g)"
-export USER_ID
-export GROUP_ID
 
 ################################################################################
 
 # Run the Docker container in the background.
-# Any changes made to './docker/docker-compose*.yml' will recreate and overwrite the container.
+# Any changes made to './docker/docker-compose*.yaml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-gpu.yaml up -d
+  # Native Nvidia GPU detected: enable GPU acceleration via Nvidia Container Toolkit.
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-nvidia.yaml up -d sde
+elif [ -e /dev/dxg ]; then
+  # WSL 2 GPU detected: enable GPU-accelerated rendering via the WSLg D3D12 Mesa driver.
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml -f ./docker/docker-compose-wsl.yaml up -d sde
 else
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml up -d
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml up -d sde
 fi
 
 ################################################################################
 
 # Configure the known host names with '/etc/hosts' in the Docker container.
 
-ROBOT_HOSTNAME=turtlebot3.local
-echo "Now resolving local host name '${ROBOT_HOSTNAME}'..."
-ROBOT_IP=`avahi-resolve -4 --name ${ROBOT_HOSTNAME} | cut -f 2`
-if [ "$?" != "0" ]; then
-  echo "Failed to execute 'avahi-resolve'. You may need to install 'avahi-utils'."
-  docker exec -i ${DOCKER_CONTAINER} bash <<EOF
-sed -i 's/REMOTE_HOSTNAME/${ROBOT_HOSTNAME}/' ~/.bashrc
-EOF
-elif [ ! -z "${ROBOT_IP}" ]; then
-  echo "Successfully resolved host name '${ROBOT_HOSTNAME}' as '${ROBOT_IP}': '/etc/hosts' in the container is automatically updated."
-  docker exec -i ${DOCKER_CONTAINER} bash <<EOF
-sed -i 's/REMOTE_HOSTNAME/${ROBOT_HOSTNAME}/' ~/.bashrc
-sed -n -e '/^[^#[:space:]]*[[:space:]]\+${ROBOT_HOSTNAME}\$/!p' /etc/hosts > /etc/hosts.tmp;
-echo '${ROBOT_IP} ${ROBOT_HOSTNAME}' >> /etc/hosts.tmp
+if [ -n "${SDE_ROBOT_HOSTNAME}" ]; then
+  SDE_ROBOT_RESOLVED_HOSTNAME=${SDE_ROBOT_HOSTNAME}
+  echo "Now resolving local host name '${SDE_ROBOT_RESOLVED_HOSTNAME}'..."
+  SDE_ROBOT_IP=`avahi-resolve -4 --name ${SDE_ROBOT_RESOLVED_HOSTNAME} | cut -f 2`
+  if [ "$?" != "0" ]; then
+    echo "Failed to execute 'avahi-resolve'. You may need to install 'avahi-utils'."
+  elif [ ! -z "${SDE_ROBOT_IP}" ]; then
+    echo "Successfully resolved host name '${SDE_ROBOT_RESOLVED_HOSTNAME}' as '${SDE_ROBOT_IP}': '/etc/hosts' in the container is automatically updated."
+    docker exec -i ${SDE_DOCKER_CONTAINER} bash <<EOF
+sed -n -e '/^[^#[:space:]]*[[:space:]]\+${SDE_ROBOT_RESOLVED_HOSTNAME}\$/!p' /etc/hosts > /etc/hosts.tmp;
+echo '${SDE_ROBOT_IP} ${SDE_ROBOT_RESOLVED_HOSTNAME}' >> /etc/hosts.tmp
 cp /etc/hosts.tmp /etc/hosts;
 EOF
-else
-  echo "Failed to resolve host name '${ROBOT_HOSTNAME}': '/etc/hosts' in the container was not automatically updated."
+  else
+    echo "Failed to resolve host name '${SDE_ROBOT_RESOLVED_HOSTNAME}': '/etc/hosts' in the container was not automatically updated."
+  fi
 fi
 
 ################################################################################
@@ -71,8 +70,11 @@ xhost +local:docker
 ################################################################################
 
 # Enter the Docker container with a Bash shell (with or without preloading a custom [ros-launch] file).
-if [ -z "$2" ]; then
-  docker exec -i -t ${DOCKER_CONTAINER} bash
+# Skip entering the container if '--no-exec' is passed as the second argument.
+if [ "$2" = "--no-exec" ]; then
+  exit 0
+elif [ -z "$2" ]; then
+  docker exec -i -t ${SDE_DOCKER_CONTAINER} bash
 else
-  docker exec -i -t ${DOCKER_CONTAINER} bash -i -c "source ~/SDE/docker/sde-devel/scripts/run-roslaunch-repeatedly.bash $2"
+  docker exec -i -t ${SDE_DOCKER_CONTAINER} bash -i -c "source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/run-roslaunch-repeatedly.bash $2"
 fi

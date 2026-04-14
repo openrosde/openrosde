@@ -12,22 +12,23 @@
 # Python auto-generated files:
 *.pyc
 
-# 'catkin build' auto-generated files:
-ros/catkin_ws/CMakeLists.txt
-ros/catkin_ws/.catkin_tools/
-ros/catkin_ws/build/
-ros/catkin_ws/devel/
-ros/catkin_ws/logs/
+# User-specific environment overrides (created from a platform template in 'env/'):
+.env.custom
 
-# 'catkin_make' auto-generated files:
-ros/catkin_ws/src/CMakeLists.txt
-ros/catkin_ws/.catkin_workspace
-ros/catkin_ws/build/
-ros/catkin_ws/devel/
-ros/catkin_ws/install/
+# 'catkin build' auto-generated files (for all platforms):
+ros/*_catkin_ws/CMakeLists.txt
+ros/*_catkin_ws/.catkin_tools/
+ros/*_catkin_ws/build/
+ros/*_catkin_ws/devel/
+ros/*_catkin_ws/logs/
+
+# 'catkin_make' auto-generated files (for all platforms):
+ros/*_catkin_ws/src/CMakeLists.txt
+ros/*_catkin_ws/.catkin_workspace
+ros/*_catkin_ws/install/
 
 # 'rosbag' files:
 *.bag
 
 # Terminator 'config' files:
-terminator/config.tmp
+terminator/*.config.tmp

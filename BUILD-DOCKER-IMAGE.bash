@@ -10,45 +10,44 @@
 
 ################################################################################
 
-# Set the Docker container name from the [docker-project] argument.
-# If no [docker-project] is given, use the current user name as the Docker project name.
-DOCKER_PROJECT=$1
-if [ -z "${DOCKER_PROJECT}" ]; then
-  DOCKER_PROJECT=${USER}
-fi
-DOCKER_CONTAINER="${DOCKER_PROJECT}-sde-1"
-echo "$0: DOCKER_PROJECT=${DOCKER_PROJECT}"
-echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
+# Load the SDE environment variables.
+source ./scripts/load-sde-env.bash "$1"
 
 ################################################################################
 
 # Stop and remove the Docker container if it exists already.
-EXISTING_DOCKER_CONTAINER_ID=`docker ps -aq -f name=${DOCKER_CONTAINER}`
-if [ ! -z "${EXISTING_DOCKER_CONTAINER_ID}" ]; then
-  echo "Stop the container ${DOCKER_CONTAINER} with ID: ${EXISTING_DOCKER_CONTAINER_ID}."
-  docker stop ${EXISTING_DOCKER_CONTAINER_ID}
-  echo "Remove the container ${DOCKER_CONTAINER} with ID: ${EXISTING_DOCKER_CONTAINER_ID}."
-  docker rm ${EXISTING_DOCKER_CONTAINER_ID}
+SDE_EXISTING_DOCKER_CONTAINER_ID=`docker ps -aq -f name=${SDE_DOCKER_CONTAINER}`
+if [ ! -z "${SDE_EXISTING_DOCKER_CONTAINER_ID}" ]; then
+  echo "Stop the container ${SDE_DOCKER_CONTAINER} with ID: ${SDE_EXISTING_DOCKER_CONTAINER_ID}."
+  docker stop ${SDE_EXISTING_DOCKER_CONTAINER_ID}
+  echo "Remove the container ${SDE_DOCKER_CONTAINER} with ID: ${SDE_EXISTING_DOCKER_CONTAINER_ID}."
+  docker rm ${SDE_EXISTING_DOCKER_CONTAINER_ID}
 fi
 
 ################################################################################
 
-# Inject the 'Dockerfile' commit hash into the Docker container implicitly via a build argument in 'docker-compose.yaml'.
-export DOCKERFILE_COMMIT_SHORT_SHA="$(git log -n 1 --pretty=format:%h ./docker/sde-devel/Dockerfile)"
-
-################################################################################
-
-# Ask the user credentials to login into the GitLab Docker registry.
-echo "Login into 'registry.gitlab.com' using a deploy token."
+# Login into the GitLab Docker registry using a read-only deploy token.
+echo "Login into 'registry.gitlab.com' using a read-only deploy token."
 docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
 
-# If the script runs in CI mode, build the image directly.
-# Otherwise, try to pull it from the registry. If it fails, build locally.
-if [[ "$DOCKER_PROJECT" == "gitlab-ci" ]]; then
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml build # --no-cache
+# Pull the SDE base image and the platform-specific image from the registry.
+# If pulling fails, build both images locally using cached data.
+# When passing the 'gitlab-ci' argument, build all platform-specific images without cached data.
+if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
+  for SDE_PLATFORM in turtlebot3 ur5e; do
+    export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
+    export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
+    echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde --no-cache
+  done
 else
-  docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde-base
   if [[ "$?" -ne "0" ]]; then
-    docker compose -p ${DOCKER_PROJECT} -f ./docker/docker-compose.yaml build
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
+  fi
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde
+  if [[ "$?" -ne "0" ]]; then
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde
   fi
 fi

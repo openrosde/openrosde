@@ -1,0 +1,16 @@
+# version: "3.9"
+
+################################################################################
+
+services:
+  sde:
+    environment:
+      # Enable GPU-accelerated OpenGL rendering via the WSLg D3D12 Mesa driver.
+      - LD_LIBRARY_PATH=/usr/lib/wsl/lib
+      # Pass the Wayland display for WSLg native Wayland applications.
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+    volumes:
+      # Mount the WSLg runtime resources (Wayland, X11, PulseAudio sockets).
+      - /mnt/wslg:/mnt/wslg
+      # Mount the WSL GPU driver libraries (D3D12 Mesa driver).
+      - /usr/lib/wsl/lib:/usr/lib/wsl/lib

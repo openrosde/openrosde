@@ -1,402 +1,238 @@
 # Software Development Environment (SDE)
 
-This project is the open-source reference implementation of the Software Development Environment (SDE) described in "**Software Development Environment for Collaborative Research Workflow in Robotic System Integration**" (DOI: [10.1080/01691864.2022.2068353](https://doi.org/10.1080/01691864.2022.2068353)) and maintained by [Coarobo GK](https://coarobo.com/).
-This reference implementation uses the Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/), an official [ROS](http://www.ros.org/) platform, to demonstrate the advantages of using the SDE for collaborative research and development by offering a robust, scalable, virtualized, and well-documented environment to all contributors.
+Open-source reference implementation of the Software Development Environment (SDE) described in "**Software Development Environment for Collaborative Research Workflow in Robotic System Integration**" (DOI: [10.1080/01691864.2022.2068353](https://doi.org/10.1080/01691864.2022.2068353)) and maintained by [Coarobo GK](https://coarobo.com/).
+
+[![Docker](https://img.shields.io/badge/Docker-Containerization-blue?logo=docker&logoColor=white)](https://www.docker.com/)
+[![ROS Noetic](https://img.shields.io/badge/ROS_Noetic-Framework-blue?logo=ros&logoColor=white)](http://wiki.ros.org/noetic)
+[![Ubuntu 20.04](https://img.shields.io/badge/Ubuntu_20.04-Container_OS-blue?logo=ubuntu&logoColor=white)](https://releases.ubuntu.com/20.04/)
+[![CUDA 11.2](https://img.shields.io/badge/CUDA_11.2-GPU_Acceleration-blue?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
+[![Gazebo](https://img.shields.io/badge/Gazebo-Simulator-blue)](http://gazebosim.org/)
+[![FlexBE](https://img.shields.io/badge/FlexBE-Behavior_Engine-blue)](http://flexbe.github.io/)
+[![GitLab CI](https://img.shields.io/badge/GitLab_CI-CI%2FCD-blue?logo=gitlab&logoColor=white)](https://docs.gitlab.com/ee/ci/)
+[![Git](https://img.shields.io/badge/Git-Repository-blue?logo=git&logoColor=white)](https://git-scm.com/)
+[![VS Code](https://img.shields.io/badge/VS_Code-Editor-blue?logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com/)
+[![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-Agent-blue?logo=githubcopilot&logoColor=white)](https://github.com/features/copilot)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+> [!TIP]
+> Join the [SDE Community](https://coarobo.com/en/sde-community/) and help drive this open-source effort forward.
+> For a production-ready solution with advanced features, explore [Coarobo](https://coarobo.com/).
 
 ## Content
 
 [[_TOC_]]
 
-## External Resources
+## Supported Robot Platforms
 
-Consult the links below to access external resources related to the SDE project.
+| Platform | Robot | Documentation |
+| --- | --- | --- |
+| `turtlebot3` | Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/robot-platforms/turtlebot3.md](docs/robot-platforms/turtlebot3.md) |
+| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) |
 
-### Related Publications
+## Supported Software Platforms
+
+| Platform | GPU Acceleration | Notes |
+| --- | --- | --- |
+| Ubuntu 24.04 LTS (native) | Nvidia GPU via [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html) | Recommended setup |
+| Ubuntu 24.04 LTS on Windows 11 via [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) | [WSLg](https://github.com/microsoft/wslg) D3D12 Mesa driver | Lower 3D performance than native |
+
+## Overview
+
+```mermaid
+---
+config:
+  theme: neutral
+---
+flowchart TD
+    subgraph host["Ubuntu development machine"]
+        env["'.env' / '.env.custom'"]
+        loader["'scripts/load-sde-env.bash'"]
+        setup["'SETUP-DEVEL-MACHINE.bash'"]
+        build["'BUILD-DOCKER-IMAGE.bash'"]
+        run["'RUN-DOCKER-CONTAINER.bash'"]
+        env --> loader
+        setup -->|"Install Docker, CUDA, etc."| build
+        loader --> build
+        loader --> run
+    end
+
+    subgraph images["Docker images"]
+        base["'sde-base'<br/>(Ubuntu 20.04, ROS Noetic,<br/>Gazebo, FlexBE, etc.)"]
+        tb3["'turtlebot3-devel'"]
+        ur5e["'ur5e-devel'"]
+        base --> tb3
+        base --> ur5e
+    end
+
+    subgraph container["Docker container"]
+        shared["'sde_catkin_ws'<br/>(shared packages)"]
+        platws["'SDE_ROBOT_PLATFORM_catkin_ws'<br/>(platform packages)"]
+        rosenv["ROS environment<br/>(Gazebo, RViz, FlexBE, etc.)"]
+        shared --> rosenv
+        platws --> rosenv
+    end
+
+    build -->|"Build / pull images"| images
+    images -.->|"Selected by<br/>'SDE_ROBOT_PLATFORM'"| container
+    run -->|"Enter container shell"| container
+```
+
+## Quick Start
+
+> [!NOTE]
+> The whole SDE is containerized/virtualized using [Docker](https://www.docker.com/).
+> This ensures that all the contributors work in the exact same software environment.
+
+1. Clone and set up:
+
+    ```shell
+    sudo apt-get update && sudo apt-get install -y git
+    git clone https://gitlab.com/coarobo/SDE.git && cd SDE/
+    bash ./SETUP-DEVEL-MACHINE.bash
+    sudo reboot
+    ```
+
+2. Build the Docker image:
+
+    ```shell
+    bash ./BUILD-DOCKER-IMAGE.bash
+    ```
+
+3. Run the Docker container:
+
+    ```shell
+    bash ./RUN-DOCKER-CONTAINER.bash
+    ```
+
+4. Inside the container, initialize the environment:
+
+    ```shell
+    sde-get-fully-started
+    ```
+
+For detailed instructions, see the [Basic Usage](docs/basic-usage.md) guide.
+For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
+
+## Directory Structure
+
+```
+.env                                     # Default platform configuration.
+env/
+  turtlebot3.env                         # TurtleBot3 platform template.
+  ur5e.env                               # UR5e platform template.
+SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
+BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
+RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.
+RUN-TERMINATOR-TERMINAL.bash             # Multi-terminal launcher script.
+BRINGUP-ROS-ROBOT.bash                   # Robot bringup script.
+scripts/
+  load-sde-env.bash                      # Shared environment loader.
+docker/
+  docker-compose.yaml                    # Docker service definitions.
+  docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
+  docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
+  sde-base/                              # Shared base Docker image.
+    Dockerfile
+    scripts/                             # Container helper scripts.
+  turtlebot3-devel/                      # TurtleBot3 platform image.
+    Dockerfile
+  ur5e-devel/                            # UR5e platform image.
+    Dockerfile
+ros/
+  sde_catkin_ws/                         # Shared Catkin workspace.
+  turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
+  ur5e_catkin_ws/                        # UR5e Catkin workspace.
+docs/                                    # Documentation.
+  basic-usage.md
+  advanced-usage.md
+  robot-platforms/
+    turtlebot3.md
+    ur5e.md
+terminator/
+  config                                 # Terminator layout configuration.
+patches/                                 # Submodule patch files.
+gitlab-ci/                               # GitLab CI/CD scripts.
+```
+
+## Documentation
+
+| Document | Description |
+| --- | --- |
+| [Basic Usage](docs/basic-usage.md) | Full setup guide: prerequisites, installation, build, and run |
+| [Advanced Usage](docs/advanced-usage.md) | Bash functions, multiple terminals, Docker configuration, environment variables |
+| [TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
+| [UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
+
+## Related Publications
 
 Summaries of the development history, requirements, vision, and goals of the SDE have been published in the following papers:
-*   International journals:
-    *   L. El Hafi, G. A. Garcia Ricardez, F. von Drigalski, Y. Inoue, M. Yamamoto, and T. Yamamoto, "**Software Development Environment for Collaborative Research Workflow in Robotic System Integration**", in *RSJ Advanced Robotics (AR), Special Issue on Software Framework for Robot System Integration*, vol. 36, no. 11, pp. 533-547, Jun. 3, 2022. DOI: [10.1080/01691864.2022.2068353](https://doi.org/10.1080/01691864.2022.2068353)
-*   Domestic conferences:
-    *   L. El Hafi and T. Yamamoto, "**Toward the Public Release of a Software Development Environment for Human Support Robots**", in *Proceedings of 2020 Annual Conference of the Robotics Society of Japan (RSJ 2020)*, ref. RSJ2020AC3E1-01, pp. 1-2, (Virtual), Oct. 9, 2020.
-    *   L. El Hafi, S. Matsuzaki, S. Itadera, and T. Yamamoto, "**Deployment of a Containerized Software Development Environment for Human Support Robots**", in *Proceedings of 2019 Annual Conference of the Robotics Society of Japan (RSJ 2019)*, ref. RSJ2019AC3K1-03, pp. 1-2, Tokyo, Japan, Sep. 3, 2019.
-    *   L. El Hafi, Y. Hagiwara, and T. Taniguchi, "**Abstraction-Rich Workflow for Agile Collaborative Development and Deployment of Robotic Solutions**", in *Proceedings of 2018 Annual Conference of the Robotics Society of Japan (RSJ 2018)*, ref. RSJ2018AC3D3-02, pp. 1-3, Kasugai, Japan, Sep. 5, 2018.
+- International journals:
+  - L. El Hafi, G. A. Garcia Ricardez, F. von Drigalski, Y. Inoue, M. Yamamoto, and T. Yamamoto, "**Software Development Environment for Collaborative Research Workflow in Robotic System Integration**", in *RSJ Advanced Robotics (AR), Special Issue on Software Framework for Robot System Integration*, vol. 36, no. 11, pp. 533-547, Jun. 3, 2022. DOI: [10.1080/01691864.2022.2068353](https://doi.org/10.1080/01691864.2022.2068353)
+- Domestic conferences:
+  - L. El Hafi and T. Yamamoto, "**Toward the Public Release of a Software Development Environment for Human Support Robots**", in *Proceedings of 2020 Annual Conference of the Robotics Society of Japan (RSJ 2020)*, ref. RSJ2020AC3E1-01, pp. 1-2, (Virtual), Oct. 9, 2020.
+  - L. El Hafi, S. Matsuzaki, S. Itadera, and T. Yamamoto, "**Deployment of a Containerized Software Development Environment for Human Support Robots**", in *Proceedings of 2019 Annual Conference of the Robotics Society of Japan (RSJ 2019)*, ref. RSJ2019AC3K1-03, pp. 1-2, Tokyo, Japan, Sep. 3, 2019.
+  - L. El Hafi, Y. Hagiwara, and T. Taniguchi, "**Abstraction-Rich Workflow for Agile Collaborative Development and Deployment of Robotic Solutions**", in *Proceedings of 2018 Annual Conference of the Robotics Society of Japan (RSJ 2018)*, ref. RSJ2018AC3D3-02, pp. 1-3, Kasugai, Japan, Sep. 5, 2018.
 
-> **Note:**
-  Cite these papers if you are using the SDE to implement your research!
-  It is crucially important to desseminate the SDE accros the robotics research community.
+> [!NOTE]
+> Cite these papers if you are using the SDE to implement your research!
+> It is crucially important to disseminate the SDE across the robotics research community.
 
-### Official Websites
+## External Resources
 
-*   Coarobo GK:
-    * Official website: [https://coarobo.com/](https://coarobo.com/)
-    * GitLab group: [https://gitlab.com/coarobo](https://gitlab.com/coarobo)
-    * GitHub organization: [https://github.com/coarobo](https://github.com/coarobo)
-*   Robotis TurtleBot3 (Waffle Pi):
-    *   Official manual: [https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/)
-    *   GitHub repository: [https://github.com/ROBOTIS-GIT/turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3)
-    *   ROS wiki: [http://wiki.ros.org/turtlebot3](http://wiki.ros.org/turtlebot3)
-
-## Contribution Guidelines
-
-Carefully read the contribution guidelines before pushing new code or requesting a merge.
-Details can be found in the contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md).
+- Coarobo GK:
+  - Official website: [https://coarobo.com/](https://coarobo.com/)
+  - GitLab group: [https://gitlab.com/coarobo](https://gitlab.com/coarobo)
+  - GitHub organization: [https://github.com/coarobo](https://github.com/coarobo)
 
 ## Reporting Issues
 
 Please report any issue or future work using the GitLab issue tracker: [https://gitlab.com/coarobo/SDE/issues](https://gitlab.com/coarobo/SDE/issues).
 
-## Getting Started
+## Contributing
 
-Follow this step-by-step guide to perform the initial setup of the SDE on a development machine running [Ubuntu](https://www.ubuntu.com/).
+This repository uses explicit commit messages following the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+This project relies on [`AGENTS.md`](AGENTS.md) for project context and instructions provided to AI agents and coding assistants.
 
-> **Note:**
-  The whole SDE is containerized/virtualized using [Docker](https://www.docker.com/).
-  This ensures that all the contributors work in the exact same software environment.
+## Authors & Acknowledgment
 
-> **Note:**
-  The SDE robot, simulator, visualization, and behavior interfaces are primarily implemented with [ROS](http://www.ros.org/), [Gazebo](http://gazebosim.org/), [Rviz](https://github.com/ros-visualization/rviz), and [FlexBE](http://flexbe.github.io/).
+### Maintainers
 
-> **Note:**
-  The SDE primarily targets Nvidia GPU-equipped development machines and the Nvidia [CUDA](https://developer.nvidia.com/cuda-toolkit) platform.
-  Although the SDE can be run on other GPU platforms such as Intel integrated graphics, some 3D acceleration issues may arise.
-  For example, the [FlexBE App](https://github.com/FlexBE/flexbe_app) may appear partially broken due to [OpenGL](https://www.opengl.org/) errors.
+- Lotfi El Hafi (lotfi@coarobo.com)
+- Sebastian Carrera (sebastian@coarobo.com)
 
-> **Note:**
-  Virtual machines are only partially supported: 3D accelerated tools will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
+### Authors
 
-> **Note:**
-  Although this initial setup is meant to be performed only once, you can run it again would you want to reset the development environment as the project evolves.
-  However, make sure to backup your latest changes beforehand.
+- Felix von Drigalski
+- Gustavo Alfonso Garcia Ricardez
+- Masaki Yamamoto
+- Shigemichi Matsuzaki
+- Shunki Itadera
+- Tadahiro Taniguchi
+- Takashi Yamamoto
+- Yoshinobu Hagiwara
+- Yuki Inoue
 
-### Step 0: Verify the Prerequisites
+### Contributors
 
-**Mandatory:**
+- Hiroyuki Okada
+- Kazuki Miyzawa
+- Keisuke Takeshita
+- Kensuke Iwata
+- Luis Contreras
+- Nobuyuki Matsuno
+- Takato Horii
+- Tatsuya Matsushima
+- Tomohiro Ono
+- Yaonan Zhu
+- Yoshiaki Asahara
 
-*   A development machine running Ubuntu 22.04 LTS (Jammy Jellyfish) based on the AMD64 architecture.
-*   Access to administrator privileges (`sudo`) on the Ubuntu machine.
+## License
 
-**Recommended:**
+```
+MIT License
 
-*   A Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) robot for full operability.
-    If not, the TurtleBot3 (Waffle Pi) simulator running on Gazebo provides support for basic operations.
-*   An Nvidia GPU capable of running CUDA 11.2, or newer, to accelerate 3D graphics and deep learning.
-
-### Step 1: Set up the Development Environment
-
-Set up the environment of the development machine with the following instructions.
-
-1.   Install [Git](https://git-scm.com/) if necessary:
-
-     ```shell
-     sudo apt-get update && sudo apt-get install -y git
-     ```
-
-2.   Clone the SDE repository in your home folder:
-
-     ```shell
-     cd ~/ && git clone https://gitlab.com/coarobo/SDE.git
-     ```
-
-     Enter your GitLab developer credentials if prompted.
-3.   Configure the system environment:
-
-     ```shell
-     cd ~/SDE/ && bash ./SETUP-DEVEL-MACHINE.bash
-     ```
-
-     The execution of `SETUP-DEVEL-MACHINE.bash` requires `sudo` permissions to install the tools that allow virtualization, i.e., [Docker](https://www.docker.com/) (with [Docker Compose](https://github.com/docker/compose)), [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html), and [Terminator](https://gnometerminator.blogspot.com/).
-     System changes made with `sudo` are kept to a strict minimum.
-4.   Reboot the system (or log out and back in) for the changes to users and groups to take effect:
-
-     ```shell
-     sudo reboot
-     ```
-
-> **Note:**
-  The `SETUP-DEVEL-MACHINE.bash` script is actually divided into `INCL-SUDO-ENV.bash` and `INCL-USER-ENV.bash`.
-  The execution of `INCL-SUDO-ENV.bash` makes system-wide changes and thus requires `sudo` permissions.
-  However, if your system has already all the necessary tools installed, you can directly set up your local user environment with `cd ~/SDE/ && bash ./INCL-USER-ENV.bash` which does not require `sudo` permissions.
-
-> **Note:**
-  You do not need to reboot if your local user has already been added to the `docker` group.
-  If so, executing `docker --version` should not ask for `sudo`.
-  In principle, you only need to reboot after the very first time you run `SETUP-DEVEL-MACHINE.bash`.
-
-### Step 2: Build the Docker Image
-
-Create a virtual environment using Docker (= Docker image) on the development machine with the following instructions.
-
-1.   Build the Docker image:
-
-     ```shell
-     cd ~/SDE/ && bash ./BUILD-DOCKER-IMAGE.bash #[docker-project]
-     ```
-
-     This script builds the image following the instructions found in `~/SDE/docker/sde-devel/Dockerfile`.
-     Enter your GitLab developer credentials if prompted.
-
-> **Note:**
-  The script `BUILD-DOCKER-IMAGE.bash` first tries to download the image from the [container registry](https://gitlab.com/coarobo/SDE/container_registry) of the project.
-  If, for whatever reason, the image cannot be downloaded, the script will build it locally.
-  The later process is slow and can take up to 1 hour.
-  In both cases, avoid using a Wi-Fi connection to greatly accelerate the process.
-  Note that future local builds will reuse cached data whenever possible.
-
-### Step 3: Run the Docker Container
-
-Enter a virtual instance of the Docker image (= Docker container) on the development machine with the following instructions.
-
-1.   Run the Docker container:
-
-     ```shell
-     cd ~/SDE/ && bash ./RUN-DOCKER-CONTAINER.bash #[docker-project] #[ros-launch]
-     ```
-
-     This script creates or updates the container following the instructions found in `~/SDE/docker/docker-compose.yaml`.
-     It allows the container to share system resources, such as volumes and devices, with the development machine.
-2.   Configure the freshly built Docker container by executing the following Bash function inside it:
-
-     ```shell
-     sde-get-fully-started
-     ```
-
-     This function calls several scripts to download the required datasets and build the ROS environment (= Catkin workspace) inside the Docker container.
-     It will remove any existing Catkin workspace and build a new one inside `/root/SDE/ros/catkin_ws/`.
-     It will also automatically source the newly built ROS environment.
-4.   From there, you have everything ready to start using the SDE to develop new features.
-3.   Use `Ctrl+d` to exit the container at any time.
-
-> **Note:**
-  If Nvidia drivers are present in the development machine, the script `RUN-DOCKER-CONTAINER.bash` will run `docker-compose-gpu.yaml` alongside `docker-compose-gpu.yaml` to mount the GPUs into the Docker container via Nvidia Container Toolkit.
-  If not the case, most 3D accelerated tools, including the Gazebo simulator, will be extremely slow to run.
-
-> **Note:**
-  The script `RUN-DOCKER-CONTAINER.bash` will try to resolve host name `turtlebot3.local` of the TurtleBot3 (Waffle Pi) robot and add its IP address to `/etc/hosts`.
-  You can confirm the result with `ping turtlebot3.local` from inside the container.
-  Note that you can ignore the errors if you do not plan to use the TurtleBot3 (Waffle Pi) robot at that time.
-
-> **Note:**
-  Be careful if you need to modify `docker-compose.yaml` or `docker-compose-gpu.yaml` as the container will be recreated from scratch the next time you run `RUN-DOCKER-CONTAINER.bash`.
-
-> **Note:**
-  Note that the Bash function `sde-get-fully-started` should be used only once after instantiating a new container from the Docker image.
-
-### Step 4: Learn the Advanced Functions
-
-The development environment inside the Docker container offers several useful functions that you should be aware of.
-These advanced functions will help you increase both the convenience and the quality of your work using the SDE.
-
-#### Custom Bash Functions
-
-The development environment contains several useful Bash functions, all starting with the prefix `sde-`, to make your work more convenient.
-Including, but not limited to:
-
-*   `sde-download-model-data`: Download from the cloud all the large binary files required at runtime (models, datasets, dictionaries, weights, etc.).
-*   `sde-build-catkin-workspace`: Build and source the Catkin workspace on top of the system ROS environment.
-*   `sde-reset-catkin-workspace`: Remove built artifacts, then cleanly rebuild and source the Catkin workspace on top of the system ROS environment (to use after, for example, switching branches).
-*   `sde-fix-permission-issues`: Fix the various permission issues that may appear when manipulating, on the development machine, files generated by the `root` user of the Docker container.
-*   `sde-get-fully-started`: Execute several of the aforementioned functions to quickly get started when entering a freshly built Docker container.
-*   `sde-cleanup-output-data`: Delete files and data output at runtime to clean up the environment between experiment trials.
-*   `sde-kill-ros-nodes`: Kill all ROS nodes as well as [`roscore`](https://wiki.ros.org/roscore) and [`rosmaster`](https://wiki.ros.org/rosmaster) still running in the Docker container.
-
-> **Note:**
-  These Bash functions are based on helper scripts that can be found in `/root/SDE/docker/sde-devel/scripts/` in the Docker container or in `~/SDE/docker/sde-devel/scripts/` in the development machine.
-  You can see their definitions in `~/.bashrc` inside the container.
-
-> **Note:**
-  The script `build-catkin-workspace.bash` will build the Catkin workspace using `catkin build` instead of the older but still officially default `catkin_make`.
-  Please be sure to build using `catkin build` to avoid strange issues.
-
-#### Multiple Terminal Operation
-
-You can simultaneously run multiple terminals using `RUN-TERMINATOR-TERMINAL.bash`.
-This script opens [Terminator](https://gnometerminator.blogspot.com/) with the default layout configuration stored in `~/SDE/terminator/config`.
-Each sub-terminal automatically executes `RUN-DOCKER-CONTAINER.bash` with a predefined ROS launch file for convenience.
-You can then select execution options by pressing specific keys, as shown in the example below:
-
-```shell
-Run 'example_roslaunch_file.launch'? Press:
-'r' to run as remote,       # e.g., TurtleBot3 (Waffle Pi) robot.
-'l' to run as local,        # e.g., Gazebo simulation.
-'c' to enter a child shell. # e.g., Bash shell.
+Copyright (c) 2019 Coarobo GK
 ```
 
-#### Configuration of the Docker Container
-
-A cascade of scripts performs the initialization of the Docker container.
-Although the boundaries between them can sometimes be blurry, each one has a specific function, and future implementations/revisions should keep these functions separated as much as possible.
-They can be found on the development machine at:
-
-*   `~/SDE/docker/sde-devel/Dockerfile`: Used by `BUILD-DOCKER-IMAGE.bash` to create the image of the shared development environment.
-    It mainly describes the installations of the project tools/dependencies required inside the container.
-*   `~/SDE/docker/docker-compose.yaml`: Describes the interface between the development machine and the container.
-    It includes external information from outside the container, such as device host names or network configuration.
-    It is invoked when the container is (re)started, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
-*   `~/SDE/docker/sde-devel/scripts/initialize-docker-container.bash`: A startup script referenced in `docker-compose.yaml` and thus also invoked when (re)starting the container, most frequently the first time that `RUN-DOCKER-CONTAINER.bash` is run after the container is either stopped (development machine reboot) or rebuilt.
-    It executes the internal commands needed at the startup of the container (for example, to maintain the container running in the background).
-*   `~/SDE/docker/sde-devel/scripts/initialize-bash-shell.bash`: A shell script appended to `/root/.bashrc` at the end of the `Dockerfile` to set up the Bash shell environment inside the container (terminal colors, shell functions, symbolic links, binary paths, environment sourcing, etc.).
-    Theoretically, its content could be written directly in the `Dockerfile`, but this would result in complex lines of code as helpful Bash syntaxes like here-documents are not supported by Docker.
-    It is automatically sourced by `/root/.bashrc` every time the user enters the Bash shell inside the container, most likely every time `RUN-DOCKER-CONTAINER.bash` is run.
-
-### Step 5: Develop on the Simulator/Robot
-
-From here, you can continue with one or both of the following options depending on the presence of a TurtleBot3 (Waffle Pi) robot within the same local network as the development machine.
-
-1.   Enter the Docker container from a new terminal window:
-
-     ```shell
-     cd ~/SDE/ && bash ./RUN-DOCKER-CONTAINER.bash #[docker-project] #[ros-launch]
-     ```
-
-     Then connect or switch to `roscore` used by the Gazebo simulator or by the TurtleBot3 (Waffle Pi) robot with the following aliases:
-
-     ```shell
-     local_mode
-     remote_mode
-     ```
-
-2.   You can also conveniently run multiple terminals simultaneously using Terminator by running:
-
-     ```shell
-     cd ~/SDE/ && bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] #[terminator-layout]
-     ```
-
-Finally, before writing any new code, please make sure to have read the contribution guidelines in: [CONTRIBUTING.md](CONTRIBUTING.md).
-
-> **Note:**
-  The most important rule is to avoid pushing large binary files (datasets, weights, etc.) in the repository.
-  Instead, you need to provide a link to download all your necessary large binary files from the cloud with `sde-download-model-data`.
-  Ideally, all these files should be centralized in an online storage.
-
-## Robot Configuration
-
-This project is configured to use up to 3 TurtleBot3 (Waffle Pi) robots simultaneously.
-The default configuration of the TurtleBot3 (Waffle Pi) on-board computers is as follows, where `x` is the number corresponding to a specific robot:
-
-*   User name: `pi`
-*   Host name: `turtlebot3.local`
-*   Password: `turtlebot`
-
-To connect to the Raspberry Pi on-board computer of the TurtleBot3 (Waffle Pi), run the following in a new terminal on the development machine:
-
-```shell
-ping turtlebot3.local
-ssh pi@turtlebot3.local
-```
-
-You can also bring up the TurtleBot3 (Waffle Pi) robots by executing the following script on the development machine:
-
-```shell
-cd ~/SDE/ && bash ./BRINGUP-TURTLEBOT3-ROBOT.bash #<rosmaster-hostname> #[docker-project]
-```
-
-> **Note:**
-  Do not, under any circumstance, directly modify the system of the on-board computer of the TurtleBot3 (Waffle Pi) robot.
-  Always use the environment of the development machine to interact with the robot using ROS over the local network.
-
-## Robot Installation
-
-Follow this step-by-step guide to set up or reinitialize a TurtleBot3 (Waffle Pi) robot.
-
-> **Note:**
-  The instructions below contains only minor modifications from the TurtleBot3 (Waffle Pi) official manual.
-
-> **Note:**
-  The TurtleBot3 (Waffle Pi) robot is set up using the older ROS Kinetic distribution because the ROS package that interfaces the Camera Module v2 is not compatible with the newer ROS distributions.
-  Therefore, the ROS distribution in running in the robots does not match the ROS distribution of the development machine.
-  This is not an optimal solution, but so far, it did not cause important issues.
-
-1.   Read the following page of the TurtleBot3 (Waffle Pi) official manual: [https://emanual.robotis.com/docs/en/platform/turtlebot3/sbc_setup/#sbc-setup](https://emanual.robotis.com/docs/en/platform/turtlebot3/sbc_setup/#sbc-setup).
-1.   Download the following TurtleBot3 (Waffle Pi) SBC Image: Raspberry Pi 3B+ ROS Kinetic on Raspberry Pi OS (Raspbian OS).  
-Link: [http://www.robotis.com/service/download.php?no=1738](http://www.robotis.com/service/download.php?no=1738).  
-File: `tb3_rpi3b+_kinetic_20220513.zip`  
-SHA256: `eb8173f3727db08087990b2c4e2bb211e70bd54644644834771fc8b971856b97`.
-1.   Flash the image on the microSD card of the TurtleBot3 (Waffle Pi).
-1.   Insert the microSD card into the Raspberry Pi.
-1.   Connect a monitor to the HDMI port of Raspberry Pi.
-1.   Connect input devices (keyboard, mouse) to the USB ports of Raspberry Pi
-1.   Connect the power (either with USB or OpenCR) to turn on the Raspberry Pi.
-1.   After booting up the Raspberry Pi, use the GUI and input devices to connect to the Wi-Fi.
-     The Raspberry Pi will automatically connect to known Wi-Fi networks after reboot.
-1.   Open the "Raspberry Pi Configuration" menu and verify that the host name is `turtlebot3`.
-1.   In the same "Raspberry Pi Configuration" menu, verify that the overscan is disabled, and that both SSH and the camera are enabled.
-1.   Reboot the Raspberry Pi and disconnect the monitor and input devices as the next steps can be performed from a remote development machine via SSH.
-1.   Connect to the Raspberry Pi via SSH (password: `turtlebot`):
-
-     ```shell
-     ping turtlebot3.local
-     ssh pi@turtlebot3.local
-     ```
-
-1.   Inside the Raspberry Pi, synchronize the time:
-
-     ```shell
-     sudo apt-get install ntpdate
-     sudo ntpdate ntp.ubuntu.com
-     ```
-
-1.   Inside the Raspberry Pi, fix the ROS GPG key issue (see: [https://discourse.ros.org/t/ros-gpg-key-expiration-incident/20669](https://discourse.ros.org/t/ros-gpg-key-expiration-incident/20669)):
-
-     ```shell
-     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-     ```
-
-1.   Inside the Raspberry Pi, expand the filesystem:
-
-     ```shell
-     sudo raspi-config
-     ```
-
-     Select "7 Advanced Options" > "A1 Expand Filesystem" then exit and reboot.
-1.   Connect once more to the Raspberry Pi via SSH (password: `turtlebot`):
-
-     ```shell
-     ping turtlebot3.local
-     ssh pi@turtlebot3.local
-     ```
-
-1.   Inside the Raspberry Pi, add the ROS network information to the Bash shell by running `nano ~/.bashrc` and adding the following lines at the bottom of the file:
-
-     ```shell
-     export ROS_MASTER_URI=http://<rosmaster-hostname>.local:11311
-     export ROS_HOSTNAME=turtlebot3.local
-     export TURTLEBOT3_MODEL=waffle_pi
-     ```
-
-     Note that `<rosmaster-hostname>` should be the host name of the development machine for better performance.
-     Note also that `TURTLEBOT3_MODEL=waffle_pi`.
-     Save the file and load the new settings into the current Bash shell with `source ~/.bashrc`.
-1.   Do not install the "NEW LDS-02 Configuration" unless you use TurtleBot3 (Waffle Pi) robots from 2022 or later.
-1.   Read the following page of the TurtleBot3 (Waffle Pi) official manual: [https://emanual.robotis.com/docs/en/platform/turtlebot3/opencr_setup/](https://emanual.robotis.com/docs/en/platform/turtlebot3/opencr_setup/).
-1.   Inside the Raspberry Pi, update the OpenCR firmware with:
-
-     ```shell
-     sudo dpkg --add-architecture armhf
-     sudo apt-get update
-     sudo apt-get install libc6:armhf
-     export OPENCR_PORT=/dev/ttyACM0
-     export OPENCR_MODEL=waffle
-     rm -rf ./opencr_update.tar.bz2
-     wget https://github.com/ROBOTIS-GIT/OpenCR-Binaries/raw/master/turtlebot3/ROS1/latest/opencr_update.tar.bz2
-     tar -xvf opencr_update.tar.bz2
-     cd ./opencr_update
-     ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr
-     cd ~/
-     ```
-
-     Note that `OPENCR_MODEL=waffle`.
-1.   Read the following page of the TurtleBot3 (Waffle Pi) official manual: [https://emanual.robotis.com/docs/en/platform/turtlebot3/appendix_raspi_cam/](https://emanual.robotis.com/docs/en/platform/turtlebot3/appendix_raspi_cam/).
-1.   Inside the Raspberry Pi, test the Camera Module v2 and install its related ROS packages with:
-
-     ```shell
-     cd ~/
-     raspistill -v -o test.jpg
-     ls
-     rm test.jpg
-     cd ~/catkin_ws/src
-     git clone https://github.com/UbiquityRobotics/raspicam_node.git
-     sudo apt-get install ros-kinetic-compressed-image-transport ros-kinetic-camera-info-manager
-     cd ~/catkin_ws && catkin_make
-     cd ~/
-     source ~/.bashrc
-     ```
+See [`LICENSE`](LICENSE) for details.

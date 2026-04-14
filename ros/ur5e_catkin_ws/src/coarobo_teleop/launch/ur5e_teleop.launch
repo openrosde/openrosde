@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+    <arg name="planning_frame" default="base_link" />
+    <arg name="ee_frame_name" default="flange" />
+    <arg name="robot_link_command_frame" default="base_link" />
+    <arg name="controller_mode" default="trajectory" />
+    <arg name="command_out_topic" default="$(eval '/joint_group_vel_controller/command' if arg('controller_mode') == 'velocity' else '/scaled_pos_joint_traj_controller/command')" />
+    <arg name="command_out_type" default="$(eval 'std_msgs/Float64MultiArray' if arg('controller_mode') == 'velocity' else 'trajectory_msgs/JointTrajectory')" />
+    <arg name="publish_joint_positions" default="$(eval 'false' if arg('controller_mode') == 'velocity' else 'true')" />
+    <arg name="publish_joint_velocities" default="$(eval 'true' if arg('controller_mode') == 'velocity' else 'false')" />
+    <arg name="switch_controllers" default="true" />
+    <arg name="switch_service_name" default="/controller_manager/switch_controller" />
+    <arg name="controllers_to_start" default="$(eval 'joint_group_vel_controller' if arg('controller_mode') == 'velocity' else 'scaled_pos_joint_traj_controller')" />
+    <arg name="controllers_to_stop" default="$(eval 'scaled_pos_joint_traj_controller' if arg('controller_mode') == 'velocity' else 'joint_group_vel_controller')" />
+    <arg name="wait_for_switch_service_timeout" default="20.0" />
+
+    <arg name="launch_spacenav_node" default="true" />
+    <arg name="input_twist_topic" default="/spacenav/twist" />
+    <arg name="output_twist_topic" default="/servo_server/delta_twist_cmds" />
+    <arg name="joy_topic" default="/spacenav/joy" />
+    <arg name="frame_id" default="base_link" />
+
+    <arg name="require_enable_button" default="true" />
+    <arg name="enable_button_index" default="0" />
+    <arg name="publish_zero_when_disabled" default="true" />
+    <arg name="enable_gripper_button" default="true" />
+    <arg name="gripper_button_index" default="1" />
+    <arg name="gripper_service_name" default="/onrobot_rg/set_command" />
+    <arg name="gripper_open_command" default="o" />
+    <arg name="gripper_close_command" default="c" />
+    <arg name="gripper_initial_state" default="open" />
+
+    <arg name="linear_x_scale" default="1.0" />
+    <arg name="linear_y_scale" default="1.0" />
+    <arg name="linear_z_scale" default="1.0" />
+    <arg name="angular_x_scale" default="1.0" />
+    <arg name="angular_y_scale" default="1.0" />
+    <arg name="angular_z_scale" default="1.0" />
+    <arg name="reverse_for_front_view" default="false" />
+    <arg name="publish_rate" default="100.0" />
+    <arg name="input_timeout" default="0.1" />
+    <arg name="linear_deadband" default="0.10" />
+    <arg name="angular_deadband" default="0.10" />
+    <arg name="linear_smoothing_time_constant" default="0.08" />
+    <arg name="angular_smoothing_time_constant" default="0.08" />
+    <arg name="max_linear_acceleration" default="4.0" />
+    <arg name="max_angular_acceleration" default="6.0" />
+
+    <include file="$(find coarobo_teleop)/launch/ur5e_moveit_servo_velocity.launch">
+        <arg name="planning_frame" value="$(arg planning_frame)" />
+        <arg name="ee_frame_name" value="$(arg ee_frame_name)" />
+        <arg name="robot_link_command_frame" value="$(arg robot_link_command_frame)" />
+        <arg name="command_out_topic" value="$(arg command_out_topic)" />
+        <arg name="command_out_type" value="$(arg command_out_type)" />
+        <arg name="publish_joint_positions" value="$(arg publish_joint_positions)" />
+        <arg name="publish_joint_velocities" value="$(arg publish_joint_velocities)" />
+        <arg name="switch_controllers" value="$(arg switch_controllers)" />
+        <arg name="switch_service_name" value="$(arg switch_service_name)" />
+        <arg name="controllers_to_start" value="$(arg controllers_to_start)" />
+        <arg name="controllers_to_stop" value="$(arg controllers_to_stop)" />
+        <arg name="wait_for_switch_service_timeout" value="$(arg wait_for_switch_service_timeout)" />
+    </include>
+
+    <include file="$(find coarobo_teleop)/launch/ur5e_spacenav_node.launch">
+        <arg name="launch_spacenav_node" value="$(arg launch_spacenav_node)" />
+        <arg name="input_twist_topic" value="$(arg input_twist_topic)" />
+        <arg name="output_twist_topic" value="$(arg output_twist_topic)" />
+        <arg name="joy_topic" value="$(arg joy_topic)" />
+        <arg name="frame_id" value="$(arg frame_id)" />
+        <arg name="require_enable_button" value="$(arg require_enable_button)" />
+        <arg name="enable_button_index" value="$(arg enable_button_index)" />
+        <arg name="publish_zero_when_disabled" value="$(arg publish_zero_when_disabled)" />
+        <arg name="enable_gripper_button" value="$(arg enable_gripper_button)" />
+        <arg name="gripper_button_index" value="$(arg gripper_button_index)" />
+        <arg name="gripper_service_name" value="$(arg gripper_service_name)" />
+        <arg name="gripper_open_command" value="$(arg gripper_open_command)" />
+        <arg name="gripper_close_command" value="$(arg gripper_close_command)" />
+        <arg name="gripper_initial_state" value="$(arg gripper_initial_state)" />
+        <arg name="linear_x_scale" value="$(eval str(-float(arg('linear_x_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('linear_x_scale'))" />
+        <arg name="linear_y_scale" value="$(eval str(-float(arg('linear_y_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('linear_y_scale'))" />
+        <arg name="linear_z_scale" value="$(arg linear_z_scale)" />
+        <arg name="angular_x_scale" value="$(eval str(-float(arg('angular_x_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('angular_x_scale'))" />
+        <arg name="angular_y_scale" value="$(eval str(-float(arg('angular_y_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('angular_y_scale'))" />
+        <arg name="angular_z_scale" value="$(arg angular_z_scale)" />
+        <arg name="publish_rate" value="$(arg publish_rate)" />
+        <arg name="input_timeout" value="$(arg input_timeout)" />
+        <arg name="linear_deadband" value="$(arg linear_deadband)" />
+        <arg name="angular_deadband" value="$(arg angular_deadband)" />
+        <arg name="linear_smoothing_time_constant" value="$(arg linear_smoothing_time_constant)" />
+        <arg name="angular_smoothing_time_constant" value="$(arg angular_smoothing_time_constant)" />
+        <arg name="max_linear_acceleration" value="$(arg max_linear_acceleration)" />
+        <arg name="max_angular_acceleration" value="$(arg max_angular_acceleration)" />
+    </include>
+
+</launch>

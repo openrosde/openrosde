@@ -10,26 +10,26 @@
 
 ################################################################################
 
-# Set the Docker container name from the [docker-project] argument.
-# If no [docker-project] is given, use the current user name as the Docker project name.
-DOCKER_PROJECT=$1
-if [ -z "${DOCKER_PROJECT}" ]; then
-  DOCKER_PROJECT=${USER}
-fi
-DOCKER_CONTAINER="${DOCKER_PROJECT}-sde-1"
-echo "$0: DOCKER_PROJECT=${DOCKER_PROJECT}"
-echo "$0: DOCKER_CONTAINER=${DOCKER_CONTAINER}"
+# Load the SDE environment variables.
+source ./scripts/load-sde-env.bash "$1"
 
 ################################################################################
 
-# Run Terminator with a custom configuration file and layout after injecting the required environment variables.
-sed "s/\${DOCKER_PROJECT}/${DOCKER_PROJECT}/g" ./terminator/config > ./terminator/config.tmp
+# Pre-start the Docker container before launching Terminator.
+# This avoids race conditions when multiple Terminator panes run 'RUN-DOCKER-CONTAINER.bash' simultaneously.
+bash ./RUN-DOCKER-CONTAINER.bash "${SDE_DOCKER_PROJECT}" --no-exec > /dev/null 2>&1 &
+wait $!
+
+################################################################################
+
+# Run Terminator with the platform-specific configuration file and layout after injecting the required environment variables.
+sed "s/\${SDE_DOCKER_PROJECT}/${SDE_DOCKER_PROJECT}/g" ./terminator/${SDE_ROBOT_PLATFORM}.config > ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp
 if [ -z "$2" ]; then
-  terminator --maximise --config ./terminator/config.tmp --layout sde-term-11-default-gazebo
+  terminator --maximise --config ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp --layout sde-${SDE_ROBOT_PLATFORM}-term-11-default-gazebo
 else
-  terminator --maximise --config ./terminator/config.tmp --layout sde-term-11-$2
+  terminator --maximise --config ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp --layout sde-${SDE_ROBOT_PLATFORM}-term-11-$2
 fi
-rm ./terminator/config.tmp
+rm ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp
 sleep 1
 
 ################################################################################

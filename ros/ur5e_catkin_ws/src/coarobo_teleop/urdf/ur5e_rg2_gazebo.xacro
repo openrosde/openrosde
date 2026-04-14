@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur5e_robot">
+  <xacro:include filename="$(find ur_gazebo)/urdf/ur_macro.xacro"/>
+  <xacro:include filename="$(find onrobot_rg_description)/urdf/onrobot_rg2_model_macro.xacro"/>
+
+  <xacro:arg name="robot_model" default="ur5e"/>
+  <xacro:arg name="joint_limit_params" default=""/>
+  <xacro:arg name="physical_params" default=""/>
+  <xacro:arg name="kinematics_params" default=""/>
+  <xacro:arg name="visual_params" default=""/>
+  <xacro:arg name="transmission_hw_interface" default="hardware_interface/EffortJointInterface"/>
+  <xacro:arg name="safety_limits" default="false"/>
+  <xacro:arg name="safety_pos_margin" default="0.15"/>
+  <xacro:arg name="safety_k_position" default="20"/>
+
+  <xacro:ur_robot_gazebo
+    prefix=""
+    joint_limits_parameters_file="$(arg joint_limit_params)"
+    kinematics_parameters_file="$(arg kinematics_params)"
+    physical_parameters_file="$(arg physical_params)"
+    visual_parameters_file="$(arg visual_params)"
+    transmission_hw_interface="$(arg transmission_hw_interface)"
+    safety_limits="$(arg safety_limits)"
+    safety_pos_margin="$(arg safety_pos_margin)"
+    safety_k_position="$(arg safety_k_position)"
+  />
+
+  <link name="onrobot_rg2_base_link">
+    <inertial>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      <mass value="0.7" />
+      <inertia ixx="1.0E-03" ixy="1.0E-06" ixz="1.0E-06" iyy="1.0E-03" iyz="1.0E-06" izz="1.0E-03" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://onrobot_rg_description/meshes/rg2/visual/base_link.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.8 0.8 0.8 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://onrobot_rg_description/meshes/rg2/collision/base_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="tool0-onrobot_rg2_base" type="fixed">
+    <parent link="tool0" />
+    <child link="onrobot_rg2_base_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <gazebo reference="onrobot_rg2_base_link">
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <selfCollide>false</selfCollide>
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <xacro:finger_links prefix="" fingerprefix="left"/>
+  <xacro:finger_links prefix="" fingerprefix="right"/>
+  <xacro:finger_joint prefix=""/>
+  <xacro:right_outer_knuckle_joint prefix=""/>
+  <xacro:onrobot_rg2_transmission prefix=""/>
+  <xacro:onrobot_rg2_gazebo prefix=""/>
+
+  <link name="world"/>
+  <joint name="world_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="tool0_controller"/>
+  <joint name="tool_controller_fake_joint" type="fixed">
+    <parent link="tool0"/>
+    <child link="tool0_controller"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+</robot>
