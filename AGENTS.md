@@ -45,7 +45,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
   - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`).
-- `terminator/`: Terminator layout configuration.
+- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline scripts.
 
 ## Agent Persona
@@ -69,6 +69,23 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 - `.env`: Default configuration (committed to Git). Do not add fallback defaults (`:-`) in scripts; all defaults live here.
 - `.env.custom`: User overrides (Git-ignored, created from a platform template in `env/`).
 - `scripts/load-sde-env.bash`: Shared loader sourced by all top-level `*.bash` scripts. Resolves `SDE_ROOT_DIR`, loads `.env`/`.env.custom`, exports variables for `docker-compose.yaml` interpolation.
+
+### Platform Switching
+
+Switching platforms requires only changing `.env.custom` (e.g., `cp env/ur5e.env .env.custom`).
+`RUN-DOCKER-CONTAINER.bash` automatically detects containers from a different platform under the same Docker project and runs `docker compose down` to cleanly remove them before starting the new platform's container.
+
+### Docker Compose Service Targeting
+
+`docker-compose.yaml` defines two services: `sde-base` (build-only base image) and `sde` (platform-specific runtime container).
+Always target the `sde` service explicitly with `docker compose up -d sde` to avoid accidentally starting the `sde-base` service, which has no `container_name` and causes naming conflicts.
+
+### Terminator Layouts
+
+Terminator configuration files are per-platform in `terminator/` (e.g., `turtlebot3.config`, `ur5e.config`).
+Layout names follow the pattern: `sde-<platform>-term-11-<variant>-<environment>`.
+`RUN-TERMINATOR-TERMINAL.bash` pre-starts the Docker container with `--no-exec` before launching Terminator to avoid race conditions from multiple panes running `RUN-DOCKER-CONTAINER.bash` simultaneously.
+The `sed` command injects `${SDE_DOCKER_PROJECT}` into the config, producing a `.config.tmp` file that is git-ignored.
 
 ### Variable Naming Convention
 
@@ -99,6 +116,9 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - Top-level entry-point scripts (`BUILD-DOCKER-IMAGE.bash`, `RUN-DOCKER-CONTAINER.bash`, etc.) are `UPPER-CASE-KEBAB.bash`.
 - Helper scripts in `scripts/` and `docker/sde-base/scripts/` are `lower-case-kebab.bash`.
 - Name scripts with exactly three kebab-case words, starting with a verb (e.g., `BUILD-DOCKER-IMAGE`, `initialize-bash-shell`).
+- Use `> /dev/null 2>&1` to suppress both stdout and stderr (e.g., cleanup commands, background pre-start).
+- Use `2>/dev/null` to suppress only stderr when stdout is still needed (e.g., conditional checks like `docker manifest inspect`).
+- Use `& wait $!` to run a command in the background and wait for completion (e.g., pre-starting the Docker container before launching Terminator).
 
 Example header:
 
@@ -221,6 +241,10 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
 - Build Catkin workspace (inside container): `sde-reset-catkin-workspace` or `sde-build-catkin-workspace`.
+- Switch platform: `cp env/<platform>.env .env.custom` (e.g., `cp env/ur5e.env .env.custom`).
+- Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
+- Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash`.
+- Push Docker images: `bash gitlab-ci/PUSH-DOCKER-IMAGE.bash` (uses `docker logout`/`docker login` to force re-authentication).
 
 ## Testing Pipeline
 

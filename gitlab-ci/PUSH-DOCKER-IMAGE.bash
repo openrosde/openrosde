@@ -13,6 +13,8 @@ source ../scripts/load-sde-env.bash
 ################################################################################
 
 # Authenticate with the Docker image registry on GitLab.
+# Clear cached credentials first to force re-authentication.
+docker logout registry.gitlab.com > /dev/null 2>&1
 docker login registry.gitlab.com/coarobo/sde
 
 ################################################################################
