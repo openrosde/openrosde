@@ -2,6 +2,12 @@
 
 ################################################################################
 
+# Base Docker Compose file for the SDE.
+# Defines two services: 'sde-base' (build-only base image) and 'sde'
+# (platform-specific runtime container with shared configuration).
+
+################################################################################
+
 services:
   sde-base:
     image: registry.gitlab.com/coarobo/sde/sde-base:latest

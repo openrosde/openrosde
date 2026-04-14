@@ -4,7 +4,7 @@
 
     <!-- https://github.com/UniversalRobots/Universal_Robots_ROS_Driver -->
 
-    <arg name="robot_ip" default="192.168.1.200" />
+    <arg name="robot_ip" default="$(optenv SDE_UR5E_TEACH_PENDANT_IP)" />
     <arg name="kinematics_config" default="$(find sde_ur5e_launch)/config/ur5e/robot_calibration_snXXXXXXXXXXX.yaml" />
     <arg name="headless_mode" default="true" />
 

@@ -32,9 +32,10 @@ It provides a containerized, multi-platform development environment based on Doc
   - `sde-base/`: Shared base image (`Dockerfile`, helper `scripts/`).
   - `turtlebot3-devel/`: TurtleBot3 platform image.
   - `ur5e-devel/`: UR5e platform image.
-  - `docker-compose.yaml`: Service definitions.
+  - `docker-compose.yaml`: Base service definitions.
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
+  - `docker-compose-ur5e.yaml`: UR5e platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
@@ -79,6 +80,11 @@ Switching platforms requires only running `bash ./SWITCH-ROBOT-PLATFORM.bash <pl
 
 `docker-compose.yaml` defines two services: `sde-base` (build-only base image) and `sde` (platform-specific runtime container).
 Always target the `sde` service explicitly with `docker compose up -d sde` to avoid accidentally starting the `sde-base` service, which has no `container_name` and causes naming conflicts.
+
+### Docker Compose Platform Overlays
+
+Platform-specific Docker Compose overlays (e.g., `docker-compose-ur5e.yaml`) pass platform-specific environment variables to the container.
+`RUN-DOCKER-CONTAINER.bash` automatically includes `docker-compose-${SDE_ROBOT_PLATFORM}.yaml` if the file exists, so new platforms can add their own overlay without modifying the script.
 
 ### Terminator Layouts
 

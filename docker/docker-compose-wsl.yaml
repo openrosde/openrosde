@@ -2,6 +2,11 @@
 
 ################################################################################
 
+# WSL 2 GPU overlay for the SDE.
+# Enables GPU-accelerated rendering via the WSLg D3D12 Mesa driver.
+
+################################################################################
+
 services:
   sde:
     environment:
