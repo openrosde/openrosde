@@ -2,8 +2,8 @@
 
 <launch>
 
-    <!-- https://github.com/ros-industrial/universal_robot -->
+  <!-- https://github.com/ros-industrial/universal_robot -->
 
-    <include file="$(find ur5e_moveit_config)/launch/moveit_rviz.launch" />
+  <include file="$(find ur5e_moveit_config)/launch/moveit_rviz.launch" />
 
 </launch>

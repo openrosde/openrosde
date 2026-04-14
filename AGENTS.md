@@ -188,6 +188,18 @@ File names follow the pattern: `<component>_<variant>_<environment>.launch`
   - `realworld`: For use with the real (physical) robot.
   - Omitted when the launch file applies to both environments (e.g., `turtlebot3_mapping_default.launch`).
 
+Formatting conventions:
+
+- Start every launch file with `<?xml version="1.0" encoding="utf-8"?>`.
+- Use 2-space indentation (no tabs, no 4-space).
+- Add a blank line after `<launch>` and before `</launch>`.
+- Use `<!-- comment -->` to describe each logical section, with a blank line before and after.
+- Always include a space before `/>` in self-closing tags (e.g., `<arg ... />`, not `<arg .../>`).
+- Use `default=` for top-level `<arg>` declarations (interface arguments).
+- Use `value=` for `<arg>` tags inside `<include>` blocks (passing values to included files).
+- For multi-line element attributes, place continuation attributes on the next line indented by 2 extra spaces (4 total from parent).
+- Group related `<arg>` declarations together, separated by blank lines from other groups or elements.
+
 ### ROS Packages
 
 Custom ROS packages in this project follow these conventions:

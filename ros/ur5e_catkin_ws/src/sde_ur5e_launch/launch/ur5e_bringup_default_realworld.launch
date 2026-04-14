@@ -2,16 +2,16 @@
 
 <launch>
 
-    <!-- https://github.com/UniversalRobots/Universal_Robots_ROS_Driver -->
+  <!-- https://github.com/UniversalRobots/Universal_Robots_ROS_Driver -->
 
-    <arg name="robot_ip" default="$(optenv SDE_UR5E_TEACH_PENDANT_IP)" />
-    <arg name="kinematics_config" default="$(find sde_ur5e_launch)/config/ur5e/robot_calibration_snXXXXXXXXXXX.yaml" />
-    <arg name="headless_mode" default="true" />
+  <arg name="robot_ip" default="$(optenv SDE_UR5E_TEACH_PENDANT_IP)" />
+  <arg name="kinematics_config" default="$(find sde_ur5e_launch)/config/ur5e/robot_calibration_snXXXXXXXXXXX.yaml" />
+  <arg name="headless_mode" default="true" />
 
-    <include file="$(find ur_robot_driver)/launch/ur5e_bringup.launch">
-        <arg name="robot_ip" default="$(arg robot_ip)" />
-        <arg name="kinematics_config" default="$(arg kinematics_config)" />
-        <arg name="headless_mode" default="$(arg headless_mode)" />
-    </include>
+  <include file="$(find ur_robot_driver)/launch/ur5e_bringup.launch">
+    <arg name="robot_ip" value="$(arg robot_ip)" />
+    <arg name="kinematics_config" value="$(arg kinematics_config)" />
+    <arg name="headless_mode" value="$(arg headless_mode)" />
+  </include>
 
 </launch>
