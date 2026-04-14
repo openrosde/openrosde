@@ -2,7 +2,7 @@
 
 # This script removes all Catkin workspace build artifacts, installs system dependencies, and cleanly rebuilds and sources the workspaces.
 #
-# Usage: bash reset-catkin-workspace.bash
+# Usage: bash reset-catkin-workspaces.bash
 
 ################################################################################
 
@@ -48,4 +48,4 @@ done
 ################################################################################
 
 # Build both workspaces.
-source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/build-catkin-workspace.bash
+source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/build-catkin-workspaces.bash

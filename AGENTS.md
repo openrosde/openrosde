@@ -249,7 +249,7 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
-- Build Catkin workspace (inside container): `sde-reset-catkin-workspace` or `sde-build-catkin-workspace`.
+- Build Catkin workspaces (inside container): `sde-reset-catkin-workspaces` or `sde-build-catkin-workspaces`.
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
 - Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash`.
@@ -258,7 +258,7 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 ## Testing Pipeline
 
 - Verify Docker images build successfully with `bash ./BUILD-DOCKER-IMAGE.bash`.
-- Verify Catkin workspaces build inside the container with `sde-reset-catkin-workspace`.
+- Verify Catkin workspaces build inside the container with `sde-reset-catkin-workspaces`.
 - Check for hardcoded paths: `grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .`
 
 ## Deployment Considerations

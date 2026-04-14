@@ -2,7 +2,7 @@
 
 # This script builds and sources the shared and platform-specific Catkin workspaces on top of the system ROS environment.
 #
-# Usage: bash build-catkin-workspace.bash
+# Usage: bash build-catkin-workspaces.bash
 
 ################################################################################
 

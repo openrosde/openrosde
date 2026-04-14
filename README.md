@@ -93,19 +93,25 @@ flowchart TD
     sudo reboot
     ```
 
-2. Build the Docker image:
+2. Switch to the desired robot platform (default is `turtlebot3`):
+
+    ```shell
+    bash ./SWITCH-ROBOT-PLATFORM.bash turtlebot3
+    ```
+
+3. Build the Docker image:
 
     ```shell
     bash ./BUILD-DOCKER-IMAGE.bash
     ```
 
-3. Run the Docker container:
+4. Run the Docker container:
 
     ```shell
     bash ./RUN-DOCKER-CONTAINER.bash
     ```
 
-4. Inside the container, initialize the environment:
+5. Inside the container, initialize the environment:
 
     ```shell
     sde-get-fully-started

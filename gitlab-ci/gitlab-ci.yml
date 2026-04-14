@@ -53,7 +53,7 @@ after_script:
 
 # Build the Catkin workspace inside a Docker container instance of the platform-specific image.
 
-build-catkin-workspace-job:
+build-catkin-workspaces-job:
   stage: build-stage
   parallel:
     matrix:
@@ -66,7 +66,7 @@ build-catkin-workspace-job:
       -e SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
       -e SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
       -v ${SDE_MOUNT_POINT}/:${SDE_CONTAINER_ROOT_DIR}/
-      ${CI_REGISTRY_IMAGE}/${SDE_ROBOT_PLATFORM}-devel:latest ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspace.bash
+      ${CI_REGISTRY_IMAGE}/${SDE_ROBOT_PLATFORM}-devel:latest ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspaces.bash
   # Save the build result to pass it to the next jobs.
   artifacts:
     name: ${CI_COMMIT_SHA}-${SDE_ROBOT_PLATFORM}
