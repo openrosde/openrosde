@@ -20,7 +20,7 @@ services:
 
   sde:
     hostname: sde-${SDE_ROBOT_PLATFORM}
-    container_name: sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1
+    container_name: sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1
     privileged: true
     environment:
       # Pass current user and group IDs.

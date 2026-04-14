@@ -29,7 +29,7 @@ SDE_DOCKER_PROJECT=$1
 if [ -z "${SDE_DOCKER_PROJECT}" ]; then
   SDE_DOCKER_PROJECT=${USER}
 fi
-SDE_DOCKER_CONTAINER="sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1"
+SDE_DOCKER_CONTAINER="sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1"
 
 ################################################################################
 

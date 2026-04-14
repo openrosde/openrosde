@@ -20,7 +20,7 @@ source ./scripts/load-sde-env.bash "$1"
 # Stop and remove any SDE container from a different platform under the same Docker project.
 # This allows switching platforms by simply changing '.env.custom' without manual cleanup.
 # Uses 'docker compose down' to properly clean up the Docker Compose project state.
-SDE_OTHER_CONTAINERS=$(docker ps -a --format "{{.Names}}" | grep "sde_.*_${SDE_DOCKER_PROJECT}-1" | grep -v "^${SDE_DOCKER_CONTAINER}$")
+SDE_OTHER_CONTAINERS=$(docker ps -a --format "{{.Names}}" | grep "sde-.*-${SDE_DOCKER_PROJECT}-1" | grep -v "^${SDE_DOCKER_CONTAINER}$")
 if [ -n "${SDE_OTHER_CONTAINERS}" ]; then
   echo "Switching platform: stopping previous container(s)..."
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml down 2>/dev/null

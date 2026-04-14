@@ -100,7 +100,7 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - `SDE_CONTAINER_ROOT_DIR`: SDE root path inside the Docker container.
 - `SDE_ROOT_DIR`: SDE root path on the host (auto-resolved, not in `.env`).
 - `SDE_DOCKER_PROJECT`: Docker project name for container naming.
-- `SDE_DOCKER_CONTAINER`: Derived container name (`sde_${SDE_ROBOT_PLATFORM}_${SDE_DOCKER_PROJECT}-1`).
+- `SDE_DOCKER_CONTAINER`: Derived container name (`sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1`).
 - `SDE_USER_ID` / `SDE_GROUP_ID`: Host user/group IDs passed to the container.
 - `SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA` / `SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA`: Git commit hashes for image traceability.
 
