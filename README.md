@@ -19,25 +19,25 @@ Open-source reference implementation of the Software Development Environment (SD
 > Join the [SDE Community](https://coarobo.com/en/sde-community/) and help drive this open-source effort forward.
 > For a production-ready solution with advanced features, explore [Coarobo](https://coarobo.com/).
 
-## Content
+## 📑 Content
 
 [[_TOC_]]
 
-## Supported Robot Platforms
+## 🤖 Supported Robot Platforms
 
 | Platform | Robot | Documentation |
 | --- | --- | --- |
 | `turtlebot3` | Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/robot-platforms/turtlebot3.md](docs/robot-platforms/turtlebot3.md) |
 | `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) |
 
-## Supported Software Platforms
+## 💻 Supported Software Platforms
 
 | Platform | GPU Acceleration | Notes |
 | --- | --- | --- |
 | Ubuntu 24.04 LTS (native) | Nvidia GPU via [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html) | Recommended setup |
 | Ubuntu 24.04 LTS on Windows 11 via [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) | [WSLg](https://github.com/microsoft/wslg) D3D12 Mesa driver | Lower 3D performance than native |
 
-## Overview
+## 🔍 Overview
 
 ```mermaid
 ---
@@ -78,7 +78,7 @@ flowchart TD
     run -->|"Enter container shell"| container
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 > [!NOTE]
 > The whole SDE is containerized/virtualized using [Docker](https://www.docker.com/).
@@ -114,7 +114,7 @@ flowchart TD
 For detailed instructions, see the [Basic Usage](docs/basic-usage.md) guide.
 For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
 
-## Directory Structure
+## 📁 Directory Structure
 
 ```
 .env                                     # Default platform configuration.
@@ -155,7 +155,7 @@ patches/                                 # Submodule patch files.
 gitlab-ci/                               # GitLab CI/CD scripts.
 ```
 
-## Documentation
+## 📖 Documentation
 
 | Document | Description |
 | --- | --- |
@@ -164,7 +164,7 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 | [TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
 | [UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
 
-## Related Publications
+## 📄 Related Publications
 
 Summaries of the development history, requirements, vision, and goals of the SDE have been published in the following papers:
 - International journals:
@@ -178,30 +178,32 @@ Summaries of the development history, requirements, vision, and goals of the SDE
 > Cite these papers if you are using the SDE to implement your research!
 > It is crucially important to disseminate the SDE across the robotics research community.
 
-## External Resources
+## 🔗 External Resources
 
 - Coarobo GK:
   - Official website: [https://coarobo.com/](https://coarobo.com/)
   - GitLab group: [https://gitlab.com/coarobo](https://gitlab.com/coarobo)
   - GitHub organization: [https://github.com/coarobo](https://github.com/coarobo)
 
-## Reporting Issues
+## 🐛 Reporting Issues
 
 Please report any issue or future work using the GitLab issue tracker: [https://gitlab.com/coarobo/SDE/issues](https://gitlab.com/coarobo/SDE/issues).
 
-## Contributing
+## 🤝 Contributing
 
-This repository uses explicit commit messages following the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
-This project relies on [`AGENTS.md`](AGENTS.md) for project context and instructions provided to AI agents and coding assistants.
+- This repository uses explicit commit messages following the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+- This project follows [Semantic Versioning](https://semver.org/) for releases.
+- This project follows the [Make a README](https://www.makeareadme.com/) guidelines for documentation structure.
+- This project relies on [`AGENTS.md`](AGENTS.md) for coding conventions and instructions provided to AI agents.
 
-## Authors & Acknowledgment
+## 👥 Authors & Acknowledgment
 
-### Maintainers
+### 🔧 Maintainers
 
 - Lotfi El Hafi (lotfi@coarobo.com)
 - Sebastian Carrera (sebastian@coarobo.com)
 
-### Authors
+### ✍️ Authors
 
 - Felix von Drigalski
 - Gustavo Alfonso Garcia Ricardez
@@ -213,7 +215,7 @@ This project relies on [`AGENTS.md`](AGENTS.md) for project context and instruct
 - Yoshinobu Hagiwara
 - Yuki Inoue
 
-### Contributors
+### 🙏 Contributors
 
 - Hiroyuki Okada
 - Kazuki Miyzawa
@@ -227,7 +229,7 @@ This project relies on [`AGENTS.md`](AGENTS.md) for project context and instruct
 - Yaonan Zhu
 - Yoshiaki Asahara
 
-## License
+## ⚖️ License
 
 ```
 MIT License

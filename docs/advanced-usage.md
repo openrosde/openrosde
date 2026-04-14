@@ -3,7 +3,7 @@
 The development environment inside the Docker container offers several useful features that you should be aware of.
 These advanced features will help you increase both the convenience and the quality of your work using the SDE.
 
-## Custom Bash Functions
+## 🔧 Custom Bash Functions
 
 The development environment contains several useful Bash functions, all starting with the prefix `sde-`, to make your work more convenient.
 Including, but not limited to:
@@ -24,7 +24,7 @@ Including, but not limited to:
 > The script `build-catkin-workspace.bash` will build the Catkin workspace using `catkin build` instead of the older but still officially default `catkin_make`.
 > Please be sure to build using `catkin build` to avoid strange issues.
 
-## Multiple Terminal Operation
+## 🖥️ Multiple Terminal Operation
 
 You can simultaneously run multiple terminals using `RUN-TERMINATOR-TERMINAL.bash`.
 This script opens [Terminator](https://gnometerminator.blogspot.com/) with the default layout configuration stored in `terminator/config`.
@@ -38,7 +38,7 @@ Run 'example_roslaunch_file.launch'? Press:
 'c' to enter a child shell. # e.g., Bash shell.
 ```
 
-## Developing on the Simulator/Robot
+## 🤖 Developing on the Simulator/Robot
 
 You can continue with one or both of the following options depending on the presence of a physical robot within the same local network as the Ubuntu development machine.
 
@@ -66,7 +66,7 @@ You can continue with one or both of the following options depending on the pres
 > Instead, you need to provide a link to download all your necessary large binary files from the cloud with `sde-download-model-data`.
 > Ideally, all these files should be centralized in an online storage.
 
-## Configuration of the Docker Container
+## 🐳 Configuration of the Docker Container
 
 A cascade of scripts performs the initialization of the Docker container.
 Although the boundaries between them can sometimes be blurry, each one has a specific function, and future implementations/revisions should keep these functions separated as much as possible.
@@ -89,7 +89,7 @@ They can be found on the Ubuntu development machine at:
 > [!NOTE]
 > The SDE installation path inside the Docker container defaults to `/root/SDE/` and can be changed with the `SDE_CONTAINER_ROOT_DIR` variable in `.env`.
 
-## Environment Configuration
+## ⚙️ Environment Configuration
 
 The SDE uses a two-file configuration system:
 

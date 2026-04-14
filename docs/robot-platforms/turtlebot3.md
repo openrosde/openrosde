@@ -2,13 +2,13 @@
 
 Platform-specific documentation for the Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) within the SDE.
 
-## External Resources
+## 🔗 External Resources
 
 - Official manual: [https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/)
 - GitHub repository: [https://github.com/ROBOTIS-GIT/turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3)
 - ROS wiki: [http://wiki.ros.org/turtlebot3](http://wiki.ros.org/turtlebot3)
 
-## Hardware Overview
+## 🔩 Hardware Overview
 
 The Robotis TurtleBot3 (Waffle Pi) platform consists of the following components:
 
@@ -18,7 +18,7 @@ The Robotis TurtleBot3 (Waffle Pi) platform consists of the following components
 - **LiDAR:** LDS-01 360-degree laser distance sensor.
 - **Camera:** [Raspberry Pi Camera Module v2](https://www.raspberrypi.com/products/camera-module-v2/).
 
-## Platform Configuration
+## ⚙️ Platform Configuration
 
 Switch to the Robotis TurtleBot3 platform:
 
@@ -30,7 +30,7 @@ bash ./SWITCH-ROBOT-PLATFORM.bash turtlebot3
 > The default `.env` configuration is already pre-configured for the Robotis TurtleBot3 platform.
 > Creating `.env.custom` is only necessary to override specific settings.
 
-## Network Configuration
+## 🌐 Network Configuration
 
 This project is configured to use up to 3 Robotis TurtleBot3 (Waffle Pi) robots simultaneously.
 The robots use mDNS host names for network discovery.
@@ -50,7 +50,7 @@ ssh pi@turtlebot3.local
 > Do not, under any circumstance, directly modify the system of the on-board computer of the Robotis TurtleBot3 (Waffle Pi) robot.
 > Always use the environment of the Ubuntu development machine to interact with the robot using ROS over the local network.
 
-## Robot Bootup
+## 🔌 Robot Bootup
 
 - Connect the battery to the Robotis TurtleBot3 (Waffle Pi).
 - Turn on the Robotis OpenCR board by pressing the power switch.
@@ -58,7 +58,7 @@ ssh pi@turtlebot3.local
 - Wait for the Raspberry Pi to fully boot (approximately 30 seconds).
   It will automatically connect to known Wi-Fi networks and start the ROS nodes.
 
-## Robot Setup
+## 🛠️ Robot Setup
 
 Follow this step-by-step guide to set up or reinitialize a Robotis TurtleBot3 (Waffle Pi) robot.
 These configurations are only necessary for a new robot or after a factory reset.
@@ -166,13 +166,13 @@ These configurations are only necessary for a new robot or after a factory reset
     source ~/.bashrc
     ```
 
-## Robot Shutdown
+## ⏹️ Robot Shutdown
 
 - Stop any running ROS nodes on the Ubuntu development machine.
 - Turn off the Robotis OpenCR board by pressing the power switch.
   The Raspberry Pi will shut down automatically.
 
-## ROS Communication
+## 📡 ROS Communication
 
 You can bring up the Robotis TurtleBot3 (Waffle Pi) robots by executing the following script on the Ubuntu development machine:
 
@@ -186,7 +186,7 @@ Alternatively, you can use the Gazebo simulator to test without a physical robot
 roslaunch sde_turtlebot3_launch turtlebot3_bringup_default_gazebo.launch
 ```
 
-### Navigation
+### 🧭 Navigation
 
 To start the navigation stack:
 
@@ -194,7 +194,7 @@ To start the navigation stack:
 roslaunch sde_turtlebot3_launch turtlebot3_navigation_default_gazebo.launch
 ```
 
-### Mapping
+### 🗺️ Mapping
 
 To start SLAM mapping:
 
@@ -202,7 +202,7 @@ To start SLAM mapping:
 roslaunch sde_turtlebot3_launch turtlebot3_mapping_default.launch
 ```
 
-### RViz Visualization
+### 📊 RViz Visualization
 
 To start RViz with the TurtleBot3 configuration:
 
@@ -210,7 +210,7 @@ To start RViz with the TurtleBot3 configuration:
 roslaunch sde_turtlebot3_launch turtlebot3_rviz_default_gazebo.launch
 ```
 
-### FlexBE Behavior Engine
+### 🧠 FlexBE Behavior Engine
 
 To start the FlexBE behavior engine and app:
 
@@ -218,7 +218,7 @@ To start the FlexBE behavior engine and app:
 roslaunch sde_launch flexbe_app_default.launch
 ```
 
-## Launch Files Reference
+## 📋 Launch Files Reference
 
 The following launch files are available for the Robotis TurtleBot3 platform (package: `sde_turtlebot3_launch`):
 

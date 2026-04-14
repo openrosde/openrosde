@@ -24,7 +24,7 @@ Follow this step-by-step guide to perform the initial setup of the SDE on an [Ub
 > Although this initial setup is meant to be performed only once, you can run it again should you want to reset the development environment as the project evolves.
 > However, make sure to backup your latest changes beforehand.
 
-## Step 0: Verify the Prerequisites
+## ✅ Step 0: Verify the Prerequisites
 
 **Mandatory:**
 
@@ -37,7 +37,7 @@ Follow this step-by-step guide to perform the initial setup of the SDE on an [Ub
   If not, a Gazebo simulation provides support for basic operations.
 - An Nvidia GPU capable of running CUDA 11.2, or newer, to accelerate 3D graphics and deep learning.
 
-## Step 1: Set up the Development Environment
+## 🛠️ Step 1: Set up the Development Environment
 
 Set up the environment of the Ubuntu development machine with the following instructions.
 
@@ -78,7 +78,7 @@ Set up the environment of the Ubuntu development machine with the following inst
 > If so, executing `docker --version` should not ask for `sudo`.
 > In principle, you only need to reboot after the very first time you run `SETUP-DEVEL-MACHINE.bash`.
 
-## Step 2: Configure the Platform
+## ⚙️ Step 2: Configure the Platform
 
 Select the target robot platform with the following instructions.
 
@@ -90,7 +90,7 @@ Select the target robot platform with the following instructions.
 
 For platform-specific details, refer to the [Robot Platform Documentation](robot-platforms/).
 
-## Step 3: Build the Docker Image
+## 🐳 Step 3: Build the Docker Image
 
 Create a virtual environment using Docker (= Docker image) on the Ubuntu development machine with the following instructions.
 
@@ -110,7 +110,7 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
 > In both cases, avoid using a Wi-Fi connection to greatly accelerate the process.
 > Note that future local builds will reuse cached data whenever possible.
 
-## Step 4: Run the Docker Container
+## 🚀 Step 4: Run the Docker Container
 
 Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu development machine with the following instructions.
 

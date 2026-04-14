@@ -229,6 +229,9 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Use badges following the `[![Label](badge-url)](link-url)` pattern.
 - Prefix product names with their maker name (e.g., Universal Robots UR5e, OnRobot RG2, Intel RealSense D435i, Robotis TurtleBot3, 3Dconnexion SpaceNavigator).
 - Reference the host machine as "Ubuntu development machine".
+- Decorate all `##` and `###` headers with a leading emoji in `README.md` and `docs/` files only (not in package-level READMEs or `AGENTS.md`).
+  Use a single emoji that reflects the section topic, placed before the header text (e.g., `## 🚀 Quick Start`).
+  Reuse the same emoji for semantically equivalent headers across files (e.g., `🔗 External Resources`, `⚙️ Platform Configuration`).
 
 ### GitLab CI
 
@@ -264,3 +267,9 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Docker images are pushed to `registry.gitlab.com/coarobo/sde/`.
 - CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
+
+## Versioning & Commits
+
+- Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages.
+- Follow [Semantic Versioning](https://semver.org/) for releases.
+- Follow the [Make a README](https://www.makeareadme.com/) guidelines for `README.md` structure.
