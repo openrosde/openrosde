@@ -182,9 +182,9 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 | --- | --- |
 | [Basic Usage](docs/basic-usage.md) | Full setup guide: prerequisites, installation, build, and run |
 | [Advanced Usage](docs/advanced-usage.md) | Bash functions, multiple terminals, Docker configuration, environment variables |
-| [TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
-| [UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
-| [Fetch](docs/robot-platforms/fetch.md) | Fetch Robotics Fetch robot configuration, installation, and operation |
+| [Robot Platforms / TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
+| [Robot Platforms / UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
+| [Robot Platforms / Fetch](docs/robot-platforms/fetch.md) | Fetch Robotics Fetch robot configuration, installation, and operation |
 
 ## 📄 Related Publications
 

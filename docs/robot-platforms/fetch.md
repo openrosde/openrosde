@@ -90,3 +90,17 @@ roslaunch sde_fetch_launch fetch_mapping_default.launch
 roslaunch sde_fetch_launch fetch_moveit_default.launch
 roslaunch sde_fetch_launch fetch_rviz_default_realworld.launch
 ```
+
+## 📋 Launch Files Reference
+
+The following launch files are available for the Fetch Robotics Fetch platform (package: `sde_fetch_launch`):
+
+| Launch File | Description |
+| --- | --- |
+| `fetch_bringup_default_gazebo.launch` | Fetch Robotics Fetch Gazebo simulation |
+| `fetch_bringup_default_realworld.launch` | Fetch Robotics Fetch real robot bringup |
+| `fetch_navigation_default_gazebo.launch` | Navigation stack (Gazebo) |
+| `fetch_mapping_default.launch` | SLAM mapping (build_map) |
+| `fetch_moveit_default.launch` | MoveIt motion planning |
+| `fetch_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
+| `fetch_rviz_default_realworld.launch` | RViz visualization (real robot) |

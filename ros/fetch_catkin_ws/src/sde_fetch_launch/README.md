@@ -12,6 +12,7 @@ The Gazebo simulation wrappers in this package are:
 - `fetch_bringup_default_gazebo.launch`
 - `fetch_navigation_default_gazebo.launch`
 - `fetch_moveit_default.launch`
+- `fetch_rviz_default_gazebo.launch`
 
 Recommended startup order:
 
@@ -19,6 +20,7 @@ Recommended startup order:
 roslaunch sde_fetch_launch fetch_bringup_default_gazebo.launch
 roslaunch sde_fetch_launch fetch_navigation_default_gazebo.launch
 roslaunch sde_fetch_launch fetch_moveit_default.launch
+roslaunch sde_fetch_launch fetch_rviz_default_gazebo.launch
 ```
 
 To start the same Gazebo stack in the predefined Terminator layout:

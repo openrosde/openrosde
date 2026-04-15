@@ -14,21 +14,18 @@ FROM ${SDE_BASE_IMAGE}
 
 # Gather the Fetch robot packages from the ROS repositories.
 # 'ros-noetic-fetch-ros' provides the robot drivers, navigation, MoveIt config, and teleoperation.
+# 'fetch_gazebo' and 'fetch_gazebo_demo' are built from source as a Git submodule in the Fetch Catkin workspace.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-fetch-ros \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Gather the Fetch robot Gazebo simulation packages from the ROS repositories.
-# https://fetchrobotics.github.io/docs/gazebo.html#installation
-# 'ros-noetic-fetch-gazebo-demo' provides the Gazebo worlds, simulation launch files, and pre-built maps.
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  ros-noetic-fetch-gazebo-demo \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Gather additional Fetch robot dependencies from the ROS repositories.
+# Gather the Fetch robot and Gazebo simulation dependencies from the ROS repositories.
+# 'ros-noetic-robot-controllers' and 'ros-noetic-rgbd-launch' are required by 'fetch_gazebo'.
+# 'ros-noetic-simple-grasping' is required by 'fetch_gazebo_demo'.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-robot-controllers \
   ros-noetic-rgbd-launch \
+  ros-noetic-simple-grasping \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################

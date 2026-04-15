@@ -55,7 +55,7 @@ fi
 if [ -n "${SDE_ROBOT_HOSTNAME}" ]; then
   SDE_ROBOT_RESOLVED_HOSTNAME=${SDE_ROBOT_HOSTNAME}
   echo "Now resolving local host name '${SDE_ROBOT_RESOLVED_HOSTNAME}'..."
-  SDE_ROBOT_IP=`avahi-resolve -4 --name ${SDE_ROBOT_RESOLVED_HOSTNAME} | cut -f 2`
+  SDE_ROBOT_IP=$(avahi-resolve -4 --name ${SDE_ROBOT_RESOLVED_HOSTNAME} | cut -f 2)
   if [ "$?" != "0" ]; then
     echo "Failed to execute 'avahi-resolve'. You may need to install 'avahi-utils'."
   elif [ ! -z "${SDE_ROBOT_IP}" ]; then

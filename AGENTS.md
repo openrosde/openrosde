@@ -45,7 +45,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `ur5e_catkin_ws/`: UR5e workspace.
   - `fetch_catkin_ws/`: Fetch workspace.
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
-- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`).
+- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`).
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
@@ -65,7 +65,7 @@ You have expertise in Docker, ROS, Bash scripting, and Linux system administrati
 The SDE supports multiple robot platforms through a single codebase controlled by the `SDE_ROBOT_PLATFORM` variable in `.env`:
 
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
-- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`) extend the base with robot-specific packages.
+- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`) extend the base with robot-specific packages.
 - Two Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`) then platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`).
 - All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
 
@@ -262,6 +262,17 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Name patch files with a numbered prefix and three kebab-case words starting with a verb: `0001-fix-curl-redirect.patch`.
 - Patches are applied idempotently by `scripts/apply-submodule-patches.bash` after `git submodule update --init --recursive` in `SETUP-DEVEL-MACHINE.bash`.
 - To create a patch: make changes in the submodule, run `git diff > <patch-file>`, then reset the submodule with `git checkout .`.
+
+### Git Submodules
+
+Git submodules provide third-party ROS packages that are not available as Noetic debian packages.
+The Dockerfile installs their system dependencies via `apt-get`, and the packages themselves are built from source at `catkin build` time inside the container.
+All submodules use `ignore = dirty` in `.gitmodules`.
+
+Current submodules:
+- Shared (`sde_catkin_ws`): `flexbe_behavior_engine`, `flexbe_app`, `flexbe_generic_states`.
+- UR5e (`ur5e_catkin_ws`): `onrobot`, `roboticsgroup_upatras_gazebo_plugins`.
+- Fetch (`fetch_catkin_ws`): `fetch_gazebo` (branch `gazebo11`, provides `fetch_gazebo` and `fetch_gazebo_demo`).
 
 ## Build Commands
 

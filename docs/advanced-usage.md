@@ -27,7 +27,7 @@ Including, but not limited to:
 ## 🖥️ Multiple Terminal Operation
 
 You can simultaneously run multiple terminals using `RUN-TERMINATOR-TERMINAL.bash`.
-This script opens [Terminator](https://gnometerminator.blogspot.com/) with the default layout configuration stored in `terminator/config`.
+This script opens [Terminator](https://gnometerminator.blogspot.com/) with the platform-specific layout configuration stored in `terminator/${SDE_ROBOT_PLATFORM}.config`.
 Each sub-terminal automatically executes `RUN-DOCKER-CONTAINER.bash` with a predefined ROS launch file for convenience.
 You can then select execution options by pressing specific keys, as shown in the example below:
 
@@ -66,7 +66,7 @@ You can continue with one or both of the following options depending on the pres
 > Instead, you need to provide a link to download all your necessary large binary files from the cloud with `sde-download-model-data`.
 > Ideally, all these files should be centralized in an online storage.
 
-## � Clock Synchronization
+## 🕐 Clock Synchronization
 
 Some robot platforms require clock synchronization between the Ubuntu development machine and the physical robot.
 The `RESTART-CHRONY-SERVICE.bash` script restarts the [Chrony](https://chrony-project.org/) NTP service on both the host and the robot (via SSH):
@@ -79,7 +79,7 @@ bash ./RESTART-CHRONY-SERVICE.bash #[docker-project]
 > Docker containers share the host clock, so resyncing the host is sufficient for containers.
 > The robot-side commands are platform-specific.
 
-## �🐳 Configuration of the Docker Container
+## 🐳 Configuration of the Docker Container
 
 A cascade of scripts performs the initialization of the Docker container.
 Although the boundaries between them can sometimes be blurry, each one has a specific function, and future implementations/revisions should keep these functions separated as much as possible.

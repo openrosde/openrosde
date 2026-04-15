@@ -145,14 +145,14 @@ if [ -n "${SDE_ROS_CLIENT_IP}" ]; then
   export ROS_IP="${SDE_ROS_CLIENT_IP}"
 else
   # Look for the ROS master host name inside the local network and resolve it to get its IP address.
-  SDE_ROS_MASTER_IP=`getent hosts ${SDE_ROS_MASTER_HOSTNAME} | cut -d ' ' -f 1`
+  SDE_ROS_MASTER_IP=$(getent hosts ${SDE_ROS_MASTER_HOSTNAME} | cut -d ' ' -f 1)
   if [ -z "${SDE_ROS_MASTER_IP}" ]; then
     # If no ROS master host name is found, set the local 'ROS_IP' using the default Docker network interface ('docker0').
     export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
   else
     # If the ROS master host name is found, set the local 'ROS_IP' using the network interface that connects to the ROS master.
     # TODO: Use Bash instead of Python.
-    export ROS_IP=`python3 ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/print-interface-ip.py ${SDE_ROS_MASTER_IP}`
+    export ROS_IP=$(python3 ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/print-interface-ip.py ${SDE_ROS_MASTER_IP})
   fi
   if [ -z "${ROS_IP}" ]; then
     # If the local 'ROS_IP' is still empty, default to the Docker network interface ('docker0') for sanity.
@@ -185,13 +185,13 @@ case "${SDE_ROBOT_PLATFORM}" in
     # Select the TurtleBot3 model name.
     # https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#set-turtlebot3-model-name-1
     export TURTLEBOT3_MODEL=waffle_pi
-    SDE_LAUNCH_PACKAGE="${SDE_LAUNCH_PACKAGE:-sde_turtlebot3_launch}"
+    SDE_LAUNCH_PACKAGE=sde_turtlebot3_launch
     ;;
   ur5e)
-    SDE_LAUNCH_PACKAGE="${SDE_LAUNCH_PACKAGE:-sde_ur5e_launch}"
+    SDE_LAUNCH_PACKAGE=sde_ur5e_launch
     ;;
   fetch)
-    SDE_LAUNCH_PACKAGE="${SDE_LAUNCH_PACKAGE:-sde_fetch_launch}"
+    SDE_LAUNCH_PACKAGE=sde_fetch_launch
     ;;
 esac
 

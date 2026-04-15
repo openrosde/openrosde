@@ -16,7 +16,7 @@ source ./scripts/load-sde-env.bash "$1"
 ################################################################################
 
 # Stop and remove the Docker container if it exists already.
-SDE_EXISTING_DOCKER_CONTAINER_ID=`docker ps -aq -f name=${SDE_DOCKER_CONTAINER}`
+SDE_EXISTING_DOCKER_CONTAINER_ID=$(docker ps -aq -f name=${SDE_DOCKER_CONTAINER})
 if [ ! -z "${SDE_EXISTING_DOCKER_CONTAINER_ID}" ]; then
   echo "Stop the container ${SDE_DOCKER_CONTAINER} with ID: ${SDE_EXISTING_DOCKER_CONTAINER_ID}."
   docker stop ${SDE_EXISTING_DOCKER_CONTAINER_ID}
