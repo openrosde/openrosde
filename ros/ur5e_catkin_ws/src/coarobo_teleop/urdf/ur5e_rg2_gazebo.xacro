@@ -2,7 +2,9 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur5e_robot">
   <xacro:include filename="$(find ur_gazebo)/urdf/ur_macro.xacro"/>
   <xacro:include filename="$(find onrobot_rg_description)/urdf/onrobot_rg2_model_macro.xacro"/>
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
 
+  <xacro:arg name="use_nominal_extrinsics" default="true" />
   <xacro:arg name="robot_model" default="ur5e"/>
   <xacro:arg name="joint_limit_params" default=""/>
   <xacro:arg name="physical_params" default=""/>
@@ -81,4 +83,14 @@
     <child link="tool0_controller"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
+
+  <!-- External RealSense D435i Camera (Environment view, using world as parent) -->
+  <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <origin xyz="1.0 0.0 1.0" rpy="0 0.5 3.14159"/>
+  </xacro:sensor_d435i>
+
+  <!-- Wrist-mounted RealSense D435i Camera (Robot's flange/tool0 as parent) -->
+  <xacro:sensor_d435i parent="tool0" name="wrist_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <origin xyz="0.0 0.05 0.0" rpy="0 -1.5708 -1.5708"/>
+  </xacro:sensor_d435i>
 </robot>
