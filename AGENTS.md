@@ -5,7 +5,7 @@ This file contains instructions for AI coding agents working on this project.
 ## Project Overview
 
 This project is the open-source reference implementation of the Software Development Environment (SDE) for collaborative robotics research (see `README.md` for details).
-It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e) through a shared configuration system.
+It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch) through a shared configuration system.
 
 ### Tool Chain
 
@@ -32,21 +32,24 @@ It provides a containerized, multi-platform development environment based on Doc
   - `sde-base/`: Shared base image (`Dockerfile`, helper `scripts/`).
   - `turtlebot3-devel/`: TurtleBot3 platform image.
   - `ur5e-devel/`: UR5e platform image.
+  - `fetch-devel/`: Fetch platform image.
   - `docker-compose.yaml`: Base service definitions.
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
   - `docker-compose-ur5e.yaml`: UR5e platform overlay.
+  - `docker-compose-fetch.yaml`: Fetch platform overlay (if needed).
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
   - `ur5e_catkin_ws/`: UR5e workspace.
+  - `fetch_catkin_ws/`: Fetch workspace.
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`).
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
-  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`).
-- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`).
+  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`).
+- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline scripts.
 
 ## Agent Persona
@@ -96,7 +99,7 @@ The `sed` command injects `${SDE_DOCKER_PROJECT}` into the config, producing a `
 ### Variable Naming Convention
 
 All custom environment variables use the `SDE_` prefix. Examples:
-- `SDE_ROBOT_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`).
+- `SDE_ROBOT_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`, `fetch`).
 - `SDE_CONTAINER_ROOT_DIR`: SDE root path inside the Docker container.
 - `SDE_ROOT_DIR`: SDE root path on the host (auto-resolved, not in `.env`).
 - `SDE_DOCKER_PROJECT`: Docker project name for container naming.
@@ -277,7 +280,7 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 
 - The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`).
 - Docker images are pushed to `registry.gitlab.com/coarobo/sde/`.
-- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`).
+- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
 
 ## Versioning & Commits

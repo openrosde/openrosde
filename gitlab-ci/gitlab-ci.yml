@@ -57,7 +57,7 @@ build-catkin-workspaces-job:
   stage: build-stage
   parallel:
     matrix:
-      - SDE_ROBOT_PLATFORM: [turtlebot3, ur5e]
+      - SDE_ROBOT_PLATFORM: [turtlebot3, ur5e, fetch]
   script:
     # Build the Catkin workspace inside the Docker container of the project workspace that is mapped to the mount point.
     - docker login -u ${SDE_DEPLOY_TOKEN_USERNAME} --password-stdin ${CI_REGISTRY}

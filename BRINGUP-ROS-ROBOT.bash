@@ -55,6 +55,9 @@ echo "Done"
   ur5e)
     echo "UR5e robot bringup is not yet configured. Please start the robot manually."
     ;;
+  fetch)
+    echo "Fetch robot bringup is not yet configured. Please start the robot manually."
+    ;;
   *)
     echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No bringup commands available."
     ;;

@@ -3,8 +3,7 @@
 
 ################################################################################
 
-# Inherit from the SDE base image which provides CUDA, ROS Noetic, FlexBE,
-# common tools, and the Bash shell environment.
+# Inherit from the SDE base image which provides all common tools.
 ARG SDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
 FROM ${SDE_BASE_IMAGE}
 

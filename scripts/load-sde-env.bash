@@ -48,6 +48,8 @@ if [ "${SDE_ROBOT_PLATFORM}" = "ur5e" ]; then
   export SDE_ONROBOT_COMPUTE_BOX_IP
 fi
 
+# No platform-specific variables for 'fetch' (configuration is done via ROS launch arguments).
+
 ################################################################################
 
 # Print shared SDE variables for debugging purposes.

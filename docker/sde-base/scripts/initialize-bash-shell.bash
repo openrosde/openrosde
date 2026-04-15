@@ -190,6 +190,9 @@ case "${SDE_ROBOT_PLATFORM}" in
   ur5e)
     SDE_LAUNCH_PACKAGE="${SDE_LAUNCH_PACKAGE:-sde_ur5e_launch}"
     ;;
+  fetch)
+    SDE_LAUNCH_PACKAGE="${SDE_LAUNCH_PACKAGE:-sde_fetch_launch}"
+    ;;
 esac
 
 export SDE_LAUNCH_PACKAGE
