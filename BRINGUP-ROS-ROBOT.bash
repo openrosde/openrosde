@@ -25,12 +25,6 @@ source ./scripts/load-sde-env.bash "$2"
 
 ################################################################################
 
-docker exec -i ${SDE_DOCKER_CONTAINER} bash <<EOF
-ntpdate ntp.ubuntu.com
-EOF
-
-################################################################################
-
 # Platform-specific robot bringup commands.
 case "${SDE_ROBOT_PLATFORM}" in
   turtlebot3)

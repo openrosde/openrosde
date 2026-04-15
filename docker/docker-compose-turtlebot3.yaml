@@ -1,0 +1,14 @@
+# version: "3.9"
+
+################################################################################
+
+# Robotis TurtleBot3 platform overlay for the SDE.
+# Passes TurtleBot3-specific environment variables to the container.
+
+################################################################################
+
+services:
+  sde:
+    environment:
+      # No platform-specific environment variables for TurtleBot3 at this time.
+      - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}

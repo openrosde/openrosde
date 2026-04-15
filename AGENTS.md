@@ -36,8 +36,9 @@ It provides a containerized, multi-platform development environment based on Doc
   - `docker-compose.yaml`: Base service definitions.
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
+  - `docker-compose-turtlebot3.yaml`: TurtleBot3 platform overlay.
   - `docker-compose-ur5e.yaml`: UR5e platform overlay.
-  - `docker-compose-fetch.yaml`: Fetch platform overlay (if needed).
+  - `docker-compose-fetch.yaml`: Fetch platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
@@ -86,8 +87,9 @@ Always target the `sde` service explicitly with `docker compose up -d sde` to av
 
 ### Docker Compose Platform Overlays
 
-Platform-specific Docker Compose overlays (e.g., `docker-compose-ur5e.yaml`) pass platform-specific environment variables to the container.
+Every platform has a Docker Compose overlay file (`docker-compose-<platform>.yaml`) that passes platform-specific environment variables to the container.
 `RUN-DOCKER-CONTAINER.bash` automatically includes `docker-compose-${SDE_ROBOT_PLATFORM}.yaml` if the file exists, so new platforms can add their own overlay without modifying the script.
+Platforms that do not yet require extra variables still have an overlay file for consistency.
 
 ### Terminator Layouts
 
@@ -268,6 +270,8 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
 - Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash`.
+- Restart Chrony service: `bash ./RESTART-CHRONY-SERVICE.bash` (resyncs host and robot clocks via Chrony).
+- Bringup robot: `bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname>` (SSH into the robot and launch bringup nodes).
 - Push Docker images: `bash gitlab-ci/PUSH-DOCKER-IMAGE.bash` (uses `docker logout`/`docker login` to force re-authentication).
 
 ## Testing Pipeline

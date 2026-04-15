@@ -136,10 +136,15 @@ BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
 RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.
 RUN-TERMINATOR-TERMINAL.bash             # Multi-terminal launcher script.
 BRINGUP-ROS-ROBOT.bash                   # Robot bringup script.
+RESTART-CHRONY-SERVICE.bash              # Host and robot clock sync script.
+SWITCH-ROBOT-PLATFORM.bash               # Platform switching script.
 scripts/
   load-sde-env.bash                      # Shared environment loader.
 docker/
   docker-compose.yaml                    # Docker service definitions.
+  docker-compose-turtlebot3.yaml         # TurtleBot3 platform overlay.
+  docker-compose-ur5e.yaml               # UR5e platform overlay.
+  docker-compose-fetch.yaml              # Fetch platform overlay.
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
   sde-base/                              # Shared base Docker image.
@@ -164,7 +169,9 @@ docs/                                    # Documentation.
     ur5e.md
     fetch.md
 terminator/
-  config                                 # Terminator layout configuration.
+  turtlebot3.config                      # TurtleBot3 Terminator layout.
+  ur5e.config                            # UR5e Terminator layout.
+  fetch.config                           # Fetch Terminator layout.
 patches/                                 # Submodule patch files.
 gitlab-ci/                               # GitLab CI/CD scripts.
 ```
@@ -215,11 +222,12 @@ Please report any issue or future work using the GitLab issue tracker: [https://
 
 ### 🔧 Maintainers
 
-- Lotfi El Hafi (lotfi@coarobo.com)
+- **Lotfi El Hafi** (lotfi@coarobo.com)
 - Sebastian Carrera (sebastian@coarobo.com)
 
 ### ✍️ Authors
 
+- **Lotfi El Hafi**
 - Felix von Drigalski
 - Gustavo Alfonso Garcia Ricardez
 - Masaki Yamamoto

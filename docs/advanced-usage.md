@@ -66,7 +66,20 @@ You can continue with one or both of the following options depending on the pres
 > Instead, you need to provide a link to download all your necessary large binary files from the cloud with `sde-download-model-data`.
 > Ideally, all these files should be centralized in an online storage.
 
-## 🐳 Configuration of the Docker Container
+## � Clock Synchronization
+
+Some robot platforms require clock synchronization between the Ubuntu development machine and the physical robot.
+The `RESTART-CHRONY-SERVICE.bash` script restarts the [Chrony](https://chrony-project.org/) NTP service on both the host and the robot (via SSH):
+
+```shell
+bash ./RESTART-CHRONY-SERVICE.bash #[docker-project]
+```
+
+> [!NOTE]
+> Docker containers share the host clock, so resyncing the host is sufficient for containers.
+> The robot-side commands are platform-specific.
+
+## �🐳 Configuration of the Docker Container
 
 A cascade of scripts performs the initialization of the Docker container.
 Although the boundaries between them can sometimes be blurry, each one has a specific function, and future implementations/revisions should keep these functions separated as much as possible.

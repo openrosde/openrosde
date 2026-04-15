@@ -61,6 +61,19 @@ roslaunch sde_fetch_launch fetch_moveit_default.launch
 roslaunch sde_fetch_launch fetch_rviz_default_gazebo.launch
 ```
 
+## 🕐 Clock Synchronization
+
+The Fetch Robotics Fetch robot requires clock synchronization between the host machine and the robot via Chrony.
+Run the following script to restart the Chrony service on both the host and the robot:
+
+```shell
+bash ./RESTART-CHRONY-SERVICE.bash
+```
+
+> [!NOTE]
+> The script connects to the robot via SSH using the default credentials (`fetch` / `robotics`).
+> The robot hostname is resolved from `SDE_ROBOT_HOSTNAME` in `env/fetch.env` (default: `fetch.local`).
+
 ## 🤖 Real Robot Operation
 
 Start the Fetch Robotics Fetch real robot stack using the predefined Terminator layout:

@@ -1,0 +1,14 @@
+# version: "3.9"
+
+################################################################################
+
+# Fetch Robotics Fetch platform overlay for the SDE.
+# Passes Fetch-specific environment variables to the container.
+
+################################################################################
+
+services:
+  sde:
+    environment:
+      # No platform-specific environment variables for Fetch at this time.
+      - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
