@@ -2,18 +2,18 @@
 
 <launch>
 
-	<arg name="ip" default="$(optenv SDE_ONROBOT_COMPUTE_BOX_IP)" />
-	<arg name="port" default="502" />
-	<arg name="gripper" default="rg2" />
-	<arg name="changer_addr" default="65" />
-	<arg name="dummy" default="false" />
+  <arg name="ip" default="$(optenv SDE_ONROBOT_COMPUTE_BOX_IP)" />
+  <arg name="port" default="502" />
+  <arg name="gripper" default="rg2" />
+  <arg name="changer_addr" default="65" />
+  <arg name="dummy" default="false" />
 
-	<include file="$(find onrobot_rg_control)/launch/bringup_server.launch">
-		<arg name="ip" value="$(arg ip)" />
-		<arg name="port" value="$(arg port)" />
-		<arg name="gripper" value="$(arg gripper)" />
-		<arg name="changer_addr" value="$(arg changer_addr)" />
-		<arg name="dummy" value="$(arg dummy)" />
-	</include>
+  <include file="$(find onrobot_rg_control)/launch/bringup_server.launch">
+    <arg name="ip" value="$(arg ip)" />
+    <arg name="port" value="$(arg port)" />
+    <arg name="gripper" value="$(arg gripper)" />
+    <arg name="changer_addr" value="$(arg changer_addr)" />
+    <arg name="dummy" value="$(arg dummy)" />
+  </include>
 
 </launch>

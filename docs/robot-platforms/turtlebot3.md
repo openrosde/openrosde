@@ -226,7 +226,6 @@ The following launch files are available for the Robotis TurtleBot3 platform (pa
 | --- | --- |
 | `turtlebot3_bringup_default_gazebo.launch` | TurtleBot3 Gazebo simulation |
 | `turtlebot3_navigation_default_gazebo.launch` | Navigation stack (Gazebo) |
-| `turtlebot3_navigation_default_realworld.launch` | Navigation stack (real robot) |
 | `turtlebot3_mapping_default.launch` | SLAM mapping (gmapping) |
 | `turtlebot3_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
 | `turtlebot3_rviz_default_realworld.launch` | RViz visualization (real robot) |

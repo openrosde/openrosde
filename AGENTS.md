@@ -5,7 +5,7 @@ This file contains instructions for AI coding agents working on this project.
 ## Project Overview
 
 This project is the open-source reference implementation of the Software Development Environment (SDE) for collaborative robotics research (see `README.md` for details).
-It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e) through a shared configuration system.
+It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch) through a shared configuration system.
 
 ### Tool Chain
 
@@ -32,21 +32,25 @@ It provides a containerized, multi-platform development environment based on Doc
   - `sde-base/`: Shared base image (`Dockerfile`, helper `scripts/`).
   - `turtlebot3-devel/`: TurtleBot3 platform image.
   - `ur5e-devel/`: UR5e platform image.
+  - `fetch-devel/`: Fetch platform image.
   - `docker-compose.yaml`: Base service definitions.
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
+  - `docker-compose-turtlebot3.yaml`: TurtleBot3 platform overlay.
   - `docker-compose-ur5e.yaml`: UR5e platform overlay.
+  - `docker-compose-fetch.yaml`: Fetch platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
   - `ur5e_catkin_ws/`: UR5e workspace.
+  - `fetch_catkin_ws/`: Fetch workspace.
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
-- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`).
+- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`).
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
-  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`).
-- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`).
+  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`).
+- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline scripts.
 
 ## Agent Persona
@@ -61,7 +65,7 @@ You have expertise in Docker, ROS, Bash scripting, and Linux system administrati
 The SDE supports multiple robot platforms through a single codebase controlled by the `SDE_ROBOT_PLATFORM` variable in `.env`:
 
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
-- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`) extend the base with robot-specific packages.
+- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`) extend the base with robot-specific packages.
 - Two Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`) then platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`).
 - All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
 
@@ -83,8 +87,9 @@ Always target the `sde` service explicitly with `docker compose up -d sde` to av
 
 ### Docker Compose Platform Overlays
 
-Platform-specific Docker Compose overlays (e.g., `docker-compose-ur5e.yaml`) pass platform-specific environment variables to the container.
+Every platform has a Docker Compose overlay file (`docker-compose-<platform>.yaml`) that passes platform-specific environment variables to the container.
 `RUN-DOCKER-CONTAINER.bash` automatically includes `docker-compose-${SDE_ROBOT_PLATFORM}.yaml` if the file exists, so new platforms can add their own overlay without modifying the script.
+Platforms that do not yet require extra variables still have an overlay file for consistency.
 
 ### Terminator Layouts
 
@@ -96,7 +101,7 @@ The `sed` command injects `${SDE_DOCKER_PROJECT}` into the config, producing a `
 ### Variable Naming Convention
 
 All custom environment variables use the `SDE_` prefix. Examples:
-- `SDE_ROBOT_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`).
+- `SDE_ROBOT_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`, `fetch`).
 - `SDE_CONTAINER_ROOT_DIR`: SDE root path inside the Docker container.
 - `SDE_ROOT_DIR`: SDE root path on the host (auto-resolved, not in `.env`).
 - `SDE_DOCKER_PROJECT`: Docker project name for container naming.
@@ -188,6 +193,18 @@ File names follow the pattern: `<component>_<variant>_<environment>.launch`
   - `realworld`: For use with the real (physical) robot.
   - Omitted when the launch file applies to both environments (e.g., `turtlebot3_mapping_default.launch`).
 
+Formatting conventions:
+
+- Start every launch file with `<?xml version="1.0" encoding="utf-8"?>`.
+- Use 2-space indentation (no tabs, no 4-space).
+- Add a blank line after `<launch>` and before `</launch>`.
+- Use `<!-- comment -->` to describe each logical section, with a blank line before and after.
+- Always include a space before `/>` in self-closing tags (e.g., `<arg ... />`, not `<arg .../>`).
+- Use `default=` for top-level `<arg>` declarations (interface arguments).
+- Use `value=` for `<arg>` tags inside `<include>` blocks (passing values to included files).
+- For multi-line element attributes, place continuation attributes on the next line indented by 2 extra spaces (4 total from parent).
+- Group related `<arg>` declarations together, separated by blank lines from other groups or elements.
+
 ### ROS Packages
 
 Custom ROS packages in this project follow these conventions:
@@ -246,6 +263,17 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Patches are applied idempotently by `scripts/apply-submodule-patches.bash` after `git submodule update --init --recursive` in `SETUP-DEVEL-MACHINE.bash`.
 - To create a patch: make changes in the submodule, run `git diff > <patch-file>`, then reset the submodule with `git checkout .`.
 
+### Git Submodules
+
+Git submodules provide third-party ROS packages that are not available as Noetic debian packages.
+The Dockerfile installs their system dependencies via `apt-get`, and the packages themselves are built from source at `catkin build` time inside the container.
+All submodules use `ignore = dirty` in `.gitmodules`.
+
+Current submodules:
+- Shared (`sde_catkin_ws`): `flexbe_behavior_engine`, `flexbe_app`, `flexbe_generic_states`.
+- UR5e (`ur5e_catkin_ws`): `onrobot`, `roboticsgroup_upatras_gazebo_plugins`.
+- Fetch (`fetch_catkin_ws`): `fetch_gazebo` (branch `gazebo11`, provides `fetch_gazebo` and `fetch_gazebo_demo`).
+
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
@@ -253,6 +281,8 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
 - Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash`.
+- Restart Chrony service: `bash ./RESTART-CHRONY-SERVICE.bash` (resyncs host and robot clocks via Chrony).
+- Bringup robot: `bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname>` (SSH into the robot and launch bringup nodes).
 - Push Docker images: `bash gitlab-ci/PUSH-DOCKER-IMAGE.bash` (uses `docker logout`/`docker login` to force re-authentication).
 
 ## Testing Pipeline
@@ -265,7 +295,7 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 
 - The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`).
 - Docker images are pushed to `registry.gitlab.com/coarobo/sde/`.
-- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`).
+- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
 
 ## Versioning & Commits

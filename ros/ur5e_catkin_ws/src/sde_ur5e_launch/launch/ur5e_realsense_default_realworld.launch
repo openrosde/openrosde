@@ -2,12 +2,12 @@
 
 <launch>
 
-    <!-- https://github.com/IntelRealSense/realsense-ros -->
+  <!-- https://github.com/IntelRealSense/realsense-ros -->
 
-    <arg name="filters" default="pointcloud" />
+  <arg name="filters" default="pointcloud" />
 
-    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-        <arg name="filters" default="$(arg filters)" />
-    </include>
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="filters" value="$(arg filters)" />
+  </include>
 
 </launch>

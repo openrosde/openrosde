@@ -14,7 +14,7 @@
 
 # Check if the user has provided the mandatory <rosmaster-hostname> argument.
 if [[ "$#" -lt 1 ]]; then
-  echo "Usage: bash BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]"
+  echo "Usage: bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]"
   exit 1
 fi
 
@@ -22,12 +22,6 @@ fi
 
 # Load the SDE environment variables.
 source ./scripts/load-sde-env.bash "$2"
-
-################################################################################
-
-docker exec -i ${SDE_DOCKER_CONTAINER} bash <<EOF
-ntpdate ntp.ubuntu.com
-EOF
 
 ################################################################################
 
@@ -54,6 +48,9 @@ echo "Done"
     ;;
   ur5e)
     echo "UR5e robot bringup is not yet configured. Please start the robot manually."
+    ;;
+  fetch)
+    echo "Fetch robot bringup is not yet configured. Please start the robot manually."
     ;;
   *)
     echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No bringup commands available."

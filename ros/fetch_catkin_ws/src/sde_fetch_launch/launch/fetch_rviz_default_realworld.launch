@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://fetchrobotics.github.io/docs/ -->
+
+  <arg name="rviz_file" default="$(find fetch_navigation)/config/navigation.rviz" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_file)" />
+
+</launch>

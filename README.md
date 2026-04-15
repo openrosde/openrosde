@@ -29,6 +29,7 @@ Open-source reference implementation of the Software Development Environment (SD
 | --- | --- | --- |
 | `turtlebot3` | Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/robot-platforms/turtlebot3.md](docs/robot-platforms/turtlebot3.md) |
 | `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) |
+| `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [docs/robot-platforms/fetch.md](docs/robot-platforms/fetch.md) |
 
 ## 💻 Supported Software Platforms
 
@@ -63,6 +64,8 @@ flowchart TD
         ur5e["'ur5e-devel'"]
         base --> tb3
         base --> ur5e
+        fetch["'fetch-devel'"]
+        base --> fetch
     end
 
     subgraph container["Docker container"]
@@ -127,15 +130,21 @@ For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
 env/
   turtlebot3.env                         # TurtleBot3 platform template.
   ur5e.env                               # UR5e platform template.
+  fetch.env                              # Fetch platform template.
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
 RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.
 RUN-TERMINATOR-TERMINAL.bash             # Multi-terminal launcher script.
 BRINGUP-ROS-ROBOT.bash                   # Robot bringup script.
+RESTART-CHRONY-SERVICE.bash              # Host and robot clock sync script.
+SWITCH-ROBOT-PLATFORM.bash               # Platform switching script.
 scripts/
   load-sde-env.bash                      # Shared environment loader.
 docker/
   docker-compose.yaml                    # Docker service definitions.
+  docker-compose-turtlebot3.yaml         # TurtleBot3 platform overlay.
+  docker-compose-ur5e.yaml               # UR5e platform overlay.
+  docker-compose-fetch.yaml              # Fetch platform overlay.
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
   sde-base/                              # Shared base Docker image.
@@ -145,18 +154,24 @@ docker/
     Dockerfile
   ur5e-devel/                            # UR5e platform image.
     Dockerfile
+  fetch-devel/                           # Fetch platform image.
+    Dockerfile
 ros/
   sde_catkin_ws/                         # Shared Catkin workspace.
   turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
   ur5e_catkin_ws/                        # UR5e Catkin workspace.
+  fetch_catkin_ws/                       # Fetch Catkin workspace.
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md
   robot-platforms/
     turtlebot3.md
     ur5e.md
+    fetch.md
 terminator/
-  config                                 # Terminator layout configuration.
+  turtlebot3.config                      # TurtleBot3 Terminator layout.
+  ur5e.config                            # UR5e Terminator layout.
+  fetch.config                           # Fetch Terminator layout.
 patches/                                 # Submodule patch files.
 gitlab-ci/                               # GitLab CI/CD scripts.
 ```
@@ -167,8 +182,9 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 | --- | --- |
 | [Basic Usage](docs/basic-usage.md) | Full setup guide: prerequisites, installation, build, and run |
 | [Advanced Usage](docs/advanced-usage.md) | Bash functions, multiple terminals, Docker configuration, environment variables |
-| [TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
-| [UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
+| [Robot Platforms / TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
+| [Robot Platforms / UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
+| [Robot Platforms / Fetch](docs/robot-platforms/fetch.md) | Fetch Robotics Fetch robot configuration, installation, and operation |
 
 ## 📄 Related Publications
 
@@ -206,11 +222,12 @@ Please report any issue or future work using the GitLab issue tracker: [https://
 
 ### 🔧 Maintainers
 
-- Lotfi El Hafi (lotfi@coarobo.com)
+- **Lotfi El Hafi** (lotfi@coarobo.com)
 - Sebastian Carrera (sebastian@coarobo.com)
 
 ### ✍️ Authors
 
+- **Lotfi El Hafi**
 - Felix von Drigalski
 - Gustavo Alfonso Garcia Ricardez
 - Masaki Yamamoto

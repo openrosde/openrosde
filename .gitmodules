@@ -23,3 +23,8 @@
 	url = https://github.com/FlexBE/generic_flexbe_states.git
 	branch = master
 	ignore = dirty
+[submodule "ros/fetch_catkin_ws/src/fetch_gazebo"]
+	path = ros/fetch_catkin_ws/src/fetch_gazebo
+	url = https://github.com/fetchrobotics/fetch_gazebo.git
+	branch = gazebo11
+	ignore = dirty
