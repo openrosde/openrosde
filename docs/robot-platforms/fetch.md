@@ -6,7 +6,8 @@ Platform-specific documentation for the [Fetch Robotics Fetch](https://fetchrobo
 
 - Official documentation: [https://fetchrobotics.github.io/docs/](https://fetchrobotics.github.io/docs/)
 - ROS wiki: [http://wiki.ros.org/Robots/Fetch](http://wiki.ros.org/Robots/Fetch)
-- GitHub repository: [https://github.com/fetchrobotics/fetch_ros](https://github.com/fetchrobotics/fetch_ros)
+- GitHub repository (fetch_ros): [https://github.com/fetchrobotics/fetch_ros](https://github.com/fetchrobotics/fetch_ros)
+- GitHub repository (fetch_gazebo): [https://github.com/fetchrobotics/fetch_gazebo](https://github.com/fetchrobotics/fetch_gazebo)
 
 ## 🔩 Hardware Overview
 
