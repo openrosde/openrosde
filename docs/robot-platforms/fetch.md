@@ -86,7 +86,7 @@ Or start the launch files manually in the Docker container:
 
 ```shell
 roslaunch sde_fetch_launch fetch_bringup_default_realworld.launch
-roslaunch sde_fetch_launch fetch_navigation_default_realworld.launch
+roslaunch sde_fetch_launch fetch_mapping_default.launch
 roslaunch sde_fetch_launch fetch_moveit_default.launch
 roslaunch sde_fetch_launch fetch_rviz_default_realworld.launch
 ```

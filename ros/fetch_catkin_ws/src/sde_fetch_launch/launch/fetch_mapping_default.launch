@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://fetchrobotics.github.io/docs/navigation.html#building-a-map -->
+
+  <include file="$(find fetch_navigation)/launch/build_map.launch" />
+
+</launch>

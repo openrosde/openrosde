@@ -29,11 +29,11 @@ Bring up the Robotis TurtleBot3 robot from the Ubuntu development machine:
 bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> #[docker-project]
 ```
 
-Then launch RViz and the navigation stack:
+Then launch RViz and the mapping stack:
 
 ```shell
 roslaunch sde_turtlebot3_launch turtlebot3_rviz_default_realworld.launch
-roslaunch sde_turtlebot3_launch turtlebot3_navigation_default_realworld.launch
+roslaunch sde_turtlebot3_launch turtlebot3_mapping_default.launch
 ```
 
 To start the same real robot stack in the predefined Terminator layout:
@@ -48,7 +48,6 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | --- | --- |
 | `turtlebot3_bringup_default_gazebo.launch` | Robotis TurtleBot3 Gazebo simulation |
 | `turtlebot3_navigation_default_gazebo.launch` | Navigation stack (Gazebo) |
-| `turtlebot3_navigation_default_realworld.launch` | Navigation stack (real robot) |
 | `turtlebot3_mapping_default.launch` | SLAM mapping (gmapping) |
 | `turtlebot3_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
 | `turtlebot3_rviz_default_realworld.launch` | RViz visualization (real robot) |
