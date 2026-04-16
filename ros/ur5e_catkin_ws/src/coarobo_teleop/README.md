@@ -185,3 +185,11 @@ timeout: 5.0"
 ```
 
 If the Universal Robots UR driver was launched with its default controller list, `joint_group_vel_controller` is normally loaded in the stopped state and can be activated with the command above.
+
+## Generate an urdf file from a xacro file
+
+```shell
+rosrun xacro xacro ur5e_rg2_gazebo.xacro > OUTPUT_FILE
+```
+
+Useful for having the urdf on Viewport.

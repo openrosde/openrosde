@@ -8,10 +8,10 @@
 
   <xacro:arg name="use_nominal_extrinsics" default="true" />
   <xacro:arg name="robot_model" default="ur5e"/>
-  <xacro:arg name="joint_limit_params" default=""/>
-  <xacro:arg name="physical_params" default=""/>
-  <xacro:arg name="kinematics_params" default=""/>
-  <xacro:arg name="visual_params" default=""/>
+  <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/ur5e/joint_limits.yaml"/>
+  <xacro:arg name="physical_params" default="$(find ur_description)/config/ur5e/physical_parameters.yaml"/>
+  <xacro:arg name="kinematics_params" default="$(find ur_description)/config/ur5e/default_kinematics.yaml"/>
+  <xacro:arg name="visual_params" default="$(find ur_description)/config/ur5e/visual_parameters.yaml"/>
   <xacro:arg name="transmission_hw_interface" default="hardware_interface/EffortJointInterface"/>
   <xacro:arg name="safety_limits" default="false"/>
   <xacro:arg name="safety_pos_margin" default="0.15"/>
@@ -55,13 +55,13 @@
   <!-- Instantiate the QC using its new macro, attached to the adapter -->
   <xacro:onrobot_qc_r_v3 parent="camera_adapter_link">
     <!-- Rotate 180 degrees so the gripper faces outwards instead of into the mount -->
-    <origin xyz="0 0 0" rpy="0 3.14159 0" />
+    <origin xyz="0 0 -0.0125" rpy="0 3.14159 0" />
   </xacro:onrobot_qc_r_v3>
 
   <joint name="qc_tool_mount-onrobot_rg2_base" type="fixed">
     <parent link="qc_tool_mount" />
     <child link="onrobot_rg2_base_link" />
-    <origin xyz="0 0 0" rpy="0 0 0" />
+    <origin xyz="0 0 -0.005" rpy="0 0 -1.5708" />
     <axis xyz="0 0 1" />
   </joint>
 
@@ -107,6 +107,6 @@
   <!-- Wrist-mounted RealSense D435i Camera (Attached to the PickNik adapter's mount link) -->
   <xacro:sensor_d435i parent="camera_mount_link" name="wrist_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
     <!-- Subtracted 8 degrees (0.139626 radians) to the pitch axis -->
-    <origin xyz="0.0 -0.095 -0.011" rpy="0 ${-1.5708 - 0.139626} -1.5708"/>
+    <origin xyz="0.0 -0.075 -0.011" rpy="0 ${1.5708 - 0.139626} -1.5708"/>
   </xacro:sensor_d435i>
 </robot>

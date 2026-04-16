@@ -14,12 +14,12 @@
   <link name="qc_body">
     <visual>
       <geometry>
-        <mesh filename="package://coarobo_teleop/description/onrobot_qc_r_v3/meshes/visual/qc_r_v3.stl"/>
+        <mesh filename="package://coarobo_teleop/description/onrobot_qc_r_v3/meshes/visual/onrobot_qc_r_v3.stl"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://coarobo_teleop/description/onrobot_qc_r_v3/meshes/collision/qc_r_v3.stl"/>
+        <mesh filename="package://coarobo_teleop/description/onrobot_qc_r_v3/meshes/collision/onrobot_qc_r_v3.stl"/>
       </geometry>
     </collision>
     <inertial>
