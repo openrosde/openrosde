@@ -193,6 +193,9 @@ case "${SDE_ROBOT_PLATFORM}" in
   fetch)
     SDE_LAUNCH_PACKAGE=sde_fetch_launch
     ;;
+  sciurus17)
+    SDE_LAUNCH_PACKAGE=sde_sciurus17_launch
+    ;;
 esac
 
 export SDE_LAUNCH_PACKAGE

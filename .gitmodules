@@ -28,3 +28,13 @@
 	url = https://github.com/fetchrobotics/fetch_gazebo.git
 	branch = gazebo11
 	ignore = dirty
+[submodule "ros/sciurus17_catkin_ws/src/sciurus17_ros"]
+	path = ros/sciurus17_catkin_ws/src/sciurus17_ros
+	url = https://github.com/rt-net/sciurus17_ros.git
+	branch = master
+	ignore = dirty
+[submodule "ros/sciurus17_catkin_ws/src/sciurus17_description"]
+	path = ros/sciurus17_catkin_ws/src/sciurus17_description
+	url = https://github.com/rt-net/sciurus17_description.git
+	branch = main
+	ignore = dirty

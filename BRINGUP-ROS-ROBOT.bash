@@ -52,6 +52,18 @@ echo "Done"
   fetch)
     echo "Fetch robot bringup is not yet configured. Please start the robot manually."
     ;;
+  sciurus17)
+    ssh -f -t -l sciurus ${SDE_ROBOT_HOSTNAME} 'bash -c "
+source /opt/ros/noetic/setup.bash;
+export ROS_MASTER_URI=http://'$1':11311;
+export ROS_HOSTNAME='${SDE_ROBOT_HOSTNAME}';
+killall -9 roscore;
+killall -9 rosmaster;
+roslaunch sciurus17_bringup sciurus17_bringup.launch use_rviz:=false &
+sleep 5;
+echo Done
+"'
+    ;;
   *)
     echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No bringup commands available."
     ;;

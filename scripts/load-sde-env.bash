@@ -42,13 +42,11 @@ export SDE_DOCKER_PROJECT
 export SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/sde-base/Dockerfile)"
 export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
 
-# Export platform-specific variables.
+# Export platform-specific variables so that they can be interpolated in 'docker-compose-${SDE_ROBOT_PLATFORM}.yaml'.
 if [ "${SDE_ROBOT_PLATFORM}" = "ur5e" ]; then
   export SDE_UR5E_TEACH_PENDANT_IP
   export SDE_ONROBOT_COMPUTE_BOX_IP
 fi
-
-# No platform-specific variables for 'fetch' (configuration is done via ROS launch arguments).
 
 ################################################################################
 
