@@ -74,6 +74,9 @@ chronyc sources;
 
     echo "Chrony service restarted on the robot machine."
     ;;
+  cobotta)
+    echo "COBOTTA Chrony restart is not applicable. The COBOTTA connects over USB and has no integrated PC."
+    ;;
   *)
     echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No robot Chrony restart commands available."
     ;;

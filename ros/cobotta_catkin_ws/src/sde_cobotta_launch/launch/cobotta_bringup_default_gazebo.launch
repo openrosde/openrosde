@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- "gripper_type": Select from none/parallel/vacuum. -->
+  <!-- Note: Use 'none' for Gazebo simulation (no physical gripper required). -->
+  <arg name="gripper_type" default="none" />
+
+  <!-- Set the gripper type as a parameter in the '/cobotta' namespace. -->
+  <group ns="/cobotta">
+    <param name="gripper_type" value="$(arg gripper_type)" />
+  </group>
+
+  <!-- Launch the Denso COBOTTA Gazebo simulation. -->
+  <include file="$(find denso_cobotta_gazebo)/launch/denso_cobotta_gazebo.launch">
+    <arg name="gripper_type" value="$(arg gripper_type)" />
+  </include>
+
+</launch>

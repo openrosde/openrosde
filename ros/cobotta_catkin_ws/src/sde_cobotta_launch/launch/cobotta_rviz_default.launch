@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- Launch RViz with the Denso COBOTTA MoveIt configuration. -->
+  <include file="$(find denso_cobotta_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="config" value="true" />
+  </include>
+
+</launch>
