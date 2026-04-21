@@ -56,7 +56,7 @@ Or start the launch files manually in the Docker container:
 
 ```shell
 roslaunch sde_sciurus17_launch sciurus17_bringup_default_gazebo.launch
-roslaunch sde_sciurus17_launch sciurus17_moveit_default.launch
+roslaunch sde_sciurus17_launch sciurus17_moveit_default_gazebo.launch
 roslaunch sde_sciurus17_launch sciurus17_rviz_default.launch
 ```
 
@@ -88,7 +88,7 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 Or start the launch files manually in the Docker container:
 
 ```shell
-roslaunch sde_sciurus17_launch sciurus17_moveit_default.launch
+roslaunch sde_sciurus17_launch sciurus17_moveit_default_realworld.launch
 roslaunch sde_sciurus17_launch sciurus17_rviz_default.launch
 ```
 
@@ -98,6 +98,7 @@ The following launch files are available for the RT Sciurus17 platform (package:
 
 | Launch File | Description |
 | --- | --- |
-| `sciurus17_bringup_default_gazebo.launch` | RT Sciurus17 Gazebo simulation |
-| `sciurus17_moveit_default.launch` | MoveIt motion planning |
+| `sciurus17_bringup_default_gazebo.launch` | RT Sciurus17 Gazebo simulation (without MoveIt and RViz) |
+| `sciurus17_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
+| `sciurus17_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `sciurus17_rviz_default.launch` | RViz visualization (both Gazebo and real robot) |

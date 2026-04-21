@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/rt-net/sciurus17_ros -->
+
+  <include file="$(find sciurus17_moveit_config)/launch/sciurus17_planning.launch">
+    <arg name="use_gazebo" value="true" />
+    <arg name="load_robot_description" value="false" />
+    <arg name="use_rviz" value="false" />
+  </include>
+
+</launch>
