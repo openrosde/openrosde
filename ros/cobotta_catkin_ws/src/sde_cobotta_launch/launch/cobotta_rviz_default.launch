@@ -2,9 +2,10 @@
 
 <launch>
 
-  <!-- Launch RViz with the Denso COBOTTA MoveIt configuration. -->
-  <include file="$(find denso_cobotta_moveit_config)/launch/moveit_rviz.launch">
-    <arg name="config" value="true" />
-  </include>
+  <!-- https://github.com/DENSORobot/denso_cobotta_ros -->
+  <!-- Upstream default: $(find denso_cobotta_moveit_config)/launch/moveit.rviz -->
+
+  <node pkg="rviz" type="rviz" name="rviz" required="true"
+    args="-d $(find sde_cobotta_launch)/config/rviz/cobotta_rviz_default.rviz" />
 
 </launch>
