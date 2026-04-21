@@ -240,6 +240,8 @@ Please report any issue or future work using the GitLab issue tracker: [https://
 - This project follows the [Make a README](https://www.makeareadme.com/) guidelines for documentation structure.
 - This project relies on [`AGENTS.md`](AGENTS.md) for coding conventions and instructions provided to AI agents.
 
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for detailed contribution guidelines, including a step-by-step guide for adding support for a new robot platform.
+
 ## 👥 Authors & Acknowledgment
 
 ### 🔧 Maintainers

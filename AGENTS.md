@@ -247,6 +247,9 @@ They follow the same `package.xml` and `README.md` conventions above, except:
   Wrap code-related names in single quotes `' '` inside labels.
   Use sentence capitalization for labels and edge text.
 - Use `#[optional-arg]` and `<required-arg>` syntax in command usage examples.
+- Use Title Case for all headers (e.g., `## Adding a New Platform`, `### Step 1: Create the Environment Template`). Articles (`a`, `an`, `the`), short prepositions (`in`, `of`, `at`), and short conjunctions (`and`, `or`, `if`) are lowercase unless they are the first word.
+- Do not use em dashes (`—`). Use `: ` as the separator in list items (e.g., `- \`file.txt\`: description`) and rephrase mid-sentence asides as separate clauses or parenthetical notes.
+- Do not use thematic breaks (`---`). Use blank lines and heading levels to separate sections instead.
 - Keep `README.md` concise with links to detailed guides in `docs/`.
 - Platform-specific documentation goes in `docs/robot-platforms/`.
 - Use badges following the `[![Label](badge-url)](link-url)` pattern.
@@ -280,13 +283,37 @@ Current submodules:
 - UR5e (`ur5e_catkin_ws`): `onrobot`, `roboticsgroup_upatras_gazebo_plugins`.
 - Fetch (`fetch_catkin_ws`): `fetch_gazebo` (branch `gazebo11`, provides `fetch_gazebo` and `fetch_gazebo_demo`).
 - Sciurus17 (`sciurus17_catkin_ws`): `sciurus17_ros` (branch `master`, ROS 1), `sciurus17_description` (branch `main`, dependency package used by ROS 1 setup).
-- COBOTTA (`cobotta_catkin_ws`): `denso_cobotta_ros` (branch `melodic-devel`, the most up-to-date branch — 2 commits ahead of `master`, latest release v1.2.4).
+- COBOTTA (`cobotta_catkin_ws`): `denso_cobotta_ros` (branch `melodic-devel`, the most up-to-date branch, 2 commits ahead of `master`, latest release v1.2.4).
 
 Current patches:
 - `patches/ros/sde_catkin_ws/src/flexbe_app/0001-fix-curl-redirect.patch`: Fixes a broken curl redirect in the FlexBE app.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0001-fix-comments-collada.patch`: Expands self-closing `<comments/>` to `<comments></comments>` in 6 Collada mesh files (`base_link.dae`, `J1.dae`–`J3.dae`, `J5.dae`, `J6.dae`) to fix an RViz/Assimp parse error ("Expected end of `<comments>` element").
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0002-fix-gripper-pid-gain.patch`: Uncomments the `joint_gripper` PID gain entry in `gazebo_cobotta_control.yaml` to eliminate a `gazebo_ros_control` error when spawning the robot with `gripper_type:=parallel` in Gazebo.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0003-fix-blender-mesh-materials.patch`: Sets `ambient` to `0.5 0.5 0.5 1` and `emission` to `0.04 0.04 0.04 1` in 6 Blender-exported Collada mesh files (`J4.dae`, `gripper_base.dae`, `left_finger.dae`, `right_finger.dae`, `pad.dae`, `vacuum.dae`) to fix black rendering under OGRE/Mesa caused by explicit `ambient: 0 0 0 1`.
+
+## Adding a New Platform
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full step-by-step guide.
+When adding a platform named `<platform>`, create these files:
+
+- `env/<platform>.env`: environment template.
+- `docker/<platform>-devel/Dockerfile`: platform Docker image.
+- `docker/docker-compose-<platform>.yaml`: Docker Compose overlay.
+- `ros/<platform>_catkin_ws/src/sde_<platform>_launch/`: ROS launch package (5 launch files, `package.xml`, `CMakeLists.txt`, `README.md`, `.gitignore`).
+- `terminator/<platform>.config`: Terminator layouts.
+- `docs/robot-platforms/<platform>.md`: platform documentation.
+
+And update `<platform>` in every platform-aware file:
+
+- `.env` and all `env/*.env`: platform list comment.
+- `BUILD-DOCKER-IMAGE.bash`: platform loop.
+- `gitlab-ci/PUSH-DOCKER-IMAGE.bash`: platform loop.
+- `gitlab-ci/gitlab-ci.yml`: CI matrix.
+- `docker/sde-base/scripts/initialize-bash-shell.bash`: `<platform>)` case for `SDE_LAUNCH_PACKAGE`.
+- `BRINGUP-ROS-ROBOT.bash`: `<platform>)` case.
+- `RESTART-CHRONY-SERVICE.bash`: `<platform>)` case.
+- `README.md`: platform table, Mermaid diagram, directory structure, docs table.
+- `AGENTS.md`: platform lists, directory structure, submodule list, patch list.
 
 ## Build Commands
 
