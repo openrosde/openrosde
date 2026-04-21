@@ -4,7 +4,7 @@
 
   <arg name="start_spacenavd" default="true" />
 
-  <node if="$(arg start_spacenavd)" pkg="coarobo_teleop" type="start-spacenavd-daemon.bash" name="start_spacenavd" output="screen" />
+  <node if="$(arg start_spacenavd)" pkg="sde_ur5e_teleop" type="start-spacenavd-daemon.bash" name="start_spacenavd" output="screen" />
 
   <arg name="planning_frame" default="base_link" />
   <arg name="ee_frame_name" default="flange" />
@@ -52,7 +52,7 @@
   <arg name="max_linear_acceleration" default="4.0" />
   <arg name="max_angular_acceleration" default="6.0" />
 
-  <include file="$(find coarobo_teleop)/launch/ur5e_moveit_servo_velocity.launch">
+  <include file="$(find sde_ur5e_teleop)/launch/ur5e_moveit_servo_velocity.launch">
     <arg name="planning_frame" value="$(arg planning_frame)" />
     <arg name="ee_frame_name" value="$(arg ee_frame_name)" />
     <arg name="robot_link_command_frame" value="$(arg robot_link_command_frame)" />
@@ -67,7 +67,7 @@
     <arg name="wait_for_switch_service_timeout" value="$(arg wait_for_switch_service_timeout)" />
   </include>
 
-  <include file="$(find coarobo_teleop)/launch/ur5e_spacenav_node.launch">
+  <include file="$(find sde_ur5e_teleop)/launch/ur5e_spacenav_node.launch">
     <arg name="launch_spacenav_node" value="$(arg launch_spacenav_node)" />
     <arg name="input_twist_topic" value="$(arg input_twist_topic)" />
     <arg name="output_twist_topic" value="$(arg output_twist_topic)" />

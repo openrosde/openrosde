@@ -20,7 +20,7 @@
     ns="/onrobot_rg2"
     args="joint_state_controller joint_position_controller" />
 
-  <node pkg="coarobo_teleop"
+  <node pkg="sde_ur5e_teleop"
     type="ur5e_spacenav_node_onrobot_rg_control.py"
     name="ur5e_onrobot_rg_control_gazebo"
     output="screen">

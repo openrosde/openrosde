@@ -4,7 +4,7 @@
 <xacro:macro name="onrobot_qc_r_v3" params="parent *origin">
 
   <link name="qc_robot_mount"/>
-  
+
   <joint name="qc_robot_mount_joint" type="fixed">
     <xacro:insert_block name="origin" />
     <parent link="${parent}"/>
@@ -14,12 +14,12 @@
   <link name="qc_body">
     <visual>
       <geometry>
-        <mesh filename="package://coarobo_teleop/description/onrobot_qc_r_v3/meshes/visual/onrobot_qc_r_v3.stl"/>
+        <mesh filename="package://sde_ur5e_launch/description/onrobot_quick_changer_qc-r_v3/meshes/visual/onrobot_quick_changer_qc-r_v3.stl"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://coarobo_teleop/description/onrobot_qc_r_v3/meshes/collision/onrobot_qc_r_v3.stl"/>
+        <mesh filename="package://sde_ur5e_launch/description/onrobot_quick_changer_qc-r_v3/meshes/collision/onrobot_quick_changer_qc-r_v3.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -36,7 +36,7 @@
   </joint>
 
   <link name="qc_tool_mount"/>
-  
+
   <joint name="qc_tool_joint" type="fixed">
     <parent link="qc_body"/>
     <child link="qc_tool_mount"/>

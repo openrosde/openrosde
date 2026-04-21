@@ -192,5 +192,5 @@ The following launch files are available for the Universal Robots UR5e platform 
 | `ur5e_realsense_default_realworld.launch` | Intel RealSense D435i camera |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper via Modbus TCP |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper (Gazebo) |
-| `coarobo_ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceNavigator teleoperation (real robot) |
-| `coarobo_ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceNavigator teleoperation (Gazebo) |
+| `ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceNavigator teleoperation (real robot) |
+| `ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceNavigator teleoperation (Gazebo) |

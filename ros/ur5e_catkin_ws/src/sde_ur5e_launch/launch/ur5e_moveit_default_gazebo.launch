@@ -24,10 +24,10 @@
 
   <remap if="$(arg sim)" from="/scaled_pos_joint_traj_controller/follow_joint_trajectory" to="/eff_joint_traj_controller/follow_joint_trajectory" />
 
-  <param name="robot_description_semantic" textfile="$(find coarobo_teleop)/config/ur5e_rg2_gazebo.srdf" />
+  <param name="robot_description_semantic" textfile="$(find sde_ur5e_launch)/config/ur5e/ur5e_gazebo.srdf" />
 
   <group ns="robot_description_planning">
-    <rosparam command="load" file="$(find coarobo_teleop)/config/ur5e_joint_limits.yaml" />
+    <rosparam command="load" file="$(find sde_ur5e_teleop)/config/ur5e_joint_limits.yaml" />
   </group>
 
   <group ns="robot_description_kinematics">

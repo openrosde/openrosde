@@ -3,8 +3,8 @@
   <xacro:include filename="$(find ur_gazebo)/urdf/ur_macro.xacro"/>
   <xacro:include filename="$(find onrobot_rg_description)/urdf/onrobot_rg2_model_macro.xacro"/>
   <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
-  <xacro:include filename="$(find coarobo_teleop)/description/picknik_ur5_realsense_camera_adapter/urdf/picknik_ur5_realsense_camera_adapter.xacro"/>
-  <xacro:include filename="$(find coarobo_teleop)/description/onrobot_qc_r_v3/urdf/onrobot_qc_r_v3.xacro"/>
+  <xacro:include filename="$(find sde_ur5e_launch)/description/picknik_ur5_realsense_camera_adapter/urdf/picknik_ur5_realsense_camera_adapter.xacro"/>
+  <xacro:include filename="$(find sde_ur5e_launch)/description/onrobot_quick_changer_qc-r_v3/urdf/onrobot_quick_changer_qc-r_v3.xacro"/>
 
   <xacro:arg name="use_nominal_extrinsics" default="true" />
   <xacro:arg name="robot_model" default="ur5e"/>
@@ -100,9 +100,10 @@
   </xacro:picknik_camera_adapter>
 
   <!-- External RealSense D435i Camera (Environment view, using world as parent) -->
-  <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+  <!-- TODO: Uncomment and tune the origin once the external camera mount position is known. -->
+  <!-- <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
     <origin xyz="1.0 0.0 1.0" rpy="0 0.5 3.14159"/>
-  </xacro:sensor_d435i>
+  </xacro:sensor_d435i> -->
 
   <!-- Wrist-mounted RealSense D435i Camera (Attached to the PickNik adapter's mount link) -->
   <xacro:sensor_d435i parent="camera_mount_link" name="wrist_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">

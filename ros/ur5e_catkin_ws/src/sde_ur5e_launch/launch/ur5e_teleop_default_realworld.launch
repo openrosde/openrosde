@@ -12,7 +12,7 @@
   <arg name="angular_y_scale" default="4.0" />
   <arg name="angular_z_scale" default="4.0" />
 
-  <include file="$(find coarobo_teleop)/launch/ur5e_teleop.launch">
+  <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop.launch">
     <arg name="controller_mode" value="$(arg controller_mode)" />
     <arg name="require_enable_button" value="$(arg require_enable_button)" />
     <arg name="reverse_for_front_view" value="$(arg reverse_for_front_view)" />

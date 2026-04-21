@@ -12,7 +12,7 @@
   <arg name="angular_y_scale" default="4.0" />
   <arg name="angular_z_scale" default="4.0" />
 
-  <include file="$(find coarobo_teleop)/launch/ur5e_teleop.launch">
+  <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop.launch">
     <arg name="controller_mode" value="$(arg controller_mode)" />
     <arg name="ee_frame_name" value="flange" />
     <arg name="robot_link_command_frame" value="base_link" />

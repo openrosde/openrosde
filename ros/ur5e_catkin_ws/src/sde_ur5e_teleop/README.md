@@ -1,17 +1,17 @@
-# coarobo_teleop
+# sde_ur5e_teleop
 
-The `coarobo_teleop` package provides launch files and nodes for teleoperating a Universal Robots UR5e with a 3Dconnexion SpaceMouse and an OnRobot RG2 gripper.
+The `sde_ur5e_teleop` package provides launch files and nodes for teleoperating a Universal Robots UR5e with a 3Dconnexion SpaceMouse and an OnRobot RG2 gripper.
 
 - Maintainer: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
 - Author: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
-- License: Copyright (c) 2026 Coarobo GK.
+- License: [MIT](LICENSE).
 
 ## Launch Files
 
 ### Start Full Teleop Stack
 
 ```shell
-roslaunch coarobo_teleop ur5e_teleop.launch
+roslaunch sde_ur5e_teleop ur5e_teleop.launch
 ```
 
 This is the main entry point for teleoperation.
@@ -22,7 +22,7 @@ Velocity mode is still experimental.
 ### Start MoveIt Servo (Velocity)
 
 ```shell
-roslaunch coarobo_teleop ur5e_moveit_servo_velocity.launch
+roslaunch sde_ur5e_teleop ur5e_moveit_servo_velocity.launch
 ```
 
 This starts `moveit_servo/servo_server` and loads the Servo parameters from `config/ur5e_moveit_servo_velocity.yaml`.
@@ -32,7 +32,7 @@ Velocity mode is still experimental.
 ### Start MoveIt Servo (Trajectory)
 
 ```shell
-roslaunch coarobo_teleop ur5e_moveit_servo_trajectory.launch
+roslaunch sde_ur5e_teleop ur5e_moveit_servo_trajectory.launch
 ```
 
 This keeps the older `trajectory_msgs/JointTrajectory` output path and publishes to `/scaled_pos_joint_traj_controller/command`.
@@ -40,7 +40,7 @@ This keeps the older `trajectory_msgs/JointTrajectory` output path and publishes
 ### Start the SpaceMouse Bridge
 
 ```shell
-roslaunch coarobo_teleop ur5e_spacenav_node.launch
+roslaunch sde_ur5e_teleop ur5e_spacenav_node.launch
 ```
 
 This launch file starts:
@@ -52,7 +52,7 @@ This launch file starts:
 If `spacenav_node` is already running elsewhere, disable the local include:
 
 ```shell
-roslaunch coarobo_teleop ur5e_spacenav_node.launch launch_spacenav_node:=false
+roslaunch sde_ur5e_teleop ur5e_spacenav_node.launch launch_spacenav_node:=false
 ```
 
 ## Runtime Prerequisites
@@ -189,7 +189,7 @@ If the Universal Robots UR driver was launched with its default controller list,
 ## Generate an urdf file from a xacro file
 
 ```shell
-rosrun xacro xacro ur5e_rg2_gazebo.xacro > OUTPUT_FILE
+rosrun xacro xacro ur5e_gazebo.xacro > OUTPUT_FILE
 ```
 
 Useful for having the urdf on Viewport.

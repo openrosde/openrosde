@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(coarobo_teleop)
+project(sde_ur5e_teleop)
 
 find_package(catkin REQUIRED COMPONENTS
   controller_manager_msgs

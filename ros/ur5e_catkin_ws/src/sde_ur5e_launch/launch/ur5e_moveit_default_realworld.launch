@@ -11,7 +11,7 @@
   </include>
 
   <group ns="robot_description_planning">
-    <rosparam command="load" file="$(find coarobo_teleop)/config/ur5e_joint_limits.yaml" />
+    <rosparam command="load" file="$(find sde_ur5e_teleop)/config/ur5e_joint_limits.yaml" />
   </group>
 
   <!-- This remap is necessary for MoveIt to interface with the UR5e driver. -->

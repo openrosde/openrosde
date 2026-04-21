@@ -35,7 +35,7 @@
 
   <include file="$(find spacenav_node)/launch/classic.launch" if="$(arg launch_spacenav_node)" />
 
-  <node pkg="coarobo_teleop"
+  <node pkg="sde_ur5e_teleop"
     type="ur5e_spacenav_node_moveit_servo.py"
     name="ur5e_spacenav_node_moveit_servo"
     output="screen">
@@ -62,7 +62,7 @@
     <param name="max_angular_acceleration" value="$(arg max_angular_acceleration)" />
   </node>
 
-  <node pkg="coarobo_teleop"
+  <node pkg="sde_ur5e_teleop"
     type="ur5e_spacenav_node_onrobot_rg_control.py"
     name="ur5e_spacenav_node_onrobot_rg_control"
     output="screen"

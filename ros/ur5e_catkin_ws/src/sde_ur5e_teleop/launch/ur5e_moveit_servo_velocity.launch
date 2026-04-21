@@ -9,14 +9,14 @@
   <arg name="command_out_type" default="std_msgs/Float64MultiArray" />
   <arg name="publish_joint_positions" default="false" />
   <arg name="publish_joint_velocities" default="true" />
-  <arg name="servo_config_file" default="$(find coarobo_teleop)/config/ur5e_moveit_servo_velocity.yaml" />
+  <arg name="servo_config_file" default="$(find sde_ur5e_teleop)/config/ur5e_moveit_servo_velocity.yaml" />
   <arg name="switch_controllers" default="false" />
   <arg name="switch_service_name" default="/controller_manager/switch_controller" />
   <arg name="controllers_to_start" default="" />
   <arg name="controllers_to_stop" default="" />
   <arg name="wait_for_switch_service_timeout" default="20.0" />
 
-  <node pkg="coarobo_teleop"
+  <node pkg="sde_ur5e_teleop"
     type="ur5e_switch_controller_mode.py"
     name="ur5e_switch_controller_mode"
     output="screen"

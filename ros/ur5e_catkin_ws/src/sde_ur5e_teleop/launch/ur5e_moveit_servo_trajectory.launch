@@ -6,9 +6,9 @@
   <arg name="ee_frame_name" default="flange" />
   <arg name="robot_link_command_frame" default="flange" />
   <arg name="command_out_topic" default="/scaled_pos_joint_traj_controller/command" />
-  <arg name="servo_config_file" default="$(find coarobo_teleop)/config/ur5e_moveit_servo_trajectory.yaml" />
+  <arg name="servo_config_file" default="$(find sde_ur5e_teleop)/config/ur5e_moveit_servo_trajectory.yaml" />
 
-  <include file="$(find coarobo_teleop)/launch/ur5e_moveit_servo_velocity.launch">
+  <include file="$(find sde_ur5e_teleop)/launch/ur5e_moveit_servo_velocity.launch">
     <arg name="planning_frame" value="$(arg planning_frame)" />
     <arg name="ee_frame_name" value="$(arg ee_frame_name)" />
     <arg name="robot_link_command_frame" value="$(arg robot_link_command_frame)" />
