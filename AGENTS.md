@@ -269,7 +269,11 @@ They follow the same `package.xml` and `README.md` conventions above, except:
 
 - Patch files for Git submodules live in `patches/` mirroring the full submodule path (e.g., `patches/ros/sde_catkin_ws/src/flexbe_app/`).
 - Name patch files with a numbered prefix and three kebab-case words starting with a verb: `0001-fix-curl-redirect.patch`.
-- Patches are applied idempotently by `scripts/apply-submodule-patches.bash` after `git submodule update --init --recursive` in `SETUP-DEVEL-MACHINE.bash`.
+- Patches are applied idempotently by `scripts/apply-submodule-patches.bash`, called via `scripts/update-git-submodules.bash`.
+  `scripts/update-git-submodules.bash` is invoked by `SETUP-DEVEL-MACHINE.bash` on first setup and by `SWITCH-ROBOT-PLATFORM.bash` on every platform switch.
+  After applying each patch, all files it touches are automatically marked `skip-worktree` so they do not appear as tracked changes in `git status` or VS Code.
+- If a submodule pin is updated and `git submodule update` needs to overwrite a patched file, Git will refuse due to `skip-worktree`.
+  Clear the flag first with `git -C <submodule-path> update-index --no-skip-worktree <file>`, then re-run `scripts/update-git-submodules.bash`.
 - To create a patch: make changes in the submodule, run `git diff > <patch-file>`, then reset the submodule with `git checkout .`.
 
 ### Git Submodules

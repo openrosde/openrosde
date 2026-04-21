@@ -39,3 +39,8 @@ fi
 # Copy the platform template to '.env.custom'.
 cp "./env/$1.env" ./.env.custom
 echo "Switched to '$1' platform."
+
+################################################################################
+
+# Update Git submodules and apply patches to ensure the workspace is in sync.
+bash ./scripts/update-git-submodules.bash

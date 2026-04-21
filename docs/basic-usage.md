@@ -71,7 +71,7 @@ Set up the environment of the Ubuntu development machine with the following inst
 > [!NOTE]
 > The `SETUP-DEVEL-MACHINE.bash` script is divided into two parts: system-wide installations (with `sudo`) and local user environment setup (without `sudo`).
 > The system-wide part makes changes that require a reboot or re-login to take effect.
-> However, if your system already has the necessary tools installed (Docker, Nvidia Container Toolkit, Terminator), you can skip the script and manually initialize the Git submodules with `git submodule update --init --recursive` from the SDE root directory.
+> However, if your system already has the necessary tools installed (Docker, Nvidia Container Toolkit, Terminator), you can skip the script and manually run `bash ./scripts/update-git-submodules.bash` from the SDE root directory to initialize the Git submodules and apply patches.
 
 > [!NOTE]
 > You do not need to reboot if your local user has already been added to the `docker` group.

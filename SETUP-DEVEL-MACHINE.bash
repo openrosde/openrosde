@@ -107,12 +107,8 @@ fi
 # Local user environment setup (no 'sudo' required).
 ################################################################################
 
-# Download and initialize all the Git submodules recursively.
-# https://git-scm.com/book/en/v2/Git-Tools-Submodules
-git submodule update --init --recursive
-
-# Apply patches to the Git submodules (if any).
-source ./scripts/apply-submodule-patches.bash
+# Download, initialize, and patch all the Git submodules recursively.
+bash ./scripts/update-git-submodules.bash
 
 ################################################################################
 
