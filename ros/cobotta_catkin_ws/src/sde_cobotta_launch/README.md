@@ -13,6 +13,9 @@ The Gazebo simulation wrappers in this package are:
 - `cobotta_moveit_default_gazebo.launch`
 - `cobotta_rviz_default.launch`
 
+The parallel gripper (`gripper_type:=parallel`) is displayed in Gazebo and RViz by default.
+The gripper is visual-only in simulation — the `cobotta/gripper_action` server is only available on the real robot.
+
 Recommended startup order:
 
 ```shell
@@ -34,6 +37,8 @@ The real robot wrappers in this package are:
 - `cobotta_bringup_default_realworld.launch`
 - `cobotta_moveit_default_realworld.launch`
 - `cobotta_rviz_default.launch`
+
+The parallel gripper (`gripper_type:=parallel`) is used by default — the gripper driver is started automatically by the bringup.
 
 Recommended startup order:
 

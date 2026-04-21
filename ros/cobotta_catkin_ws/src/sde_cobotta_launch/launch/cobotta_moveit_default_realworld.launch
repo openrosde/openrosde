@@ -6,12 +6,14 @@
   <arg name="gripper_type" default="parallel" />
 
   <!-- Load the robot description and MoveIt planning context. -->
+  <!-- Note: 'load_robot_description' is true because no other node has loaded the URDF yet. -->
   <include file="$(find denso_cobotta_moveit_config)/launch/planning_context.launch">
     <arg name="load_robot_description" value="true" />
     <arg name="gripper_type" value="$(arg gripper_type)" />
   </include>
 
   <!-- Launch MoveIt move_group. -->
+  <!-- Note: 'gripper_type' is forwarded so MoveIt loads the gripper controller config and action server. -->
   <include file="$(find denso_cobotta_moveit_config)/launch/move_group.launch">
     <arg name="publish_monitored_planning_scene" value="true" />
     <arg name="gripper_type" value="$(arg gripper_type)" />

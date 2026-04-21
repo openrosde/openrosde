@@ -51,7 +51,8 @@ roslaunch sde_cobotta_launch cobotta_rviz_default.launch
 ```
 
 > [!NOTE]
-> The Gazebo simulation uses `gripper_type:=none` by default.
+> The Gazebo simulation uses `gripper_type:=parallel` by default — the parallel gripper is displayed in Gazebo and RViz.
+> The gripper is visual-only in simulation; the `cobotta/gripper_action` server that drives it is only available on the real robot.
 > The COBOTTA robot has an Atom CPU and is not capable of running Gazebo locally — the simulation runs on the Ubuntu development machine.
 
 ## 🤖 Real Robot Operation
@@ -59,6 +60,7 @@ roslaunch sde_cobotta_launch cobotta_rviz_default.launch
 > [!IMPORTANT]
 > The `denso_cobotta` kernel module must be loaded on the host machine before starting the driver.
 > Perform the CALSET (calibration set) procedure as described in the official documentation before running the robot for the first time.
+> The real robot bringup uses `gripper_type:=parallel` by default — the parallel gripper driver is started automatically.
 
 Start the Denso COBOTTA real robot using the predefined Terminator layout:
 
