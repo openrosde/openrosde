@@ -4,9 +4,12 @@
 #
 # Usage: bash ./BUILD-DOCKER-IMAGE.bash [docker-project]
 #
-# [docker-project]: Used to name the Docker container and create multiple instances if needed.
-#                   If the [docker-project] is 'gitlab-ci', the image is built from scratch, as if done in GitLab CI, without trying to download it.
-#                   Otherwise, the default value is '$USER' and the image is either pulled from the Docker registry, or built as fallback if not found.
+# [docker-project]: Used to name the Docker container and control the build strategy.
+#                   Special values:
+#                   - 'gitlab-ci': Build all platform images without cache (CI/CD pipeline).
+#                   - 'local': Build current platform image with cache (fast iteration on local machine).
+#                   Otherwise, try to pull from registry, fall back to build with cache if pull fails.
+#                   Default value is '$USER'.
 
 ################################################################################
 
@@ -26,14 +29,12 @@ fi
 
 ################################################################################
 
-# Login into the GitLab Docker registry using a read-only deploy token.
-echo "Login into 'registry.gitlab.com' using a read-only deploy token."
-docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
-
-# Pull the SDE base image and the platform-specific image from the registry.
-# If pulling fails, build both images locally using cached data.
-# When passing the 'gitlab-ci' argument, build all platform-specific images without cached data.
+# Determine build strategy based on the Docker project name.
+# - 'gitlab-ci': Build all platform images without cache (CI/CD pipeline).
+# - 'local': Build current platform image with cache (fast iteration on local machine).
+# Otherwise, try to pull from registry, fall back to build with cache if pull fails.
 if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
+  # Build all platform images from scratch without cache.
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
   for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17 cobotta; do
     export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
@@ -41,7 +42,15 @@ if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
     echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."
     docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde --no-cache
   done
+elif [[ "${SDE_DOCKER_PROJECT}" == "local" ]]; then
+  # Build current platform image with cache (fast rebuild for local development).
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde
 else
+  # Login into the GitLab Docker registry using a read-only deploy token.
+  echo "Login into 'registry.gitlab.com' using a read-only deploy token."
+  docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
+  # Try to pull from registry, fall back to build with cache if pull fails.
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde-base
   if [[ "$?" -ne "0" ]]; then
     docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base

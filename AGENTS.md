@@ -320,6 +320,9 @@ And update `<platform>` in every platform-aware file:
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
+  - Default behavior: pulls from registry or builds current platform with cache.
+  - `bash ./BUILD-DOCKER-IMAGE.bash local`: builds current platform with cache (fast iteration).
+  - `bash ./BUILD-DOCKER-IMAGE.bash gitlab-ci`: builds all platforms from scratch without cache (CI/CD).
 - Build Catkin workspaces (inside container): `sde-reset-catkin-workspaces` or `sde-build-catkin-workspaces`.
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
