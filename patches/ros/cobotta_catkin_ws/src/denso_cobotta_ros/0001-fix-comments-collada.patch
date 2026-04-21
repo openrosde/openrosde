@@ -1,0 +1,78 @@
+diff --git a/denso_cobotta_descriptions/cobotta_description/J1.dae b/denso_cobotta_descriptions/cobotta_description/J1.dae
+index ed14220..4782ff5 100644
+--- a/denso_cobotta_descriptions/cobotta_description/J1.dae
++++ b/denso_cobotta_descriptions/cobotta_description/J1.dae
+@@ -3,7 +3,7 @@
+ 	<asset>
+ 		<contributor>
+ 			<author>DENSO WAVE</author>
+-			<comments/>
++			<comments></comments>
+ 		</contributor>
+ 		<unit/>
+ 		<up_axis>Y_UP</up_axis>
+diff --git a/denso_cobotta_descriptions/cobotta_description/J2.dae b/denso_cobotta_descriptions/cobotta_description/J2.dae
+index eec6b5f..738def0 100644
+--- a/denso_cobotta_descriptions/cobotta_description/J2.dae
++++ b/denso_cobotta_descriptions/cobotta_description/J2.dae
+@@ -3,7 +3,7 @@
+ 	<asset>
+ 		<contributor>
+ 			<author>DENSO WAVE</author>
+-			<comments/>
++			<comments></comments>
+ 		</contributor>
+ 		<unit/>
+ 		<up_axis>Y_UP</up_axis>
+diff --git a/denso_cobotta_descriptions/cobotta_description/J3.dae b/denso_cobotta_descriptions/cobotta_description/J3.dae
+index 069ac97..2549085 100644
+--- a/denso_cobotta_descriptions/cobotta_description/J3.dae
++++ b/denso_cobotta_descriptions/cobotta_description/J3.dae
+@@ -3,7 +3,7 @@
+ 	<asset>
+ 		<contributor>
+ 			<author>DENSO WAVE</author>
+-			<comments/>
++			<comments></comments>
+ 		</contributor>
+ 		<unit/>
+ 		<up_axis>Y_UP</up_axis>
+diff --git a/denso_cobotta_descriptions/cobotta_description/J5.dae b/denso_cobotta_descriptions/cobotta_description/J5.dae
+index 30fa160..0e01b9c 100644
+--- a/denso_cobotta_descriptions/cobotta_description/J5.dae
++++ b/denso_cobotta_descriptions/cobotta_description/J5.dae
+@@ -3,7 +3,7 @@
+ 	<asset>
+ 		<contributor>
+ 			<author>DENSO WAVE</author>
+-			<comments/>
++			<comments></comments>
+ 		</contributor>
+ 		<unit/>
+ 		<up_axis>Y_UP</up_axis>
+diff --git a/denso_cobotta_descriptions/cobotta_description/J6.dae b/denso_cobotta_descriptions/cobotta_description/J6.dae
+index a7dda1d..b983bec 100644
+--- a/denso_cobotta_descriptions/cobotta_description/J6.dae
++++ b/denso_cobotta_descriptions/cobotta_description/J6.dae
+@@ -3,7 +3,7 @@
+ 	<asset>
+ 		<contributor>
+ 			<author>DENSO WAVE</author>
+-			<comments/>
++			<comments></comments>
+ 		</contributor>
+ 		<unit/>
+ 		<up_axis>Y_UP</up_axis>
+diff --git a/denso_cobotta_descriptions/cobotta_description/base_link.dae b/denso_cobotta_descriptions/cobotta_description/base_link.dae
+index 41e3cad..16fd731 100644
+--- a/denso_cobotta_descriptions/cobotta_description/base_link.dae
++++ b/denso_cobotta_descriptions/cobotta_description/base_link.dae
+@@ -3,7 +3,7 @@
+ 	<asset>
+ 		<contributor>
+ 			<author>DENSO WAVE</author>
+-			<comments/>
++			<comments></comments>
+ 		</contributor>
+ 		<unit/>
+ 		<up_axis>Y_UP</up_axis>

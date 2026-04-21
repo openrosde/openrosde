@@ -64,6 +64,9 @@ sleep 5;
 echo Done
 "'
     ;;
+  cobotta)
+    echo "COBOTTA robot bringup is not yet configured. Please start the robot manually."
+    ;;
   *)
     echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No bringup commands available."
     ;;

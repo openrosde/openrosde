@@ -34,6 +34,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `ur5e-devel/`: UR5e platform image.
   - `fetch-devel/`: Fetch platform image.
   - `sciurus17-devel/`: Sciurus17 platform image.
+  - `cobotta-devel/`: COBOTTA platform image.
   - `docker-compose.yaml`: Base service definitions.
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
@@ -41,19 +42,21 @@ It provides a containerized, multi-platform development environment based on Doc
   - `docker-compose-ur5e.yaml`: UR5e platform overlay.
   - `docker-compose-fetch.yaml`: Fetch platform overlay.
   - `docker-compose-sciurus17.yaml`: Sciurus17 platform overlay.
+  - `docker-compose-cobotta.yaml`: COBOTTA platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
   - `ur5e_catkin_ws/`: UR5e workspace.
   - `fetch_catkin_ws/`: Fetch workspace.
   - `sciurus17_catkin_ws/`: Sciurus17 workspace.
+  - `cobotta_catkin_ws/`: COBOTTA workspace.
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
-- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`).
+- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`).
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
-  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`).
-- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`).
+  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`).
+- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline scripts.
 
 ## Agent Persona
@@ -68,7 +71,7 @@ You have expertise in Docker, ROS, Bash scripting, and Linux system administrati
 The SDE supports multiple robot platforms through a single codebase controlled by the `SDE_ROBOT_PLATFORM` variable in `.env`:
 
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
-- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`) extend the base with robot-specific packages.
+- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`, `cobotta-devel`) extend the base with robot-specific packages.
 - Two Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`) then platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`).
 - All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
 
@@ -277,6 +280,13 @@ Current submodules:
 - UR5e (`ur5e_catkin_ws`): `onrobot`, `roboticsgroup_upatras_gazebo_plugins`.
 - Fetch (`fetch_catkin_ws`): `fetch_gazebo` (branch `gazebo11`, provides `fetch_gazebo` and `fetch_gazebo_demo`).
 - Sciurus17 (`sciurus17_catkin_ws`): `sciurus17_ros` (branch `master`, ROS 1), `sciurus17_description` (branch `main`, dependency package used by ROS 1 setup).
+- COBOTTA (`cobotta_catkin_ws`): `denso_cobotta_ros` (branch `melodic-devel`, the most up-to-date branch — 2 commits ahead of `master`, latest release v1.2.4).
+
+Current patches:
+- `patches/ros/sde_catkin_ws/src/flexbe_app/0001-fix-curl-redirect.patch`: Fixes a broken curl redirect in the FlexBE app.
+- `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0001-fix-comments-collada.patch`: Expands self-closing `<comments/>` to `<comments></comments>` in 6 Collada mesh files (`base_link.dae`, `J1.dae`–`J3.dae`, `J5.dae`, `J6.dae`) to fix an RViz/Assimp parse error ("Expected end of `<comments>` element").
+- `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0002-fix-gripper-pid-gain.patch`: Uncomments the `joint_gripper` PID gain entry in `gazebo_cobotta_control.yaml` to eliminate a `gazebo_ros_control` error when spawning the robot with `gripper_type:=parallel` in Gazebo.
+- `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0003-fix-blender-mesh-materials.patch`: Sets `ambient` to `0.5 0.5 0.5 1` and `emission` to `0.04 0.04 0.04 1` in 6 Blender-exported Collada mesh files (`J4.dae`, `gripper_base.dae`, `left_finger.dae`, `right_finger.dae`, `pad.dae`, `vacuum.dae`) to fix black rendering under OGRE/Mesa caused by explicit `ambient: 0 0 0 1`.
 
 ## Build Commands
 

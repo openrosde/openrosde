@@ -196,6 +196,9 @@ case "${SDE_ROBOT_PLATFORM}" in
   sciurus17)
     SDE_LAUNCH_PACKAGE=sde_sciurus17_launch
     ;;
+  cobotta)
+    SDE_LAUNCH_PACKAGE=sde_cobotta_launch
+    ;;
 esac
 
 export SDE_LAUNCH_PACKAGE

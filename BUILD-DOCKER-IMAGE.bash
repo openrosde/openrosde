@@ -35,7 +35,7 @@ docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coaro
 # When passing the 'gitlab-ci' argument, build all platform-specific images without cached data.
 if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
-  for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17; do
+  for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17 cobotta; do
     export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
     export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
     echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."
