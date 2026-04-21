@@ -60,15 +60,8 @@ export DISABLE_ROS1_EOL_WARNINGS=1
 echo "Sourcing the ROS distribution from '/opt/ros/noetic/setup.bash'."
 source /opt/ros/noetic/setup.bash
 
-# Source the shared Catkin workspace.
-echo "Sourcing the shared Catkin workspace from '${SDE_SHARED_CATKIN_WS}/devel/setup.bash'."
-if [ -f ${SDE_SHARED_CATKIN_WS}/devel/setup.bash ]; then
-  source ${SDE_SHARED_CATKIN_WS}/devel/setup.bash
-fi
-
-# Source the platform-specific Catkin workspace.
-echo "Sourcing the platform Catkin workspace from '${SDE_ROBOT_PLATFORM_CATKIN_WS}/devel/setup.bash'."
-source ${SDE_ROBOT_PLATFORM_CATKIN_WS}/devel/setup.bash
+# Source the Catkin workspaces.
+source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/source-catkin-workspaces.bash
 
 ################################################################################
 
@@ -78,6 +71,13 @@ export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_R
 ################################################################################
 
 # Define Bash functions to conveniently execute the helper scripts in the current shell process.
+
+function sde-source-catkin-workspaces () {
+  # Store the current directory and execute scripts in the current shell process.
+  pushd .
+  source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/source-catkin-workspaces.bash
+  popd
+}
 
 function sde-build-catkin-workspaces () {
   # Store the current directory and execute scripts in the current shell process.
@@ -110,7 +110,7 @@ function sde-download-model-data () {
   popd
 }
 
-function sde-get-fully-started () {
+function sde-initialize-new-container () {
   # Store the current directory and execute scripts in the current shell process.
   pushd .
   source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/download-model-data.bash

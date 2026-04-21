@@ -22,5 +22,5 @@ source ${SDE_SHARED_CATKIN_WS}/devel/setup.bash
 # Build the platform-specific Catkin workspace.
 cd ${SDE_ROBOT_PLATFORM_CATKIN_WS} && catkin build
 
-# Source the platform-specific Catkin workspace.
-source ${SDE_ROBOT_PLATFORM_CATKIN_WS}/devel/setup.bash
+# Source both Catkin workspaces.
+source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/source-catkin-workspaces.bash

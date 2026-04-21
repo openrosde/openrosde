@@ -125,7 +125,7 @@ Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu 
 2. Configure the freshly built Docker container by executing the following Bash function inside it:
 
     ```shell
-    sde-get-fully-started
+    sde-initialize-new-container
     ```
 
     This function calls several scripts to download the required datasets and build the ROS environment (= Catkin workspace) inside the Docker container.
@@ -147,6 +147,6 @@ Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu 
 > Be careful if you need to modify `docker-compose.yaml`, `docker-compose-nvidia.yaml`, or `docker-compose-wsl.yaml` as the container will be recreated from scratch the next time you run `RUN-DOCKER-CONTAINER.bash`.
 
 > [!NOTE]
-> Note that the Bash function `sde-get-fully-started` should be used only once after instantiating a new container from the Docker image.
+> Note that the Bash function `sde-initialize-new-container` should be used only once after instantiating a new container from the Docker image.
 
 For advanced features and Docker configuration details, refer to the [Advanced Usage](advanced-usage.md) guide.

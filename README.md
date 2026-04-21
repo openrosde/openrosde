@@ -123,7 +123,13 @@ flowchart TD
 5. Inside the container, initialize the environment:
 
     ```shell
-    sde-get-fully-started
+    sde-initialize-new-container
+    ```
+
+6. Exit the container (`Ctrl+d`) and launch the multi-terminal layout from the Ubuntu development machine:
+
+    ```shell
+    bash ./RUN-TERMINATOR-TERMINAL.bash
     ```
 
 For detailed instructions, see the [Basic Usage](docs/basic-usage.md) guide.
