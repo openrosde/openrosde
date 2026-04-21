@@ -282,6 +282,10 @@ Current submodules:
 - Sciurus17 (`sciurus17_catkin_ws`): `sciurus17_ros` (branch `master`, ROS 1), `sciurus17_description` (branch `main`, dependency package used by ROS 1 setup).
 - COBOTTA (`cobotta_catkin_ws`): `denso_cobotta_ros` (branch `melodic-devel`, the most up-to-date branch — 2 commits ahead of `master`, latest release v1.2.4).
 
+Current patches:
+- `patches/ros/sde_catkin_ws/src/flexbe_app/0001-fix-curl-redirect.patch`: Fixes a broken curl redirect in the FlexBE app.
+- `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0001-fix-comments-collada.patch`: Expands self-closing `<comments/>` to `<comments></comments>` in 6 Collada mesh files (`base_link.dae`, `J1.dae`–`J3.dae`, `J5.dae`, `J6.dae`) to fix an RViz/Assimp parse error ("Expected end of `<comments>` element").
+
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
