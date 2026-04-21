@@ -3,8 +3,7 @@
 <launch>
 
   <!-- "gripper_type": Select from none/parallel/vacuum. -->
-  <!-- Note: Use 'none' to match the Gazebo bringup (cobotta_bringup_default_gazebo.launch). -->
-  <arg name="gripper_type" default="none" />
+  <arg name="gripper_type" default="parallel" />
 
   <!-- Load the MoveIt planning context. -->
   <!-- Note: 'load_robot_description' is false because 'denso_cobotta_gazebo.launch' already loads it. -->
@@ -14,9 +13,11 @@
   </include>
 
   <!-- Launch MoveIt move_group. -->
+  <!-- Note: 'gripper_type' is 'none' to use the arm-only controller config in Gazebo. -->
+  <!-- The gripper action server (cobotta/gripper_action) is only available on the real robot. -->
   <include file="$(find denso_cobotta_moveit_config)/launch/move_group.launch">
     <arg name="publish_monitored_planning_scene" value="true" />
-    <arg name="gripper_type" value="$(arg gripper_type)" />
+    <arg name="gripper_type" value="none" />
   </include>
 
 </launch>

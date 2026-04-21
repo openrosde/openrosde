@@ -3,8 +3,7 @@
 <launch>
 
   <!-- "gripper_type": Select from none/parallel/vacuum. -->
-  <!-- Note: Use 'none' for Gazebo simulation (no physical gripper required). -->
-  <arg name="gripper_type" default="none" />
+  <arg name="gripper_type" default="parallel" />
 
   <!-- Set the gripper type as a parameter in the '/cobotta' namespace. -->
   <group ns="/cobotta">

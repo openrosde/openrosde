@@ -285,6 +285,8 @@ Current submodules:
 Current patches:
 - `patches/ros/sde_catkin_ws/src/flexbe_app/0001-fix-curl-redirect.patch`: Fixes a broken curl redirect in the FlexBE app.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0001-fix-comments-collada.patch`: Expands self-closing `<comments/>` to `<comments></comments>` in 6 Collada mesh files (`base_link.dae`, `J1.dae`–`J3.dae`, `J5.dae`, `J6.dae`) to fix an RViz/Assimp parse error ("Expected end of `<comments>` element").
+- `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0002-fix-gripper-pid-gain.patch`: Uncomments the `joint_gripper` PID gain entry in `gazebo_cobotta_control.yaml` to eliminate a `gazebo_ros_control` error when spawning the robot with `gripper_type:=parallel` in Gazebo.
+- `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0003-fix-blender-mesh-materials.patch`: Sets `ambient` to `0.5 0.5 0.5 1` and `emission` to `0.04 0.04 0.04 1` in 6 Blender-exported Collada mesh files (`J4.dae`, `gripper_base.dae`, `left_finger.dae`, `right_finger.dae`, `pad.dae`, `vacuum.dae`) to fix black rendering under OGRE/Mesa caused by explicit `ambient: 0 0 0 1`.
 
 ## Build Commands
 

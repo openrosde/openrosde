@@ -1,0 +1,108 @@
+diff --git a/denso_cobotta_descriptions/cobotta_description/J4.dae b/denso_cobotta_descriptions/cobotta_description/J4.dae
+index 1b94311..03e469d 100644
+--- a/denso_cobotta_descriptions/cobotta_description/J4.dae
++++ b/denso_cobotta_descriptions/cobotta_description/J4.dae
+@@ -108,10 +108,10 @@
+         <technique sid="common">
+           <phong>
+             <emission>
+-              <color sid="emission">0 0 0 1</color>
++              <color sid="emission">0.04 0.04 0.04 1</color>
+             </emission>
+             <ambient>
+-              <color sid="ambient">0 0 0 1</color>
++              <color sid="ambient">0.5 0.5 0.5 1</color>
+             </ambient>
+             <diffuse>
+               <color sid="diffuse">1 1 1 1</color>
+diff --git a/denso_cobotta_descriptions/cobotta_description/gripper_base.dae b/denso_cobotta_descriptions/cobotta_description/gripper_base.dae
+index 04f796a..a8e3bc7 100644
+--- a/denso_cobotta_descriptions/cobotta_description/gripper_base.dae
++++ b/denso_cobotta_descriptions/cobotta_description/gripper_base.dae
+@@ -111,7 +111,7 @@
+               <color sid="emission">0.04 0.04 0.04 1</color>
+             </emission>
+             <ambient>
+-              <color sid="ambient">0 0 0 1</color>
++              <color sid="ambient">0.5 0.5 0.5 1</color>
+             </ambient>
+             <diffuse>
+               <color sid="diffuse">1 1 1 1</color>
+@@ -137,7 +137,7 @@
+               <color sid="emission">0.04 0.04 0.04 1</color>
+             </emission>
+             <ambient>
+-              <color sid="ambient">0 0 0 1</color>
++              <color sid="ambient">0.5 0.5 0.5 1</color>
+             </ambient>
+             <diffuse>
+               <color sid="diffuse">1 1 1 1</color>
+diff --git a/denso_cobotta_descriptions/cobotta_description/left_finger.dae b/denso_cobotta_descriptions/cobotta_description/left_finger.dae
+index d655bee..7e9cb20 100644
+--- a/denso_cobotta_descriptions/cobotta_description/left_finger.dae
++++ b/denso_cobotta_descriptions/cobotta_description/left_finger.dae
+@@ -108,10 +108,10 @@
+         <technique sid="common">
+           <phong>
+             <emission>
+-              <color sid="emission">0 0 0 1</color>
++              <color sid="emission">0.04 0.04 0.04 1</color>
+             </emission>
+             <ambient>
+-              <color sid="ambient">0 0 0 1</color>
++              <color sid="ambient">0.5 0.5 0.5 1</color>
+             </ambient>
+             <diffuse>
+               <color sid="diffuse">1 1 1 1</color>
+diff --git a/denso_cobotta_descriptions/cobotta_description/pad.dae b/denso_cobotta_descriptions/cobotta_description/pad.dae
+index 4d53dd6..fd574ac 100644
+--- a/denso_cobotta_descriptions/cobotta_description/pad.dae
++++ b/denso_cobotta_descriptions/cobotta_description/pad.dae
+@@ -111,7 +111,7 @@
+               <color sid="emission">0.023529 0.023529 0.023529 1</color>
+             </emission>
+             <ambient>
+-              <color sid="ambient">0 0 0 1</color>
++              <color sid="ambient">0.5 0.5 0.5 1</color>
+             </ambient>
+             <diffuse>
+               <color sid="diffuse">0.752941 0.752941 0.752941 1</color>
+diff --git a/denso_cobotta_descriptions/cobotta_description/right_finger.dae b/denso_cobotta_descriptions/cobotta_description/right_finger.dae
+index 372d50e..7978b9b 100644
+--- a/denso_cobotta_descriptions/cobotta_description/right_finger.dae
++++ b/denso_cobotta_descriptions/cobotta_description/right_finger.dae
+@@ -108,10 +108,10 @@
+         <technique sid="common">
+           <phong>
+             <emission>
+-              <color sid="emission">0 0 0 1</color>
++              <color sid="emission">0.04 0.04 0.04 1</color>
+             </emission>
+             <ambient>
+-              <color sid="ambient">0 0 0 1</color>
++              <color sid="ambient">0.5 0.5 0.5 1</color>
+             </ambient>
+             <diffuse>
+               <color sid="diffuse">1 1 1 1</color>
+diff --git a/denso_cobotta_descriptions/cobotta_description/vacuum.dae b/denso_cobotta_descriptions/cobotta_description/vacuum.dae
+index d3d13bc..43f6484 100644
+--- a/denso_cobotta_descriptions/cobotta_description/vacuum.dae
++++ b/denso_cobotta_descriptions/cobotta_description/vacuum.dae
+@@ -111,7 +111,7 @@
+               <color sid="emission">0.04 0.04 0.04 1</color>
+             </emission>
+             <ambient>
+-              <color sid="ambient">0 0 0 1</color>
++              <color sid="ambient">0.5 0.5 0.5 1</color>
+             </ambient>
+             <diffuse>
+               <color sid="diffuse">1 1 1 1</color>
+@@ -137,7 +137,7 @@
+               <color sid="emission">0.04 0.04 0.04 1</color>
+             </emission>
+             <ambient>
+-              <color sid="ambient">0 0 0 1</color>
++              <color sid="ambient">0.5 0.5 0.5 1</color>
+             </ambient>
+             <diffuse>
+               <color sid="diffuse">1 1 1 1</color>
