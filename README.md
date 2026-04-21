@@ -27,9 +27,10 @@ Open-source reference implementation of the Software Development Environment (SD
 
 | Platform | Robot | Documentation |
 | --- | --- | --- |
-| `turtlebot3` | Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/robot-platforms/turtlebot3.md](docs/robot-platforms/turtlebot3.md) |
+| `turtlebot3` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/robot-platforms/turtlebot3.md](docs/robot-platforms/turtlebot3.md) |
 | `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) |
 | `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [docs/robot-platforms/fetch.md](docs/robot-platforms/fetch.md) |
+| `sciurus17` | [RT Sciurus17](https://rt-net.jp/products/sciurus17/) | [docs/robot-platforms/sciurus17.md](docs/robot-platforms/sciurus17.md) |
 
 ## 💻 Supported Software Platforms
 
@@ -60,12 +61,14 @@ flowchart TD
 
     subgraph images["Docker images"]
         base["'sde-base'<br/>(Ubuntu 20.04, ROS Noetic,<br/>Gazebo, FlexBE, etc.)"]
-        tb3["'turtlebot3-devel'"]
+        turtlebot3["'turtlebot3-devel'"]
         ur5e["'ur5e-devel'"]
-        base --> tb3
+        base --> turtlebot3
         base --> ur5e
         fetch["'fetch-devel'"]
         base --> fetch
+        sciurus17["'sciurus17-devel'"]
+        base --> sciurus17
     end
 
     subgraph container["Docker container"]
@@ -131,6 +134,7 @@ env/
   turtlebot3.env                         # TurtleBot3 platform template.
   ur5e.env                               # UR5e platform template.
   fetch.env                              # Fetch platform template.
+  sciurus17.env                          # Sciurus17 platform template.
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
 RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.
@@ -145,6 +149,7 @@ docker/
   docker-compose-turtlebot3.yaml         # TurtleBot3 platform overlay.
   docker-compose-ur5e.yaml               # UR5e platform overlay.
   docker-compose-fetch.yaml              # Fetch platform overlay.
+  docker-compose-sciurus17.yaml          # Sciurus17 platform overlay.
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
   sde-base/                              # Shared base Docker image.
@@ -156,11 +161,14 @@ docker/
     Dockerfile
   fetch-devel/                           # Fetch platform image.
     Dockerfile
+  sciurus17-devel/                       # Sciurus17 platform image.
+    Dockerfile
 ros/
   sde_catkin_ws/                         # Shared Catkin workspace.
   turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
   ur5e_catkin_ws/                        # UR5e Catkin workspace.
   fetch_catkin_ws/                       # Fetch Catkin workspace.
+  sciurus17_catkin_ws/                   # Sciurus17 Catkin workspace.
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md
@@ -168,10 +176,12 @@ docs/                                    # Documentation.
     turtlebot3.md
     ur5e.md
     fetch.md
+    sciurus17.md
 terminator/
   turtlebot3.config                      # TurtleBot3 Terminator layout.
   ur5e.config                            # UR5e Terminator layout.
   fetch.config                           # Fetch Terminator layout.
+  sciurus17.config                       # Sciurus17 Terminator layout.
 patches/                                 # Submodule patch files.
 gitlab-ci/                               # GitLab CI/CD scripts.
 ```
@@ -185,6 +195,7 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 | [Robot Platforms / TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
 | [Robot Platforms / UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
 | [Robot Platforms / Fetch](docs/robot-platforms/fetch.md) | Fetch Robotics Fetch robot configuration, installation, and operation |
+| [Robot Platforms / Sciurus17](docs/robot-platforms/sciurus17.md) | RT Sciurus17 robot configuration, installation, and operation |
 
 ## 📄 Related Publications
 

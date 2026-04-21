@@ -33,24 +33,27 @@ It provides a containerized, multi-platform development environment based on Doc
   - `turtlebot3-devel/`: TurtleBot3 platform image.
   - `ur5e-devel/`: UR5e platform image.
   - `fetch-devel/`: Fetch platform image.
+  - `sciurus17-devel/`: Sciurus17 platform image.
   - `docker-compose.yaml`: Base service definitions.
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
   - `docker-compose-turtlebot3.yaml`: TurtleBot3 platform overlay.
   - `docker-compose-ur5e.yaml`: UR5e platform overlay.
   - `docker-compose-fetch.yaml`: Fetch platform overlay.
+  - `docker-compose-sciurus17.yaml`: Sciurus17 platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
   - `ur5e_catkin_ws/`: UR5e workspace.
   - `fetch_catkin_ws/`: Fetch workspace.
+  - `sciurus17_catkin_ws/`: Sciurus17 workspace.
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
-- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`).
+- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`).
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
-  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`).
-- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`).
+  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`).
+- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline scripts.
 
 ## Agent Persona
@@ -65,7 +68,7 @@ You have expertise in Docker, ROS, Bash scripting, and Linux system administrati
 The SDE supports multiple robot platforms through a single codebase controlled by the `SDE_ROBOT_PLATFORM` variable in `.env`:
 
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
-- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`) extend the base with robot-specific packages.
+- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`) extend the base with robot-specific packages.
 - Two Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`) then platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`).
 - All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
 
@@ -273,6 +276,7 @@ Current submodules:
 - Shared (`sde_catkin_ws`): `flexbe_behavior_engine`, `flexbe_app`, `flexbe_generic_states`.
 - UR5e (`ur5e_catkin_ws`): `onrobot`, `roboticsgroup_upatras_gazebo_plugins`.
 - Fetch (`fetch_catkin_ws`): `fetch_gazebo` (branch `gazebo11`, provides `fetch_gazebo` and `fetch_gazebo_demo`).
+- Sciurus17 (`sciurus17_catkin_ws`): `sciurus17_ros` (branch `master`, ROS 1), `sciurus17_description` (branch `main`, dependency package used by ROS 1 setup).
 
 ## Build Commands
 

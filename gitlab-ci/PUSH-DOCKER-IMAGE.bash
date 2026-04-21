@@ -33,7 +33,7 @@ fi
 ################################################################################
 
 # Tag and push all platform-specific images, skipping those whose commit hash already exists on the registry.
-for SDE_PLATFORM in turtlebot3 ur5e fetch; do
+for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17; do
   SDE_PLATFORM_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_PLATFORM}-devel/Dockerfile)"
   SDE_PLATFORM_REGISTRY_TAG="registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:${SDE_PLATFORM_COMMIT_SHORT_SHA}"
   if docker manifest inspect ${SDE_PLATFORM_REGISTRY_TAG} > /dev/null 2>&1; then

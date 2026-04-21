@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/rt-net/sciurus17_ros -->
+
+  <arg name="rviz_file" default="$(find sciurus17_moveit_config)/launch/moveit.rviz" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_file)" />
+
+</launch>

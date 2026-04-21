@@ -56,6 +56,24 @@ chronyc sources;
 
     echo "Chrony service restarted on the robot machine."
     ;;
+  sciurus17)
+    SDE_ROBOT_USER="sciurus"
+    SDE_ROBOT_PASSWORD="sciurus"
+
+    echo "Connecting to the robot machine at ${SDE_ROBOT_USER}@${SDE_ROBOT_HOSTNAME} via SSH (password required: ${SDE_ROBOT_PASSWORD})..."
+
+    ssh -t -l ${SDE_ROBOT_USER} ${SDE_ROBOT_HOSTNAME} 'bash -l -c "
+echo \"Restarting the Chrony service on the robot machine (password required: '${SDE_ROBOT_PASSWORD}')...\";
+sudo service chrony restart;
+echo \"Waiting for 5 seconds to ensure the Chrony service restarts...\";
+sleep 5;
+echo \"Checking Chrony service status...\";
+sudo systemctl status --no-pager chrony;
+chronyc sources;
+"'
+
+    echo "Chrony service restarted on the robot machine."
+    ;;
   *)
     echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No robot Chrony restart commands available."
     ;;
