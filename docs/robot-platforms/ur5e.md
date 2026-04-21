@@ -9,7 +9,7 @@ Platform-specific documentation for the [Universal Robots UR5e](https://www.univ
 - Universal Robots ROS Driver: [https://github.com/UniversalRobots/Universal_Robots_ROS_Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)
 - ROS Industrial Universal Robot: [https://github.com/ros-industrial/universal_robot](https://github.com/ros-industrial/universal_robot)
 - Osaka University Harada Laboratory OnRobot ROS: [https://github.com/UOsaka-Harada-Laboratory/onrobot](https://github.com/UOsaka-Harada-Laboratory/onrobot)
-- Intel RealSense ROS: [https://github.com/IntelRealSense/realsense-ros](https://github.com/IntelRealSense/realsense-ros)
+- Intel RealSense ROS: [https://github.com/realsenseai/realsense-ros](https://github.com/realsenseai/realsense-ros)
 - ROS SpaceNavigator: [https://wiki.ros.org/spacenav_node](https://wiki.ros.org/spacenav_node)
 - PickNik Robotics UR5 RealSense Camera Adapter: [https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1)
 

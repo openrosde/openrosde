@@ -2,7 +2,7 @@
 
 <launch>
 
-  <!-- https://github.com/IntelRealSense/realsense-ros -->
+  <!-- https://github.com/realsenseai/realsense-ros -->
 
   <arg name="filters" default="pointcloud" />
 

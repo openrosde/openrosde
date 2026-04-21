@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ################################################################################
 
 # Install the Intel RealSense cameras ROS dependencies.
-# https://github.com/IntelRealSense/realsense-ros
+# https://github.com/realsenseai/realsense-ros
 
 # Gather the Intel RealSense camera packages from the ROS repositories.
 RUN apt-get update && apt-get install -y --no-install-recommends \
