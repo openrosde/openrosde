@@ -3,9 +3,10 @@
 <launch>
 
   <!-- https://github.com/rt-net/sciurus17_ros -->
+  <!-- Upstream default: $(find sciurus17_moveit_config)/launch/moveit.rviz -->
 
-  <arg name="rviz_file" default="$(find sciurus17_moveit_config)/launch/moveit.rviz" />
+  <arg name="rviz_file" default="$(find sde_sciurus17_launch)/config/rviz/sciurus17_rviz_default.rviz" />
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz_file)" />
+  <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(arg rviz_file)" />
 
 </launch>

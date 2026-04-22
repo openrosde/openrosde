@@ -11,25 +11,27 @@ The Gazebo teleoperation wrappers in this package are:
 
 - `ur5e_bringup_default_gazebo.launch`
 - `ur5e_moveit_default_gazebo.launch`
+- `ur5e_rviz_default_gazebo.launch`
 - `onrobot_rg_control_default_gazebo.launch`
-- `coarobo_ur5e_teleop_default_gazebo.launch`
+- `ur5e_teleop_default_gazebo.launch`
 
 Recommended startup order:
 
 ```shell
 roslaunch sde_ur5e_launch ur5e_bringup_default_gazebo.launch
 roslaunch sde_ur5e_launch ur5e_moveit_default_gazebo.launch
+roslaunch sde_ur5e_launch ur5e_rviz_default_gazebo.launch
 roslaunch sde_ur5e_launch onrobot_rg_control_default_gazebo.launch
-roslaunch sde_ur5e_launch coarobo_ur5e_teleop_default_gazebo.launch
+roslaunch sde_ur5e_launch ur5e_teleop_default_gazebo.launch
 ```
 
 Notes:
 
-- `coarobo_ur5e_teleop_default_gazebo.launch` wraps the package-local teleop stack from `coarobo_teleop`.
-- `ur5e_bringup_default_gazebo.launch` spawns a Universal Robots UR5e model with the OnRobot RG2 gripper attached in Gazebo.
-- `ur5e_bringup_default_gazebo.launch` starts the robot in the MoveIt `home` joint configuration by default.
+- `ur5e_teleop_default_gazebo.launch` wraps the `sde_ur5e_teleop` teleop stack.
+- `ur5e_bringup_default_gazebo.launch` spawns a Universal Robots UR5e model with the OnRobot RG2 gripper, the Intel RealSense D435i camera adapter, and the OnRobot Quick Changer in Gazebo.
+- `ur5e_bringup_default_gazebo.launch` also loads the MoveIt SRDF and kinematics config so RViz works independently of `move_group`.
 - The Gazebo teleop wrapper uses `flange` for the end-effector and operator command frame so the 3Dconnexion SpaceMouse feel stays aligned with the real-world teleop setup.
-- The Gazebo teleop wrapper keeps the same user-facing parameters as the package-local `coarobo_teleop` teleop launch and only overrides the internal controller topics and controller-management settings needed for simulation.
+- The Gazebo teleop wrapper keeps the same user-facing parameters as the `sde_ur5e_teleop` teleop launch and only overrides the internal controller topics and controller-management settings needed for simulation.
 - Both the real-world and Gazebo teleop wrappers expose `reverse_for_front_view:=true` to flip the planar and tilt controls when operating from in front of the robot.
 - Gazebo teleoperation is still experimental.
 - The Gazebo trajectory path targets `eff_joint_traj_controller`, which is the controller spawned by the installed `ur_gazebo` Universal Robots UR5e bringup.
@@ -50,15 +52,17 @@ Recommended startup order:
 roslaunch sde_ur5e_launch ur5e_bringup_default_realworld.launch
 roslaunch sde_ur5e_launch ur5e_moveit_default_realworld.launch
 roslaunch sde_ur5e_launch ur5e_rviz_default_realworld.launch
-roslaunch sde_ur5e_launch ur5e_realsense_default_realworld.launch
+roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch
 roslaunch sde_ur5e_launch onrobot_rg_control_default_realworld.launch
-roslaunch sde_ur5e_launch coarobo_ur5e_teleop_default_realworld.launch
+roslaunch sde_ur5e_launch ur5e_teleop_default_realworld.launch
 ```
 
 Notes:
 
 - `ur5e_bringup_default_realworld.launch` starts the Universal Robots UR5e driver in headless mode by default.
   Pass `headless_mode:=false` for teach pendant mode (see the platform documentation for details).
+- `ur5e_bringup_default_realworld.launch` loads the SDE SRDF and kinematics config so RViz (with the MoveIt plugin) works independently of `move_group`.
+- `ur5e_bringup_default_realworld.launch` starts `publish-gripper-joint-states.py`, which reads live gripper width from `/OnRobotRGInput` and publishes all OnRobot RG2 joint states to `/joint_states` so `robot_state_publisher` can compute TF for all gripper links and animate the gripper in RViz.
 - Both the real-world and Gazebo teleop wrappers expose `reverse_for_front_view:=true` to flip the planar and tilt controls when operating from in front of the robot.
 
 To start the same real robot stack in the predefined Terminator layout:
@@ -77,8 +81,9 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `ur5e_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `ur5e_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
 | `ur5e_rviz_default_realworld.launch` | RViz visualization (real robot) |
-| `ur5e_realsense_default_realworld.launch` | Intel RealSense D435i camera (real robot) |
+| `realsense_camera_default_realworld.launch` | Intel RealSense D435i camera (real robot) |
+| `ur5e_description_default_realworld.launch` | Robot description adapter for the UR5e driver (real robot) |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper control (Gazebo) |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper control (real robot) |
-| `coarobo_ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceMouse teleoperation (Gazebo) |
-| `coarobo_ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceMouse teleoperation (real robot) |
+| `ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceMouse teleoperation (Gazebo) |
+| `ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceMouse teleoperation (real robot) |

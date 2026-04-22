@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/realsenseai/realsense-ros -->
+  <!-- Upstream default: $(find realsense2_camera)/launch/rs_camera.launch -->
+
+  <arg name="filters" default="pointcloud" />
+
+  <!-- Use 'wrist_camera' to match the camera frame names in the URDF (wrist_camera_*_optical_frame). -->
+  <!-- Disable TF publishing from the driver since 'robot_state_publisher' already provides -->
+  <!-- the static camera-to-'base_link' transform from the URDF. -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="filters" value="$(arg filters)" />
+    <arg name="camera" value="wrist_camera" />
+    <arg name="tf_publish_rate" value="0" />
+  </include>
+
+</launch>

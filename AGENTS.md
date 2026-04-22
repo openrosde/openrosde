@@ -104,6 +104,15 @@ Layout names follow the pattern: `sde-<platform>-term-11-<variant>-<environment>
 `RUN-TERMINATOR-TERMINAL.bash` pre-starts the Docker container with `--no-exec` before launching Terminator to avoid race conditions from multiple panes running `RUN-DOCKER-CONTAINER.bash` simultaneously.
 The `sed` command injects `${SDE_DOCKER_PROJECT}` into the config, producing a `.config.tmp` file that is git-ignored.
 
+All platform configs share an identical 15-terminal tree structure.
+The bottom-left 4 terminals are standardized across all platforms and both environments:
+- `terminal6` (Number: 4): bringup launch (or empty if no realworld bringup exists, e.g., TurtleBot3 realworld and Sciurus17 realworld).
+- `terminal7` (Number: 5): RViz launch.
+- `terminal9` (Number: 6): MoveIt (or navigation, depending on platform).
+- `terminal10` (Number: 7): FlexBE app (`sde_launch:flexbe_app_default.launch`), on all platforms and in both gazebo and realworld layouts.
+The top-right pair (`terminal13` / `terminal14`, Numbers: 2 / 3) is used for platform-specific secondary launches (e.g., gripper control, teleop, mapping).
+Spare terminals (`terminal18`–`terminal29`, Numbers: 8–15) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 14 in the UR5e realworld layout).
+
 ### Variable Naming Convention
 
 All custom environment variables use the `SDE_` prefix. Examples:
@@ -210,23 +219,31 @@ Formatting conventions:
 - Use `value=` for `<arg>` tags inside `<include>` blocks (passing values to included files).
 - For multi-line element attributes, place continuation attributes on the next line indented by 2 extra spaces (4 total from parent).
 - Group related `<arg>` declarations together, separated by blank lines from other groups or elements.
+- Use single quotes `' '` around code-related names in `<!-- -->` comments (e.g., `<!-- Start 'robot_state_publisher'. -->`, `<!-- Load 'kinematics.yaml'. -->`). This mirrors the Bash comment convention.
+- Add a source comment block at the top of every launch file, immediately after `<launch>`, using this pattern:
+  - `<!-- https://github.com/<upstream-repo> -->` — URL of the upstream repository this file is based on or extends.
+  - `<!-- Upstream default: $(find <pkg>)/launch/<file>.launch -->` — path to the upstream launch file used as the starting point, when one exists.
+  - `<!-- SDE-specific: <one-line description> -->` — instead of the upstream line, when the file has no direct upstream counterpart.
+
+RViz launch files use an SDE-owned `.rviz` config file stored in `config/rviz/` within the `sde_<platform>_launch` package.
+These config files are copied from the upstream default and modified to add `Fullscreen: true` under `Window Geometry:`.
+All RViz launch nodes use `required="true"` so the layout closes when RViz exits.
 
 ### ROS Packages
 
-Custom ROS packages in this project follow these conventions:
+ROS packages (e.g., `sde_ur5e_teleop` in `ur5e_catkin_ws`) extend the standard launch-only pattern with Python nodes and config files.
+They follow the same `package.xml` and `README.md` conventions above, and additionally:
 
-- Naming: `sde_launch` for shared launch files (in `sde_catkin_ws`), `sde_<platform>_launch` for platform-specific launch files (in `<platform>_catkin_ws`).
-- `package.xml`: Use format 2 (`<package format="2">`), MIT license, `lotfi@coarobo.com` as maintainer/author email, `https://coarobo.com/SDE` as website URL, `https://gitlab.com/coarobo/SDE` as repository URL.
-- `CMakeLists.txt`: Minimal template for launch-only packages (no C++ or Python nodes): `cmake_minimum_required`, `find_package(catkin REQUIRED COMPONENTS)`, `catkin_package()`, `include_directories`.
-- `README.md`: Title (`# package_name`), one-line description, Maintainer/Author with `- ` list items, optional Gazebo section with recommended startup order and Terminator command, and a `## Launch Files` table listing all `.launch` files with descriptions.
-- Include a `.gitignore` file in every package (can be empty).
-
-Packages prefixed with `coarobo_` (e.g., `coarobo_teleop` in `ur5e_catkin_ws`) are proprietary Coarobo GK packages.
-They may contain Python nodes, config files, and URDF in addition to launch files.
-They follow the same `package.xml` and `README.md` conventions above, except:
-
-- License: `Copyright (c) <year> Coarobo GK` (proprietary, not MIT).
 - `CMakeLists.txt`: Includes `catkin_install_python` for Python node scripts.
+
+When a `sde_<platform>_launch` package itself needs Python helper nodes (e.g., a gripper joint-state publisher), it follows the same `sde_<platform>_teleop` extension pattern:
+
+- `scripts/`: Python node scripts (e.g., `publish-gripper-joint-states.py`).
+- `CMakeLists.txt`: Includes `catkin_install_python` for the scripts.
+- `package.xml`: Adds `rospy` and any message-package exec depends (e.g., `sensor_msgs`, `onrobot_rg_control`).
+- The `urdf/` folder holds SDE-owned xacro files that extend or replace the upstream robot URDF.
+- The `description/` folder holds third-party description fragments (meshes, xacros) vendored into the package.
+- A `<component>_description_default_<environment>.launch` adapter file is used when the upstream driver's `robot_description_file` arg requires a launch file that accepts a `kinematics_params` arg.
 
 ### Markdown (README & Documentation)
 
@@ -322,6 +339,9 @@ And update `<platform>` in every platform-aware file:
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
+  - Default behavior: pulls from registry or builds current platform with cache.
+  - `bash ./BUILD-DOCKER-IMAGE.bash local`: builds current platform with cache (fast iteration).
+  - `bash ./BUILD-DOCKER-IMAGE.bash gitlab-ci`: builds all platforms from scratch without cache (CI/CD).
 - Build Catkin workspaces (inside container): `sde-reset-catkin-workspaces` or `sde-build-catkin-workspaces`.
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.

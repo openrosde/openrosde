@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- SDE-specific launch: configures SpaceNavigator teleop for Gazebo. -->
+
+  <!-- Gazebo controller configuration. -->
+  <arg name="controller_mode" default="trajectory" />
+  <arg name="command_out_topic" default="$(eval '/joint_group_vel_controller/command' if arg('controller_mode') == 'velocity' else '/eff_joint_traj_controller/command')" />
+  <arg name="switch_controllers" default="false" />
+  <arg name="controllers_to_start" default="$(eval 'joint_group_vel_controller' if arg('controller_mode') == 'velocity' else 'eff_joint_traj_controller')" />
+  <arg name="controllers_to_stop" default="$(eval 'eff_joint_traj_controller' if arg('controller_mode') == 'velocity' else 'joint_group_eff_controller')" />
+
+  <!-- SpaceNavigator motion frame configuration. -->
+  <arg name="ee_frame_name" default="flange" />
+  <arg name="robot_link_command_frame" default="base_link" />
+  <arg name="frame_id" default="base_link" />
+
+  <!-- SpaceNavigator input scaling. -->
+  <arg name="require_enable_button" default="true" />
+  <arg name="reverse_for_front_view" default="true" />
+  <arg name="linear_x_scale" default="2.0" />
+  <arg name="linear_y_scale" default="2.0" />
+  <arg name="linear_z_scale" default="2.0" />
+  <arg name="angular_x_scale" default="4.0" />
+  <arg name="angular_y_scale" default="4.0" />
+  <arg name="angular_z_scale" default="4.0" />
+
+  <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop.launch">
+    <arg name="controller_mode" value="$(arg controller_mode)" />
+    <arg name="command_out_topic" value="$(arg command_out_topic)" />
+    <arg name="switch_controllers" value="$(arg switch_controllers)" />
+    <arg name="controllers_to_start" value="$(arg controllers_to_start)" />
+    <arg name="controllers_to_stop" value="$(arg controllers_to_stop)" />
+    <arg name="ee_frame_name" value="$(arg ee_frame_name)" />
+    <arg name="robot_link_command_frame" value="$(arg robot_link_command_frame)" />
+    <arg name="frame_id" value="$(arg frame_id)" />
+    <arg name="require_enable_button" value="$(arg require_enable_button)" />
+    <arg name="reverse_for_front_view" value="$(arg reverse_for_front_view)" />
+    <arg name="linear_x_scale" value="$(arg linear_x_scale)" />
+    <arg name="linear_y_scale" value="$(arg linear_y_scale)" />
+    <arg name="linear_z_scale" value="$(arg linear_z_scale)" />
+    <arg name="angular_x_scale" value="$(arg angular_x_scale)" />
+    <arg name="angular_y_scale" value="$(arg angular_y_scale)" />
+    <arg name="angular_z_scale" value="$(arg angular_z_scale)" />
+  </include>
+
+</launch>

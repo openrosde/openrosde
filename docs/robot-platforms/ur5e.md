@@ -148,7 +148,7 @@ You should be able to plan and execute motions from RViz.
 To start the Intel RealSense D435i camera stream with point cloud generation:
 
 ```shell
-roslaunch sde_ur5e_launch ur5e_realsense_default_realworld.launch
+roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch
 ```
 
 ### 🦾 OnRobot RG2 Gripper
@@ -189,8 +189,8 @@ The following launch files are available for the Universal Robots UR5e platform 
 | `ur5e_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `ur5e_rviz_default_realworld.launch` | RViz visualization (real robot) |
 | `ur5e_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
-| `ur5e_realsense_default_realworld.launch` | Intel RealSense D435i camera |
+| `realsense_camera_default_realworld.launch` | Intel RealSense D435i camera |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper via Modbus TCP |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper (Gazebo) |
-| `coarobo_ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceNavigator teleoperation (real robot) |
-| `coarobo_ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceNavigator teleoperation (Gazebo) |
+| `ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceNavigator teleoperation (real robot) |
+| `ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceNavigator teleoperation (Gazebo) |
