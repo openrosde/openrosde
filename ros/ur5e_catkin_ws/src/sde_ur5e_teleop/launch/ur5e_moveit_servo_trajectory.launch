@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/moveit/moveit/tree/master/moveit_ros/moveit_servo -->
+  <!-- SDE-specific launch: starts the 'moveit_servo' server in trajectory output mode. -->
+
   <arg name="planning_frame" default="base_link" />
   <arg name="ee_frame_name" default="flange" />
   <arg name="robot_link_command_frame" default="flange" />

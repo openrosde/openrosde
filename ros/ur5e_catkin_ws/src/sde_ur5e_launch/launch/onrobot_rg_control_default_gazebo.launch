@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/Osaka-University-Harada-Laboratory/onrobot -->
+  <!-- SDE-specific: simulates the OnRobot RG2 in Gazebo via a joint_position_controller. -->
+
   <arg name="service_name" default="/onrobot_rg/set_command" />
   <arg name="command_topic" default="/onrobot_rg2/joint_position_controller/command" />
   <arg name="gripper" default="rg2" />

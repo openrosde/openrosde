@@ -2,8 +2,8 @@
 
 <launch>
 
-  <!-- Called by ur_common.launch via the robot_description_file arg.
-       Accepts kinematics_params so the robot's calibration YAML is passed through. -->
+  <!-- SDE-specific adapter called by 'ur_robot_driver' via the 'robot_description_file' arg. -->
+  <!-- Accepts 'kinematics_params' so the robot calibration YAML is passed through to xacro. -->
   <arg name="kinematics_params" />
 
   <param name="robot_description"

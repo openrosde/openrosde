@@ -3,6 +3,7 @@
 <launch>
 
   <!-- https://github.com/UniversalRobots/Universal_Robots_ROS_Driver -->
+  <!-- Upstream default: $(find ur_robot_driver)/launch/ur5e_bringup.launch -->
 
   <arg name="robot_ip" default="$(optenv SDE_UR5E_TEACH_PENDANT_IP)" />
   <arg name="kinematics_config" default="$(find sde_ur5e_launch)/config/ur5e/robot_calibration_snXXXXXXXXXXX.yaml" />

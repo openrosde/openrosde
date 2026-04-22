@@ -3,6 +3,7 @@
 <launch>
 
   <!-- https://github.com/realsenseai/realsense-ros -->
+  <!-- Upstream default: $(find realsense2_camera)/launch/rs_camera.launch -->
 
   <arg name="filters" default="pointcloud" />
 

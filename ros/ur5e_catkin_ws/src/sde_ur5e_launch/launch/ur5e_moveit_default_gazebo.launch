@@ -3,8 +3,9 @@
 <launch>
 
   <!-- https://github.com/ros-industrial/universal_robot -->
+  <!-- Upstream default: $(find ur5e_moveit_config)/launch/moveit_planning_execution.launch -->
 
-  <arg name="sim" default="true" />
+  <!-- MoveIt 'move_group' arguments. -->
   <arg name="debug" default="false" />
   <arg name="info" default="$(arg debug)" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
@@ -22,8 +23,11 @@
   <arg name="capabilities" default="" />
   <arg name="disable_capabilities" default="" />
 
-  <remap if="$(arg sim)" from="/scaled_pos_joint_traj_controller/follow_joint_trajectory" to="/eff_joint_traj_controller/follow_joint_trajectory" />
+  <!-- Remap the MoveIt trajectory execution topic to the Gazebo effort controller. -->
+  <remap from="/scaled_pos_joint_traj_controller/follow_joint_trajectory"
+    to="/eff_joint_traj_controller/follow_joint_trajectory" />
 
+  <!-- Load the SRDF, joint limits, and kinematics config. -->
   <param name="robot_description_semantic" textfile="$(find sde_ur5e_launch)/config/ur5e/ur5e_gazebo.srdf" />
 
   <group ns="robot_description_planning">
@@ -34,6 +38,7 @@
     <rosparam command="load" file="$(find ur5e_moveit_config)/config/kinematics.yaml" />
   </group>
 
+  <!-- Configure and start 'move_group'. -->
   <include ns="move_group" file="$(find ur5e_moveit_config)/launch/planning_pipeline.launch.xml">
     <arg name="pipeline" value="$(arg pipeline)" />
   </include>

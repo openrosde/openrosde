@@ -3,8 +3,9 @@
 <launch>
 
   <!-- https://github.com/ros-industrial/universal_robot -->
+  <!-- Upstream default: $(find ur5e_moveit_config)/launch/moveit_planning_execution.launch -->
 
-  <arg name="sim" default="false" />
+  <!-- MoveIt 'move_group' arguments. -->
   <arg name="debug" default="false" />
   <arg name="info" default="$(arg debug)" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
@@ -22,7 +23,11 @@
   <arg name="capabilities" default="" />
   <arg name="disable_capabilities" default="" />
 
-  <!-- Use SDE SRDF so MoveIt's planning scene matches the realworld robot model -->
+  <!-- Remap MoveIt trajectory execution to the UR5e robot driver controller. -->
+  <remap from="/follow_joint_trajectory"
+    to="/scaled_pos_joint_traj_controller/follow_joint_trajectory" />
+
+  <!-- Load the SRDF, joint limits, and kinematics config. -->
   <param name="robot_description_semantic" textfile="$(find sde_ur5e_launch)/config/ur5e/ur5e_realworld.srdf" />
 
   <group ns="robot_description_planning">
@@ -33,6 +38,7 @@
     <rosparam command="load" file="$(find ur5e_moveit_config)/config/kinematics.yaml" />
   </group>
 
+  <!-- Configure and start 'move_group'. -->
   <include ns="move_group" file="$(find ur5e_moveit_config)/launch/planning_pipeline.launch.xml">
     <arg name="pipeline" value="$(arg pipeline)" />
   </include>
@@ -59,8 +65,5 @@
     <param name="planning_scene_monitor/publish_state_updates" value="$(arg publish_monitored_planning_scene)" />
     <param name="planning_scene_monitor/publish_transforms_updates" value="$(arg publish_monitored_planning_scene)" />
   </node>
-
-  <!-- This remap is necessary for MoveIt to interface with the UR5e driver. -->
-  <remap from="/follow_joint_trajectory" to="/scaled_pos_joint_traj_controller/follow_joint_trajectory" />
 
 </launch>

@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/ros-drivers/joystick_drivers/tree/main/spacenav_node -->
+  <!-- Upstream default: $(find spacenav_node)/launch/classic.launch -->
+
   <arg name="launch_spacenav_node" default="true" />
   <arg name="input_twist_topic" default="/spacenav/twist" />
   <arg name="output_twist_topic" default="/servo_server/delta_twist_cmds" />

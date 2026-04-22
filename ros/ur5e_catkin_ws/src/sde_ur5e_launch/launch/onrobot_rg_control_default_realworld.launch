@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/Osaka-University-Harada-Laboratory/onrobot -->
+  <!-- Upstream default: $(find onrobot_rg_control)/launch/bringup_server.launch -->
+
   <arg name="ip" default="$(optenv SDE_ONROBOT_COMPUTE_BOX_IP)" />
   <arg name="port" default="502" />
   <arg name="gripper" default="rg2" />

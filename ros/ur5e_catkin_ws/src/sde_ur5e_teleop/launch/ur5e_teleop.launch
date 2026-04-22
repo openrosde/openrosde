@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/moveit/moveit/tree/master/moveit_ros/moveit_servo -->
+  <!-- SDE-specific launch: orchestrates 'moveit_servo' and SpaceNavigator node for UR5e teleop. -->
+
   <arg name="start_spacenavd" default="true" />
 
   <node if="$(arg start_spacenavd)" pkg="sde_ur5e_teleop" type="start-spacenavd-daemon.bash" name="start_spacenavd" output="screen" />
