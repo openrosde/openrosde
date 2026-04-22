@@ -9,7 +9,7 @@
   <arg name="kinematics_config" default="$(find sde_ur5e_launch)/config/ur5e/robot_calibration_snXXXXXXXXXXX.yaml" />
   <arg name="headless_mode" default="true" />
 
-  <!-- Load the SRDF so RViz (with MoveIt plugin) works independently of move_group. -->
+  <!-- Load the SRDF so RViz (with MoveIt plugin) works independently of 'move_group'. -->
   <param name="robot_description_semantic" textfile="$(find sde_ur5e_launch)/config/ur5e/ur5e_realworld.srdf" />
 
   <!-- Load kinematics config so RViz does not warn about missing kinematics plugins. -->
@@ -24,8 +24,8 @@
     <arg name="robot_description_file" value="$(find sde_ur5e_launch)/launch/ur5e_description_default_realworld.launch" />
   </include>
 
-  <!-- Publish zero joint states for the OnRobot RG2 gripper (Modbus-controlled, no joint feedback). -->
-  <!-- robot_state_publisher needs these to compute TF for all gripper links. -->
+  <!-- Publish live OnRobot RG2 gripper joint states from '/OnRobotRGInput' to '/joint_states'. -->
+  <!-- 'robot_state_publisher' needs these to compute TF for all gripper links. -->
   <node name="gripper_joint_state_publisher" pkg="sde_ur5e_launch"
     type="publish-gripper-joint-states.py" output="screen" />
 

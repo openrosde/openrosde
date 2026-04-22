@@ -219,26 +219,31 @@ Formatting conventions:
 - Use `value=` for `<arg>` tags inside `<include>` blocks (passing values to included files).
 - For multi-line element attributes, place continuation attributes on the next line indented by 2 extra spaces (4 total from parent).
 - Group related `<arg>` declarations together, separated by blank lines from other groups or elements.
+- Use single quotes `' '` around code-related names in `<!-- -->` comments (e.g., `<!-- Start 'robot_state_publisher'. -->`, `<!-- Load 'kinematics.yaml'. -->`). This mirrors the Bash comment convention.
+- Add a source comment block at the top of every launch file, immediately after `<launch>`, using this pattern:
+  - `<!-- https://github.com/<upstream-repo> -->` — URL of the upstream repository this file is based on or extends.
+  - `<!-- Upstream default: $(find <pkg>)/launch/<file>.launch -->` — path to the upstream launch file used as the starting point, when one exists.
+  - `<!-- SDE-specific: <one-line description> -->` — instead of the upstream line, when the file has no direct upstream counterpart.
 
 RViz launch files use an SDE-owned `.rviz` config file stored in `config/rviz/` within the `sde_<platform>_launch` package.
 These config files are copied from the upstream default and modified to add `Fullscreen: true` under `Window Geometry:`.
-Each RViz launch file includes a `<!-- Upstream default: <path/to/upstream.rviz> -->` comment referencing the original upstream config path.
 All RViz launch nodes use `required="true"` so the layout closes when RViz exits.
 
 ### ROS Packages
 
-Custom ROS packages in this project follow these conventions:
-
-- Naming: `sde_launch` for shared launch files (in `sde_catkin_ws`), `sde_<platform>_launch` for platform-specific launch files (in `<platform>_catkin_ws`).
-- `package.xml`: Use format 2 (`<package format="2">`), MIT license, `lotfi@coarobo.com` as maintainer/author email, `https://coarobo.com/SDE` as website URL, `https://gitlab.com/coarobo/SDE` as repository URL.
-- `CMakeLists.txt`: Minimal template for launch-only packages (no C++ or Python nodes): `cmake_minimum_required`, `find_package(catkin REQUIRED COMPONENTS)`, `catkin_package()`, `include_directories`.
-- `README.md`: Title (`# package_name`), one-line description, Maintainer/Author with `- ` list items, optional Gazebo section with recommended startup order and Terminator command, and a `## Launch Files` table listing all `.launch` files with descriptions.
-- Include a `.gitignore` file in every package (can be empty).
-
-Packages prefixed with `sde_<platform>_teleop` (e.g., `sde_ur5e_teleop` in `ur5e_catkin_ws`) extend the standard launch-only pattern with Python nodes and config files.
+ROS packages (e.g., `sde_ur5e_teleop` in `ur5e_catkin_ws`) extend the standard launch-only pattern with Python nodes and config files.
 They follow the same `package.xml` and `README.md` conventions above, and additionally:
 
 - `CMakeLists.txt`: Includes `catkin_install_python` for Python node scripts.
+
+When a `sde_<platform>_launch` package itself needs Python helper nodes (e.g., a gripper joint-state publisher), it follows the same `sde_<platform>_teleop` extension pattern:
+
+- `scripts/`: Python node scripts (e.g., `publish-gripper-joint-states.py`).
+- `CMakeLists.txt`: Includes `catkin_install_python` for the scripts.
+- `package.xml`: Adds `rospy` and any message-package exec depends (e.g., `sensor_msgs`, `onrobot_rg_control`).
+- The `urdf/` folder holds SDE-owned xacro files that extend or replace the upstream robot URDF.
+- The `description/` folder holds third-party description fragments (meshes, xacros) vendored into the package.
+- A `<component>_description_default_<environment>.launch` adapter file is used when the upstream driver's `robot_description_file` arg requires a launch file that accepts a `kinematics_params` arg.
 
 ### Markdown (README & Documentation)
 

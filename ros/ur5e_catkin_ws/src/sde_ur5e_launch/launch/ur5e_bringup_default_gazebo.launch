@@ -50,7 +50,7 @@
     <rosparam command="load" file="$(find ur5e_moveit_config)/config/kinematics.yaml" />
   </group>
 
-  <!-- Start robot_state_publisher and Gazebo simulation. -->
+  <!-- Start 'robot_state_publisher' and Gazebo simulation. -->
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="$(arg tf_pub_rate)" />
     <param name="tf_prefix" value="$(arg tf_prefix)" />
