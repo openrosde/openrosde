@@ -45,11 +45,11 @@ It provides a containerized, multi-platform development environment based on Doc
   - `docker-compose-cobotta.yaml`: COBOTTA platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
-  - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
-  - `ur5e_catkin_ws/`: UR5e workspace.
-  - `fetch_catkin_ws/`: Fetch workspace.
-  - `sciurus17_catkin_ws/`: Sciurus17 workspace.
-  - `cobotta_catkin_ws/`: COBOTTA workspace.
+  - `turtlebot3_catkin_ws/`: TurtleBot3 workspace (`sde_turtlebot3_launch/`, `sde_turtlebot3_behaviors/`).
+  - `ur5e_catkin_ws/`: UR5e workspace (`sde_ur5e_launch/`, `sde_ur5e_teleop/`, `sde_ur5e_behaviors/`).
+  - `fetch_catkin_ws/`: Fetch workspace (`sde_fetch_launch/`, `sde_fetch_behaviors/`).
+  - `sciurus17_catkin_ws/`: Sciurus17 workspace (`sde_sciurus17_launch/`, `sde_sciurus17_behaviors/`).
+  - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`).
 - `docs/`: Documentation.
@@ -245,6 +245,33 @@ When a `sde_<platform>_launch` package itself needs Python helper nodes (e.g., a
 - The `description/` folder holds third-party description fragments (meshes, xacros) vendored into the package.
 - A `<component>_description_default_<environment>.launch` adapter file is used when the upstream driver's `robot_description_file` arg requires a launch file that accepts a `kinematics_params` arg.
 
+### FlexBE Behaviors Packages
+
+Each platform has a `sde_<platform>_behaviors/` directory in its Catkin workspace containing two ROS packages:
+
+- `sde_<platform>_flexbe_behaviors/`: Contains FlexBE behavior state machines.
+  - `src/sde_<platform>_flexbe_behaviors/`: Python modules, one `<behavior_name>_sm.py` per behavior.
+  - `manifest/<behavior_name>.xml`: FlexBE behavior manifest (loaded by the FlexBE app).
+  - `config/<behavior_name>.yaml`: Behavior parameters (placeholder; values are set in the manifest).
+  - `setup.py`, `CMakeLists.txt`, `package.xml`: Standard catkin Python package boilerplate.
+  - `package.xml` exports `<flexbe_behaviors />` and lists `flexbe_core`, `flexbe_states`, and any generic state packages (`flexbe_navigation_states`, `flexbe_manipulation_states`) as `run_depend`.
+- `sde_<platform>_flexbe_states/`: Reserved for platform-specific custom FlexBE states (empty by default; only add states here that cannot be satisfied by `flexbe_behavior_engine` or `flexbe_generic_states`).
+  - `src/sde_<platform>_flexbe_states/`: Python modules.
+  - `setup.py`, `CMakeLists.txt`, `package.xml`: Standard catkin Python package boilerplate.
+  - `package.xml` exports `<flexbe_states />`.
+
+Behavior state machine files (`*_sm.py`) follow the code-generation format used by the FlexBE app:
+- Header block with `WARNING: Generated code!` comment.
+- All state imports at the top.
+- `[MANUAL_IMPORT]`, `[MANUAL_INIT]`, `[MANUAL_CREATE]`, `[MANUAL_FUNC]` tags preserved for FlexBE app round-trips.
+- Only use states from `flexbe_behavior_engine` (`flexbe_states`) and `flexbe_generic_states` (`flexbe_navigation_states`, `flexbe_manipulation_states`).
+  Do not create custom states unless strictly necessary.
+
+Platform-specific behavior guidelines:
+- Mobile robot platforms (TurtleBot3, Fetch): looping navigation between two waypoints using `MoveBaseState` and `WaitState`.
+- Arm robot platforms (UR5e, COBOTTA): looping dance between `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+- Dual-arm robot platforms (Sciurus17): alternating left/right arm moves to `r_arm_init_pose` / `l_arm_init_pose` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+
 ### Markdown (README & Documentation)
 
 - Use [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) (GFM) syntax.
@@ -311,6 +338,7 @@ Current patches:
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0001-fix-comments-collada.patch`: Expands self-closing `<comments/>` to `<comments></comments>` in 6 Collada mesh files (`base_link.dae`, `J1.dae`–`J3.dae`, `J5.dae`, `J6.dae`) to fix an RViz/Assimp parse error ("Expected end of `<comments>` element").
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0002-fix-gripper-pid-gain.patch`: Uncomments the `joint_gripper` PID gain entry in `gazebo_cobotta_control.yaml` to eliminate a `gazebo_ros_control` error when spawning the robot with `gripper_type:=parallel` in Gazebo.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0003-fix-blender-mesh-materials.patch`: Sets `ambient` to `0.5 0.5 0.5 1` and `emission` to `0.04 0.04 0.04 1` in 6 Blender-exported Collada mesh files (`J4.dae`, `gripper_base.dae`, `left_finger.dae`, `right_finger.dae`, `pad.dae`, `vacuum.dae`) to fix black rendering under OGRE/Mesa caused by explicit `ambient: 0 0 0 1`.
+- `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0004-add-srdf-named-states.patch`: Adds `home` (j3=π/2, all others=0) and `up` (j2=−π/4, j3=π/2, j5=π/4) named group states to `cobotta.srdf.xacro` for the `arm` group, enabling `SrdfStateToMoveit` FlexBE states to drive the arm to pre-defined configurations.
 
 ## Adding a New Platform
 
@@ -321,6 +349,7 @@ When adding a platform named `<platform>`, create these files:
 - `docker/<platform>-devel/Dockerfile`: platform Docker image.
 - `docker/docker-compose-<platform>.yaml`: Docker Compose overlay.
 - `ros/<platform>_catkin_ws/src/sde_<platform>_launch/`: ROS launch package (5 launch files, `package.xml`, `CMakeLists.txt`, `README.md`, `.gitignore`).
+- `ros/<platform>_catkin_ws/src/sde_<platform>_behaviors/`: FlexBE behaviors package (two sub-packages: `sde_<platform>_flexbe_behaviors/` and `sde_<platform>_flexbe_states/`, plus `README.md` and `.gitignore`).
 - `terminator/<platform>.config`: Terminator layouts.
 - `docs/robot-platforms/<platform>.md`: platform documentation.
 

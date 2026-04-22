@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+###########################################################
+#               WARNING: Generated code!                  #
+#              **************************                 #
+# Manual changes may get lost if file is generated again. #
+# Only code inside the [MANUAL] tags will be kept.        #
+###########################################################
+
+from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
+from flexbe_navigation_states.move_base_state import MoveBaseState
+from flexbe_states.wait_state import WaitState
+# Additional imports can be added inside the following tags
+# [MANUAL_IMPORT]
+from geometry_msgs.msg import Pose2D
+# [/MANUAL_IMPORT]
+
+
+'''
+Created on Wed Apr 22 2026
+@author: Lotfi El Hafi
+'''
+class FetchExampleBehaviorSM(Behavior):
+	'''
+	Example of a FlexBE behavior that implements navigation via waypoints for a Fetch robot.
+	The robot loops between two waypoints in the Gazebo environment.
+	'''
+
+
+	def __init__(self):
+		super(FetchExampleBehaviorSM, self).__init__()
+		self.name = 'Fetch Example Behavior'
+
+		# parameters of this behavior
+		self.add_parameter('wait_time', 1.0)
+
+		# references to used behaviors
+
+		# Additional initialization code can be added inside the following tags
+		# [MANUAL_INIT]
+
+		# [/MANUAL_INIT]
+
+		# Behavior comments:
+
+
+
+	def create(self):
+		# x:633 y:190, x:83 y:190
+		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
+		_state_machine.userdata.waypoint_1 = Pose2D(x=1.0, y=1.0, theta=3.14)
+		_state_machine.userdata.waypoint_2 = Pose2D(x=-1.0, y=-1.0, theta=0.0)
+
+		# Additional creation code can be added inside the following tags
+		# [MANUAL_CREATE]
+
+		# [/MANUAL_CREATE]
+
+
+		with _state_machine:
+			# x:225 y:74
+			OperatableStateMachine.add('MoveBaseState_1',
+										MoveBaseState(),
+										transitions={'arrived': 'WaitState_1', 'failed': 'failed'},
+										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'waypoint': 'waypoint_1'})
+
+			# x:553 y:74
+			OperatableStateMachine.add('WaitState_1',
+										WaitState(wait_time=self.wait_time),
+										transitions={'done': 'MoveBaseState_2'},
+										autonomy={'done': Autonomy.Off})
+
+			# x:225 y:274
+			OperatableStateMachine.add('MoveBaseState_2',
+										MoveBaseState(),
+										transitions={'arrived': 'WaitState_2', 'failed': 'failed'},
+										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'waypoint': 'waypoint_2'})
+
+			# x:553 y:274
+			OperatableStateMachine.add('WaitState_2',
+										WaitState(wait_time=self.wait_time),
+										transitions={'done': 'MoveBaseState_1'},
+										autonomy={'done': Autonomy.Off})
+
+
+		return _state_machine
+
+
+	# Private functions can be added inside the following tags
+	# [MANUAL_FUNC]
+
+	# [/MANUAL_FUNC]
