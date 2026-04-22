@@ -104,6 +104,15 @@ Layout names follow the pattern: `sde-<platform>-term-11-<variant>-<environment>
 `RUN-TERMINATOR-TERMINAL.bash` pre-starts the Docker container with `--no-exec` before launching Terminator to avoid race conditions from multiple panes running `RUN-DOCKER-CONTAINER.bash` simultaneously.
 The `sed` command injects `${SDE_DOCKER_PROJECT}` into the config, producing a `.config.tmp` file that is git-ignored.
 
+All platform configs share an identical 15-terminal tree structure.
+The bottom-left 4 terminals are standardized across all platforms and both environments:
+- `terminal6` (Number: 4): bringup launch (or empty if no realworld bringup exists, e.g., TurtleBot3 realworld and Sciurus17 realworld).
+- `terminal7` (Number: 5): RViz launch.
+- `terminal9` (Number: 6): MoveIt (or navigation, depending on platform).
+- `terminal10` (Number: 7): FlexBE app (`sde_launch:flexbe_app_default.launch`), on all platforms and in both gazebo and realworld layouts.
+The top-right pair (`terminal13` / `terminal14`, Numbers: 2 / 3) is used for platform-specific secondary launches (e.g., gripper control, teleop, mapping).
+Spare terminals (`terminal18`–`terminal29`, Numbers: 8–15) are available for additional launches (e.g., `ur5e_realsense_default_realworld.launch` at Number: 14 in the UR5e realworld layout).
+
 ### Variable Naming Convention
 
 All custom environment variables use the `SDE_` prefix. Examples:
@@ -210,6 +219,11 @@ Formatting conventions:
 - Use `value=` for `<arg>` tags inside `<include>` blocks (passing values to included files).
 - For multi-line element attributes, place continuation attributes on the next line indented by 2 extra spaces (4 total from parent).
 - Group related `<arg>` declarations together, separated by blank lines from other groups or elements.
+
+RViz launch files use an SDE-owned `.rviz` config file stored in `config/rviz/` within the `sde_<platform>_launch` package.
+These config files are copied from the upstream default and modified to add `Fullscreen: true` under `Window Geometry:`.
+Each RViz launch file includes a `<!-- Upstream default: <path/to/upstream.rviz> -->` comment referencing the original upstream config path.
+All RViz launch nodes use `required="true"` so the layout closes when RViz exits.
 
 ### ROS Packages
 
