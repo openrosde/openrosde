@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur5e_robot">
+  <xacro:include filename="$(find ur_description)/urdf/inc/ur_macro.xacro"/>
+  <xacro:include filename="$(find onrobot_rg_description)/urdf/onrobot_rg2_model_macro.xacro"/>
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435i.urdf.xacro"/>
+  <xacro:include filename="$(find sde_ur5e_launch)/description/picknik_ur5_realsense_camera_adapter/urdf/picknik_ur5_realsense_camera_adapter.xacro"/>
+  <xacro:include filename="$(find sde_ur5e_launch)/description/onrobot_quick_changer_qc-r_v3/urdf/onrobot_quick_changer_qc-r_v3.xacro"/>
+
+  <xacro:arg name="use_nominal_extrinsics" default="true" />
+  <xacro:arg name="robot_model" default="ur5e"/>
+  <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/ur5e/joint_limits.yaml"/>
+  <xacro:arg name="physical_params" default="$(find ur_description)/config/ur5e/physical_parameters.yaml"/>
+  <xacro:arg name="kinematics_params" default="$(find ur_description)/config/ur5e/default_kinematics.yaml"/>
+  <xacro:arg name="visual_params" default="$(find ur_description)/config/ur5e/visual_parameters.yaml"/>
+  <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="safety_limits" default="false"/>
+  <xacro:arg name="safety_pos_margin" default="0.15"/>
+  <xacro:arg name="safety_k_position" default="20"/>
+
+  <xacro:ur_robot
+    prefix=""
+    joint_limits_parameters_file="$(arg joint_limit_params)"
+    kinematics_parameters_file="$(arg kinematics_params)"
+    physical_parameters_file="$(arg physical_params)"
+    visual_parameters_file="$(arg visual_params)"
+    transmission_hw_interface="$(arg transmission_hw_interface)"
+    safety_limits="$(arg safety_limits)"
+    safety_pos_margin="$(arg safety_pos_margin)"
+    safety_k_position="$(arg safety_k_position)"
+  />
+
+  <link name="onrobot_rg2_base_link">
+    <inertial>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      <mass value="0.7" />
+      <inertia ixx="1.0E-03" ixy="1.0E-06" ixz="1.0E-06" iyy="1.0E-03" iyz="1.0E-06" izz="1.0E-03" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://onrobot_rg_description/meshes/rg2/visual/base_link.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.8 0.8 0.8 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://onrobot_rg_description/meshes/rg2/collision/base_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- Instantiate the QC using its new macro, attached to the adapter -->
+  <xacro:onrobot_qc_r_v3 parent="camera_adapter_link">
+    <!-- Rotate 180 degrees so the gripper faces outwards instead of into the mount -->
+    <origin xyz="0 0 -0.0125" rpy="0 3.14159 0" />
+  </xacro:onrobot_qc_r_v3>
+
+  <joint name="qc_tool_mount-onrobot_rg2_base" type="fixed">
+    <parent link="qc_tool_mount" />
+    <child link="onrobot_rg2_base_link" />
+    <origin xyz="0 0 -0.005" rpy="0 0 -1.5708" />
+    <axis xyz="0 0 1" />
+  </joint>
+
+  <xacro:finger_links prefix="" fingerprefix="left"/>
+  <xacro:finger_links prefix="" fingerprefix="right"/>
+  <xacro:finger_joint prefix=""/>
+  <xacro:right_outer_knuckle_joint prefix=""/>
+
+  <link name="world"/>
+  <joint name="world_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="tool0_controller"/>
+  <joint name="tool_controller_fake_joint" type="fixed">
+    <parent link="tool0"/>
+    <child link="tool0_controller"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- PickNik Camera Adapter (Attached to Robot's flange/tool0) -->
+  <xacro:picknik_camera_adapter parent="tool0">
+    <!-- Fine-tune this origin based on how the adapter sits on the flange -->
+    <origin xyz="0.0 0.0 0.01" rpy="0 3.14159 0"/>
+  </xacro:picknik_camera_adapter>
+
+  <!-- External RealSense D435i Camera (Environment view, using world as parent) -->
+  <!-- TODO: Uncomment and tune the origin once the external camera mount position is known. -->
+  <!-- <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <origin xyz="1.0 0.0 1.0" rpy="0 0.5 3.14159"/>
+  </xacro:sensor_d435i> -->
+
+  <!-- Wrist-mounted RealSense D435i Camera (Attached to the PickNik adapter's mount link) -->
+  <xacro:sensor_d435i parent="camera_mount_link" name="wrist_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <!-- Subtracted 8 degrees (0.139626 radians) to the pitch axis -->
+    <origin xyz="0.0 -0.075 -0.011" rpy="0 ${1.5708 - 0.139626} -1.5708"/>
+  </xacro:sensor_d435i>
+</robot>

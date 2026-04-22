@@ -16,6 +16,9 @@
       <geometry>
         <mesh filename="package://sde_ur5e_launch/description/onrobot_quick_changer_qc-r_v3/meshes/visual/onrobot_quick_changer_qc-r_v3.stl"/>
       </geometry>
+      <material name="qc_blue">
+        <color rgba="0 0.35 0.8 1"/>
+      </material>
     </visual>
     <collision>
       <geometry>
