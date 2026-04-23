@@ -1,12 +1,26 @@
 # sde_fetch_behaviors
 
-The `sde_fetch_behaviors` package contains all the SDE behaviors implemented with FlexBE for the Fetch platform.
+The `sde_fetch_behaviors` directory contains the FlexBE behavior packages for the Fetch Robotics Fetch platform.
 
-* Maintainer: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
-* Author: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
+- Maintainer: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
+- Author: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
+
+## Usage
+
+Start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+## Behaviors
+
+| Behavior | Description |
+| --- | --- |
+| `Fetch Example Behavior` | Example looping navigation between two waypoints |
 
 ## External Resources
 
-* FlexBE Behavior Engine: [https://github.com/FlexBE/flexbe_behavior_engine](https://github.com/FlexBE/flexbe_behavior_engine)
-* FlexBE App: [https://github.com/FlexBE/flexbe_app](https://github.com/FlexBE/flexbe_app)
-* FlexBE Generic States: [https://github.com/FlexBE/generic_flexbe_states](https://github.com/FlexBE/generic_flexbe_states)
+- FlexBE Behavior Engine: [https://github.com/FlexBE/flexbe_behavior_engine](https://github.com/FlexBE/flexbe_behavior_engine)
+- FlexBE App: [https://github.com/FlexBE/flexbe_app](https://github.com/FlexBE/flexbe_app)
+- FlexBE Generic States: [https://github.com/FlexBE/generic_flexbe_states](https://github.com/FlexBE/generic_flexbe_states)
