@@ -6,7 +6,7 @@
 	<tagstring>demo</tagstring>
 	<author>Lotfi El Hafi</author>
 	<date>Wed Apr 22 2026</date>
-	<description>Example of a FlexBE behavior that implements a looping arm dance for a COBOTTA robot. The arm cycles between the 'home' and 'up' named configurations defined in the SRDF, with a configurable wait time between each move.</description>
+<description>Example of a FlexBE behavior that implements a looping arm dance for a COBOTTA robot. The arm cycles between the 'home' and 'up' named configurations, with a configurable wait time between moves.</description>
 
 
 	<!-- Contained Behaviors -->

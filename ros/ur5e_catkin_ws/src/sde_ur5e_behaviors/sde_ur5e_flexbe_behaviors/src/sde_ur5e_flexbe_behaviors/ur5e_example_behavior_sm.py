@@ -7,9 +7,17 @@
 # Only code inside the [MANUAL] tags will be kept.        #
 ###########################################################
 
-from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
+from flexbe_core import (
+    Autonomy,
+    Behavior,
+    ConcurrencyContainer,
+    Logger,
+    OperatableStateMachine,
+    PriorityContainer,
+)
 from flexbe_manipulation_states.srdf_state_to_moveit import SrdfStateToMoveit
 from flexbe_states.wait_state import WaitState
+
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
@@ -23,8 +31,7 @@ Created on Wed Apr 22 2026
 class UR5eExampleBehaviorSM(Behavior):
 	'''
 	Example of a FlexBE behavior that implements a looping arm dance for a UR5e robot.
-	The arm cycles between the 'home' and 'up' named configurations defined in the SRDF,
-	with a configurable wait time between each move.
+	The arm cycles between the 'home' and 'up' named configurations, with a configurable wait time between moves.
 	'''
 
 

@@ -23,8 +23,7 @@ Created on Wed Apr 22 2026
 class Sciurus17ExampleBehaviorSM(Behavior):
 	'''
 	Example of a FlexBE behavior that implements a looping dual-arm dance for a Sciurus17 robot.
-	The right arm and left arm alternately move to their respective 'init_pose' named
-	configurations defined in the SRDF.
+	The arms alternate between the 'r_arm_init_pose' and 'l_arm_init_pose' configurations, with a configurable wait time between moves.
 	'''
 
 
@@ -59,29 +58,29 @@ class Sciurus17ExampleBehaviorSM(Behavior):
 
 		with _state_machine:
 			# x:225 y:74
-			OperatableStateMachine.add('RightArmToInitPose',
-										SrdfStateToMoveit(config_name='r_arm_init_pose', move_group='r_arm_group', action_topic=action_topic, robot_name=''),
-										transitions={'reached': 'WaitAfterRight', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
+			OperatableStateMachine.add('MoveRightArmToInitPose',
+														   SrdfStateToMoveit(config_name='r_arm_init_pose', move_group='r_arm_group', action_topic=action_topic, robot_name=''),
+														   transitions={'reached': 'WaitAtRightInitPose', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
 										remapping={'config_name': 'config_name', 'move_group': 'move_group', 'robot_name': 'robot_name', 'action_topic': 'action_topic', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
 			# x:553 y:74
-			OperatableStateMachine.add('WaitAfterRight',
-										WaitState(wait_time=self.wait_time),
-										transitions={'done': 'LeftArmToInitPose'},
+			OperatableStateMachine.add('WaitAtRightInitPose',
+														   WaitState(wait_time=self.wait_time),
+														   transitions={'done': 'MoveLeftArmToInitPose'},
 										autonomy={'done': Autonomy.Off})
 
 			# x:225 y:274
-			OperatableStateMachine.add('LeftArmToInitPose',
-										SrdfStateToMoveit(config_name='l_arm_init_pose', move_group='l_arm_group', action_topic=action_topic, robot_name=''),
-										transitions={'reached': 'WaitAfterLeft', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
+			OperatableStateMachine.add('MoveLeftArmToInitPose',
+														   SrdfStateToMoveit(config_name='l_arm_init_pose', move_group='l_arm_group', action_topic=action_topic, robot_name=''),
+														   transitions={'reached': 'WaitAtLeftInitPose', 'planning_failed': 'failed', 'control_failed': 'failed', 'param_error': 'failed'},
 										autonomy={'reached': Autonomy.Off, 'planning_failed': Autonomy.Off, 'control_failed': Autonomy.Off, 'param_error': Autonomy.Off},
 										remapping={'config_name': 'config_name', 'move_group': 'move_group', 'robot_name': 'robot_name', 'action_topic': 'action_topic', 'joint_values': 'joint_values', 'joint_names': 'joint_names'})
 
 			# x:553 y:274
-			OperatableStateMachine.add('WaitAfterLeft',
-										WaitState(wait_time=self.wait_time),
-										transitions={'done': 'RightArmToInitPose'},
+			OperatableStateMachine.add('WaitAtLeftInitPose',
+														   WaitState(wait_time=self.wait_time),
+														   transitions={'done': 'MoveRightArmToInitPose'},
 										autonomy={'done': Autonomy.Off})
 
 

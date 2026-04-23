@@ -6,7 +6,7 @@
 	<tagstring>demo</tagstring>
 	<author>Lotfi El Hafi</author>
 	<date>Wed Apr 22 2026</date>
-	<description>Example of a FlexBE behavior that implements a looping dual-arm dance for a Sciurus17 robot. The right arm and left arm alternately move to their respective 'init_pose' named configurations defined in the SRDF, with a configurable wait time between moves.</description>
+<description>Example of a FlexBE behavior that implements a looping dual-arm dance for a Sciurus17 robot. The arms alternate between the 'r_arm_init_pose' and 'l_arm_init_pose' configurations, with a configurable wait time between moves.</description>
 
 
 	<!-- Contained Behaviors -->

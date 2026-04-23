@@ -22,7 +22,8 @@ Created on Sun Aug 18 2024
 '''
 class TurtleBot3ExampleBehaviorSM(Behavior):
 	'''
-	Example of a FlexBE behavior that implements navigation via waypoints for a TurtleBot3 robot.
+	Example of a FlexBE behavior that implements looping navigation for a TurtleBot3 robot.
+	The robot loops between two waypoints, with a configurable wait time at each waypoint.
 	'''
 
 
@@ -37,7 +38,7 @@ class TurtleBot3ExampleBehaviorSM(Behavior):
 
 		# Additional initialization code can be added inside the following tags
 		# [MANUAL_INIT]
-		
+
 		# [/MANUAL_INIT]
 
 		# Behavior comments:
@@ -52,35 +53,35 @@ class TurtleBot3ExampleBehaviorSM(Behavior):
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
-		
+
 		# [/MANUAL_CREATE]
 
 
 		with _state_machine:
 			# x:225 y:74
-			OperatableStateMachine.add('MoveBaseState_1',
-										MoveBaseState(),
-										transitions={'arrived': 'WaitState_1', 'failed': 'failed'},
+			OperatableStateMachine.add('MoveToWaypoint1',
+														   MoveBaseState(),
+														   transitions={'arrived': 'WaitAtWaypoint1', 'failed': 'failed'},
 										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'waypoint': 'waypoint_1'})
 
 			# x:225 y:274
-			OperatableStateMachine.add('MoveBaseState_2',
-										MoveBaseState(),
-										transitions={'arrived': 'WaitState_2', 'failed': 'failed'},
+			OperatableStateMachine.add('MoveToWaypoint2',
+														   MoveBaseState(),
+														   transitions={'arrived': 'WaitAtWaypoint2', 'failed': 'failed'},
 										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'waypoint': 'waypoint_2'})
 
 			# x:553 y:74
-			OperatableStateMachine.add('WaitState_1',
-										WaitState(wait_time=self.wait_time),
-										transitions={'done': 'MoveBaseState_2'},
+			OperatableStateMachine.add('WaitAtWaypoint1',
+														   WaitState(wait_time=self.wait_time),
+														   transitions={'done': 'MoveToWaypoint2'},
 										autonomy={'done': Autonomy.Off})
 
 			# x:553 y:274
-			OperatableStateMachine.add('WaitState_2',
-										WaitState(wait_time=self.wait_time),
-										transitions={'done': 'MoveBaseState_1'},
+			OperatableStateMachine.add('WaitAtWaypoint2',
+														   WaitState(wait_time=self.wait_time),
+														   transitions={'done': 'MoveToWaypoint1'},
 										autonomy={'done': Autonomy.Off})
 
 
@@ -89,5 +90,5 @@ class TurtleBot3ExampleBehaviorSM(Behavior):
 
 	# Private functions can be added inside the following tags
 	# [MANUAL_FUNC]
-	
+
 	# [/MANUAL_FUNC]

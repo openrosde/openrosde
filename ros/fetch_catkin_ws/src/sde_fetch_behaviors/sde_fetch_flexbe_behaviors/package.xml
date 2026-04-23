@@ -1,8 +1,8 @@
-<package>
+<package format="2">
   <name>sde_fetch_flexbe_behaviors</name>
   <version>1.0.0</version>
   <description>
-    The package 'sde_fetch_flexbe_behaviors' references all implemented behaviors for the Fetch SDE platform.
+    The 'sde_fetch_flexbe_behaviors' package provides FlexBE behaviors for the Fetch Robotics Fetch platform.
   </description>
   <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
 
@@ -15,10 +15,10 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>rospy</run_depend>
-  <run_depend>flexbe_core</run_depend>
-  <run_depend>flexbe_states</run_depend>
-  <run_depend>flexbe_navigation_states</run_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>flexbe_core</exec_depend>
+  <exec_depend>flexbe_states</exec_depend>
+  <exec_depend>flexbe_navigation_states</exec_depend>
 
   <export>
     <flexbe_behaviors />

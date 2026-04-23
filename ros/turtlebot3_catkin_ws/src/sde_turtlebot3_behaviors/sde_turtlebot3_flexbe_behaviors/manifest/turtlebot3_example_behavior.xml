@@ -6,9 +6,7 @@
 	<tagstring>demo</tagstring>
 	<author>Lotfi El Hafi</author>
 	<date>Sun Aug 18 2024</date>
-	<description>
-		Example of a FlexBE behavior that implements navigation via waypoints for a TurtleBot3 robot.
-	</description>
+	<description>Example of a FlexBE behavior that implements looping navigation for a TurtleBot3 robot. The robot loops between two waypoints, with a configurable wait time at each waypoint.</description>
 
 
 	<!-- Contained Behaviors -->
