@@ -15,4 +15,9 @@
     <arg name="gripper_type" value="$(arg gripper_type)" />
   </include>
 
+  <!-- Load the SRDF so FlexBE can load behaviors before 'move_group' starts. -->
+  <!-- 'SrdfStateToMoveit' reads '/robot_description_semantic' in '__init__' (at behavior load time). -->
+  <param name="robot_description_semantic"
+    command="$(find xacro)/xacro $(find denso_cobotta_moveit_config)/config/cobotta.srdf.xacro gripper_type:=$(arg gripper_type)" />
+
 </launch>

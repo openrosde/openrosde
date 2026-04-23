@@ -40,4 +40,9 @@
   <!-- Initialize the robot to its default pose -->
   <node name="initpose_sciurus17" pkg="sciurus17_gazebo" type="initpose_sciurus17.py" />
 
+  <!-- Load the SRDF so FlexBE can load behaviors before 'move_group' starts. -->
+  <!-- 'SrdfStateToMoveit' reads '/robot_description_semantic' in '__init__' (at behavior load time). -->
+  <param name="robot_description_semantic"
+    textfile="$(find sciurus17_moveit_config)/config/sciurus17.srdf" />
+
 </launch>
