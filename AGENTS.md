@@ -255,7 +255,8 @@ Each platform has a `sde_<platform>_behaviors/` directory in its Catkin workspac
     The `<description>` element must be a single line with no embedded newlines; multi-line descriptions render as literal whitespace in the FlexBE app.
   - `config/<behavior_name>.yaml`: Behavior parameters (placeholder; values are set in the manifest).
   - `setup.py`, `CMakeLists.txt`, `package.xml`: Standard catkin Python package boilerplate.
-  - `package.xml` uses `format="2"`, exports `<flexbe_behaviors />`, and lists `flexbe_core`, `flexbe_states`, and any generic state packages (`flexbe_navigation_states`, `flexbe_manipulation_states`) as `run_depend`.
+  - `package.xml` uses `format="2"`, exports `<flexbe_behaviors />`, and lists `flexbe_core`, `flexbe_states`, and any generic state packages (`flexbe_navigation_states`, `flexbe_manipulation_states`) as `exec_depend`.
+    `format="2"` requires `<exec_depend>` tags; using `<run_depend>` causes a `catkin_pkg.package.InvalidPackage` error at build time.
 - `sde_<platform>_flexbe_states/`: Reserved for platform-specific custom FlexBE states (empty by default; only add states here that cannot be satisfied by `flexbe_behavior_engine` or `flexbe_generic_states`).
   - `src/sde_<platform>_flexbe_states/`: Python modules.
   - `setup.py`, `CMakeLists.txt`, `package.xml`: Standard catkin Python package boilerplate.
@@ -269,6 +270,8 @@ Behavior state machine files (`*_sm.py`) follow the code-generation format used 
   Do not create custom states unless strictly necessary.
 - Use descriptive state names with a `MoveTo*` / `WaitAt*` prefix pattern (e.g., `MoveToHome`, `WaitAtHome`).
   Never use auto-generated `_1` / `_2` suffixes (e.g., `MoveBaseState_1`).
+- `OperatableStateMachine.add()` calls inside `with _state_machine:` use **3 tabs** for the call itself and **10 tabs** for all continuation argument lines (`state_class`, `transitions=`, `autonomy=`, `remapping=`).
+  When manually editing state names, ensure the 3-tab indentation of the `OperatableStateMachine.add(` line is preserved; dropping it to column 0 causes an `expected an indented block` `SyntaxError` at runtime.
 
 `SrdfStateToMoveit` reads `/robot_description_semantic` once in `__init__` when the FlexBE app instantiates the behavior class.
 This means the SRDF parameter must be on the ROS parameter server before the behavior is loaded in the FlexBE app, not just before it executes.

@@ -60,28 +60,28 @@ class FetchExampleBehaviorSM(Behavior):
 		with _state_machine:
 			# x:225 y:74
 			OperatableStateMachine.add('MoveToWaypoint1',
-														   MoveBaseState(),
-														   transitions={'arrived': 'WaitAtWaypoint1', 'failed': 'failed'},
+										MoveBaseState(),
+										transitions={'arrived': 'WaitAtWaypoint1', 'failed': 'failed'},
 										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'waypoint': 'waypoint_1'})
 
 			# x:553 y:74
 			OperatableStateMachine.add('WaitAtWaypoint1',
-														   WaitState(wait_time=self.wait_time),
-														   transitions={'done': 'MoveToWaypoint2'},
+										WaitState(wait_time=self.wait_time),
+										transitions={'done': 'MoveToWaypoint2'},
 										autonomy={'done': Autonomy.Off})
 
 			# x:225 y:274
 			OperatableStateMachine.add('MoveToWaypoint2',
-														   MoveBaseState(),
-														   transitions={'arrived': 'WaitAtWaypoint2', 'failed': 'failed'},
+										MoveBaseState(),
+										transitions={'arrived': 'WaitAtWaypoint2', 'failed': 'failed'},
 										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
 										remapping={'waypoint': 'waypoint_2'})
 
 			# x:553 y:274
 			OperatableStateMachine.add('WaitAtWaypoint2',
-														   WaitState(wait_time=self.wait_time),
-														   transitions={'done': 'MoveToWaypoint1'},
+										WaitState(wait_time=self.wait_time),
+										transitions={'done': 'MoveToWaypoint1'},
 										autonomy={'done': Autonomy.Off})
 
 
