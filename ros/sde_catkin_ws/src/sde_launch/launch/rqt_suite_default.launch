@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- SDE-specific: Launches a suite of rqt tools for monitoring and debugging the ROS system. -->
+
+  <!-- Start 'rqt_topic' to monitor and publish ROS topics. -->
+  <node name="rqt_topic" pkg="rqt_topic" type="rqt_topic" />
+
+  <!-- Start 'rqt_image_view' to visualize image topics. -->
+  <node name="rqt_image_view" pkg="rqt_image_view" type="rqt_image_view" />
+
+  <!-- Start 'rqt_tf_tree' to visualize the TF transform tree. -->
+  <node name="rqt_tf_tree" pkg="rqt_tf_tree" type="rqt_tf_tree" />
+
+  <!-- Start 'rqt_service_caller' to call ROS services interactively. -->
+  <node name="rqt_service_caller" pkg="rqt_service_caller" type="rqt_service_caller" />
+
+  <!-- Maximize the rqt windows after they open. -->
+  <node name="maximize_rqt_topic" pkg="sde_launch" type="maximize-app-window.bash" args="rqt_topic" />
+  <node name="maximize_rqt_image" pkg="sde_launch" type="maximize-app-window.bash" args="rqt_image_view" />
+  <node name="maximize_rqt_tf" pkg="sde_launch" type="maximize-app-window.bash" args="rqt_tf_tree" />
+  <node name="maximize_rqt_service" pkg="sde_launch" type="maximize-app-window.bash" args="rqt_service_caller" />
+
+</launch>
