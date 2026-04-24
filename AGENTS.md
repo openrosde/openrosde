@@ -136,6 +136,7 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - Use single quotes `' '` around code-related references in comments (e.g., `# Load the default environment variables from the '.env' file:`).
 - Use `${VARIABLE}` syntax (with curly braces) for all variable references.
 - Prefix all custom variables with `SDE_` (e.g., `SDE_ROBOT_PLATFORM`, not `PLATFORM`).
+- Use at least 3 words for variable names (including `SDE_`), e.g., `SDE_ROBOT_PLATFORM`, not `SDE_PLATFORM`.
 - Do not use fallback default syntax (`${VAR:-default}`) in scripts; all defaults belong in `.env`.
 - Use `source` instead of `.` for sourcing scripts.
 - Use `pushd` / `popd` for temporary directory changes in functions.
