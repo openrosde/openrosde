@@ -86,3 +86,13 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper control (real robot) |
 | `ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceMouse teleoperation (Gazebo) |
 | `ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceMouse teleoperation (real robot) |
+
+## FlexBE Behavior
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `UR5e Example Behavior` behavior in the FlexBE App and press **Start**.

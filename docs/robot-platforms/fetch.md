@@ -104,3 +104,15 @@ The following launch files are available for the Fetch Robotics Fetch platform (
 | `fetch_mapping_default.launch` | SLAM mapping (build_map) |
 | `fetch_moveit_default.launch` | MoveIt motion planning |
 | `fetch_rviz_default.launch` | RViz visualization |
+
+## 🧪 FlexBE Behavior
+
+The `sde_fetch_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints using `MoveBaseState` and `WaitState`.
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `Fetch Example Behavior` behavior in the FlexBE App and press **Start**.

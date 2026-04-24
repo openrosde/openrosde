@@ -55,3 +55,13 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `fetch_mapping_default.launch` | SLAM mapping (build_map) |
 | `fetch_moveit_default.launch` | MoveIt motion planning |
 | `fetch_rviz_default.launch` | RViz visualization |
+
+## FlexBE Behavior
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `Fetch Example Behavior` behavior in the FlexBE App and press **Start**.

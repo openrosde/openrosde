@@ -55,3 +55,13 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `sciurus17_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `sciurus17_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `sciurus17_rviz_default.launch` | RViz visualization (both Gazebo and real robot) |
+
+## FlexBE Behavior
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `Sciurus17 Example Behavior` behavior in the FlexBE App and press **Start**.

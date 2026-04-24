@@ -105,5 +105,15 @@ The following launch files are available for the RT Sciurus17 platform (package:
 
 ## 🧪 FlexBE Behavior
 
+The `sde_sciurus17_flexbe_behaviors` package provides an example behavior that alternates the right and left arms between their `r_arm_init_pose` and `l_arm_init_pose` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `Sciurus17 Example Behavior` behavior in the FlexBE App and press **Start**.
+
 > [!CAUTION]
 > The FlexBE example behavior is **experimental** and currently has known issues in the Gazebo simulation.

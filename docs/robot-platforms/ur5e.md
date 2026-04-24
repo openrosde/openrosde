@@ -196,5 +196,15 @@ The following launch files are available for the Universal Robots UR5e platform 
 
 ## 🧪 FlexBE Behavior
 
+The `sde_ur5e_flexbe_behaviors` package provides an example behavior that loops the arm between the `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `UR5e Example Behavior` behavior in the FlexBE App and press **Start**.
+
 > [!CAUTION]
 > The FlexBE example behavior is **experimental** and currently has known issues in the Gazebo simulation.

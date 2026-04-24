@@ -5,7 +5,7 @@ This file contains instructions for AI coding agents working on this project.
 ## Project Overview
 
 This project is the open-source reference implementation of the Software Development Environment (SDE) for collaborative robotics research (see `README.md` for details).
-It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch) through a shared configuration system.
+It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch, Sciurus17, COBOTTA) through a shared configuration system.
 
 ### Tool Chain
 
@@ -236,6 +236,7 @@ Each RViz launch file also includes a `<node name="maximize_rviz" pkg="sde_launc
 The corresponding bringup Gazebo launch files include the same pattern with `name="maximize_gazebo"` and `args="Gazebo"` to maximize the Gazebo window.
 The `flexbe_app_default.launch` file includes the same pattern with `name="maximize_flexbe"` and `args="FlexBE"` to maximize the FlexBE App window (the `"FlexBE"` substring matches the `"FlexBE App"` window title; using a single word avoids roslaunch splitting the arg on the space).
 The `maximize-app-window.bash` script lives in `ros/sde_catkin_ws/src/sde_launch/scripts/` and is installed via `sde_launch`'s `CMakeLists.txt`.
+The script retries for up to 60 seconds to handle slow application startup (e.g. the FlexBE App nwjs window), then restores focus to Terminator using `wmctrl -xa terminator` (matches by WM_CLASS, reliable regardless of tab title).
 `wmctrl` must be installed in the container (it is included in the `sde-base` Dockerfile).
 
 ### ROS Packages
