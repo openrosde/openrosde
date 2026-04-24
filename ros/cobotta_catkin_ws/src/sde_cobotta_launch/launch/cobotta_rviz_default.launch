@@ -5,6 +5,13 @@
   <!-- https://github.com/DENSORobot/denso_cobotta_ros -->
   <!-- Upstream default: $(find denso_cobotta_moveit_config)/launch/moveit.rviz -->
 
+  <!-- Load 'kinematics.yaml' so the MotionPlanning RViz plugin can find the kinematics solver. -->
+  <group ns="robot_description_kinematics">
+    <rosparam command="load" file="$(find denso_cobotta_moveit_config)/config/kinematics.yaml" />
+  </group>
+
+  <!-- Display Rviz with a custom layout to monitor the COBOTTA robot. -->
+
   <node pkg="rviz" type="rviz" name="rviz" required="true"
     args="-d $(find sde_cobotta_launch)/config/rviz/cobotta_rviz_default.rviz" />
 

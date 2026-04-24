@@ -59,7 +59,7 @@ Or start the launch files manually in the Docker container:
 roslaunch sde_fetch_launch fetch_bringup_default_gazebo.launch
 roslaunch sde_fetch_launch fetch_navigation_default_gazebo.launch
 roslaunch sde_fetch_launch fetch_moveit_default.launch
-roslaunch sde_fetch_launch fetch_rviz_default_gazebo.launch
+roslaunch sde_fetch_launch fetch_rviz_default.launch
 ```
 
 ## 🕐 Clock Synchronization
@@ -89,7 +89,7 @@ Or start the launch files manually in the Docker container:
 roslaunch sde_fetch_launch fetch_bringup_default_realworld.launch
 roslaunch sde_fetch_launch fetch_mapping_default.launch
 roslaunch sde_fetch_launch fetch_moveit_default.launch
-roslaunch sde_fetch_launch fetch_rviz_default_realworld.launch
+roslaunch sde_fetch_launch fetch_rviz_default.launch
 ```
 
 ## 📋 Launch Files Reference
@@ -103,5 +103,4 @@ The following launch files are available for the Fetch Robotics Fetch platform (
 | `fetch_navigation_default_gazebo.launch` | Navigation stack (Gazebo) |
 | `fetch_mapping_default.launch` | SLAM mapping (build_map) |
 | `fetch_moveit_default.launch` | MoveIt motion planning |
-| `fetch_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
-| `fetch_rviz_default_realworld.launch` | RViz visualization (real robot) |
+| `fetch_rviz_default.launch` | RViz visualization |

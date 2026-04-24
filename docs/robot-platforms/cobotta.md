@@ -87,3 +87,10 @@ The following launch files are available for the Denso COBOTTA platform (package
 | `cobotta_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `cobotta_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `cobotta_rviz_default.launch` | RViz visualization (both Gazebo and real robot) |
+
+## 🧪 FlexBE Behavior
+
+The `sde_cobotta_flexbe_behaviors` package provides an example behavior that loops the arm between the `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+
+> [!CAUTION]
+> The FlexBE example behavior is **experimental** and currently has known issues in the Gazebo simulation.

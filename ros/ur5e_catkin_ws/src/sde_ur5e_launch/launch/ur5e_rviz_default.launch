@@ -5,8 +5,9 @@
   <!-- https://github.com/ros-industrial/universal_robot -->
   <!-- Upstream default: $(find ur5e_moveit_config)/launch/moveit.rviz -->
 
+  <!-- Display RViz with a custom layout to monitor the Universal Robots UR5e robot. -->
   <node pkg="rviz" type="rviz" name="rviz" required="true"
-    args="-d $(find sde_ur5e_launch)/config/rviz/ur5e_rviz_default_realworld.rviz" />
+    args="-d $(find sde_ur5e_launch)/config/rviz/ur5e_rviz_default.rviz" />
 
   <!-- Maximize the RViz window after it opens. -->
   <node name="maximize_rviz" pkg="sde_launch" type="maximize-app-window.bash" args="RViz" />

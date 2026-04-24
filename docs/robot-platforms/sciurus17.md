@@ -102,3 +102,8 @@ The following launch files are available for the RT Sciurus17 platform (package:
 | `sciurus17_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `sciurus17_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `sciurus17_rviz_default.launch` | RViz visualization (both Gazebo and real robot) |
+
+## 🧪 FlexBE Behavior
+
+> [!CAUTION]
+> The FlexBE example behavior is **experimental** and currently has known issues in the Gazebo simulation.

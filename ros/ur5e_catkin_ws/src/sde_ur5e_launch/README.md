@@ -11,7 +11,7 @@ The Gazebo teleoperation wrappers in this package are:
 
 - `ur5e_bringup_default_gazebo.launch`
 - `ur5e_moveit_default_gazebo.launch`
-- `ur5e_rviz_default_gazebo.launch`
+- `ur5e_rviz_default.launch`
 - `onrobot_rg_control_default_gazebo.launch`
 - `ur5e_teleop_default_gazebo.launch`
 
@@ -20,7 +20,7 @@ Recommended startup order:
 ```shell
 roslaunch sde_ur5e_launch ur5e_bringup_default_gazebo.launch
 roslaunch sde_ur5e_launch ur5e_moveit_default_gazebo.launch
-roslaunch sde_ur5e_launch ur5e_rviz_default_gazebo.launch
+roslaunch sde_ur5e_launch ur5e_rviz_default.launch
 roslaunch sde_ur5e_launch onrobot_rg_control_default_gazebo.launch
 roslaunch sde_ur5e_launch ur5e_teleop_default_gazebo.launch
 ```
@@ -51,7 +51,7 @@ Recommended startup order:
 ```shell
 roslaunch sde_ur5e_launch ur5e_bringup_default_realworld.launch
 roslaunch sde_ur5e_launch ur5e_moveit_default_realworld.launch
-roslaunch sde_ur5e_launch ur5e_rviz_default_realworld.launch
+roslaunch sde_ur5e_launch ur5e_rviz_default.launch
 roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch
 roslaunch sde_ur5e_launch onrobot_rg_control_default_realworld.launch
 roslaunch sde_ur5e_launch ur5e_teleop_default_realworld.launch
@@ -79,8 +79,7 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `ur5e_bringup_default_realworld.launch` | Universal Robots UR5e real robot bringup |
 | `ur5e_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `ur5e_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
-| `ur5e_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
-| `ur5e_rviz_default_realworld.launch` | RViz visualization (real robot) |
+| `ur5e_rviz_default.launch` | RViz visualization (Gazebo and real robot) |
 | `realsense_camera_default_realworld.launch` | Intel RealSense D435i camera (real robot) |
 | `ur5e_description_default_realworld.launch` | Robot description adapter for the UR5e driver (real robot) |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper control (Gazebo) |
