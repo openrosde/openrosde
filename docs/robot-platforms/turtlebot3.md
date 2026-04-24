@@ -210,14 +210,6 @@ To start RViz with the TurtleBot3 configuration:
 roslaunch sde_turtlebot3_launch turtlebot3_rviz_default_gazebo.launch
 ```
 
-### 🧠 FlexBE Behavior Engine
-
-To start the FlexBE behavior engine and app:
-
-```shell
-roslaunch sde_launch flexbe_app_default.launch
-```
-
 ## 📋 Launch Files Reference
 
 The following launch files are available for the Robotis TurtleBot3 platform (package: `sde_turtlebot3_launch`):
@@ -235,3 +227,15 @@ The following shared launch files are available across all platforms (package: `
 | Launch File | Description |
 | --- | --- |
 | `flexbe_app_default.launch` | FlexBE behavior engine and app |
+
+## 🧪 FlexBE Behavior
+
+The `sde_turtlebot3_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints using `MoveBaseState` and `WaitState`.
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `TurtleBot3 Example Behavior` behavior in the FlexBE App and press **Start**.

@@ -138,7 +138,7 @@ After bringing up the driver (in either mode), launch MoveIt and RViz:
 
 ```shell
 roslaunch sde_ur5e_launch ur5e_moveit_default_realworld.launch
-roslaunch sde_ur5e_launch ur5e_rviz_default_realworld.launch
+roslaunch sde_ur5e_launch ur5e_rviz_default.launch
 ```
 
 You should be able to plan and execute motions from RViz.
@@ -187,10 +187,24 @@ The following launch files are available for the Universal Robots UR5e platform 
 | `ur5e_bringup_default_gazebo.launch` | Universal Robots UR5e Gazebo simulation with RG2 gripper |
 | `ur5e_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `ur5e_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
-| `ur5e_rviz_default_realworld.launch` | RViz visualization (real robot) |
-| `ur5e_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
+| `ur5e_rviz_default.launch` | RViz visualization (Gazebo and real robot) |
 | `realsense_camera_default_realworld.launch` | Intel RealSense D435i camera |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper via Modbus TCP |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper (Gazebo) |
 | `ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceNavigator teleoperation (real robot) |
 | `ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceNavigator teleoperation (Gazebo) |
+
+## 🧪 FlexBE Behavior
+
+The `sde_ur5e_flexbe_behaviors` package provides an example behavior that loops the arm between the `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `UR5e Example Behavior` behavior in the FlexBE App and press **Start**.
+
+> [!CAUTION]
+> The FlexBE example behavior is **experimental** and currently has known issues in the Gazebo simulation.

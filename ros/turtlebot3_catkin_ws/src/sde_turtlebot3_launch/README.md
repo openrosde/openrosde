@@ -51,3 +51,13 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `turtlebot3_mapping_default.launch` | SLAM mapping (gmapping) |
 | `turtlebot3_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
 | `turtlebot3_rviz_default_realworld.launch` | RViz visualization (real robot) |
+
+## FlexBE Behavior
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `TurtleBot3 Example Behavior` behavior in the FlexBE App and press **Start**.

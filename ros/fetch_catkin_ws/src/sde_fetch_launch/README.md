@@ -12,7 +12,7 @@ The Gazebo simulation wrappers in this package are:
 - `fetch_bringup_default_gazebo.launch`
 - `fetch_navigation_default_gazebo.launch`
 - `fetch_moveit_default.launch`
-- `fetch_rviz_default_gazebo.launch`
+- `fetch_rviz_default.launch`
 
 Recommended startup order:
 
@@ -20,7 +20,7 @@ Recommended startup order:
 roslaunch sde_fetch_launch fetch_bringup_default_gazebo.launch
 roslaunch sde_fetch_launch fetch_navigation_default_gazebo.launch
 roslaunch sde_fetch_launch fetch_moveit_default.launch
-roslaunch sde_fetch_launch fetch_rviz_default_gazebo.launch
+roslaunch sde_fetch_launch fetch_rviz_default.launch
 ```
 
 To start the same Gazebo stack in the predefined Terminator layout:
@@ -54,5 +54,14 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `fetch_navigation_default_gazebo.launch` | Navigation stack (Gazebo) |
 | `fetch_mapping_default.launch` | SLAM mapping (build_map) |
 | `fetch_moveit_default.launch` | MoveIt motion planning |
-| `fetch_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
-| `fetch_rviz_default_realworld.launch` | RViz visualization (real robot) |
+| `fetch_rviz_default.launch` | RViz visualization |
+
+## FlexBE Behavior
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `Fetch Example Behavior` behavior in the FlexBE App and press **Start**.

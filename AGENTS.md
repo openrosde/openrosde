@@ -5,7 +5,7 @@ This file contains instructions for AI coding agents working on this project.
 ## Project Overview
 
 This project is the open-source reference implementation of the Software Development Environment (SDE) for collaborative robotics research (see `README.md` for details).
-It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch) through a shared configuration system.
+It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch, Sciurus17, COBOTTA) through a shared configuration system.
 
 ### Tool Chain
 
@@ -45,11 +45,11 @@ It provides a containerized, multi-platform development environment based on Doc
   - `docker-compose-cobotta.yaml`: COBOTTA platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
-  - `turtlebot3_catkin_ws/`: TurtleBot3 workspace.
-  - `ur5e_catkin_ws/`: UR5e workspace.
-  - `fetch_catkin_ws/`: Fetch workspace.
-  - `sciurus17_catkin_ws/`: Sciurus17 workspace.
-  - `cobotta_catkin_ws/`: COBOTTA workspace.
+  - `turtlebot3_catkin_ws/`: TurtleBot3 workspace (`sde_turtlebot3_launch/`, `sde_turtlebot3_behaviors/`).
+  - `ur5e_catkin_ws/`: UR5e workspace (`sde_ur5e_launch/`, `sde_ur5e_teleop/`, `sde_ur5e_behaviors/`).
+  - `fetch_catkin_ws/`: Fetch workspace (`sde_fetch_launch/`, `sde_fetch_behaviors/`).
+  - `sciurus17_catkin_ws/`: Sciurus17 workspace (`sde_sciurus17_launch/`, `sde_sciurus17_behaviors/`).
+  - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`).
 - `docs/`: Documentation.
@@ -111,7 +111,9 @@ The bottom-left 4 terminals are standardized across all platforms and both envir
 - `terminal9` (Number: 6): MoveIt (or navigation, depending on platform).
 - `terminal10` (Number: 7): FlexBE app (`sde_launch:flexbe_app_default.launch`), on all platforms and in both gazebo and realworld layouts.
 The top-right pair (`terminal13` / `terminal14`, Numbers: 2 / 3) is used for platform-specific secondary launches (e.g., gripper control, teleop, mapping).
-Spare terminals (`terminal18`–`terminal29`, Numbers: 8–15) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 14 in the UR5e realworld layout).
+Spare terminals (`terminal18`–`terminal29`, Numbers: 8–15) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 8 in the UR5e realworld layout).
+Number: 14 (`terminal28`) is standardized across all platforms and both environments for `sde_launch:rqt_suite_default.launch`.
+Number: 15 (`terminal29`) is standardized across all platforms and both environments for `sde_launch:rosbridge_server_default.launch`.
 
 ### Variable Naming Convention
 
@@ -132,9 +134,11 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - Add a header comment block after the shebang describing the script's purpose, usage, and arguments.
 - Use 80-character `#` lines as section separators.
 - Add a comment before each logical block explaining its purpose.
+- Write one sentence per line in comments.
 - Use single quotes `' '` around code-related references in comments (e.g., `# Load the default environment variables from the '.env' file:`).
 - Use `${VARIABLE}` syntax (with curly braces) for all variable references.
 - Prefix all custom variables with `SDE_` (e.g., `SDE_ROBOT_PLATFORM`, not `PLATFORM`).
+- Use at least 3 words for variable names (including `SDE_`), e.g., `SDE_ROBOT_PLATFORM`, not `SDE_PLATFORM`.
 - Do not use fallback default syntax (`${VAR:-default}`) in scripts; all defaults belong in `.env`.
 - Use `source` instead of `.` for sourcing scripts.
 - Use `pushd` / `popd` for temporary directory changes in functions.
@@ -226,8 +230,14 @@ Formatting conventions:
   - `<!-- SDE-specific: <one-line description> -->` — instead of the upstream line, when the file has no direct upstream counterpart.
 
 RViz launch files use an SDE-owned `.rviz` config file stored in `config/rviz/` within the `sde_<platform>_launch` package.
-These config files are copied from the upstream default and modified to add `Fullscreen: true` under `Window Geometry:`.
+These config files are copied from the upstream default and modified to set `Fullscreen: false` under `Window Geometry:`.
 All RViz launch nodes use `required="true"` so the layout closes when RViz exits.
+Each RViz launch file also includes a `<node name="maximize_rviz" pkg="sde_launch" type="maximize-app-window.bash" args="RViz" />` node that maximizes the window via `wmctrl` after it opens.
+The corresponding bringup Gazebo launch files include the same pattern with `name="maximize_gazebo"` and `args="Gazebo"` to maximize the Gazebo window.
+The `flexbe_app_default.launch` file includes the same pattern with `name="maximize_flexbe"` and `args="FlexBE"` to maximize the FlexBE App window (the `"FlexBE"` substring matches the `"FlexBE App"` window title; using a single word avoids roslaunch splitting the arg on the space).
+The `maximize-app-window.bash` script lives in `ros/sde_catkin_ws/src/sde_launch/scripts/` and is installed via `sde_launch`'s `CMakeLists.txt`.
+The script retries for up to 60 seconds to handle slow application startup (e.g. the FlexBE App nwjs window), then restores focus to Terminator using `wmctrl -xa terminator` (matches by WM_CLASS, reliable regardless of tab title).
+`wmctrl` must be installed in the container (it is included in the `sde-base` Dockerfile).
 
 ### ROS Packages
 
@@ -244,6 +254,46 @@ When a `sde_<platform>_launch` package itself needs Python helper nodes (e.g., a
 - The `urdf/` folder holds SDE-owned xacro files that extend or replace the upstream robot URDF.
 - The `description/` folder holds third-party description fragments (meshes, xacros) vendored into the package.
 - A `<component>_description_default_<environment>.launch` adapter file is used when the upstream driver's `robot_description_file` arg requires a launch file that accepts a `kinematics_params` arg.
+
+### FlexBE Behaviors Packages
+
+Each platform has a `sde_<platform>_behaviors/` directory in its Catkin workspace containing two ROS packages, plus a shared `README.md` and `.gitignore`:
+
+- `sde_<platform>_flexbe_behaviors/`: Contains FlexBE behavior state machines.
+  - `src/sde_<platform>_flexbe_behaviors/`: Python modules, one `<behavior_name>_sm.py` per behavior.
+  - `manifest/<behavior_name>.xml`: FlexBE behavior manifest (loaded by the FlexBE app).
+    The `<description>` element must be a single line with no embedded newlines; multi-line descriptions render as literal whitespace in the FlexBE app.
+  - `config/<behavior_name>.yaml`: Behavior parameters (placeholder; values are set in the manifest).
+  - `setup.py`, `CMakeLists.txt`, `package.xml`: Standard catkin Python package boilerplate.
+  - `package.xml` uses `format="2"`, exports `<flexbe_behaviors />`, and lists `flexbe_core`, `flexbe_states`, and any generic state packages (`flexbe_navigation_states`, `flexbe_manipulation_states`) as `exec_depend`.
+    `format="2"` requires `<exec_depend>` tags; using `<run_depend>` causes a `catkin_pkg.package.InvalidPackage` error at build time.
+- `sde_<platform>_flexbe_states/`: Reserved for platform-specific custom FlexBE states (empty by default; only add states here that cannot be satisfied by `flexbe_behavior_engine` or `flexbe_generic_states`).
+  - `src/sde_<platform>_flexbe_states/`: Python modules.
+  - `setup.py`, `CMakeLists.txt`, `package.xml`: Standard catkin Python package boilerplate.
+  - `package.xml` uses `format="2"` and exports `<flexbe_states />`.
+
+Behavior state machine files (`*_sm.py`) follow the code-generation format used by the FlexBE app:
+- Header block with `WARNING: Generated code!` comment.
+- All state imports at the top.
+- `[MANUAL_IMPORT]`, `[MANUAL_INIT]`, `[MANUAL_CREATE]`, `[MANUAL_FUNC]` tags preserved for FlexBE app round-trips.
+- Only use states from `flexbe_behavior_engine` (`flexbe_states`) and `flexbe_generic_states` (`flexbe_navigation_states`, `flexbe_manipulation_states`).
+  Do not create custom states unless strictly necessary.
+- Use descriptive state names with a `MoveTo*` / `WaitAt*` prefix pattern (e.g., `MoveToHome`, `WaitAtHome`).
+  Never use auto-generated `_1` / `_2` suffixes (e.g., `MoveBaseState_1`).
+- `OperatableStateMachine.add()` calls inside `with _state_machine:` use **3 tabs** for the call itself and **10 tabs** for all continuation argument lines (`state_class`, `transitions=`, `autonomy=`, `remapping=`).
+  When manually editing state names, ensure the 3-tab indentation of the `OperatableStateMachine.add(` line is preserved; dropping it to column 0 causes an `expected an indented block` `SyntaxError` at runtime.
+
+`SrdfStateToMoveit` reads `/robot_description_semantic` once in `__init__` when the FlexBE app instantiates the behavior class.
+This means the SRDF parameter must be on the ROS parameter server before the behavior is loaded in the FlexBE app, not just before it executes.
+Pre-load the SRDF in the bringup launch file (before MoveIt starts) to avoid a `param_error` on first load.
+
+Platform-specific behavior guidelines:
+- Mobile robot platforms (TurtleBot3, Fetch): looping navigation between two waypoints using `MoveBaseState` and `WaitState`.
+  State names: `MoveToWaypoint1`, `WaitAtWaypoint1`, `MoveToWaypoint2`, `WaitAtWaypoint2`.
+- Arm robot platforms (UR5e, COBOTTA): looping dance between `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+  State names: `MoveToHome`, `WaitAtHome`, `MoveToUp`, `WaitAtUp`.
+- Dual-arm robot platforms (Sciurus17): alternating left/right arm moves to `r_arm_init_pose` / `l_arm_init_pose` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+  State names: `MoveRightArmToInitPose`, `WaitAtRightInitPose`, `MoveLeftArmToInitPose`, `WaitAtLeftInitPose`.
 
 ### Markdown (README & Documentation)
 
@@ -308,9 +358,11 @@ Current submodules:
 
 Current patches:
 - `patches/ros/sde_catkin_ws/src/flexbe_app/0001-fix-curl-redirect.patch`: Fixes a broken curl redirect in the FlexBE app.
+- `patches/ros/sde_catkin_ws/src/flexbe_app/0002-set-window-maximized.patch`: Sets `"initial_state": "maximized"` in the nwjs `package.json` so the FlexBE App window opens maximized.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0001-fix-comments-collada.patch`: Expands self-closing `<comments/>` to `<comments></comments>` in 6 Collada mesh files (`base_link.dae`, `J1.dae`–`J3.dae`, `J5.dae`, `J6.dae`) to fix an RViz/Assimp parse error ("Expected end of `<comments>` element").
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0002-fix-gripper-pid-gain.patch`: Uncomments the `joint_gripper` PID gain entry in `gazebo_cobotta_control.yaml` to eliminate a `gazebo_ros_control` error when spawning the robot with `gripper_type:=parallel` in Gazebo.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0003-fix-blender-mesh-materials.patch`: Sets `ambient` to `0.5 0.5 0.5 1` and `emission` to `0.04 0.04 0.04 1` in 6 Blender-exported Collada mesh files (`J4.dae`, `gripper_base.dae`, `left_finger.dae`, `right_finger.dae`, `pad.dae`, `vacuum.dae`) to fix black rendering under OGRE/Mesa caused by explicit `ambient: 0 0 0 1`.
+- `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0004-add-srdf-named-states.patch`: Adds `home` (j3=π/2, all others=0) and `up` (j2=−π/4, j3=π/2, j5=π/4) named group states to `cobotta.srdf.xacro` for the `arm` group, enabling `SrdfStateToMoveit` FlexBE states to drive the arm to pre-defined configurations.
 
 ## Adding a New Platform
 
@@ -321,6 +373,7 @@ When adding a platform named `<platform>`, create these files:
 - `docker/<platform>-devel/Dockerfile`: platform Docker image.
 - `docker/docker-compose-<platform>.yaml`: Docker Compose overlay.
 - `ros/<platform>_catkin_ws/src/sde_<platform>_launch/`: ROS launch package (5 launch files, `package.xml`, `CMakeLists.txt`, `README.md`, `.gitignore`).
+- `ros/<platform>_catkin_ws/src/sde_<platform>_behaviors/`: FlexBE behaviors package (two sub-packages: `sde_<platform>_flexbe_behaviors/` and `sde_<platform>_flexbe_states/`, plus `README.md` and `.gitignore`).
 - `terminator/<platform>.config`: Terminator layouts.
 - `docs/robot-platforms/<platform>.md`: platform documentation.
 
@@ -360,7 +413,7 @@ And update `<platform>` in every platform-aware file:
 
 - The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`).
 - Docker images are pushed to `registry.gitlab.com/coarobo/sde/`.
-- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`).
+- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
 
 ## Versioning & Commits

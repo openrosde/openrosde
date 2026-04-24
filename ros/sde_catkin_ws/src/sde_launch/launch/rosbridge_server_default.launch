@@ -2,6 +2,11 @@
 
 <launch>
 
+  <!-- https://github.com/RobotWebTools/rosbridge_suite -->
+  <!-- Upstream default: $(find rosbridge_server)/launch/rosbridge_websocket.launch -->
+
+  <!-- Start the rosbridge WebSocket server bound to all interfaces on port 9090. -->
+
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
     <arg name="address" value="0.0.0.0" />
     <arg name="port" value="9090" />

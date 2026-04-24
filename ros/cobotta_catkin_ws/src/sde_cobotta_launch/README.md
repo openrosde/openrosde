@@ -14,7 +14,7 @@ The Gazebo simulation wrappers in this package are:
 - `cobotta_rviz_default.launch`
 
 The parallel gripper (`gripper_type:=parallel`) is displayed in Gazebo and RViz by default.
-The gripper is visual-only in simulation — the `cobotta/gripper_action` server is only available on the real robot.
+The gripper is visual-only in simulation, as the `cobotta/gripper_action` server is only available on the real robot.
 
 Recommended startup order:
 
@@ -38,7 +38,8 @@ The real robot wrappers in this package are:
 - `cobotta_moveit_default_realworld.launch`
 - `cobotta_rviz_default.launch`
 
-The parallel gripper (`gripper_type:=parallel`) is used by default — the gripper driver is started automatically by the bringup.
+The parallel gripper (`gripper_type:=parallel`) is used by default.
+The gripper driver is started automatically by the bringup.
 
 Recommended startup order:
 
@@ -63,3 +64,13 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `cobotta_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `cobotta_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `cobotta_rviz_default.launch` | RViz visualization (both Gazebo and real robot) |
+
+## FlexBE Behavior
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `COBOTTA Example Behavior` behavior in the FlexBE App and press **Start**.

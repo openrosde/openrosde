@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/DENSORobot/denso_cobotta_ros -->
+  <!-- Upstream default: $(find denso_cobotta_moveit_config)/launch/move_group.launch -->
+
   <!-- "gripper_type": Select from none/parallel/vacuum. -->
   <arg name="gripper_type" default="parallel" />
 

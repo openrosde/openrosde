@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index 5e6f468..61fb91d 100644
+--- a/package.json
++++ b/package.json
+@@ -5,6 +5,7 @@
+   "window": {
+     "icon": "src/img/icon-128.png",
+     "toolbar": false,
++    "initial_state": "maximized",
+     "width": 1340,
+     "height": 830,
+     "min_width": 1340,

@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/ROBOTIS-GIT/turtlebot3 -->
+  <!-- Upstream default: $(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch -->
+
   <!-- Start navigation on the TurtleBot3 robot. -->
 
   <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">

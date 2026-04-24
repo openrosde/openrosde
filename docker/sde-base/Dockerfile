@@ -100,6 +100,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   psmisc \
   unzip \
   wget \
+  wmctrl \
   x11-apps \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 

@@ -8,3 +8,10 @@ catkin_package()
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+# Install the 'maximize-app-window.bash' helper script so it is discoverable as a
+# roslaunch node type via 'pkg="sde_launch" type="maximize-app-window.bash"'.
+install(PROGRAMS
+  scripts/maximize-app-window.bash
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

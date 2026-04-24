@@ -32,7 +32,7 @@ bash ./SWITCH-ROBOT-PLATFORM.bash cobotta
 ## 🌐 Network Configuration
 
 The Denso COBOTTA connects to the Ubuntu development machine over USB via the `denso_cobotta` kernel module.
-No network configuration is required — `SDE_ROBOT_HOSTNAME` is not applicable for this platform.
+No network configuration is required, as `SDE_ROBOT_HOSTNAME` is not applicable for this platform.
 
 ## 🚀 Gazebo Simulation
 
@@ -51,16 +51,19 @@ roslaunch sde_cobotta_launch cobotta_rviz_default.launch
 ```
 
 > [!NOTE]
-> The Gazebo simulation uses `gripper_type:=parallel` by default — the parallel gripper is displayed in Gazebo and RViz.
-> The gripper is visual-only in simulation; the `cobotta/gripper_action` server that drives it is only available on the real robot.
-> The COBOTTA robot has an Atom CPU and is not capable of running Gazebo locally — the simulation runs on the Ubuntu development machine.
+> The Gazebo simulation uses `gripper_type:=parallel` by default.
+> The parallel gripper is displayed in Gazebo and RViz.
+> The gripper is visual-only in simulation, as the `cobotta/gripper_action` server that drives it is only available on the real robot.
+> The COBOTTA robot has an Atom CPU and is not capable of running Gazebo locally.
+> The simulation runs on the Ubuntu development machine.
 
 ## 🤖 Real Robot Operation
 
 > [!IMPORTANT]
 > The `denso_cobotta` kernel module must be loaded on the host machine before starting the driver.
 > Perform the CALSET (calibration set) procedure as described in the official documentation before running the robot for the first time.
-> The real robot bringup uses `gripper_type:=parallel` by default — the parallel gripper driver is started automatically.
+> The real robot bringup uses `gripper_type:=parallel` by default.
+> The parallel gripper driver is started automatically.
 
 Start the Denso COBOTTA real robot using the predefined Terminator layout:
 
@@ -87,3 +90,18 @@ The following launch files are available for the Denso COBOTTA platform (package
 | `cobotta_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `cobotta_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `cobotta_rviz_default.launch` | RViz visualization (both Gazebo and real robot) |
+
+## 🧪 FlexBE Behavior
+
+The `sde_cobotta_flexbe_behaviors` package provides an example behavior that loops the arm between the `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+
+To start the FlexBE behavior engine and app:
+
+```shell
+roslaunch sde_launch flexbe_app_default.launch
+```
+
+Load the `COBOTTA Example Behavior` behavior in the FlexBE App and press **Start**.
+
+> [!CAUTION]
+> The FlexBE example behavior is **experimental** and currently has known issues in the Gazebo simulation.
