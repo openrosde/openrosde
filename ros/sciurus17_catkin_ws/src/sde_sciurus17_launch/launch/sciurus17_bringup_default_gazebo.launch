@@ -45,4 +45,7 @@
   <param name="robot_description_semantic"
     textfile="$(find sciurus17_moveit_config)/config/sciurus17.srdf" />
 
+  <!-- Maximize the Gazebo window after it opens. -->
+  <node name="maximize_gazebo" pkg="sde_launch" type="maximize-app-window.bash" args="Gazebo" />
+
 </launch>

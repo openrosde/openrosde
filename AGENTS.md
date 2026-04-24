@@ -132,6 +132,7 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - Add a header comment block after the shebang describing the script's purpose, usage, and arguments.
 - Use 80-character `#` lines as section separators.
 - Add a comment before each logical block explaining its purpose.
+- Write one sentence per line in comments.
 - Use single quotes `' '` around code-related references in comments (e.g., `# Load the default environment variables from the '.env' file:`).
 - Use `${VARIABLE}` syntax (with curly braces) for all variable references.
 - Prefix all custom variables with `SDE_` (e.g., `SDE_ROBOT_PLATFORM`, not `PLATFORM`).
@@ -226,8 +227,13 @@ Formatting conventions:
   - `<!-- SDE-specific: <one-line description> -->` — instead of the upstream line, when the file has no direct upstream counterpart.
 
 RViz launch files use an SDE-owned `.rviz` config file stored in `config/rviz/` within the `sde_<platform>_launch` package.
-These config files are copied from the upstream default and modified to add `Fullscreen: true` under `Window Geometry:`.
+These config files are copied from the upstream default and modified to set `Fullscreen: false` under `Window Geometry:`.
 All RViz launch nodes use `required="true"` so the layout closes when RViz exits.
+Each RViz launch file also includes a `<node name="maximize_rviz" pkg="sde_launch" type="maximize-app-window.bash" args="RViz" />` node that maximizes the window via `wmctrl` after it opens.
+The corresponding bringup Gazebo launch files include the same pattern with `name="maximize_gazebo"` and `args="Gazebo"` to maximize the Gazebo window.
+The `flexbe_app_default.launch` file includes the same pattern with `name="maximize_flexbe"` and `args="FlexBE"` to maximize the FlexBE App window (the `"FlexBE"` substring matches the `"FlexBE App"` window title; using a single word avoids roslaunch splitting the arg on the space).
+The `maximize-app-window.bash` script lives in `ros/sde_catkin_ws/src/sde_launch/scripts/` and is installed via `sde_launch`'s `CMakeLists.txt`.
+`wmctrl` must be installed in the container (it is included in the `sde-base` Dockerfile).
 
 ### ROS Packages
 
@@ -348,6 +354,7 @@ Current submodules:
 
 Current patches:
 - `patches/ros/sde_catkin_ws/src/flexbe_app/0001-fix-curl-redirect.patch`: Fixes a broken curl redirect in the FlexBE app.
+- `patches/ros/sde_catkin_ws/src/flexbe_app/0002-set-window-maximized.patch`: Sets `"initial_state": "maximized"` in the nwjs `package.json` so the FlexBE App window opens maximized.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0001-fix-comments-collada.patch`: Expands self-closing `<comments/>` to `<comments></comments>` in 6 Collada mesh files (`base_link.dae`, `J1.dae`–`J3.dae`, `J5.dae`, `J6.dae`) to fix an RViz/Assimp parse error ("Expected end of `<comments>` element").
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0002-fix-gripper-pid-gain.patch`: Uncomments the `joint_gripper` PID gain entry in `gazebo_cobotta_control.yaml` to eliminate a `gazebo_ros_control` error when spawning the robot with `gripper_type:=parallel` in Gazebo.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0003-fix-blender-mesh-materials.patch`: Sets `ambient` to `0.5 0.5 0.5 1` and `emission` to `0.04 0.04 0.04 1` in 6 Blender-exported Collada mesh files (`J4.dae`, `gripper_base.dae`, `left_finger.dae`, `right_finger.dae`, `pad.dae`, `vacuum.dae`) to fix black rendering under OGRE/Mesa caused by explicit `ambient: 0 0 0 1`.

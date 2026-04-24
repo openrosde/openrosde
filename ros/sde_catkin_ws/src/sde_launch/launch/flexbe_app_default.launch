@@ -6,4 +6,7 @@
 
   <include file="$(find flexbe_app)/launch/flexbe_full.launch" />
 
+  <!-- Maximize the FlexBE App window after it opens. -->
+  <node name="maximize_flexbe" pkg="sde_launch" type="maximize-app-window.bash" args="FlexBE" />
+
 </launch>

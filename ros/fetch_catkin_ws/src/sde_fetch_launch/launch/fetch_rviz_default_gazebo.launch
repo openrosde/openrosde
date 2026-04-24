@@ -9,4 +9,7 @@
 
   <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(arg rviz_file)" />
 
+  <!-- Maximize the RViz window after it opens. -->
+  <node name="maximize_rviz" pkg="sde_launch" type="maximize-app-window.bash" args="RViz" />
+
 </launch>

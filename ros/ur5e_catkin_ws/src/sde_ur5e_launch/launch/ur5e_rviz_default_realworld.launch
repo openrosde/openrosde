@@ -8,4 +8,7 @@
   <node pkg="rviz" type="rviz" name="rviz" required="true"
     args="-d $(find sde_ur5e_launch)/config/rviz/ur5e_rviz_default_realworld.rviz" />
 
+  <!-- Maximize the RViz window after it opens. -->
+  <node name="maximize_rviz" pkg="sde_launch" type="maximize-app-window.bash" args="RViz" />
+
 </launch>
