@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/FlexBE/flexbe_app -->
+  <!-- Upstream default: $(find flexbe_app)/launch/flexbe_full.launch -->
+
   <!-- Start both FlexBE Behavior Engine and FlexBE App for local behavior execution. -->
 
   <include file="$(find flexbe_app)/launch/flexbe_full.launch" />

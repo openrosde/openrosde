@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/ROBOTIS-GIT/turtlebot3 -->
+  <!-- Upstream default: $(find turtlebot3_gazebo)/rviz/turtlebot3_gazebo_rviz.rviz -->
+
   <!-- Display Rviz with a custom layout to monitor the TurtleBot3 robot. -->
 
   <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find sde_turtlebot3_launch)/config/rviz/turtlebot3_rviz_default_gazebo.rviz" />

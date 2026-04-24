@@ -2,6 +2,9 @@
 
 <launch>
 
+  <!-- https://github.com/ROBOTIS-GIT/turtlebot3 -->
+  <!-- Upstream default: $(find turtlebot3_slam)/launch/turtlebot3_slam.launch -->
+
   <!-- Start mapping on the TurtleBot3 robot. -->
 
   <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">

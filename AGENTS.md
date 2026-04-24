@@ -412,7 +412,7 @@ And update `<platform>` in every platform-aware file:
 
 - The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`).
 - Docker images are pushed to `registry.gitlab.com/coarobo/sde/`.
-- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`).
+- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
 
 ## Versioning & Commits
