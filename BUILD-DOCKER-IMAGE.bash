@@ -36,7 +36,7 @@ fi
 if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
   # Build all platform images from scratch without cache.
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
-  for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17 cobotta; do
+  for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17 cobotta hsr; do
     export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
     export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
     echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."

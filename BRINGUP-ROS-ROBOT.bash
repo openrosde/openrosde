@@ -67,6 +67,9 @@ echo Done
   cobotta)
     echo "COBOTTA robot bringup is not yet configured. Please start the robot manually."
     ;;
+  hsr)
+    echo "HSR robot bringup is not yet configured. The real HSR requires Toyota's closed-source 'tmc_*' packages, which are not available in this open-source SDE."
+    ;;
   *)
     echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No bringup commands available."
     ;;

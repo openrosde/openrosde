@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/hsr-project/tmc_wrs_binary -->
+  <!-- Upstream default: $(find hsrb_rosnav_config)/launch/hsrb_nav.launch -->
+
+  <arg name="map" default="$(find tmc_wrs_gazebo_worlds)/maps/wrs2020/map.yaml" />
+
+  <!-- Start the navigation stack (AMCL + move_base) with the WRS 2020 pre-built map. -->
+  <include file="$(find hsrb_rosnav_config)/launch/hsrb_nav.launch">
+    <arg name="map_file" value="$(arg map)" />
+  </include>
+
+</launch>

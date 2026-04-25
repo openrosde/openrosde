@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/hsr-project/tmc_wrs_binary -->
+  <!-- Upstream default: $(find hsrb_moveit_config)/launch/hsrb_demo_with_controller.launch -->
+
+  <!-- Start MoveIt move_group with the HSR MoveIt configuration. -->
+  <include file="$(find hsrb_moveit_config)/launch/hsrb_demo_with_controller.launch">
+    <arg name="use_gui"                value="false" />
+    <arg name="load_robot_description" value="false" />
+  </include>
+
+</launch>

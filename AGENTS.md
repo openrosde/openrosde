@@ -5,7 +5,7 @@ This file contains instructions for AI coding agents working on this project.
 ## Project Overview
 
 This project is the open-source reference implementation of the Software Development Environment (SDE) for collaborative robotics research (see `README.md` for details).
-It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch, Sciurus17, COBOTTA) through a shared configuration system.
+It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch, Sciurus17, COBOTTA, HSR) through a shared configuration system.
 
 ### Tool Chain
 
@@ -35,6 +35,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `fetch-devel/`: Fetch platform image.
   - `sciurus17-devel/`: Sciurus17 platform image.
   - `cobotta-devel/`: COBOTTA platform image.
+  - `hsr-devel/`: HSR platform image (Gazebo-only, open-source).
   - `docker-compose.yaml`: Base service definitions.
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
@@ -43,6 +44,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `docker-compose-fetch.yaml`: Fetch platform overlay.
   - `docker-compose-sciurus17.yaml`: Sciurus17 platform overlay.
   - `docker-compose-cobotta.yaml`: COBOTTA platform overlay.
+  - `docker-compose-hsr.yaml`: HSR platform overlay.
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace (`sde_turtlebot3_launch/`, `sde_turtlebot3_behaviors/`).
@@ -50,13 +52,14 @@ It provides a containerized, multi-platform development environment based on Doc
   - `fetch_catkin_ws/`: Fetch workspace (`sde_fetch_launch/`, `sde_fetch_behaviors/`).
   - `sciurus17_catkin_ws/`: Sciurus17 workspace (`sde_sciurus17_launch/`, `sde_sciurus17_behaviors/`).
   - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
+  - `hsr_catkin_ws/`: HSR workspace (`sde_hsr_launch/`, `sde_hsr_behaviors/`).
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
-- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`).
+- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`).
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
-  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`).
-- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`).
+  - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`, `hsr.md`).
+- `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`, `hsr.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline scripts.
 
 ## Agent Persona
@@ -71,7 +74,7 @@ You have expertise in Docker, ROS, Bash scripting, and Linux system administrati
 The SDE supports multiple robot platforms through a single codebase controlled by the `SDE_ROBOT_PLATFORM` variable in `.env`:
 
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
-- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`, `cobotta-devel`) extend the base with robot-specific packages.
+- Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`, `cobotta-devel`, `hsr-devel`) extend the base with robot-specific packages.
 - Two Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`) then platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`).
 - All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
 
@@ -236,7 +239,8 @@ Each RViz launch file also includes a `<node name="maximize_rviz" pkg="sde_launc
 The corresponding bringup Gazebo launch files include the same pattern with `name="maximize_gazebo"` and `args="Gazebo"` to maximize the Gazebo window.
 The `flexbe_app_default.launch` file includes the same pattern with `name="maximize_flexbe"` and `args="FlexBE"` to maximize the FlexBE App window (the `"FlexBE"` substring matches the `"FlexBE App"` window title; using a single word avoids roslaunch splitting the arg on the space).
 The `maximize-app-window.bash` script lives in `ros/sde_catkin_ws/src/sde_launch/scripts/` and is installed via `sde_launch`'s `CMakeLists.txt`.
-The script retries for up to 60 seconds to handle slow application startup (e.g. the FlexBE App nwjs window), then restores focus to Terminator using `wmctrl -xa terminator` (matches by WM_CLASS, reliable regardless of tab title).
+The script retries for up to 60 seconds to handle slow application startup (e.g. the FlexBE App nwjs window), then runs a short focus-restore loop that re-asserts the maximized state and refocuses Terminator (matched by its window title `SDE (` set in `terminator/*.config`).
+A non-blocking `flock` on `/tmp/sde_maximize_focus.lock` ensures only one concurrent instance runs the focus-restore loop at a time, which prevents flickering when several maximize nodes run in parallel (e.g. RViz, FlexBE, the rqt suite).
 `wmctrl` must be installed in the container (it is included in the `sde-base` Dockerfile).
 
 ### ROS Packages
@@ -288,7 +292,7 @@ This means the SRDF parameter must be on the ROS parameter server before the beh
 Pre-load the SRDF in the bringup launch file (before MoveIt starts) to avoid a `param_error` on first load.
 
 Platform-specific behavior guidelines:
-- Mobile robot platforms (TurtleBot3, Fetch): looping navigation between two waypoints using `MoveBaseState` and `WaitState`.
+- Mobile robot platforms (TurtleBot3, Fetch, HSR): looping navigation between two waypoints using `MoveBaseState` and `WaitState`.
   State names: `MoveToWaypoint1`, `WaitAtWaypoint1`, `MoveToWaypoint2`, `WaitAtWaypoint2`.
 - Arm robot platforms (UR5e, COBOTTA): looping dance between `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
   State names: `MoveToHome`, `WaitAtHome`, `MoveToUp`, `WaitAtUp`.
@@ -355,6 +359,7 @@ Current submodules:
 - Fetch (`fetch_catkin_ws`): `fetch_gazebo` (branch `gazebo11`, provides `fetch_gazebo` and `fetch_gazebo_demo`).
 - Sciurus17 (`sciurus17_catkin_ws`): `sciurus17_ros` (branch `master`, ROS 1), `sciurus17_description` (branch `main`, dependency package used by ROS 1 setup).
 - COBOTTA (`cobotta_catkin_ws`): `denso_cobotta_ros` (branch `melodic-devel`, the most up-to-date branch, 2 commits ahead of `master`, latest release v1.2.4).
+- HSR (`hsr_catkin_ws`): no submodules. The `hsr-devel` Docker image is built as a multi-stage image whose first stage is the publicly distributed Toyota binary image `ghcr.io/hsr-project/tmc_wrs_binary:noetic-latest` (BSD 3-Clause Clear). The HSR ROS Noetic stack (URDF, SRDF, MoveIt, navigation, controllers, all `hsrb_*` and `tmc_*` packages, and the WRS apartment world) is installed into `/opt/ros/noetic` inside the binary image (via `catkin config --cmake-args -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic`) and COPY-merged into the SDE base. No separate workspace overlay is needed; sourcing `/opt/ros/noetic/setup.bash` is sufficient. The corresponding ROS Noetic source code is hosted on the private `git.hsr.io` GitLab and is intentionally not vendored.
 
 Current patches:
 - `patches/ros/sde_catkin_ws/src/flexbe_app/0001-fix-curl-redirect.patch`: Fixes a broken curl redirect in the FlexBE app.
@@ -413,7 +418,7 @@ And update `<platform>` in every platform-aware file:
 
 - The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`).
 - Docker images are pushed to `registry.gitlab.com/coarobo/sde/`.
-- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`).
+- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
 
 ## Versioning & Commits

@@ -136,7 +136,7 @@ Search for an existing platform name (e.g., `cobotta`) to find the exact lines t
 | File | What to add |
 | --- | --- |
 | `.env` | Add `<platform>` to the `# Platform to use:` comment |
-| `env/turtlebot3.env`, `env/ur5e.env`, `env/fetch.env`, `env/sciurus17.env`, `env/cobotta.env` | Same comment update |
+| `env/turtlebot3.env`, `env/ur5e.env`, `env/fetch.env`, `env/sciurus17.env`, `env/cobotta.env`, `env/hsr.env` | Same comment update |
 | `BUILD-DOCKER-IMAGE.bash` | Add `<platform>` to the `for SDE_PLATFORM in ...` loop |
 | `gitlab-ci/PUSH-DOCKER-IMAGE.bash` | Add `<platform>` to the `for SDE_PLATFORM in ...` loop |
 | `gitlab-ci/gitlab-ci.yml` | Add `<platform>` to the `SDE_ROBOT_PLATFORM:` matrix list |
