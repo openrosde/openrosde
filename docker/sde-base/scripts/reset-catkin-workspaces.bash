@@ -17,7 +17,8 @@ apt-get update
 
 # Install system dependencies required by specific ROS packages.
 # http://wiki.ros.org/rosdep
-rosdep update --include-eol-distros
+# '--rosdistro noetic' limits the download to the Noetic package lists only, skipping other distros and EOL entries.
+rosdep update --rosdistro noetic
 
 ################################################################################
 

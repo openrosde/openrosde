@@ -2,7 +2,8 @@
 
 # This script maximizes the first X11 window whose title matches the given pattern,
 # then restores focus to Terminator.
-# It retries for up to 60 additional seconds to handle slow application startup.
+# A shared lock file ensures only one concurrent instance runs the focus-restore loop at a time,
+# preventing focus flickering when multiple maximize scripts run concurrently on startup.
 #
 # Usage: bash ./maximize-app-window.bash <window-title> [delay-seconds]
 #
@@ -25,15 +26,28 @@ done
 
 ################################################################################
 
-# Wait for the window to appear before the first attempt.
+# Wait before the first attempt.
 sleep "${SDE_STARTUP_DELAY}"
 
-# Retry until the window is found and maximized (up to 60 additional seconds).
-for SDE_RETRY_ATTEMPT in $(seq 1 60); do
+# Phase 1: Wait silently for the window to appear, then maximize it.
+# No focus calls here — concurrent instances must not fight for focus before their windows open.
+for SDE_ATTEMPT in $(seq 1 60); do
   if wmctrl -r "${SDE_WINDOW_TITLE}" -b add,maximized_vert,maximized_horz 2>/dev/null; then
-    # Restore focus to Terminator by matching its WM_CLASS (reliable regardless of tab title).
-    wmctrl -xa terminator 2>/dev/null
     break
   fi
   sleep 1
 done
+
+# Phase 2: Re-maximize and restore focus to Terminator.
+# A non-blocking lock ensures only one concurrent instance runs this loop at a time.
+# Scripts that cannot acquire the lock skip focus-restore entirely (their window is already maximized).
+# This prevents simultaneous scripts (e.g. RViz, FlexBE, rqt suite) from flickering focus.
+# Match Terminator by its window title 'SDE (' which is shared by all platform layouts (set in terminator/*.config).
+(
+  flock --nonblock 200 || exit 0
+  for SDE_FOCUS_ATTEMPT in $(seq 1 5); do
+    wmctrl -r "${SDE_WINDOW_TITLE}" -b add,maximized_vert,maximized_horz 2>/dev/null
+    wmctrl -a "SDE (" 2>/dev/null
+    sleep 1
+  done
+) 200>/tmp/sde_maximize_focus.lock
