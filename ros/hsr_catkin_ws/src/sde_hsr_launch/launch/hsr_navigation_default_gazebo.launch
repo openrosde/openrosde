@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/hsr-project/tmc_wrs_docker -->
+  <!-- SDE-specific: the navigation stack is already started by 'hsr_bringup_default_gazebo.launch' via the upstream 'tmc_wrs_gazebo_launch/wrs_practice0.launch' file. -->
+  <!-- This launch file is intentionally empty so the standardized terminator pane stays available for ad-hoc navigation tooling. -->
+
+</launch>

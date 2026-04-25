@@ -32,6 +32,7 @@ Open-source reference implementation of the Software Development Environment (SD
 | `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [docs/robot-platforms/fetch.md](docs/robot-platforms/fetch.md) |
 | `sciurus17` | [RT Sciurus17](https://rt-net.jp/products/sciurus17/) | [docs/robot-platforms/sciurus17.md](docs/robot-platforms/sciurus17.md) |
 | `cobotta` | [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) | [docs/robot-platforms/cobotta.md](docs/robot-platforms/cobotta.md) |
+| `hsr` | [Toyota HSR (Human Support Robot)](https://github.com/hsr-project) | [docs/robot-platforms/hsr.md](docs/robot-platforms/hsr.md) |
 
 ## 💻 Supported Software Platforms
 
@@ -72,6 +73,8 @@ flowchart TD
         base --> sciurus17
         cobotta["'cobotta-devel'"]
         base --> cobotta
+        hsr["'hsr-devel'"]
+        base --> hsr
     end
 
     subgraph container["Docker container"]
@@ -145,6 +148,7 @@ env/
   fetch.env                              # Fetch platform template.
   sciurus17.env                          # Sciurus17 platform template.
   cobotta.env                            # COBOTTA platform template.
+  hsr.env                                # HSR platform template.
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
 RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.
@@ -161,6 +165,7 @@ docker/
   docker-compose-fetch.yaml              # Fetch platform overlay.
   docker-compose-sciurus17.yaml          # Sciurus17 platform overlay.
   docker-compose-cobotta.yaml            # COBOTTA platform overlay.
+  docker-compose-hsr.yaml                # HSR platform overlay.
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
   sde-base/                              # Shared base Docker image.
@@ -176,6 +181,8 @@ docker/
     Dockerfile
   cobotta-devel/                         # COBOTTA platform image.
     Dockerfile
+  hsr-devel/                             # HSR platform image.
+    Dockerfile
 ros/
   sde_catkin_ws/                         # Shared Catkin workspace.
   turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
@@ -183,6 +190,7 @@ ros/
   fetch_catkin_ws/                       # Fetch Catkin workspace.
   sciurus17_catkin_ws/                   # Sciurus17 Catkin workspace.
   cobotta_catkin_ws/                     # COBOTTA Catkin workspace.
+  hsr_catkin_ws/                         # HSR Catkin workspace.
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md
@@ -192,12 +200,14 @@ docs/                                    # Documentation.
     fetch.md
     sciurus17.md
     cobotta.md
+    hsr.md
 terminator/
   turtlebot3.config                      # TurtleBot3 Terminator layout.
   ur5e.config                            # UR5e Terminator layout.
   fetch.config                           # Fetch Terminator layout.
   sciurus17.config                       # Sciurus17 Terminator layout.
   cobotta.config                         # COBOTTA Terminator layout.
+  hsr.config                             # HSR Terminator layout.
 patches/                                 # Submodule patch files.
 gitlab-ci/                               # GitLab CI/CD scripts.
 ```
@@ -213,6 +223,7 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 | [Robot Platforms / Fetch](docs/robot-platforms/fetch.md) | Fetch Robotics Fetch robot configuration, installation, and operation |
 | [Robot Platforms / Sciurus17](docs/robot-platforms/sciurus17.md) | RT Sciurus17 robot configuration, installation, and operation |
 | [Robot Platforms / COBOTTA](docs/robot-platforms/cobotta.md) | Denso COBOTTA robot configuration, installation, and operation |
+| [Robot Platforms / HSR](docs/robot-platforms/hsr.md) | Toyota HSR (Human Support Robot) simulation-only configuration, installation, and operation |
 
 ## 📄 Related Publications
 

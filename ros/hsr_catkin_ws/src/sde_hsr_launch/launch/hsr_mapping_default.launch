@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/hsr-project/tmc_wrs_docker -->
+  <!-- SDE-specific: SLAM mapping is not wired in by default. -->
+  <!-- The WRS apartment world ships with a pre-built map ('tmc_wrs_gazebo_worlds/maps/wrs2020/map.yaml') that the upstream bringup loads automatically. -->
+  <!-- To run SLAM instead, replace this file with a launch that starts 'gmapping' or 'slam_toolbox' against '/hsrb/base_scan'. -->
+
+</launch>

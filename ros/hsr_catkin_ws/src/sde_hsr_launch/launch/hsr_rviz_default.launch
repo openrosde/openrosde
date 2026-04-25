@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/hsr-project/tmc_wrs_docker -->
+  <!-- Upstream default: $(find hsrb_rosnav_config)/launch/hsrb.rviz -->
+
+  <!-- Display RViz with the upstream HSR navigation/MoveIt layout. -->
+
+  <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find hsrb_rosnav_config)/launch/hsrb.rviz" />
+
+  <!-- Maximize the RViz window after it opens. -->
+
+  <node name="maximize_rviz" pkg="sde_launch" type="maximize-app-window.bash" args="RViz" />
+
+</launch>

@@ -199,6 +199,9 @@ case "${SDE_ROBOT_PLATFORM}" in
   cobotta)
     SDE_LAUNCH_PACKAGE=sde_cobotta_launch
     ;;
+  hsr)
+    SDE_LAUNCH_PACKAGE=sde_hsr_launch
+    ;;
 esac
 
 export SDE_LAUNCH_PACKAGE

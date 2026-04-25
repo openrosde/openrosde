@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/hsr-project -->
+  <!-- SDE-specific: real robot bringup is not configured. -->
+  <!-- Toyota's 'tmc_wrs_binary' image only provides the simulation stack; the real HSR robot driver is hosted on the private 'git.hsr.io' GitLab and requires a Toyota HSR Community account. -->
+
+</launch>
