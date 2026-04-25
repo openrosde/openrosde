@@ -239,7 +239,8 @@ Each RViz launch file also includes a `<node name="maximize_rviz" pkg="sde_launc
 The corresponding bringup Gazebo launch files include the same pattern with `name="maximize_gazebo"` and `args="Gazebo"` to maximize the Gazebo window.
 The `flexbe_app_default.launch` file includes the same pattern with `name="maximize_flexbe"` and `args="FlexBE"` to maximize the FlexBE App window (the `"FlexBE"` substring matches the `"FlexBE App"` window title; using a single word avoids roslaunch splitting the arg on the space).
 The `maximize-app-window.bash` script lives in `ros/sde_catkin_ws/src/sde_launch/scripts/` and is installed via `sde_launch`'s `CMakeLists.txt`.
-The script retries for up to 60 seconds to handle slow application startup (e.g. the FlexBE App nwjs window), then restores focus to Terminator using `wmctrl -xa terminator` (matches by WM_CLASS, reliable regardless of tab title).
+The script retries for up to 60 seconds to handle slow application startup (e.g. the FlexBE App nwjs window), then runs a short focus-restore loop that re-asserts the maximized state and refocuses Terminator (matched by its window title `SDE (` set in `terminator/*.config`).
+A non-blocking `flock` on `/tmp/sde_maximize_focus.lock` ensures only one concurrent instance runs the focus-restore loop at a time, which prevents flickering when several maximize nodes run in parallel (e.g. RViz, FlexBE, the rqt suite).
 `wmctrl` must be installed in the container (it is included in the `sde-base` Dockerfile).
 
 ### ROS Packages

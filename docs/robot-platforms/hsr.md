@@ -102,7 +102,6 @@ The following launch files are available for the Toyota HSR platform (package: `
 | `hsr_rviz_default.launch` | RViz with the SDE-owned `config/rviz/hsr_rviz_default.rviz` layout. |
 | `hsr_moveit_default.launch` | MoveIt `move_group` for arm motion planning. |
 | `hsr_navigation_default_gazebo.launch` | Navigation stack (AMCL + `move_base`) with the WRS 2020 pre-built map. |
-| `hsr_mapping_default.launch` | Placeholder (the WRS apartment world ships with a pre-built map). |
 
 ## 🧪 FlexBE Behavior
 
