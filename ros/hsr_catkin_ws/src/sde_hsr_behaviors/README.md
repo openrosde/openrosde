@@ -7,8 +7,8 @@ The `sde_hsr_behaviors` directory contains the FlexBE behavior packages for the 
 
 ## Open-Source Scope
 
-The example HSR behavior is intentionally minimal: it loops between two `LogState` and `WaitState` pairs.
-Looping navigation between waypoints (`MoveBaseState`) and arm motion to SRDF named states (`SrdfStateToMoveit`) are not provided here because the open-source `hsr-project` GitHub repositories do not include a ROS Noetic navigation stack or MoveIt configuration for HSR.
+The example HSR behavior implements looping navigation between two waypoints in the WRS 2020 apartment world using `MoveBaseState` and `WaitState`, mirroring the structure of the TurtleBot3 and Fetch examples.
+The Toyota `tmc_wrs_binary` image ships a working ROS Noetic MoveIt configuration, so behaviors using `SrdfStateToMoveit` (against the `arm`/`whole_body` MoveIt groups) can be added in the FlexBE App on top of this example.
 
 ## Usage
 
@@ -22,7 +22,7 @@ roslaunch sde_launch flexbe_app_default.launch
 
 | Behavior | Description |
 | --- | --- |
-| `Hsr Example Behavior` | Minimal looping demo using `LogState` and `WaitState`. |
+| `HSR Example Behavior` | Looping navigation between two waypoints using `MoveBaseState` and `WaitState`. |
 
 ## External Resources
 

@@ -106,8 +106,7 @@ The following launch files are available for the Toyota HSR platform (package: `
 
 ## 🧪 FlexBE Behavior
 
-The `sde_hsr_flexbe_behaviors` package provides a minimal example behavior that loops between two `LogState` and `WaitState` pairs.
-For autonomous navigation, use `flexbe_navigation_states/MoveBaseState` against the `/move_base` action server provided by the WRS bringup.
+The `sde_hsr_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints in the WRS 2020 apartment world using `MoveBaseState` and `WaitState`.
 
 To start the FlexBE behavior engine and app:
 
@@ -115,4 +114,20 @@ To start the FlexBE behavior engine and app:
 roslaunch sde_launch flexbe_app_default.launch
 ```
 
-Load the `Hsr Example Behavior` behavior in the FlexBE App and press **Start**.
+Load the `HSR Example Behavior` behavior in the FlexBE App and press **Start**.
+
+## 📜 Third-Party Software and Licensing
+
+The SDE itself is distributed under the [MIT License](../../LICENSE).
+The HSR platform image bundles third-party software whose licenses apply to the resulting Docker image:
+
+| Component | Source | License |
+| --- | --- | --- |
+| `tmc_wrs_binary` (HSR ROS Noetic stack: URDF, SRDF, MoveIt, navigation, controllers, all `hsrb_*` and `tmc_*` packages, WRS apartment world) | [`ghcr.io/hsr-project/tmc_wrs_binary`](https://github.com/hsr-project/tmc_wrs_docker) | [BSD 3-Clause Clear](https://spdx.org/licenses/BSD-3-Clause-Clear.html) (Toyota Motor Corporation) |
+| `tmc_wrs_docker` reference (build recipes and helpers) | [hsr-project/tmc_wrs_docker](https://github.com/hsr-project/tmc_wrs_docker) | [BSD 3-Clause Clear](https://spdx.org/licenses/BSD-3-Clause-Clear.html) (Toyota Motor Corporation) |
+| `sde_hsr_launch`, `sde_hsr_behaviors` (this repository) | [coarobo/SDE](https://gitlab.com/coarobo/SDE) | [MIT](../../LICENSE) (Coarobo GK) |
+
+> [!IMPORTANT]
+> The corresponding ROS Noetic source code for the HSR stack is hosted on the private [`git.hsr.io`](https://git.hsr.io/) GitLab and is intentionally not vendored in this repository.
+> Access requires a Toyota HSR Community account.
+> The publicly distributed binary image is the only practical way to obtain a functional HSR Noetic simulator and is sufficient for the SDE workflow.

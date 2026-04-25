@@ -41,11 +41,13 @@ RUN cp -rn /tmp/hsr_ros_overlay/share/. /opt/ros/noetic/share/ \
   && (cp -rn /tmp/hsr_ros_overlay/etc/. /opt/ros/noetic/etc/ 2>/dev/null || true) \
   && rm -rf /tmp/hsr_ros_overlay
 
-# Install the additional ros_control packages required by the HSR Gazebo bringup.
+# Install additional runtime dependencies required by the HSR Gazebo bringup.
 # 'ros-noetic-desktop-full' (installed by 'sde-base') already provides 'gazebo_ros', 'xacro', 'rviz', 'robot_state_publisher', and 'joint_state_publisher'.
 # 'ros-noetic-gazebo-ros-control' wires Gazebo simulated joints to 'controller_manager'.
-# 'ros-noetic-joint-state-controller' and 'ros-noetic-joint-trajectory-controller' expose the simulated joint states for visualization.
+# 'ros-noetic-joint-state-controller' and 'ros-noetic-joint-trajectory-controller' provide the controllers loaded by 'hsrb_gazebo_bringup' (arm, head, gripper, base).
 # 'ros-noetic-joint-state-publisher-gui' provides an interactive sliders panel to drive the URDF in RViz.
+# 'ros-noetic-navigation' provides 'amcl' and 'move_base' used by 'hsrb_rosnav_config/hsrb_nav.launch'.
+# 'libsdl1.2debian' is required at runtime by the WRS-shipped 'gnome_segway_*' Gazebo plugins.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-noetic-gazebo-ros-control \
   ros-noetic-joint-state-controller \

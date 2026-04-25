@@ -15,11 +15,12 @@ from flexbe_core import (
     OperatableStateMachine,
     PriorityContainer,
 )
-from flexbe_states.log_state import LogState
+from flexbe_navigation_states.move_base_state import MoveBaseState
 from flexbe_states.wait_state import WaitState
 
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
+from geometry_msgs.msg import Pose2D
 
 # [/MANUAL_IMPORT]
 
@@ -30,15 +31,14 @@ Created on Sat Apr 25 2026
 '''
 class HsrExampleBehaviorSM(Behavior):
 	'''
-	Example of a FlexBE behavior for the Toyota HSR (Human Support Robot).
-	The behavior loops between two log messages with a configurable wait time, providing a minimal demonstration that the FlexBE engine is wired in to the HSR catkin workspace.
-	Robot motion is intentionally not commanded because the open-source 'hsr-project' GitHub repositories do not include a ROS Noetic navigation stack or MoveIt configuration.
+	Example of a FlexBE behavior that implements looping navigation for a Toyota HSR (Human Support Robot).
+	The robot loops between two waypoints in the WRS 2020 apartment world, with a configurable wait time at each waypoint.
 	'''
 
 
 	def __init__(self):
 		super(HsrExampleBehaviorSM, self).__init__()
-		self.name = 'Hsr Example Behavior'
+		self.name = 'HSR Example Behavior'
 
 		# parameters of this behavior
 		self.add_parameter('wait_time', 1.0)
@@ -57,6 +57,8 @@ class HsrExampleBehaviorSM(Behavior):
 	def create(self):
 		# x:633 y:190, x:83 y:190
 		_state_machine = OperatableStateMachine(outcomes=['finished', 'failed'])
+		_state_machine.userdata.waypoint_1 = Pose2D(x=2.0, y=1.0, theta=-1.57)
+		_state_machine.userdata.waypoint_2 = Pose2D(x=0.0, y=0.0, theta=0.0)
 
 		# Additional creation code can be added inside the following tags
 		# [MANUAL_CREATE]
@@ -66,27 +68,29 @@ class HsrExampleBehaviorSM(Behavior):
 
 		with _state_machine:
 			# x:225 y:74
-			OperatableStateMachine.add('LogPosition1',
-										LogState(text='HSR at position 1', severity=Logger.REPORT_HINT),
-										transitions={'done': 'WaitAtPosition1'},
-										autonomy={'done': Autonomy.Off})
+			OperatableStateMachine.add('MoveToWaypoint1',
+										MoveBaseState(),
+										transitions={'arrived': 'WaitAtWaypoint1', 'failed': 'failed'},
+										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'waypoint': 'waypoint_1'})
 
 			# x:553 y:74
-			OperatableStateMachine.add('WaitAtPosition1',
+			OperatableStateMachine.add('WaitAtWaypoint1',
 										WaitState(wait_time=self.wait_time),
-										transitions={'done': 'LogPosition2'},
+										transitions={'done': 'MoveToWaypoint2'},
 										autonomy={'done': Autonomy.Off})
 
 			# x:225 y:274
-			OperatableStateMachine.add('LogPosition2',
-										LogState(text='HSR at position 2', severity=Logger.REPORT_HINT),
-										transitions={'done': 'WaitAtPosition2'},
-										autonomy={'done': Autonomy.Off})
+			OperatableStateMachine.add('MoveToWaypoint2',
+										MoveBaseState(),
+										transitions={'arrived': 'WaitAtWaypoint2', 'failed': 'failed'},
+										autonomy={'arrived': Autonomy.Off, 'failed': Autonomy.Off},
+										remapping={'waypoint': 'waypoint_2'})
 
 			# x:553 y:274
-			OperatableStateMachine.add('WaitAtPosition2',
+			OperatableStateMachine.add('WaitAtWaypoint2',
 										WaitState(wait_time=self.wait_time),
-										transitions={'done': 'LogPosition1'},
+										transitions={'done': 'MoveToWaypoint1'},
 										autonomy={'done': Autonomy.Off})
 
 

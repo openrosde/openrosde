@@ -291,7 +291,7 @@ This means the SRDF parameter must be on the ROS parameter server before the beh
 Pre-load the SRDF in the bringup launch file (before MoveIt starts) to avoid a `param_error` on first load.
 
 Platform-specific behavior guidelines:
-- Mobile robot platforms (TurtleBot3, Fetch): looping navigation between two waypoints using `MoveBaseState` and `WaitState`.
+- Mobile robot platforms (TurtleBot3, Fetch, HSR): looping navigation between two waypoints using `MoveBaseState` and `WaitState`.
   State names: `MoveToWaypoint1`, `WaitAtWaypoint1`, `MoveToWaypoint2`, `WaitAtWaypoint2`.
 - Arm robot platforms (UR5e, COBOTTA): looping dance between `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
   State names: `MoveToHome`, `WaitAtHome`, `MoveToUp`, `WaitAtUp`.

@@ -30,6 +30,10 @@
   <node pkg="topic_tools" type="relay" name="odom_relay"
         args="/hsrb/wheel_odom /hsrb/odom" />
 
+  <!-- Pre-load the SRDF on the parameter server so RViz's MotionPlanning plugin and FlexBE behaviors using 'SrdfStateToMoveit' can find '/robot_description_semantic' before MoveIt is started. -->
+  <param name="robot_description_semantic"
+         textfile="$(find hsrb_moveit_config)/config/hsrb.srdf" />
+
   <!-- Spawn WRS 2020 competition objects into the world. -->
   <node pkg="tmc_wrs_gazebo_worlds" type="spawn_objects" name="spawn_objects"
         args="--seed 1" output="screen" />

@@ -302,3 +302,15 @@ Copyright (c) 2019 Coarobo GK
 ```
 
 See [`LICENSE`](LICENSE) for details.
+
+## 📜 Third-Party Software
+
+The SDE Docker images bundle third-party robotics middleware, drivers, and simulation assets, each governed by its own license.
+Notable platform-specific bundling:
+
+| Platform | Component | License |
+| --- | --- | --- |
+| HSR | [`ghcr.io/hsr-project/tmc_wrs_binary`](https://github.com/hsr-project/tmc_wrs_docker) (full HSR ROS Noetic stack, WRS apartment world) | [BSD 3-Clause Clear](https://spdx.org/licenses/BSD-3-Clause-Clear.html) (Toyota Motor Corporation) |
+| All | [ROS Noetic](https://www.ros.org/), [Gazebo](http://gazebosim.org/), [FlexBE](http://flexbe.github.io/), and platform-specific upstream packages | Per upstream (BSD, Apache 2.0, MIT, etc.) |
+
+See each `docs/robot-platforms/<platform>.md` document for platform-specific licensing details.
