@@ -2,8 +2,13 @@
 
 <launch>
 
-  <!-- https://github.com/hsr-project/tmc_wrs_docker -->
-  <!-- SDE-specific: MoveIt is already started by 'hsr_bringup_default_gazebo.launch' via the upstream 'tmc_wrs_gazebo_launch/wrs_practice0.launch' file. -->
-  <!-- This launch file is intentionally empty so the standardized terminator pane stays available for ad-hoc MoveIt tooling. -->
+  <!-- https://github.com/hsr-project/tmc_wrs_binary -->
+  <!-- Upstream default: $(find hsrb_moveit_config)/launch/hsrb_demo_with_controller.launch -->
+
+  <!-- Start MoveIt move_group with the HSR MoveIt configuration. -->
+  <include file="$(find hsrb_moveit_config)/launch/hsrb_demo_with_controller.launch">
+    <arg name="use_gui"                value="false" />
+    <arg name="load_robot_description" value="false" />
+  </include>
 
 </launch>

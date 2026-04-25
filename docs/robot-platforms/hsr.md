@@ -79,8 +79,8 @@ roslaunch sde_hsr_launch hsr_rviz_default.launch
 ```
 
 > [!NOTE]
-> The `hsr_bringup_default_gazebo.launch` file wraps the upstream `tmc_wrs_gazebo_launch/wrs_practice0.launch` from the Toyota WRS binary image.
-> It spawns the HSR-B in the WRS apartment world with all controllers, MoveIt, and the navigation stack pre-loaded.
+> `hsr_bringup_default_gazebo.launch` spawns the HSR-B in the WRS apartment world with all controllers loaded.
+> Start MoveIt and the navigation stack separately via the Terminator panes using `hsr_moveit_default.launch` and `hsr_navigation_default_gazebo.launch`.
 > Click **2D Nav Goal** in RViz to send autonomous navigation goals.
 
 ## 🕐 Clock Synchronization
@@ -98,11 +98,10 @@ The following launch files are available for the Toyota HSR platform (package: `
 
 | Launch File | Description |
 | --- | --- |
-| `hsr_bringup_default_gazebo.launch` | Wraps `tmc_wrs_gazebo_launch/wrs_practice0.launch` (URDF + controllers + MoveIt + navigation in WRS 2020 apartment world). |
-| `hsr_bringup_default_realworld.launch` | Placeholder (no public Noetic real robot driver). |
-| `hsr_rviz_default.launch` | RViz with the upstream `hsrb_rosnav_config/launch/hsrb.rviz` layout. |
-| `hsr_moveit_default.launch` | Empty (MoveIt is started by the bringup). |
-| `hsr_navigation_default_gazebo.launch` | Empty (navigation is started by the bringup). |
+| `hsr_bringup_default_gazebo.launch` | Spawns the HSR in the WRS 2020 Gazebo world with open-source controllers. |
+| `hsr_rviz_default.launch` | RViz with the SDE-owned `config/rviz/hsr_rviz_default.rviz` layout. |
+| `hsr_moveit_default.launch` | MoveIt `move_group` for arm motion planning. |
+| `hsr_navigation_default_gazebo.launch` | Navigation stack (AMCL + `move_base`) with the WRS 2020 pre-built map. |
 | `hsr_mapping_default.launch` | Placeholder (the WRS apartment world ships with a pre-built map). |
 
 ## 🧪 FlexBE Behavior
