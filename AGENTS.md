@@ -55,7 +55,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `sciurus17_catkin_ws/`: Sciurus17 workspace (`sde_sciurus17_launch/`, `sde_sciurus17_behaviors/`).
   - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
   - `hsr_catkin_ws/`: HSR workspace (`sde_hsr_launch/`, `sde_hsr_behaviors/`).
-  - `sde_user_catkin_ws/`: User overlay workspace (`sde_user_launch/`, `sde_user_behaviors/`). Platform-agnostic.
+  - `user_catkin_ws/`: User overlay workspace (`sde_user_launch/`, `sde_user_behaviors/`). Platform-agnostic.
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`) plus `user.env` (user overlay reference template).
 - `docs/`: Documentation.
@@ -80,7 +80,7 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
 - Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`, `cobotta-devel`, `hsr-devel`) extend the base with robot-specific packages.
 - A user overlay image (`user-devel`) extends the selected platform image and is the actual runtime container. It is platform-agnostic and built locally only (never pushed to the registry).
-- Three Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`), platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`), then user overlay (`sde_user_catkin_ws`).
+- Three Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`), platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`), then user overlay (`user_catkin_ws`).
 - All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
 
 ### Configuration System
@@ -118,9 +118,9 @@ It is always built locally by `BUILD-DOCKER-IMAGE.bash`, never pushed to the reg
 Components:
 - `docker/user-devel/Dockerfile`: third-stage image. `FROM ${SDE_PLATFORM_IMAGE}` where `SDE_PLATFORM_IMAGE` defaults to `registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest`.
 - `docker/docker-compose-user.yaml`: always loaded by `RUN-DOCKER-CONTAINER.bash` (no `if -f` guard). Exposes `SDE_USER_*` environment variables and is the place to add user-specific volume mounts.
-- `ros/sde_user_catkin_ws/`: fourth Catkin workspace, sourced after the platform workspace in `source-catkin-workspaces.bash`, built by `build-catkin-workspaces.bash` and rebuilt by `reset-catkin-workspaces.bash`.
-- `ros/sde_user_catkin_ws/src/sde_user_launch/`: starter launch package with `user_example_default.launch`.
-- `ros/sde_user_catkin_ws/src/sde_user_behaviors/`: starter FlexBE behaviors package with `User Example Behavior` (uses only `LogState` + `WaitState`, runs on every platform).
+- `ros/user_catkin_ws/`: fourth Catkin workspace, sourced after the platform workspace in `source-catkin-workspaces.bash`, built by `build-catkin-workspaces.bash` and rebuilt by `reset-catkin-workspaces.bash`.
+- `ros/user_catkin_ws/src/sde_user_launch/`: starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for user assets.
+- `ros/user_catkin_ws/src/sde_user_behaviors/`: starter FlexBE behaviors package with `User Example Behavior` (uses only `LogState` + `WaitState`, runs on every platform).
 - `env/user.env`: reference template documenting `SDE_USER_*` variables. Not auto-loaded; users add overrides to `.env.custom` instead.
 
 `SDE_USER_*` defaults live in the top-level `.env` and in every per-platform `env/*.env` template (so platform switching does not erase the user-overlay defaults).

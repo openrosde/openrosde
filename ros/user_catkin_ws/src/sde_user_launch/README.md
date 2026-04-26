@@ -20,3 +20,12 @@ roslaunch sde_user_launch user_example_default.launch
     ```shell
     sde-build-catkin-workspaces
     ```
+
+## Adding Configuration Files
+
+The `config/` directory mirrors the convention used by the platform launch packages:
+
+- `config/rviz/`: drop your custom `.rviz` layouts here and reference them from your launch file as `$(find sde_user_launch)/config/rviz/<file>.rviz`.
+- `config/maps/`: drop your custom maps (`.yaml` + `.pgm`) here and reference them as `$(find sde_user_launch)/config/maps/<file>.yaml`.
+
+You can add other subdirectories under `config/` (e.g. `urdf/`, `worlds/`, `params/`) following the same pattern.

@@ -17,9 +17,9 @@ The user overlay is platform-agnostic: the same overlay rebuilds on top of which
 | --- | --- |
 | [docker/user-devel/Dockerfile](../docker/user-devel/Dockerfile) | User Docker layer. Add your `apt-get` / `pip3` dependencies here. |
 | [docker/docker-compose-user.yaml](../docker/docker-compose-user.yaml) | User Docker Compose overlay. Add extra `environment:` and `volumes:` here. |
-| [ros/sde_user_catkin_ws/](../ros/sde_user_catkin_ws/) | User Catkin workspace. Drop your packages under `src/`. |
-| [ros/sde_user_catkin_ws/src/sde_user_launch/](../ros/sde_user_catkin_ws/src/sde_user_launch/) | Starter launch package with `user_example_default.launch`. |
-| [ros/sde_user_catkin_ws/src/sde_user_behaviors/](../ros/sde_user_catkin_ws/src/sde_user_behaviors/) | Starter FlexBE behaviors package with `User Example Behavior`. |
+| [ros/user_catkin_ws/](../ros/user_catkin_ws/) | User Catkin workspace. Drop your packages under `src/`. |
+| [ros/user_catkin_ws/src/sde_user_launch/](../ros/user_catkin_ws/src/sde_user_launch/) | Starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for your assets. |
+| [ros/user_catkin_ws/src/sde_user_behaviors/](../ros/user_catkin_ws/src/sde_user_behaviors/) | Starter FlexBE behaviors package with `User Example Behavior`. |
 | [env/user.env](../env/user.env) | User overlay environment template (reference only). |
 
 ## 🚀 Quick Start
@@ -58,7 +58,7 @@ In the FlexBE App, load and execute `User Example Behavior` to confirm the FlexB
 
 ## ➕ Adding Your Own ROS Package
 
-1. Create your package under [ros/sde_user_catkin_ws/src/](../ros/sde_user_catkin_ws/src/) (you can also `git clone` an existing package there).
+1. Create your package under [ros/user_catkin_ws/src/](../ros/user_catkin_ws/src/) (you can also `git clone` an existing package there).
 2. Inside the container, rebuild the user workspace:
 
     ```shell
@@ -68,7 +68,7 @@ In the FlexBE App, load and execute `User Example Behavior` to confirm the FlexB
 3. Source the new package and run it:
 
     ```shell
-    source ~/SDE/ros/sde_user_catkin_ws/devel/setup.bash
+    source ~/SDE/ros/user_catkin_ws/devel/setup.bash
     rosrun <your_package> <your_node>
     ```
 
