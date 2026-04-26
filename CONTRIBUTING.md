@@ -9,7 +9,7 @@ This guide describes how to contribute to the project, with a focus on the most 
 
 - Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages and merge request titles.
 - Follow [Semantic Versioning](https://semver.org/) for releases.
-- Follow [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md` updates.
+- Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md` updates.
 - Keep commits focused: one logical change per commit.
 - Open a GitLab issue before starting non-trivial work so the maintainers can give early feedback.
 - Submit changes via a merge request (MR) from a feature branch into `main`.
@@ -43,7 +43,7 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-t
   3. **Testing**: commands run and platforms verified.
   4. **Related issues**: `Closes #N`, `Refs #N`, or `None`.
   5. **Changelog**: which `CHANGELOG.md` subsection the change belongs to (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), and the one-line entry being added.
-- Squash on merge is preferred so the commit on `main` matches the MR title.
+- Merge commits are preserved (no squash) so the per-commit history of the feature branch lands on `main`.
 - After merging, delete the source branch.
 
 ### Issues
@@ -63,7 +63,7 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-t
 
 ### Changelog
 
-- The `CHANGELOG.md` file at the repository root follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
+- The `CHANGELOG.md` file at the repository root follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Maintain an `## [Unreleased]` section at the top with subsections `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security` (omit empty subsections).
 - Each MR should add a one-line entry to the appropriate subsection of `[Unreleased]` referencing its MR number, e.g. `- Add HSR platform support (!42).`.
 - At release time, the `[Unreleased]` section is renamed to `[X.Y.Z] - YYYY-MM-DD` and a fresh `[Unreleased]` section is created.
@@ -257,7 +257,7 @@ grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --i
 1. Commit your changes on a branch named `add-<platform>-support`.
 2. Push the branch and open a merge request targeting `main`.
 3. The MR title should follow Conventional Commits: `feat(<platform>): add <Platform Name> platform support`.
-4. The MR description should list all new files, all updated platform-aware files, and the testing steps performed.
+4. The MR description should follow the structure documented in [Merge Requests](#merge-requests): Summary, Changes (list new and updated platform-aware files), Testing (commands run and platforms verified), Related issues, Changelog.
 5. Add a `- Add <Platform Name> platform support (!N).` entry under `### Added` in the `## [Unreleased]` section of `CHANGELOG.md`.
 
 ## Code Style Quick Reference

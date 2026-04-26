@@ -425,7 +425,7 @@ And update `<platform>` in every platform-aware file:
 
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages and merge request titles.
 - Follow [Semantic Versioning](https://semver.org/) for releases.
-- Follow [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md`.
+- Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md`.
 - Follow the [Make a README](https://www.makeareadme.com/) guidelines for `README.md` structure.
 
 ## GitLab Workflow
