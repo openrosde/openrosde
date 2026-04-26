@@ -2,12 +2,17 @@
 
 [[_TOC_]]
 
-The **user overlay** is the third layer of the SDE image stack.
-It lets you add your own ROS packages, system dependencies, environment variables, and Terminator panes without forking the SDE or touching any platform files.
+The **user overlay** is Layer 3 of the SDE image stack:
+
+- **Layer 1** — `sde-base`: shared Ubuntu 20.04 / ROS Noetic / Gazebo / FlexBE toolchain, built once and shared by all platforms.
+- **Layer 2** — `<platform>-devel`: robot-specific packages for the platform selected by `SDE_ROBOT_PLATFORM`, pulled from the registry.
+- **Layer 3** — `user-devel`: your customization layer, always built locally on top of Layer 2.
 
 ```
-sde-base  ->  <platform>-devel  ->  user-devel   (this layer)
+sde-base (L1)  ->  <platform>-devel (L2)  ->  user-devel (L3, this layer)
 ```
+
+It lets you add your own ROS packages, system dependencies, environment variables, and Terminator panes without forking the SDE or touching any platform files.
 
 The user overlay is platform-agnostic: the same overlay rebuilds on top of whichever `SDE_ROBOT_PLATFORM` you currently have selected.
 

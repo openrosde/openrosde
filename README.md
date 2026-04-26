@@ -61,21 +61,21 @@ flowchart TD
         loader --> run
     end
 
-    subgraph images["Docker images"]
-        base["'sde-base'<br/>(Ubuntu 20.04, ROS Noetic,<br/>Gazebo, FlexBE, etc.)"]
-        turtlebot3["'turtlebot3-devel'"]
-        ur5e["'ur5e-devel'"]
+    subgraph images["Docker images (Layer 1 → Layer 2 → Layer 3)"]
+        base["'sde-base'<br/>(L1: Ubuntu 20.04, ROS Noetic,<br/>Gazebo, FlexBE, etc.)"]
+        turtlebot3["'turtlebot3-devel'<br/>(L2)"]
+        ur5e["'ur5e-devel'<br/>(L2)"]
         base --> turtlebot3
         base --> ur5e
-        fetch["'fetch-devel'"]
+        fetch["'fetch-devel'<br/>(L2)"]
         base --> fetch
-        sciurus17["'sciurus17-devel'"]
+        sciurus17["'sciurus17-devel'<br/>(L2)"]
         base --> sciurus17
-        cobotta["'cobotta-devel'"]
+        cobotta["'cobotta-devel'<br/>(L2)"]
         base --> cobotta
-        hsr["'hsr-devel'"]
+        hsr["'hsr-devel'<br/>(L2)"]
         base --> hsr
-        user["'user-devel'<br/>(user overlay)"]
+        user["'user-devel'<br/>(L3: user overlay)"]
         turtlebot3 --> user
         ur5e --> user
         fetch --> user
@@ -98,6 +98,8 @@ flowchart TD
     images -.->|"Selected by<br/>'SDE_ROBOT_PLATFORM'"| container
     run -->|"Enter container shell"| container
 ```
+
+The Docker image stack has three layers: **Layer 1** (`sde-base`) provides the shared ROS/Gazebo/FlexBE toolchain; **Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `SDE_ROBOT_PLATFORM`; **Layer 3** (`user-devel`) is the user overlay where you add your own packages and customizations without touching the platform images.
 
 ## 🚀 Quick Start
 
