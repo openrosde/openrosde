@@ -30,7 +30,8 @@ Created on Sun Apr 26 2026
 '''
 class UserExampleBehaviorSM(Behavior):
 	'''
-	Minimal user-overlay FlexBE behavior. Logs a message and waits.
+	Minimal user-overlay FlexBE behavior.
+	Logs a message and waits.
 	Demonstrates that the user workspace builds and is loaded by the FlexBE app.
 	'''
 

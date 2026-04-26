@@ -54,5 +54,5 @@ done
 
 ################################################################################
 
-# Build both workspaces.
+# Build all workspaces (shared, platform-specific, and user).
 source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/build-catkin-workspaces.bash

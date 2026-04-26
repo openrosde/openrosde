@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script sources the shared and platform-specific Catkin workspaces.
+# This script sources the shared, platform-specific, and user Catkin workspaces.
 #
 # Usage: source source-catkin-workspaces.bash
 

@@ -204,7 +204,7 @@ ros/
   sciurus17_catkin_ws/                   # Sciurus17 Catkin workspace.
   cobotta_catkin_ws/                     # COBOTTA Catkin workspace.
   hsr_catkin_ws/                         # HSR Catkin workspace.
-  user_catkin_ws/                    # User overlay Catkin workspace (sde_user_launch, sde_user_behaviors).
+  user_catkin_ws/                        # User overlay Catkin workspace (sde_user_launch, sde_user_behaviors).
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md

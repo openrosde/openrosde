@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- User overlay (Layer 3) on top of `<platform>-devel`, with `user-devel` Docker image, `docker/docker-compose-user.yaml`, `ros/user_catkin_ws/` Catkin workspace, and starter packages `sde_user_launch` and `sde_user_behaviors`.
+- `env/user.env` reference template documenting `SDE_USER_*` variables and the example `SDE_USER_EXAMPLE_VAR` default in every per-platform `env/*.env`.
+- `User Example Behavior` FlexBE behavior using `LogState` and `WaitState`, runnable on every platform.
+- Standardized Number 13 (`terminal26`) in all platform Terminator layouts pre-wired to `sde_user_launch:user_example_default.launch`.
+- `docs/user-overlay.md` user-facing guide and pointer note in `CONTRIBUTING.md` distinguishing the user overlay from adding a new platform.
+
+### Changed
+
+- Split `docker-compose.yaml` into three services: `sde-base` (build-only), `sde-platform` (build-only, `<platform>-devel:latest`), and `sde` (runtime, `user-devel:latest`).
+- `BUILD-DOCKER-IMAGE.bash` now always builds the `user-devel` image locally on top of the selected platform image.
+- `RUN-DOCKER-CONTAINER.bash` always loads `docker-compose-user.yaml` in addition to the platform overlay.
+- `source-catkin-workspaces.bash`, `build-catkin-workspaces.bash`, and `reset-catkin-workspaces.bash` now also handle the user workspace (sourced and built after the platform workspace when present).
+- `gitlab-ci/PUSH-DOCKER-IMAGE.bash` documents that the `user-devel` image is intentionally never pushed to the registry.
+
 ## [2.7.0] - 2026-04-26
 
 ### Added

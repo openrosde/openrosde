@@ -49,6 +49,4 @@ done
 ################################################################################
 
 # The 'user-devel' image is intentionally not pushed to the registry.
-# It is the user-overlay layer (see 'docker/user-devel/Dockerfile') and is built
-# locally on top of the platform image by 'BUILD-DOCKER-IMAGE.bash' on every
-# developer machine.
+# It is the user-overlay layer (see 'docker/user-devel/Dockerfile') and is built locally on top of the platform image by 'BUILD-DOCKER-IMAGE.bash' on every developer machine.

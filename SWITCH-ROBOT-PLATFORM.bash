@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# This script switches the active robot platform by copying the corresponding
-# environment template from 'env/' to '.env.custom'.
+# This script switches the active robot platform by copying the corresponding environment template from 'env/' to '.env.custom'.
 #
 # Usage: bash ./SWITCH-ROBOT-PLATFORM.bash <robot-platform>
 #

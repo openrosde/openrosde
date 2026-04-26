@@ -12,13 +12,8 @@ ARG SDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
 # Stage 1: Toyota HSR WRS binary distribution.
 # https://github.com/hsr-project/tmc_wrs_docker
 #
-# This image is publicly distributed by Toyota Motor Corporation under the
-# BSD 3-Clause Clear License and contains the full HSR ROS Noetic stack:
-# URDF/SRDF, MoveIt configuration, navigation stack, controllers, all 'tmc_*'
-# and 'hsrb_*' packages, and the WRS competition worlds.
-# It is the only practical way to obtain a functional HSR Noetic simulator
-# because Toyota has migrated the source-code stack to ROS 2 Humble and the
-# higher-level Noetic packages remain on the private 'git.hsr.io' GitLab.
+# This image is publicly distributed by Toyota Motor Corporation under the BSD 3-Clause Clear License and contains the full HSR ROS Noetic stack: URDF/SRDF, MoveIt configuration, navigation stack, controllers, all 'tmc_*' and 'hsrb_*' packages, and the WRS competition worlds.
+# It is the only practical way to obtain a functional HSR Noetic simulator because Toyota has migrated the source-code stack to ROS 2 Humble and the higher-level Noetic packages remain on the private 'git.hsr.io' GitLab.
 FROM ghcr.io/hsr-project/tmc_wrs_binary:noetic-latest AS hsr_binary
 
 ################################################################################
@@ -28,11 +23,8 @@ FROM ${SDE_BASE_IMAGE}
 
 ################################################################################
 
-# Copy the additional ROS packages (tmc_*, hsrb_*) from Toyota's binary image
-# into the existing '/opt/ros/noetic' tree without clobbering 'sde-base' files.
-# The binary image builds these packages as a catkin workspace with
-# '--cmake-args -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic', so they live directly
-# under '/opt/ros/noetic' and are available as soon as that setup.bash is sourced.
+# Copy the additional ROS packages (tmc_*, hsrb_*) from Toyota's binary image into the existing '/opt/ros/noetic' tree without clobbering 'sde-base' files.
+# The binary image builds these packages as a catkin workspace with '--cmake-args -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic', so they live directly under '/opt/ros/noetic' and are available as soon as that setup.bash is sourced.
 # No separate workspace overlay is needed.
 COPY --from=hsr_binary /opt/ros/noetic /tmp/hsr_ros_overlay
 RUN cp -rn /tmp/hsr_ros_overlay/share/. /opt/ros/noetic/share/ \

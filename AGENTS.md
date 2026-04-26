@@ -125,7 +125,8 @@ Components:
 
 `SDE_USER_*` defaults live in the top-level `.env` and in every per-platform `env/*.env` template (so platform switching does not erase the user-overlay defaults).
 `scripts/load-sde-env.bash` exports each `SDE_USER_*` variable so it can be interpolated by `docker-compose-user.yaml`.
-The user overlay reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${SDE_ROBOT_PLATFORM}.config`, and the spare panes (Numbers 8-13) of every platform layout are reserved for user-overlay launches.
+The user overlay reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${SDE_ROBOT_PLATFORM}.config`, and Number 13 (`terminal26`) of every platform layout is pre-wired to the user-overlay starter (`sde_user_launch:user_example_default.launch`).
+The remaining spare panes (Numbers 8-12) are free shells reserved for additional user-overlay launches.
 
 ### Terminator Layouts
 
@@ -141,7 +142,7 @@ The bottom-left 4 terminals are standardized across all platforms and both envir
 - `terminal9` (Number: 6): MoveIt (or navigation, depending on platform).
 - `terminal10` (Number: 7): FlexBE app (`sde_launch:flexbe_app_default.launch`), on all platforms and in both gazebo and realworld layouts.
 The top-right pair (`terminal13` / `terminal14`, Numbers: 2 / 3) is used for platform-specific secondary launches (e.g., gripper control, teleop, mapping).
-Spare terminals (`terminal18`–`terminal29`, Numbers: 8–15) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 8 in the UR5e realworld layout).
+Spare terminals (Numbers: 8–12) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 8 in the UR5e realworld layout).
 Number: 13 (`terminal26`) is standardized across all platforms and both environments for `sde_user_launch:user_example_default.launch` (user overlay starter).
 Number: 14 (`terminal28`) is standardized across all platforms and both environments for `sde_launch:rqt_suite_default.launch`.
 Number: 15 (`terminal29`) is standardized across all platforms and both environments for `sde_launch:rosbridge_server_default.launch`.

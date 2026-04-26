@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# This script maximizes the first X11 window whose title matches the given pattern,
-# then restores focus to Terminator.
-# A shared lock file ensures only one concurrent instance runs the focus-restore loop at a time,
-# preventing focus flickering when multiple maximize scripts run concurrently on startup.
+# This script maximizes the first X11 window whose title matches the given pattern, then restores focus to Terminator.
+# A shared lock file ensures only one concurrent instance runs the focus-restore loop at a time, preventing focus flickering when multiple maximize scripts run concurrently on startup.
 #
 # Usage: bash ./maximize-app-window.bash <window-title> [delay-seconds]
 #
