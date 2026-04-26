@@ -232,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- Contribution guidelines (temporary; reintroduced in a later release).
+- Contribution guidelines (temporary, reintroduced in a later release).
 
 ## [0.0.0] - 2023-10-18
 

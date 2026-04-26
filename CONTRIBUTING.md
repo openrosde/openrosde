@@ -23,7 +23,7 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-t
 
 - `main`: the default and only long-lived branch.
   All releases are tagged on `main`.
-  Direct pushes are not allowed; all changes land via merge requests.
+  Direct pushes are not allowed. All changes land via merge requests.
 - Feature branches: short-lived, named with a kebab-case verb-first slug that mirrors the Conventional Commit type when practical.
   Examples: `add-myrobot-platform`, `fix-cobotta-gripper-pid`, `docs-update-readme`.
   Always branch from the latest `main` and rebase before merging.
@@ -32,22 +32,24 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-t
 
 - **Title**: Conventional Commits format `type(scope): subject`.
   Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-  Scope is the platform name (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`) or a subsystem (`docker`, `ci`, `flexbe`, `terminator`, `docs`).
+  Scope is a platform name only: `turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, or `hsr`.
+  Omit the scope entirely when the change is not specific to a single platform (cross-platform refactors, shared docs, CI, base Docker image, repository-wide changes).
   Subject is imperative, lowercase, no trailing period.
   Example: `feat(hsr): add HSR platform support`.
-- **Description**: use the following structure (no rigid template, but cover each section when relevant):
+  Example without scope: `docs: adopt Keep a Changelog and document GitLab workflow`.
+- **Description**: use the following structure. Cover each section when relevant. Omit sections that do not apply.
   1. **Summary**: one paragraph explaining what changes and why.
   2. **Changes**: bullet list of notable file or behavior changes.
   3. **Testing**: commands run and platforms verified.
-  4. **Related issues**: `Closes #N`, `Refs #N`.
-  5. **Changelog**: which `CHANGELOG.md` section the change belongs to (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
+  4. **Related issues**: `Closes #N`, `Refs #N`, or `None`.
+  5. **Changelog**: which `CHANGELOG.md` subsection the change belongs to (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), and the one-line entry being added.
 - Squash on merge is preferred so the commit on `main` matches the MR title.
 - After merging, delete the source branch.
 
 ### Issues
 
 - Use plain descriptive titles, not Conventional Commit format.
-  Issues describe a problem or request; commits describe a change.
+  Issues describe a problem or request. Commits describe a change.
   Example: `Gripper does not respond on COBOTTA realworld bringup` (good), `fix(cobotta): gripper does not respond` (avoid).
 - Categorize with labels rather than title prefixes.
   Recommended labels: `bug`, `feature`, `docs`, `chore`, `question`, plus a per-platform label (`platform::turtlebot3`, etc.).
