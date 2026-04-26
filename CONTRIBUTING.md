@@ -7,12 +7,92 @@ This guide describes how to contribute to the project, with a focus on the most 
 
 ## General Contribution Guidelines
 
-- Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages.
+- Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages and merge request titles.
 - Follow [Semantic Versioning](https://semver.org/) for releases.
+- Follow [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md` updates.
 - Keep commits focused: one logical change per commit.
 - Open a GitLab issue before starting non-trivial work so the maintainers can give early feedback.
-- Submit changes via a merge request (MR) from a feature branch into `devel`.
+- Submit changes via a merge request (MR) from a feature branch into `main`.
 - Read [`AGENTS.md`](AGENTS.md) for coding conventions, code style rules, and architecture details: these apply to both human contributors and AI agents.
+
+## GitLab Project Organization
+
+The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-trunk workflow centered on the `main` branch.
+
+### Branches
+
+- `main`: the default and only long-lived branch.
+  All releases are tagged on `main`.
+  Direct pushes are not allowed; all changes land via merge requests.
+- Feature branches: short-lived, named with a kebab-case verb-first slug that mirrors the Conventional Commit type when practical.
+  Examples: `add-myrobot-platform`, `fix-cobotta-gripper-pid`, `docs-update-readme`.
+  Always branch from the latest `main` and rebase before merging.
+
+### Merge Requests
+
+- **Title**: Conventional Commits format `type(scope): subject`.
+  Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+  Scope is the platform name (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`) or a subsystem (`docker`, `ci`, `flexbe`, `terminator`, `docs`).
+  Subject is imperative, lowercase, no trailing period.
+  Example: `feat(hsr): add HSR platform support`.
+- **Description**: use the following structure (no rigid template, but cover each section when relevant):
+  1. **Summary**: one paragraph explaining what changes and why.
+  2. **Changes**: bullet list of notable file or behavior changes.
+  3. **Testing**: commands run and platforms verified.
+  4. **Related issues**: `Closes #N`, `Refs #N`.
+  5. **Changelog**: which `CHANGELOG.md` section the change belongs to (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
+- Squash on merge is preferred so the commit on `main` matches the MR title.
+- After merging, delete the source branch.
+
+### Issues
+
+- Use plain descriptive titles, not Conventional Commit format.
+  Issues describe a problem or request; commits describe a change.
+  Example: `Gripper does not respond on COBOTTA realworld bringup` (good), `fix(cobotta): gripper does not respond` (avoid).
+- Categorize with labels rather than title prefixes.
+  Recommended labels: `bug`, `feature`, `docs`, `chore`, `question`, plus a per-platform label (`platform::turtlebot3`, etc.).
+- Link issues to the milestone of the release that will include the fix or feature.
+
+### Milestones
+
+- Name milestones after the target release version: `v2.8.0`, `v3.0.0`.
+  This matches the convention expected by GitLab's changelog generator and by `release-please`-style automation.
+- Close a milestone immediately after its release is published.
+
+### Changelog
+
+- The `CHANGELOG.md` file at the repository root follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/).
+- Maintain an `## [Unreleased]` section at the top with subsections `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security` (omit empty subsections).
+- Each MR should add a one-line entry to the appropriate subsection of `[Unreleased]` referencing its MR number, e.g. `- Add HSR platform support (!42).`.
+- At release time, the `[Unreleased]` section is renamed to `[X.Y.Z] - YYYY-MM-DD` and a fresh `[Unreleased]` section is created.
+
+### Releases
+
+Releases are created on GitLab from annotated `vX.Y.Z` tags on `main`.
+The release notes mirror the corresponding `CHANGELOG.md` section.
+
+Release procedure (per release):
+
+1. On a release branch (`release-vX.Y.Z`), update `CHANGELOG.md`: rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD` and add a new empty `[Unreleased]` section.
+2. Open an MR titled `chore(release): vX.Y.Z`, get it reviewed, and merge to `main`.
+3. Tag the merge commit:
+
+   ```shell
+   git checkout main && git pull
+   git tag -a vX.Y.Z -m "Release vX.Y.Z"
+   git push origin vX.Y.Z
+   ```
+
+4. Create the GitLab release with `glab`, sourcing the notes from the changelog section and linking the milestone:
+
+   ```shell
+   glab release create vX.Y.Z \
+     --name "vX.Y.Z" \
+     --milestone "vX.Y.Z" \
+     --notes-file <(awk '/^## \[X.Y.Z\]/{p=1;next} p&&/^## \[/{exit} p' CHANGELOG.md)
+   ```
+
+5. Close the `vX.Y.Z` milestone on GitLab.
 
 ## Reporting Issues
 
@@ -173,9 +253,10 @@ grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --i
 ### Step 10: Submit a Merge Request
 
 1. Commit your changes on a branch named `add-<platform>-support`.
-2. Push the branch and open a merge request targeting `devel`.
+2. Push the branch and open a merge request targeting `main`.
 3. The MR title should follow Conventional Commits: `feat(<platform>): add <Platform Name> platform support`.
 4. The MR description should list all new files, all updated platform-aware files, and the testing steps performed.
+5. Add a `- Add <Platform Name> platform support (!N).` entry under `### Added` in the `## [Unreleased]` section of `CHANGELOG.md`.
 
 ## Code Style Quick Reference
 

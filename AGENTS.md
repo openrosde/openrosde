@@ -423,6 +423,27 @@ And update `<platform>` in every platform-aware file:
 
 ## Versioning & Commits
 
-- Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages.
+- Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages and merge request titles.
 - Follow [Semantic Versioning](https://semver.org/) for releases.
+- Follow [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md`.
 - Follow the [Make a README](https://www.makeareadme.com/) guidelines for `README.md` structure.
+
+## GitLab Workflow
+
+The project is hosted at <https://gitlab.com/coarobo/SDE>.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md#gitlab-project-organization) for the full human-facing description.
+
+Agent rules:
+
+- Default branch is `main`. All MRs target `main`. There is no long-lived `devel` branch.
+- Feature branches are short-lived, kebab-case, verb-first (e.g., `add-myrobot-platform`, `fix-cobotta-gripper-pid`, `docs-update-readme`). Branch from the latest `main`.
+- Commit messages and MR titles use Conventional Commits: `type(scope): subject`.
+  - Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+  - Scope is a platform (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`) or subsystem (`docker`, `ci`, `flexbe`, `terminator`, `docs`).
+  - Subject is imperative, lowercase, no trailing period.
+- MR descriptions cover Summary, Changes, Testing, Related issues, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
+- Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues with labels (`bug`, `feature`, `docs`, `chore`, `question`, `platform::<name>`).
+- Milestones are named after the target release version (`v2.8.0`, `v3.0.0`).
+- Every MR adds a one-line entry under the matching subsection of `## [Unreleased]` in `CHANGELOG.md`, referencing its MR number (e.g., `- Add HSR platform support (!42).`).
+- Releases are tagged `vX.Y.Z` on `main` and published on GitLab via `glab release create`, with notes sourced from the matching `CHANGELOG.md` section and linked to the `vX.Y.Z` milestone.
+- Never force-push to `main`. Never rewrite published history. MR title and description edits are safe and do not touch Git history.
