@@ -477,3 +477,4 @@ Agent rules:
 - Releases are tagged `vX.Y.Z` on `main` and published on GitLab via `glab release create`, with notes sourced from the matching `CHANGELOG.md` section and linked to the `vX.Y.Z` milestone.
 - Never force-push to `main`. Never rewrite published history. MR title and description edits are safe and do not touch Git history.
 - Do not use semicolons (`;`), en dashes (`–`), or em dashes (`—`) in any GitLab text: issue titles/descriptions, milestone titles/descriptions, MR titles/descriptions. Use a full stop or a new sentence instead of a semicolon. Use `: ` or a plain hyphen `-` instead of a dash.
+- Use backticks for code identifiers (file names, commands, environment variables, functions, ROS packages, paths) in all GitLab text: issue titles/descriptions, milestone titles/descriptions, MR titles/descriptions. Do not use single quotes for code identifiers in GitLab text. Single quotes are reserved for Bash and ROS launch-file comments.

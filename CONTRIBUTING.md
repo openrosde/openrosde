@@ -54,6 +54,14 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-t
 - Categorize with labels rather than title prefixes.
   Recommended labels: `bug`, `feature`, `docs`, `chore`, `question`, plus a per-platform label (`platform::turtlebot3`, etc.).
 - Link issues to the milestone of the release that will include the fix or feature.
+- Close issues automatically by referencing them from the merging MR's `## Related` section with `Closes #N`. Use `Refs #N` to link without closing.
+
+### Style for GitLab Text
+
+These rules apply to all GitLab issue, milestone, and merge request titles and descriptions:
+
+- Use backticks for code identifiers: file names, commands, environment variables, functions, ROS packages, paths. Do not use single quotes for code identifiers (single quotes are reserved for Bash and ROS launch-file comments inside the repository).
+- Do not use semicolons (`;`), en dashes (`–`), or em dashes (`—`). Use a full stop or a new sentence instead of a semicolon. Use `: ` or a plain hyphen `-` instead of a dash.
 
 ### Milestones
 

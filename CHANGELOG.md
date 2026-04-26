@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.9.0] - 2026-04-26
+
 ### Added
 
-- User overlay (Layer 3) on top of `<platform>-devel`, with `user-devel` Docker image, `docker/docker-compose-user.yaml`, `ros/user_catkin_ws/` Catkin workspace, and starter packages `sde_user_launch` and `sde_user_behaviors`.
+- User overlay (Layer 3) on top of `<platform>-devel`, with `user-devel` Docker image, `docker/docker-compose-user.yaml`, `ros/user_catkin_ws/` Catkin workspace, and starter packages `sde_user_launch` and `sde_user_behaviors` (!15, closes #29).
 - `env/user.env` reference template documenting `SDE_USER_*` variables and the example `SDE_USER_EXAMPLE_VAR` default in every per-platform `env/*.env`.
 - `User Example Behavior` FlexBE behavior using `LogState` and `WaitState`, runnable on every platform.
 - Standardized Number 13 (`terminal26`) in all platform Terminator layouts pre-wired to `sde_user_launch:user_example_default.launch`.
@@ -22,6 +24,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `RUN-DOCKER-CONTAINER.bash` always loads `docker-compose-user.yaml` in addition to the platform overlay.
 - `source-catkin-workspaces.bash`, `build-catkin-workspaces.bash`, and `reset-catkin-workspaces.bash` now also handle the user workspace (sourced and built after the platform workspace when present).
 - `gitlab-ci/PUSH-DOCKER-IMAGE.bash` documents that the `user-devel` image is intentionally never pushed to the registry.
+
+## [2.8.0] - 2026-04-26
+
+### Added
+
+- `CHANGELOG.md` following [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/), back-filled from `v0.0.0` through `v2.7.0` (!14, closes #28).
+- `## GitLab Project Organization` section in `CONTRIBUTING.md` documenting branches, merge requests, issues, milestones, changelog, and releases.
+- `## GitLab Workflow` section in `AGENTS.md` mirroring `CONTRIBUTING.md` for AI coding agents.
+
+### Changed
+
+- Adopt [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) with platform-only scopes for all commit messages and merge request titles (!14, closes #13).
+- Document the merge-commit (no-squash) policy and the canonical merge request description structure (Summary, Changes, Testing, Related, Changelog).
 
 ## [2.7.0] - 2026-04-26
 
@@ -256,7 +271,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial public release of the SDE: Docker-based ROS Noetic development environment with Gazebo, RViz, and Terminator integration.
 
-[Unreleased]: https://gitlab.com/coarobo/SDE/-/compare/v2.7.0...main
+[Unreleased]: https://gitlab.com/coarobo/SDE/-/compare/v2.9.0...main
+[2.9.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.8.0...v2.9.0
+[2.8.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.7.0...v2.8.0
 [2.7.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.6.0...v2.7.0
 [2.6.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.5.0...v2.6.0
 [2.5.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.4.0...v2.5.0
