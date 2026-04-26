@@ -15,9 +15,10 @@ if [ -f ${SDE_CONTAINER_ROOT_DIR}/.env.custom ]; then
   source ${SDE_CONTAINER_ROOT_DIR}/.env.custom
 fi
 
-# Derive the shared and platform-specific catkin workspace paths.
+# Derive the shared, platform-specific, and user catkin workspace paths.
 SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
 SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
+SDE_USER_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/user_catkin_ws"
 
 ################################################################################
 
@@ -65,8 +66,8 @@ source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/source-catkin-workspace
 
 ################################################################################
 
-# Add both Catkin workspaces to the 'ROS_PACKAGE_PATH'.
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_ROBOT_PLATFORM_CATKIN_WS}/src/
+# Add the shared, platform-specific, and user Catkin workspaces to the 'ROS_PACKAGE_PATH'.
+export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_ROBOT_PLATFORM_CATKIN_WS}/src/:${SDE_USER_CATKIN_WS}/src/
 
 ################################################################################
 

@@ -35,16 +35,20 @@ fi
 # Otherwise, try to pull from registry, fall back to build with cache if pull fails.
 if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
   # Build all platform images from scratch without cache.
+  # The user overlay ('sde' service) is built locally on top of each platform.
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
   for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17 cobotta hsr; do
     export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
     export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
     echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-platform --no-cache
+    echo "Building user-devel image on top of ${SDE_ROBOT_PLATFORM}-devel..."
     docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde --no-cache
   done
 elif [[ "${SDE_DOCKER_PROJECT}" == "local" ]]; then
-  # Build current platform image with cache (fast rebuild for local development).
+  # Build current platform and user images with cache (fast rebuild for local development).
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-platform
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde
 else
   # Login into the GitLab Docker registry using a read-only deploy token.
@@ -55,8 +59,10 @@ else
   if [[ "$?" -ne "0" ]]; then
     docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
   fi
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde-platform
   if [[ "$?" -ne "0" ]]; then
-    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde
+    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-platform
   fi
+  # Always build the user overlay ('sde' service) locally on top of the platform image.
+  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde
 fi

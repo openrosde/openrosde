@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- SDE-specific: User-overlay example launch file. -->
+  <!-- Runs the standard 'rospy_tutorials' talker node to verify the user workspace. -->
+  <!-- This file is platform-agnostic: it works on any 'SDE_ROBOT_PLATFORM'. -->
+
+  <!-- Start the example talker node. -->
+
+  <node name="user_example_talker" pkg="rospy_tutorials" type="talker" output="screen" />
+
+</launch>

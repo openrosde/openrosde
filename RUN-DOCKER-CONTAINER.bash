@@ -36,6 +36,9 @@ if [ -f "./docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml" ]; then
   SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ./docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml"
 fi
 
+# Add the user overlay (always present, ships with the SDE).
+SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ./docker/docker-compose-user.yaml"
+
 # Run the Docker container in the background.
 # Any changes made to './docker/docker-compose*.yaml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then

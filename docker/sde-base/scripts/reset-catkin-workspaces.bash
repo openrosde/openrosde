@@ -6,9 +6,10 @@
 
 ################################################################################
 
-# Derive the shared and platform-specific catkin workspace paths.
+# Derive the shared, platform-specific, and user catkin workspace paths.
 SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
 SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
+SDE_USER_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/user_catkin_ws"
 
 ################################################################################
 
@@ -39,14 +40,19 @@ done
 
 ################################################################################
 
-# Initialize and build only the shared and platform-specific workspaces.
+# Initialize and build the shared, platform-specific, and (if present) user workspaces.
 
-for SDE_WS in "${SDE_SHARED_CATKIN_WS}" "${SDE_ROBOT_PLATFORM_CATKIN_WS}"; do
+SDE_INIT_WORKSPACES=("${SDE_SHARED_CATKIN_WS}" "${SDE_ROBOT_PLATFORM_CATKIN_WS}")
+if [ -d "${SDE_USER_CATKIN_WS}/src" ]; then
+  SDE_INIT_WORKSPACES+=("${SDE_USER_CATKIN_WS}")
+fi
+
+for SDE_WS in "${SDE_INIT_WORKSPACES[@]}"; do
   echo "Initializing workspace: ${SDE_WS}"
   cd ${SDE_WS}/src/ && catkin_init_workspace
 done
 
 ################################################################################
 
-# Build both workspaces.
+# Build all workspaces (shared, platform-specific, and user).
 source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/build-catkin-workspaces.bash

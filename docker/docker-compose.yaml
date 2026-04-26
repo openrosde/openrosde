@@ -3,8 +3,10 @@
 ################################################################################
 
 # Base Docker Compose file for the SDE.
-# Defines two services: 'sde-base' (build-only base image) and 'sde'
-# (platform-specific runtime container with shared configuration).
+# Defines three services:
+#   - 'sde-base'     : Build-only shared base image.
+#   - 'sde-platform' : Build-only platform-specific image (inherits from 'sde-base').
+#   - 'sde'          : Runtime user overlay container (inherits from 'sde-platform').
 
 ################################################################################
 
@@ -17,6 +19,15 @@ services:
       args:
         - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
         - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
+
+  sde-platform:
+    image: registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest
+    build:
+      context: ../
+      dockerfile: ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile
+      args:
+        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
+        - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
 
   sde:
     hostname: sde-${SDE_ROBOT_PLATFORM}
@@ -35,12 +46,12 @@ services:
       - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
       # Pass the SDE root directory path.
       - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
-    image: registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest
+    image: registry.gitlab.com/coarobo/sde/user-devel:latest
     build:
       context: ../
-      dockerfile: ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile
+      dockerfile: ./docker/user-devel/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
+        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}
         - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
     volumes:
       # Map repository root for convenient access.

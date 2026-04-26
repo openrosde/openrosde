@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # This script updates all Git submodules and applies any pending patch files.
-# It is called by 'SETUP-DEVEL-MACHINE.bash' on initial setup and by
-# 'SWITCH-ROBOT-PLATFORM.bash' on every platform switch.
+# It is called by 'SETUP-DEVEL-MACHINE.bash' on initial setup and by 'SWITCH-ROBOT-PLATFORM.bash' on every platform switch.
 #
 # Usage: bash ./scripts/update-git-submodules.bash
 
