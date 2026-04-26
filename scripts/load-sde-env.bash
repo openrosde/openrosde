@@ -41,6 +41,10 @@ export SDE_CONTAINER_ROOT_DIR
 export SDE_DOCKER_PROJECT
 export SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/sde-base/Dockerfile)"
 export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
+export SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/user-devel/Dockerfile)"
+
+# Export user overlay variables so that they can be interpolated in 'docker-compose-user.yaml'.
+export SDE_USER_EXAMPLE_VAR
 
 # Export platform-specific variables so that they can be interpolated in 'docker-compose-${SDE_ROBOT_PLATFORM}.yaml'.
 if [ "${SDE_ROBOT_PLATFORM}" = "ur5e" ]; then
@@ -59,6 +63,10 @@ echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
 echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
 echo "$0: SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}"
 echo "$0: SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}"
+echo "$0: SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}"
+
+# Print user overlay variables for debugging purposes.
+echo "$0: SDE_USER_EXAMPLE_VAR=${SDE_USER_EXAMPLE_VAR}"
 
 # Print platform-specific variables for debugging purposes.
 if [ "${SDE_ROBOT_PLATFORM}" = "ur5e" ]; then

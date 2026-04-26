@@ -36,7 +36,8 @@ It provides a containerized, multi-platform development environment based on Doc
   - `sciurus17-devel/`: Sciurus17 platform image.
   - `cobotta-devel/`: COBOTTA platform image.
   - `hsr-devel/`: HSR platform image (Gazebo-only, open-source).
-  - `docker-compose.yaml`: Base service definitions.
+  - `user-devel/`: User overlay image (Layer 3, runtime container; inherits from `${SDE_ROBOT_PLATFORM}-devel`, built locally only).
+  - `docker-compose.yaml`: Base service definitions (defines `sde-base`, `sde-platform`, and `sde`).
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
   - `docker-compose-turtlebot3.yaml`: TurtleBot3 platform overlay.
@@ -45,6 +46,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `docker-compose-sciurus17.yaml`: Sciurus17 platform overlay.
   - `docker-compose-cobotta.yaml`: COBOTTA platform overlay.
   - `docker-compose-hsr.yaml`: HSR platform overlay.
+  - `docker-compose-user.yaml`: User overlay (always loaded by `RUN-DOCKER-CONTAINER.bash`).
 - `ros/`: ROS Catkin workspaces.
   - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace (`sde_turtlebot3_launch/`, `sde_turtlebot3_behaviors/`).
@@ -53,11 +55,13 @@ It provides a containerized, multi-platform development environment based on Doc
   - `sciurus17_catkin_ws/`: Sciurus17 workspace (`sde_sciurus17_launch/`, `sde_sciurus17_behaviors/`).
   - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
   - `hsr_catkin_ws/`: HSR workspace (`sde_hsr_launch/`, `sde_hsr_behaviors/`).
+  - `sde_user_catkin_ws/`: User overlay workspace (`sde_user_launch/`, `sde_user_behaviors/`). Platform-agnostic.
 - `scripts/`: Shared shell scripts (`load-sde-env.bash`).
-- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`).
+- `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`) plus `user.env` (user overlay reference template).
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
+  - `user-overlay.md`: User overlay (Layer 3) usage and customization.
   - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`, `hsr.md`).
 - `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`, `hsr.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline scripts.
@@ -75,7 +79,8 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
 - Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`, `cobotta-devel`, `hsr-devel`) extend the base with robot-specific packages.
-- Two Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`) then platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`).
+- A user overlay image (`user-devel`) extends the selected platform image and is the actual runtime container. It is platform-agnostic and built locally only (never pushed to the registry).
+- Three Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`), platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`), then user overlay (`sde_user_catkin_ws`).
 - All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
 
 ### Configuration System
@@ -91,14 +96,36 @@ Switching platforms requires only running `bash ./SWITCH-ROBOT-PLATFORM.bash <pl
 
 ### Docker Compose Service Targeting
 
-`docker-compose.yaml` defines two services: `sde-base` (build-only base image) and `sde` (platform-specific runtime container).
-Always target the `sde` service explicitly with `docker compose up -d sde` to avoid accidentally starting the `sde-base` service, which has no `container_name` and causes naming conflicts.
+`docker-compose.yaml` defines three services:
+- `sde-base` (build-only shared base image, no `container_name`).
+- `sde-platform` (build-only platform-specific image, no `container_name`; image is `<platform>-devel:latest`).
+- `sde` (runtime user-overlay container; image is `user-devel:latest`, inherits from `sde-platform`).
+
+Always target the `sde` service explicitly with `docker compose up -d sde` to avoid accidentally starting the build-only services, which have no `container_name` and would cause naming conflicts.
+`BUILD-DOCKER-IMAGE.bash` builds all three services in order: `sde-base` -> `sde-platform` -> `sde`. The `user-devel` image is always built locally and is not pushed by `gitlab-ci/PUSH-DOCKER-IMAGE.bash`.
 
 ### Docker Compose Platform Overlays
 
 Every platform has a Docker Compose overlay file (`docker-compose-<platform>.yaml`) that passes platform-specific environment variables to the container.
 `RUN-DOCKER-CONTAINER.bash` automatically includes `docker-compose-${SDE_ROBOT_PLATFORM}.yaml` if the file exists, so new platforms can add their own overlay without modifying the script.
 Platforms that do not yet require extra variables still have an overlay file for consistency.
+
+### User Overlay (Layer 3)
+
+The user overlay is a third Docker stage on top of `<platform>-devel`, intended for end-user customization without forking the SDE.
+It is always built locally by `BUILD-DOCKER-IMAGE.bash`, never pushed to the registry, and platform-agnostic (the same overlay rebuilds on top of whichever `SDE_ROBOT_PLATFORM` is selected).
+
+Components:
+- `docker/user-devel/Dockerfile`: third-stage image. `FROM ${SDE_PLATFORM_IMAGE}` where `SDE_PLATFORM_IMAGE` defaults to `registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest`.
+- `docker/docker-compose-user.yaml`: always loaded by `RUN-DOCKER-CONTAINER.bash` (no `if -f` guard). Exposes `SDE_USER_*` environment variables and is the place to add user-specific volume mounts.
+- `ros/sde_user_catkin_ws/`: fourth Catkin workspace, sourced after the platform workspace in `source-catkin-workspaces.bash`, built by `build-catkin-workspaces.bash` and rebuilt by `reset-catkin-workspaces.bash`.
+- `ros/sde_user_catkin_ws/src/sde_user_launch/`: starter launch package with `user_example_default.launch`.
+- `ros/sde_user_catkin_ws/src/sde_user_behaviors/`: starter FlexBE behaviors package with `User Example Behavior` (uses only `LogState` + `WaitState`, runs on every platform).
+- `env/user.env`: reference template documenting `SDE_USER_*` variables. Not auto-loaded; users add overrides to `.env.custom` instead.
+
+`SDE_USER_*` defaults live in the top-level `.env` and in every per-platform `env/*.env` template (so platform switching does not erase the user-overlay defaults).
+`scripts/load-sde-env.bash` exports each `SDE_USER_*` variable so it can be interpolated by `docker-compose-user.yaml`.
+The user overlay reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${SDE_ROBOT_PLATFORM}.config`, and the spare panes (Numbers 8-13) of every platform layout are reserved for user-overlay launches.
 
 ### Terminator Layouts
 
@@ -115,6 +142,7 @@ The bottom-left 4 terminals are standardized across all platforms and both envir
 - `terminal10` (Number: 7): FlexBE app (`sde_launch:flexbe_app_default.launch`), on all platforms and in both gazebo and realworld layouts.
 The top-right pair (`terminal13` / `terminal14`, Numbers: 2 / 3) is used for platform-specific secondary launches (e.g., gripper control, teleop, mapping).
 Spare terminals (`terminal18`–`terminal29`, Numbers: 8–15) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 8 in the UR5e realworld layout).
+Number: 13 (`terminal26`) is standardized across all platforms and both environments for `sde_user_launch:user_example_default.launch` (user overlay starter).
 Number: 14 (`terminal28`) is standardized across all platforms and both environments for `sde_launch:rqt_suite_default.launch`.
 Number: 15 (`terminal29`) is standardized across all platforms and both environments for `sde_launch:rosbridge_server_default.launch`.
 

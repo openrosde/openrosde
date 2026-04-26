@@ -45,3 +45,10 @@ for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17 cobotta hsr; do
     docker push registry.gitlab.com/coarobo/sde/${SDE_PLATFORM}-devel:latest
   fi
 done
+
+################################################################################
+
+# The 'user-devel' image is intentionally not pushed to the registry.
+# It is the user-overlay layer (see 'docker/user-devel/Dockerfile') and is built
+# locally on top of the platform image by 'BUILD-DOCKER-IMAGE.bash' on every
+# developer machine.

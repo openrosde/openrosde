@@ -6,7 +6,8 @@
 #
 # [docker-project]:    Used to name the Docker container and create multiple instances if needed.
 #                      Default value is '$USER'.
-# [terminator-layout]: Used to specify a custom Terminator layout with specific preloaded launch files.
+# [terminator-layout]: Used to specify a custom Terminator layout variant.
+#                      Default value is '11-default-gazebo'.
 
 ################################################################################
 
@@ -22,13 +23,17 @@ wait $!
 
 ################################################################################
 
-# Run Terminator with the platform-specific configuration file and layout after injecting the required environment variables.
-sed "s/\${SDE_DOCKER_PROJECT}/${SDE_DOCKER_PROJECT}/g" ./terminator/${SDE_ROBOT_PLATFORM}.config > ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp
-if [ -z "$2" ]; then
-  terminator --maximise --config ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp --layout sde-${SDE_ROBOT_PLATFORM}-term-11-default-gazebo
-else
-  terminator --maximise --config ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp --layout sde-${SDE_ROBOT_PLATFORM}-term-11-$2
+# Resolve the Terminator layout variant (defaults to '11-default-gazebo').
+SDE_TERMINATOR_LAYOUT=$2
+if [ -z "${SDE_TERMINATOR_LAYOUT}" ]; then
+  SDE_TERMINATOR_LAYOUT="11-default-gazebo"
 fi
+
+################################################################################
+
+# Run Terminator with the selected configuration file and layout after injecting the required environment variables.
+sed "s/\${SDE_DOCKER_PROJECT}/${SDE_DOCKER_PROJECT}/g" ./terminator/${SDE_ROBOT_PLATFORM}.config > ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp
+terminator --maximise --config ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp --layout sde-${SDE_ROBOT_PLATFORM}-term-${SDE_TERMINATOR_LAYOUT}
 rm ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp
 sleep 1
 

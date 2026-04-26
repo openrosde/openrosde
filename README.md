@@ -75,14 +75,23 @@ flowchart TD
         base --> cobotta
         hsr["'hsr-devel'"]
         base --> hsr
+        user["'user-devel'<br/>(user overlay)"]
+        turtlebot3 --> user
+        ur5e --> user
+        fetch --> user
+        sciurus17 --> user
+        cobotta --> user
+        hsr --> user
     end
 
     subgraph container["Docker container"]
         shared["'sde_catkin_ws'<br/>(shared packages)"]
         platws["'SDE_ROBOT_PLATFORM_catkin_ws'<br/>(platform packages)"]
+        userws["'sde_user_catkin_ws'<br/>(user overlay packages)"]
         rosenv["ROS environment<br/>(Gazebo, RViz, FlexBE, etc.)"]
         shared --> rosenv
         platws --> rosenv
+        userws --> rosenv
     end
 
     build -->|"Build / pull images"| images
@@ -149,6 +158,7 @@ env/
   sciurus17.env                          # Sciurus17 platform template.
   cobotta.env                            # COBOTTA platform template.
   hsr.env                                # HSR platform template.
+  user.env                               # User overlay environment template (reference).
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
 RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.
@@ -166,6 +176,7 @@ docker/
   docker-compose-sciurus17.yaml          # Sciurus17 platform overlay.
   docker-compose-cobotta.yaml            # COBOTTA platform overlay.
   docker-compose-hsr.yaml                # HSR platform overlay.
+  docker-compose-user.yaml               # User overlay (always loaded).
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
   sde-base/                              # Shared base Docker image.
@@ -183,6 +194,8 @@ docker/
     Dockerfile
   hsr-devel/                             # HSR platform image.
     Dockerfile
+  user-devel/                            # User overlay image (Layer 3, runtime container).
+    Dockerfile
 ros/
   sde_catkin_ws/                         # Shared Catkin workspace.
   turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
@@ -191,6 +204,7 @@ ros/
   sciurus17_catkin_ws/                   # Sciurus17 Catkin workspace.
   cobotta_catkin_ws/                     # COBOTTA Catkin workspace.
   hsr_catkin_ws/                         # HSR Catkin workspace.
+  sde_user_catkin_ws/                    # User overlay Catkin workspace (sde_user_launch, sde_user_behaviors).
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md
@@ -224,6 +238,7 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 | [Robot Platforms / Sciurus17](docs/robot-platforms/sciurus17.md) | RT Sciurus17 robot configuration, installation, and operation |
 | [Robot Platforms / COBOTTA](docs/robot-platforms/cobotta.md) | Denso COBOTTA robot configuration, installation, and operation |
 | [Robot Platforms / HSR](docs/robot-platforms/hsr.md) | Toyota HSR (Human Support Robot) simulation-only configuration, installation, and operation |
+| [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking the SDE |
 
 ## 📄 Related Publications
 

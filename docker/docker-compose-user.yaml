@@ -1,0 +1,20 @@
+# version: "3.9"
+
+################################################################################
+
+# User overlay for the SDE.
+# Passes user-defined environment variables and mounts to the container.
+# Add your custom 'SDE_USER_*' variables to '.env' (defaults) or '.env.custom'
+# (overrides), then expose them here.
+
+################################################################################
+
+services:
+  sde:
+    environment:
+      # User-defined example variable (defined in '.env').
+      - SDE_USER_EXAMPLE_VAR=${SDE_USER_EXAMPLE_VAR}
+    # Add extra volume mounts here. Example:
+    #
+    # volumes:
+    #   - ${HOME}/my-data:/root/my-data

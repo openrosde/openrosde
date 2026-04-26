@@ -103,6 +103,10 @@ Include the platform name, host OS, and the output of the failing command.
 
 ## Adding a New Robot Platform
 
+> [!NOTE]
+> If you only need to add your own ROS packages, system dependencies, environment variables, or Terminator panes, **do not add a new platform**.
+> Use the [User Overlay](docs/user-overlay.md) (Layer 3) instead. It lives in [docker/user-devel/Dockerfile](docker/user-devel/Dockerfile), [ros/sde_user_catkin_ws/](ros/sde_user_catkin_ws/), and [docker/docker-compose-user.yaml](docker/docker-compose-user.yaml), and works on top of any selected `SDE_ROBOT_PLATFORM` without any of the steps below.
+
 The SDE is designed to make adding a new platform straightforward.
 All platform-specific behavior is controlled by the `SDE_ROBOT_PLATFORM` variable.
 Adding a new platform named `<platform>` (e.g., `myrobot`) requires creating a small set of files and adding `<platform>` to a fixed list of platform-aware locations.
