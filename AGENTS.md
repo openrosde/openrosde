@@ -441,9 +441,10 @@ Agent rules:
   - Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
   - Scope is a platform name only: `turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`. Omit the scope entirely for cross-platform or repository-wide changes.
   - Subject is imperative, lowercase, no trailing period.
-- MR descriptions follow the structure documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#merge-requests). Sections: Summary, Changes, Testing, Related issues, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
+- MR descriptions follow the structure documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#merge-requests). Sections: Summary, Changes, Testing, Related, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
 - Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues with labels (`bug`, `feature`, `docs`, `chore`, `question`, `platform::<name>`).
 - Milestones are named after the target release version (`v2.8.0`, `v3.0.0`).
 - Every MR adds a one-line entry under the matching subsection of `## [Unreleased]` in `CHANGELOG.md`, referencing its MR number (e.g., `- Add HSR platform support (!42).`).
 - Releases are tagged `vX.Y.Z` on `main` and published on GitLab via `glab release create`, with notes sourced from the matching `CHANGELOG.md` section and linked to the `vX.Y.Z` milestone.
 - Never force-push to `main`. Never rewrite published history. MR title and description edits are safe and do not touch Git history.
+- Do not use semicolons (`;`), en dashes (`–`), or em dashes (`—`) in any GitLab text: issue titles/descriptions, milestone titles/descriptions, MR titles/descriptions. Use a full stop or a new sentence instead of a semicolon. Use `: ` or a plain hyphen `-` instead of a dash.

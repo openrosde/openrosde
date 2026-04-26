@@ -41,7 +41,7 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-t
   1. **Summary**: one paragraph explaining what changes and why.
   2. **Changes**: bullet list of notable file or behavior changes.
   3. **Testing**: commands run and platforms verified.
-  4. **Related issues**: `Closes #N`, `Refs #N`, or `None`.
+  4. **Related**: `Closes #N`, `Refs #N`, or `None`.
   5. **Changelog**: which `CHANGELOG.md` subsection the change belongs to (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), and the one-line entry being added.
 - Merge commits are preserved (no squash) so the per-commit history of the feature branch lands on `main`.
 - After merging, delete the source branch.
@@ -257,7 +257,7 @@ grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --i
 1. Commit your changes on a branch named `add-<platform>-support`.
 2. Push the branch and open a merge request targeting `main`.
 3. The MR title should follow Conventional Commits: `feat(<platform>): add <Platform Name> platform support`.
-4. The MR description should follow the structure documented in [Merge Requests](#merge-requests): Summary, Changes (list new and updated platform-aware files), Testing (commands run and platforms verified), Related issues, Changelog.
+4. The MR description should follow the structure documented in [Merge Requests](#merge-requests): Summary, Changes (list new and updated platform-aware files), Testing (commands run and platforms verified), Related, Changelog.
 5. Add a `- Add <Platform Name> platform support (!N).` entry under `### Added` in the `## [Unreleased]` section of `CHANGELOG.md`.
 
 ## Code Style Quick Reference
