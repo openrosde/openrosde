@@ -5,15 +5,33 @@
   <!-- https://github.com/realsenseai/realsense-ros -->
   <!-- Upstream default: $(find realsense2_camera)/launch/rs_camera.launch -->
 
+  <!-- Pointcloud (must add this argument in rs_multiple_devices.launch)-->
   <arg name="filters" default="pointcloud" />
 
-  <!-- Use 'wrist_camera' to match the camera frame names in the URDF (wrist_camera_*_optical_frame). -->
+  <!-- Camera 1 -->
+  <arg name="serial_no_camera1"                         default="000000000000"/>
+  <arg name="camera1"                                   default="wrist_camera"/> 
+
+  <!-- Camera 2 -->
+  <arg name="serial_no_camera2"                         default="000000000001"/>
+  <arg name="camera2"                                   default="external_camera"/> 
+
   <!-- Disable TF publishing from the driver since 'robot_state_publisher' already provides -->
+  <!-- By default : <arg name="tf_publish_rate" default="0"/> -->
+
+  <!-- Use 'wrist_camera' to match the camera frame names in the URDF (wrist_camera_*_optical_frame). -->
   <!-- the static camera-to-'base_link' transform from the URDF. -->
-  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-    <arg name="filters" value="$(arg filters)" />
-    <arg name="camera" value="wrist_camera" />
-    <arg name="tf_publish_rate" value="0" />
+  <include file="$(find realsense2_camera)/launch/rs_multiple_devices.launch">
+
+    <!-- Camera 1 -->
+    <arg name="serial_no_camera1"       value="$(arg serial_no_camera1)"/>
+    <arg name="camera1"                 value="$(arg camera1)"/>
+
+    <!-- Camera 2 -->
+    <arg name="serial_no_camera2"       value="$(arg serial_no_camera2)"/>
+    <arg name="camera2"                 value="$(arg camera2)"/>
+
+    <arg name="filters" value="pointcloud" />
   </include>
 
 </launch>

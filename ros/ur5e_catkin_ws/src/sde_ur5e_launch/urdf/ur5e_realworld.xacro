@@ -92,9 +92,9 @@
 
   <!-- External RealSense D435i Camera (Environment view, using world as parent) -->
   <!-- TODO: Uncomment and tune the origin once the external camera mount position is known. -->
-  <!-- <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+  <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
     <origin xyz="1.0 0.0 1.0" rpy="0 0.5 3.14159"/>
-  </xacro:sensor_d435i> -->
+  </xacro:sensor_d435i>
 
   <!-- Wrist-mounted RealSense D435i Camera (Attached to the PickNik adapter's mount link) -->
   <xacro:sensor_d435i parent="camera_mount_link" name="wrist_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
