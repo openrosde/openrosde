@@ -285,7 +285,7 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
-    - Acceleration_Scaling_Factor: 0.1
+    - Acceleration_Scaling_Factor:1
       Class: moveit_rviz_plugin/MotionPlanning
       Enabled: true
       JointsTab_Use_Radians: true
@@ -827,7 +827,7 @@ Visualization Manager:
         Show Robot Collision: false
         Show Robot Visual: true
       Value: true
-      Velocity_Scaling_Factor: 0.30000000000000016
+      Velocity_Scaling_Factor: 1
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
