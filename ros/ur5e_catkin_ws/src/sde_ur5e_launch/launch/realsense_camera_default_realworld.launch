@@ -19,7 +19,8 @@
   <!-- 'external_camera_ns' must match the URDF frame prefix ('external_camera_*_optical_frame'). -->
   <!-- The serial number defaults to the 'SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO' environment variable. -->
   <!-- An empty serial number means the driver will connect to any available camera. -->
-  <arg name="enable_external_camera"    default="true" />
+  <!-- Set 'SDE_UR5E_ENABLE_EXTERNAL_CAMERA' to 'false' in '.env.custom' to skip the external camera at bringup. -->
+  <arg name="enable_external_camera"    default="$(optenv SDE_UR5E_ENABLE_EXTERNAL_CAMERA true)" />
   <arg name="external_camera_serial_no" default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO '')" />
   <arg name="external_camera_ns"        default="external_camera" />
 

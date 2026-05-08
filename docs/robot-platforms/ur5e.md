@@ -182,7 +182,13 @@ To start both cameras with point cloud generation:
 roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch
 ```
 
-If the external camera is not connected, disable it with the `enable_external_camera` argument:
+If the external camera is not connected, disable it by setting the corresponding environment variable in `.env.custom`:
+
+```shell
+SDE_UR5E_ENABLE_EXTERNAL_CAMERA=false
+```
+
+Alternatively, override the value at launch time:
 
 ```shell
 roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch enable_external_camera:=false
