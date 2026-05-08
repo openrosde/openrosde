@@ -24,7 +24,8 @@ wait $!
 ################################################################################
 
 # Resolve the Terminator layout variant (defaults to 'default-gazebo').
-# The argument accepts the layout variant name (e.g. 'default-gazebo' or 'default-realworld') and maps it to the full layout name suffix (e.g. '11-default-gazebo' or '11-default-realworld').
+# The argument is the layout variant name (e.g. 'default-gazebo' or 'default-realworld').
+# It is prepended with '11-' to form the full layout name suffix (e.g. '11-default-gazebo').
 SDE_TERMINATOR_LAYOUT_ARG=$2
 if [ -z "${SDE_TERMINATOR_LAYOUT_ARG}" ]; then
   SDE_TERMINATOR_LAYOUT_ARG="default-gazebo"

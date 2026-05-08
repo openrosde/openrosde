@@ -41,6 +41,12 @@ SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO=<your-external-camera-serial>
 
 Run `rs-enumerate-devices` inside the container to find the serial numbers of connected cameras.
 
+If the external camera is not available in your setup, disable it in `.env.custom`:
+
+```shell
+SDE_UR5E_ENABLE_EXTERNAL_CAMERA=false
+```
+
 The external camera pose (position in meters and orientation in radians, expressed in the `world` frame which is co-located with the robot `base_link`) is also setup-dependent and can be overridden in `.env.custom`:
 
 ```shell
