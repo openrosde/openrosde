@@ -17,6 +17,15 @@
   <xacro:arg name="safety_pos_margin" default="0.15"/>
   <xacro:arg name="safety_k_position" default="20"/>
 
+  <!-- External RealSense D435i camera position (attached to 'world', setup-dependent). -->
+  <!-- Override via 'SDE_UR5E_EXTERNAL_CAMERA_*' environment variables. -->
+  <xacro:arg name="external_camera_x"     default="0" />
+  <xacro:arg name="external_camera_y"     default="-0.254" />
+  <xacro:arg name="external_camera_z"     default="0.38" />
+  <xacro:arg name="external_camera_roll"  default="0" />
+  <xacro:arg name="external_camera_pitch" default="0.31" />
+  <xacro:arg name="external_camera_yaw"   default="2.60159" />
+
   <xacro:ur_robot_gazebo
     prefix=""
     joint_limits_parameters_file="$(arg joint_limit_params)"
@@ -70,7 +79,8 @@
 
   <!-- External RealSense D435i camera (environment view, attached to 'world'). -->
   <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
-    <origin xyz="0 -0.254 0.38" rpy="0 0.31 ${3.14159 - 0.54}" />
+    <origin xyz="$(arg external_camera_x) $(arg external_camera_y) $(arg external_camera_z)"
+      rpy="$(arg external_camera_roll) $(arg external_camera_pitch) $(arg external_camera_yaw)" />
   </xacro:sensor_d435i>
 
   <!-- Wrist-mounted RealSense D435i camera (attached to the PickNik adapter's 'camera_mount_link'). -->
