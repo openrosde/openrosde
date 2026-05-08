@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.0] - 2026-05-08
+
 ### Added
 
 - Dual Intel RealSense D435i camera support for the UR5e platform: wrist-mounted and external cameras integrated into URDF (Gazebo and real-world), with environment variables `SDE_UR5E_WRIST_CAMERA_SERIAL_NO`, `SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO`, `SDE_UR5E_ENABLE_EXTERNAL_CAMERA`, and external camera pose `SDE_UR5E_EXTERNAL_CAMERA_X/Y/Z/ROLL/PITCH/YAW` (!16).
