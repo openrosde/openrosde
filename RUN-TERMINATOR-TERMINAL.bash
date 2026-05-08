@@ -7,7 +7,7 @@
 # [docker-project]:    Used to name the Docker container and create multiple instances if needed.
 #                      Default value is '$USER'.
 # [terminator-layout]: Used to specify a custom Terminator layout variant.
-#                      Default value is '11-default-gazebo'.
+#                      Default value is 'default-gazebo'.
 
 ################################################################################
 
@@ -23,11 +23,13 @@ wait $!
 
 ################################################################################
 
-# Resolve the Terminator layout variant (defaults to '11-default-gazebo').
-SDE_TERMINATOR_LAYOUT=$2
-if [ -z "${SDE_TERMINATOR_LAYOUT}" ]; then
-  SDE_TERMINATOR_LAYOUT="11-default-gazebo"
+# Resolve the Terminator layout variant (defaults to 'default-gazebo').
+# The argument accepts the layout variant name (e.g. 'default-gazebo' or 'default-realworld') and maps it to the full layout name suffix (e.g. '11-default-gazebo' or '11-default-realworld').
+SDE_TERMINATOR_LAYOUT_ARG=$2
+if [ -z "${SDE_TERMINATOR_LAYOUT_ARG}" ]; then
+  SDE_TERMINATOR_LAYOUT_ARG="default-gazebo"
 fi
+SDE_TERMINATOR_LAYOUT="11-${SDE_TERMINATOR_LAYOUT_ARG}"
 
 ################################################################################
 
