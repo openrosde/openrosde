@@ -14,3 +14,7 @@ services:
       - SDE_UR5E_TEACH_PENDANT_IP=${SDE_UR5E_TEACH_PENDANT_IP}
       # IP address of the OnRobot Compute Box (gripper controller).
       - SDE_ONROBOT_COMPUTE_BOX_IP=${SDE_ONROBOT_COMPUTE_BOX_IP}
+      # Serial number of the wrist-mounted Intel RealSense D435i camera.
+      - SDE_UR5E_WRIST_CAMERA_SERIAL_NO=${SDE_UR5E_WRIST_CAMERA_SERIAL_NO}
+      # Serial number of the external Intel RealSense D435i camera.
+      - SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO=${SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO}

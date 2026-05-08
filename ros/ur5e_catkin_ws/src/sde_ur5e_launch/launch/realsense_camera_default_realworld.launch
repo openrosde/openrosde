@@ -3,34 +3,41 @@
 <launch>
 
   <!-- https://github.com/realsenseai/realsense-ros -->
-  <!-- Upstream default: $(find realsense2_camera)/launch/rs_multiple_devices.launch -->
+  <!-- Upstream default: $(find realsense2_camera)/launch/rs_camera.launch -->
 
   <!-- Enable pointcloud filter on both cameras. -->
   <arg name="filters" default="pointcloud" />
 
   <!-- Wrist-mounted RealSense D435i camera. -->
-  <!-- The 'camera1' name must match the URDF frame prefix ('wrist_camera_*_optical_frame'). -->
-  <arg name="serial_no_camera1" default="000000000000" />
-  <arg name="camera1"           default="wrist_camera" />
+  <!-- 'wrist_camera_ns' must match the URDF frame prefix ('wrist_camera_*_optical_frame'). -->
+  <!-- The serial number defaults to the 'SDE_UR5E_WRIST_CAMERA_SERIAL_NO' environment variable. -->
+  <!-- An empty serial number means the driver will connect to any available camera. -->
+  <arg name="wrist_camera_serial_no" default="$(optenv SDE_UR5E_WRIST_CAMERA_SERIAL_NO '')" />
+  <arg name="wrist_camera_ns"        default="wrist_camera" />
 
-  <!-- External RealSense D435i camera. -->
-  <!-- The 'camera2' name must match the URDF frame prefix ('external_camera_*_optical_frame'). -->
-  <arg name="serial_no_camera2" default="000000000001" />
-  <arg name="camera2"           default="external_camera" />
+  <!-- External RealSense D435i camera (optional). -->
+  <!-- 'external_camera_ns' must match the URDF frame prefix ('external_camera_*_optical_frame'). -->
+  <!-- The serial number defaults to the 'SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO' environment variable. -->
+  <!-- An empty serial number means the driver will connect to any available camera. -->
+  <arg name="enable_external_camera"    default="true" />
+  <arg name="external_camera_serial_no" default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO '')" />
+  <arg name="external_camera_ns"        default="external_camera" />
 
   <!-- TF publishing from the driver is left at the upstream default. -->
   <!-- 'robot_state_publisher' already provides the static camera-to-'base_link' transform from the URDF. -->
-  <include file="$(find realsense2_camera)/launch/rs_multiple_devices.launch">
 
-    <!-- Wrist-mounted camera. -->
-    <arg name="serial_no_camera1" value="$(arg serial_no_camera1)" />
-    <arg name="camera1"           value="$(arg camera1)" />
+  <!-- Wrist-mounted camera. -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="serial_no" value="$(arg wrist_camera_serial_no)" />
+    <arg name="camera"    value="$(arg wrist_camera_ns)" />
+    <arg name="filters"   value="$(arg filters)" />
+  </include>
 
-    <!-- External camera. -->
-    <arg name="serial_no_camera2" value="$(arg serial_no_camera2)" />
-    <arg name="camera2"           value="$(arg camera2)" />
-
-    <arg name="filters" value="$(arg filters)" />
+  <!-- External camera (started only when 'enable_external_camera' is true). -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(arg enable_external_camera)">
+    <arg name="serial_no" value="$(arg external_camera_serial_no)" />
+    <arg name="camera"    value="$(arg external_camera_ns)" />
+    <arg name="filters"   value="$(arg filters)" />
   </include>
 
 </launch>

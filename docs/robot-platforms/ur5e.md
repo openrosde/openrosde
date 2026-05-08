@@ -19,7 +19,8 @@ The Universal Robots UR5e platform consists of the following components:
 
 - **Robot arm:** [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) collaborative robot (serial number: `XXXXXXXXXXX`).
 - **Gripper:** [OnRobot RG2](https://onrobot.com/products/rg2) electric parallel gripper, mounted on an [OnRobot Quick Changer](https://onrobot.com/products/quick-changer) (Robot Side 109498 QC-R v3), itself attached to the Universal Robots UR5e tool flange.
-- **Camera:** [Intel RealSense D435i](https://www.intelrealsense.com/depth-camera-d435i/) depth camera, mounted between the Universal Robots UR5e tool flange and the OnRobot Quick Changer using a [camera adapter from PickNik Robotics](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1).
+- **Wrist camera:** [Intel RealSense D435i](https://www.intelrealsense.com/depth-camera-d435i/) depth camera, mounted between the Universal Robots UR5e tool flange and the OnRobot Quick Changer using a [camera adapter from PickNik Robotics](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1).
+- **External camera:** [Intel RealSense D435i](https://www.intelrealsense.com/depth-camera-d435i/) depth camera, mounted on a fixed stand to provide an environment view of the workspace.
 - **Gripper controller:** OnRobot Compute Box from the OnRobot Robot Kit, connected to the gripper via the OnRobot Quick Changer and to the network via Ethernet.
   It communicates with the Ubuntu development machine over Modbus TCP (port `502`).
 
@@ -30,6 +31,15 @@ Switch to the Universal Robots UR5e platform:
 ```shell
 bash ./SWITCH-ROBOT-PLATFORM.bash ur5e
 ```
+
+Camera serial numbers are setup-dependent and must be configured in `.env.custom`:
+
+```shell
+SDE_UR5E_WRIST_CAMERA_SERIAL_NO=<your-wrist-camera-serial>
+SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO=<your-external-camera-serial>
+```
+
+Run `rs-enumerate-devices` inside the container to find the serial numbers of connected cameras.
 
 > [!NOTE]
 > The Universal Robots UR5e does not broadcast a host name on the network, so it cannot be operated using mDNS host names.
@@ -143,13 +153,24 @@ roslaunch sde_ur5e_launch ur5e_rviz_default.launch
 
 You should be able to plan and execute motions from RViz.
 
-### 📷 Intel RealSense Camera
+### 📷 Intel RealSense Cameras
 
-To start the Intel RealSense D435i camera stream with point cloud generation:
+The platform uses two Intel RealSense D435i cameras: a wrist-mounted camera and an external environment camera.
+The serial numbers are setup-dependent and must be set in `.env.custom` (see [Platform Configuration](#platform-configuration)).
+
+To start both cameras with point cloud generation:
 
 ```shell
 roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch
 ```
+
+If the external camera is not connected, disable it with the `enable_external_camera` argument:
+
+```shell
+roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch enable_external_camera:=false
+```
+
+The external camera displays in RViz are disabled by default and can be re-enabled manually once the camera is running.
 
 ### 🦾 OnRobot RG2 Gripper
 
@@ -188,7 +209,7 @@ The following launch files are available for the Universal Robots UR5e platform 
 | `ur5e_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `ur5e_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `ur5e_rviz_default.launch` | RViz visualization (Gazebo and real robot) |
-| `realsense_camera_default_realworld.launch` | Intel RealSense D435i camera |
+| `realsense_camera_default_realworld.launch` | Intel RealSense D435i wrist and external cameras (external optional) |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper via Modbus TCP |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper (Gazebo) |
 | `ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceNavigator teleoperation (real robot) |
