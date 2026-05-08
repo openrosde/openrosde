@@ -41,6 +41,24 @@ SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO=<your-external-camera-serial>
 
 Run `rs-enumerate-devices` inside the container to find the serial numbers of connected cameras.
 
+The external camera pose (position in meters and orientation in radians, expressed in the `world` frame which is co-located with the robot `base_link`) is also setup-dependent and can be overridden in `.env.custom`:
+
+```shell
+SDE_UR5E_EXTERNAL_CAMERA_X=0
+SDE_UR5E_EXTERNAL_CAMERA_Y=-0.254
+SDE_UR5E_EXTERNAL_CAMERA_Z=0.38
+SDE_UR5E_EXTERNAL_CAMERA_ROLL=0
+SDE_UR5E_EXTERNAL_CAMERA_PITCH=0.31
+SDE_UR5E_EXTERNAL_CAMERA_YAW=2.60159
+```
+
+These values are baked into the URDF at bringup time, so any change requires restarting the bringup launch file.
+Individual values can also be overridden at launch time, for example:
+
+```shell
+roslaunch sde_ur5e_launch ur5e_bringup_default_realworld.launch external_camera_y:=-0.30
+```
+
 > [!NOTE]
 > The Universal Robots UR5e does not broadcast a host name on the network, so it cannot be operated using mDNS host names.
 > Static IP addresses must be used instead (see [Network Configuration](#network-configuration)).
