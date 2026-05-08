@@ -15,6 +15,15 @@
   <arg name="safety_pos_margin" default="0.15" />
   <arg name="safety_k_position" default="20" />
 
+  <!-- External RealSense D435i camera position arguments. -->
+  <!-- These default to the 'SDE_UR5E_EXTERNAL_CAMERA_*' environment variables. -->
+  <arg name="external_camera_x"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_X 0)" />
+  <arg name="external_camera_y"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_Y -0.254)" />
+  <arg name="external_camera_z"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_Z 0.38)" />
+  <arg name="external_camera_roll"  default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_ROLL 0)" />
+  <arg name="external_camera_pitch" default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_PITCH 0.31)" />
+  <arg name="external_camera_yaw"   default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_YAW 2.60159)" />
+
   <!-- Gazebo controller arguments. -->
   <arg name="controller_config_file" default="$(find ur_gazebo)/config/ur5e_controllers.yaml" />
   <arg name="controllers" default="joint_state_controller eff_joint_traj_controller" />
@@ -42,7 +51,13 @@
     transmission_hw_interface:=$(arg transmission_hw_interface)
     safety_limits:=$(arg safety_limits)
     safety_pos_margin:=$(arg safety_pos_margin)
-    safety_k_position:=$(arg safety_k_position)" />
+    safety_k_position:=$(arg safety_k_position)
+    external_camera_x:=$(arg external_camera_x)
+    external_camera_y:=$(arg external_camera_y)
+    external_camera_z:=$(arg external_camera_z)
+    external_camera_roll:=$(arg external_camera_roll)
+    external_camera_pitch:=$(arg external_camera_pitch)
+    external_camera_yaw:=$(arg external_camera_yaw)" />
 
   <param name="robot_description_semantic" textfile="$(find sde_ur5e_launch)/config/ur5e/ur5e_gazebo.srdf" />
 

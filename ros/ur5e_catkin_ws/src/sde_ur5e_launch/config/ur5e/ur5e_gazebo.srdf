@@ -24,6 +24,7 @@
 
     <virtual_joint name="fixed_base" type="fixed" parent_frame="world" child_link="base_link" />
 
+    <!-- UR5e arm -->
     <disable_collisions link1="base_link_inertia" link2="shoulder_link" reason="Adjacent" />
     <disable_collisions link1="base_link_inertia" link2="upper_arm_link" reason="Never" />
     <disable_collisions link1="base_link_inertia" link2="wrist_1_link" reason="Never" />
@@ -36,21 +37,41 @@
     <disable_collisions link1="wrist_1_link" link2="wrist_3_link" reason="Never" />
     <disable_collisions link1="wrist_2_link" link2="wrist_3_link" reason="Adjacent" />
 
-    <disable_collisions link1="tool0" link2="onrobot_rg2_base_link" reason="Adjacent" />
+    <!-- PickNik camera adapter (attached to 'tool0' via fixed joint) -->
+    <disable_collisions link1="camera_adapter_link" link2="tool0" reason="Adjacent" />
+    <disable_collisions link1="camera_adapter_link" link2="flange" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="wrist_3_link" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="wrist_2_link" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="qc_robot_mount" reason="Adjacent" />
+
+    <!-- OnRobot QC-R quick changer (attached to 'camera_adapter_link' via fixed joints) -->
+    <disable_collisions link1="qc_body" link2="camera_adapter_link" reason="Adjacent" />
+    <disable_collisions link1="qc_body" link2="tool0" reason="Never" />
+    <disable_collisions link1="qc_body" link2="flange" reason="Never" />
+    <disable_collisions link1="qc_body" link2="wrist_3_link" reason="Never" />
+    <disable_collisions link1="qc_body" link2="wrist_2_link" reason="Never" />
+    <disable_collisions link1="qc_body" link2="qc_tool_mount" reason="Adjacent" />
+    <disable_collisions link1="qc_tool_mount" link2="onrobot_rg2_base_link" reason="Adjacent" />
+
+    <!-- OnRobot RG2 gripper (attached to 'qc_tool_mount' via fixed joint) -->
+    <disable_collisions link1="tool0" link2="onrobot_rg2_base_link" reason="Never" />
     <disable_collisions link1="tool0" link2="left_outer_knuckle" reason="Never" />
     <disable_collisions link1="tool0" link2="right_outer_knuckle" reason="Never" />
     <disable_collisions link1="tool0" link2="left_inner_knuckle" reason="Never" />
     <disable_collisions link1="tool0" link2="right_inner_knuckle" reason="Never" />
     <disable_collisions link1="tool0" link2="left_inner_finger" reason="Never" />
     <disable_collisions link1="tool0" link2="right_inner_finger" reason="Never" />
-    <disable_collisions link1="flange" link2="onrobot_rg2_base_link" reason="Adjacent" />
+    <disable_collisions link1="tool0" link2="camera_adapter_link" reason="Adjacent" />
+
+    <disable_collisions link1="flange" link2="onrobot_rg2_base_link" reason="Never" />
     <disable_collisions link1="flange" link2="left_outer_knuckle" reason="Never" />
     <disable_collisions link1="flange" link2="right_outer_knuckle" reason="Never" />
     <disable_collisions link1="flange" link2="left_inner_knuckle" reason="Never" />
     <disable_collisions link1="flange" link2="right_inner_knuckle" reason="Never" />
     <disable_collisions link1="flange" link2="left_inner_finger" reason="Never" />
     <disable_collisions link1="flange" link2="right_inner_finger" reason="Never" />
-    <disable_collisions link1="wrist_3_link" link2="onrobot_rg2_base_link" reason="Adjacent" />
+
+    <disable_collisions link1="wrist_3_link" link2="onrobot_rg2_base_link" reason="Never" />
     <disable_collisions link1="wrist_2_link" link2="onrobot_rg2_base_link" reason="Never" />
     <disable_collisions link1="wrist_2_link" link2="left_outer_knuckle" reason="Never" />
     <disable_collisions link1="wrist_2_link" link2="right_outer_knuckle" reason="Never" />
@@ -64,12 +85,30 @@
     <disable_collisions link1="wrist_3_link" link2="right_inner_knuckle" reason="Never" />
     <disable_collisions link1="wrist_3_link" link2="left_inner_finger" reason="Never" />
     <disable_collisions link1="wrist_3_link" link2="right_inner_finger" reason="Never" />
+
+    <disable_collisions link1="camera_adapter_link" link2="onrobot_rg2_base_link" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="left_outer_knuckle" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="right_outer_knuckle" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="left_inner_knuckle" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="right_inner_knuckle" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="left_inner_finger" reason="Never" />
+    <disable_collisions link1="camera_adapter_link" link2="right_inner_finger" reason="Never" />
+
+    <disable_collisions link1="qc_body" link2="onrobot_rg2_base_link" reason="Never" />
+    <disable_collisions link1="qc_body" link2="left_outer_knuckle" reason="Never" />
+    <disable_collisions link1="qc_body" link2="right_outer_knuckle" reason="Never" />
+    <disable_collisions link1="qc_body" link2="left_inner_knuckle" reason="Never" />
+    <disable_collisions link1="qc_body" link2="right_inner_knuckle" reason="Never" />
+    <disable_collisions link1="qc_body" link2="left_inner_finger" reason="Never" />
+    <disable_collisions link1="qc_body" link2="right_inner_finger" reason="Never" />
+
     <disable_collisions link1="onrobot_rg2_base_link" link2="left_outer_knuckle" reason="Adjacent" />
     <disable_collisions link1="onrobot_rg2_base_link" link2="right_outer_knuckle" reason="Adjacent" />
     <disable_collisions link1="onrobot_rg2_base_link" link2="left_inner_knuckle" reason="Adjacent" />
     <disable_collisions link1="onrobot_rg2_base_link" link2="right_inner_knuckle" reason="Adjacent" />
     <disable_collisions link1="onrobot_rg2_base_link" link2="left_inner_finger" reason="Never" />
     <disable_collisions link1="onrobot_rg2_base_link" link2="right_inner_finger" reason="Never" />
+
     <disable_collisions link1="left_outer_knuckle" link2="right_outer_knuckle" reason="Never" />
     <disable_collisions link1="left_outer_knuckle" link2="right_inner_knuckle" reason="Never" />
     <disable_collisions link1="left_outer_knuckle" link2="right_inner_finger" reason="Never" />

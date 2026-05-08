@@ -17,6 +17,15 @@
   <xacro:arg name="safety_pos_margin" default="0.15"/>
   <xacro:arg name="safety_k_position" default="20"/>
 
+  <!-- External RealSense D435i camera position (attached to 'world', setup-dependent). -->
+  <!-- Override via 'SDE_UR5E_EXTERNAL_CAMERA_*' environment variables. -->
+  <xacro:arg name="external_camera_x"     default="0" />
+  <xacro:arg name="external_camera_y"     default="-0.254" />
+  <xacro:arg name="external_camera_z"     default="0.38" />
+  <xacro:arg name="external_camera_roll"  default="0" />
+  <xacro:arg name="external_camera_pitch" default="0.31" />
+  <xacro:arg name="external_camera_yaw"   default="2.60159" />
+
   <xacro:ur_robot
     prefix=""
     joint_limits_parameters_file="$(arg joint_limit_params)"
@@ -29,48 +38,31 @@
     safety_k_position="$(arg safety_k_position)"
   />
 
-  <link name="onrobot_rg2_base_link">
-    <inertial>
-      <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
-      <mass value="0.7" />
-      <inertia ixx="1.0E-03" ixy="1.0E-06" ixz="1.0E-06" iyy="1.0E-03" iyz="1.0E-06" izz="1.0E-03" />
-    </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <geometry>
-        <mesh filename="package://onrobot_rg_description/meshes/rg2/visual/base_link.stl" />
-      </geometry>
-      <material name="">
-        <color rgba="0.8 0.8 0.8 1" />
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <geometry>
-        <mesh filename="package://onrobot_rg_description/meshes/rg2/collision/base_link.stl" />
-      </geometry>
-    </collision>
-  </link>
+  <!-- Instantiate the OnRobot RG2 gripper. -->
+  <xacro:onrobot_rg2 prefix="" />
 
-  <!-- Instantiate the QC using its new macro, attached to the adapter -->
-  <xacro:onrobot_qc_r_v3 parent="camera_adapter_link">
-    <!-- Rotate 180 degrees so the gripper faces outwards instead of into the mount -->
-    <origin xyz="0 0 -0.0125" rpy="0 3.14159 0" />
-  </xacro:onrobot_qc_r_v3>
-
+  <!-- Attach the gripper base to the OnRobot quick changer's tool-side mount. -->
   <joint name="qc_tool_mount-onrobot_rg2_base" type="fixed">
     <parent link="qc_tool_mount" />
     <child link="onrobot_rg2_base_link" />
-    <origin xyz="0 0 -0.005" rpy="0 0 -1.5708" />
+    <origin xyz="0 0 -0.007" rpy="0 0 -1.5708" />
     <axis xyz="0 0 1" />
   </joint>
 
-  <xacro:finger_links prefix="" fingerprefix="left"/>
-  <xacro:finger_links prefix="" fingerprefix="right"/>
-  <xacro:finger_joint prefix=""/>
-  <xacro:right_outer_knuckle_joint prefix=""/>
+  <!-- Attach the OnRobot quick changer to the PickNik camera adapter. -->
+  <xacro:onrobot_qc_r_v3 parent="camera_adapter_link">
+    <origin xyz="0 0 0.01" rpy="0 0 0" />
+  </xacro:onrobot_qc_r_v3>
+
+  <!-- Attach the PickNik camera adapter to the robot flange ('tool0'). -->
+  <xacro:picknik_camera_adapter parent="tool0">
+    <!-- Fine-tune this origin based on how the adapter sits on the flange. -->
+    <origin xyz="0.0 0.0 -0.001" rpy="0 0 0" />
+  </xacro:picknik_camera_adapter>
 
   <link name="world"/>
+
+  <!-- Robot base is attached to the world (fixed joint). -->
   <joint name="world_joint" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
@@ -78,27 +70,22 @@
   </joint>
 
   <link name="tool0_controller"/>
+
   <joint name="tool_controller_fake_joint" type="fixed">
     <parent link="tool0"/>
     <child link="tool0_controller"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
-  <!-- PickNik Camera Adapter (Attached to Robot's flange/tool0) -->
-  <xacro:picknik_camera_adapter parent="tool0">
-    <!-- Fine-tune this origin based on how the adapter sits on the flange -->
-    <origin xyz="0.0 0.0 0.01" rpy="0 3.14159 0"/>
-  </xacro:picknik_camera_adapter>
+  <!-- External RealSense D435i camera (environment view, attached to 'world'). -->
+  <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
+    <origin xyz="$(arg external_camera_x) $(arg external_camera_y) $(arg external_camera_z)"
+      rpy="$(arg external_camera_roll) $(arg external_camera_pitch) $(arg external_camera_yaw)" />
+  </xacro:sensor_d435i>
 
-  <!-- External RealSense D435i Camera (Environment view, using world as parent) -->
-  <!-- TODO: Uncomment and tune the origin once the external camera mount position is known. -->
-  <!-- <xacro:sensor_d435i parent="world" name="external_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
-    <origin xyz="1.0 0.0 1.0" rpy="0 0.5 3.14159"/>
-  </xacro:sensor_d435i> -->
-
-  <!-- Wrist-mounted RealSense D435i Camera (Attached to the PickNik adapter's mount link) -->
+  <!-- Wrist-mounted RealSense D435i camera (attached to the PickNik adapter's 'camera_mount_link'). -->
   <xacro:sensor_d435i parent="camera_mount_link" name="wrist_camera" use_nominal_extrinsics="$(arg use_nominal_extrinsics)">
-    <!-- Subtracted 8 degrees (0.139626 radians) to the pitch axis -->
-    <origin xyz="0.0 -0.075 -0.011" rpy="0 ${1.5708 - 0.139626} -1.5708"/>
+    <!-- Pitch is rotated by pi to flip the camera, then offset by -8 degrees (-0.139626 rad). -->
+    <origin xyz="0 -0.065 0.016" rpy="3.14159 ${3.14159 + 1.5708 - 0.139626} -1.5708" />
   </xacro:sensor_d435i>
 </robot>

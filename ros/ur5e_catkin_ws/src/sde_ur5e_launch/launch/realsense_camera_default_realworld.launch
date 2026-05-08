@@ -5,15 +5,40 @@
   <!-- https://github.com/realsenseai/realsense-ros -->
   <!-- Upstream default: $(find realsense2_camera)/launch/rs_camera.launch -->
 
+  <!-- Enable pointcloud filter on both cameras. -->
   <arg name="filters" default="pointcloud" />
 
-  <!-- Use 'wrist_camera' to match the camera frame names in the URDF (wrist_camera_*_optical_frame). -->
-  <!-- Disable TF publishing from the driver since 'robot_state_publisher' already provides -->
-  <!-- the static camera-to-'base_link' transform from the URDF. -->
+  <!-- Wrist-mounted RealSense D435i camera. -->
+  <!-- 'wrist_camera_ns' must match the URDF frame prefix ('wrist_camera_*_optical_frame'). -->
+  <!-- The serial number defaults to the 'SDE_UR5E_WRIST_CAMERA_SERIAL_NO' environment variable. -->
+  <!-- An empty serial number means the driver will connect to any available camera. -->
+  <arg name="wrist_camera_serial_no" default="$(optenv SDE_UR5E_WRIST_CAMERA_SERIAL_NO '')" />
+  <arg name="wrist_camera_ns"        default="wrist_camera" />
+
+  <!-- External RealSense D435i camera (optional). -->
+  <!-- 'external_camera_ns' must match the URDF frame prefix ('external_camera_*_optical_frame'). -->
+  <!-- The serial number defaults to the 'SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO' environment variable. -->
+  <!-- An empty serial number means the driver will connect to any available camera. -->
+  <!-- Set 'SDE_UR5E_ENABLE_EXTERNAL_CAMERA' to 'false' in '.env.custom' to skip the external camera at bringup. -->
+  <arg name="enable_external_camera"    default="$(optenv SDE_UR5E_ENABLE_EXTERNAL_CAMERA true)" />
+  <arg name="external_camera_serial_no" default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO '')" />
+  <arg name="external_camera_ns"        default="external_camera" />
+
+  <!-- TF publishing from the driver is left at the upstream default. -->
+  <!-- 'robot_state_publisher' already provides the static camera-to-'base_link' transform from the URDF. -->
+
+  <!-- Wrist-mounted camera. -->
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-    <arg name="filters" value="$(arg filters)" />
-    <arg name="camera" value="wrist_camera" />
-    <arg name="tf_publish_rate" value="0" />
+    <arg name="serial_no" value="$(arg wrist_camera_serial_no)" />
+    <arg name="camera"    value="$(arg wrist_camera_ns)" />
+    <arg name="filters"   value="$(arg filters)" />
+  </include>
+
+  <!-- External camera (started only when 'enable_external_camera' is true). -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(arg enable_external_camera)">
+    <arg name="serial_no" value="$(arg external_camera_serial_no)" />
+    <arg name="camera"    value="$(arg external_camera_ns)" />
+    <arg name="filters"   value="$(arg filters)" />
   </include>
 
 </launch>

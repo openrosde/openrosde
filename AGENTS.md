@@ -132,6 +132,8 @@ The remaining spare panes (Numbers 8-12) are free shells reserved for additional
 
 Terminator configuration files are per-platform in `terminator/` (e.g., `turtlebot3.config`, `ur5e.config`).
 Layout names follow the pattern: `sde-<platform>-term-11-<variant>-<environment>`.
+`RUN-TERMINATOR-TERMINAL.bash` accepts a `[terminator-layout]` argument of the form `<variant>-<environment>` (e.g. `default-gazebo`, `default-realworld`), defaulting to `default-gazebo`.
+The script prepends `11-` to build the full layout name passed to `terminator --layout`.
 `RUN-TERMINATOR-TERMINAL.bash` pre-starts the Docker container with `--no-exec` before launching Terminator to avoid race conditions from multiple panes running `RUN-DOCKER-CONTAINER.bash` simultaneously.
 The `sed` command injects `${SDE_DOCKER_PROJECT}` into the config, producing a `.config.tmp` file that is git-ignored.
 

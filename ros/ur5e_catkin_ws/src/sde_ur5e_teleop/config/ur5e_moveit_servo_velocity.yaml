@@ -31,7 +31,7 @@ low_latency_mode: false
 
 check_collisions: true
 collision_check_type: threshold_distance
-self_collision_proximity_threshold: 0.01
-scene_collision_proximity_threshold: 0.02
+self_collision_proximity_threshold: 0.0001
+scene_collision_proximity_threshold: 0.0001
 collision_distance_safety_factor: 1000.0
 min_allowable_collision_distance: 0.01

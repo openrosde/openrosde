@@ -4,8 +4,8 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded: ~
-      Splitter Ratio: 0.5175438523292542
-    Tree Height: 428
+      Splitter Ratio: 0.9177897572517395
+    Tree Height: 474
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -71,6 +71,63 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        external_camera_accel_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_accel_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_bottom_screw_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_color_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_color_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_depth_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_depth_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_gyro_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_gyro_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_infra1_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_infra1_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_infra2_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_infra2_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        external_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         flange:
           Alpha: 1
           Show Axes: false
@@ -282,6 +339,63 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+          external_camera_accel_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_accel_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_bottom_screw_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_color_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_color_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_depth_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_depth_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_gyro_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_gyro_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_infra1_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_infra1_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_infra2_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_infra2_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           flange:
             Alpha: 1
             Show Axes: false
@@ -501,6 +615,63 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
+          external_camera_accel_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_accel_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_bottom_screw_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_color_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_color_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_depth_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_depth_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_gyro_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_gyro_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_infra1_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_infra1_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_infra2_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_infra2_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          external_camera_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           flange:
             Alpha: 1
             Show Axes: false
@@ -663,22 +834,10 @@ Visualization Manager:
       Max Value: 1
       Median window: 5
       Min Value: 0
-      Name: Image (Color)
+      Name: Wrist Camera (Image)
       Normalize Range: true
       Queue Size: 2
       Transport Hint: compressed
-      Unreliable: false
-      Value: true
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /wrist_camera/depth/image_rect_raw
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image (Depth)
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -697,7 +856,7 @@ Visualization Manager:
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
-      Name: PointCloud2
+      Name: Wrist Camera (PointCloud2)
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
@@ -705,6 +864,46 @@ Visualization Manager:
       Size (m): 0.009999999776482582
       Style: Flat Squares
       Topic: /wrist_camera/depth/color/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /external_camera/color/image_raw
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: External Camera (Image)
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: compressed
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: External Camera (PointCloud2)
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /external_camera/depth/color/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -725,7 +924,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 2
+      Distance: 1.4413268566131592
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -733,37 +932,37 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.5
-        Y: 0.5
-        Z: 0
+        X: -0.3346136808395386
+        Y: -0.011627912521362305
+        Z: -3.273698041539319e-07
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7853981852531433
+      Pitch: 0.2853981554508209
       Target Frame: base_link
-      Yaw: 0.7853981852531433
+      Yaw: 4.068597793579102
     Saved: ~
 Window Geometry:
   Displays:
+    collapsed: false
+  External Camera (Image):
     collapsed: false
   Height: 2022
   Help:
     collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
-  Image (Color):
-    collapsed: false
-  Image (Depth):
-    collapsed: false
   MotionPlanning:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000002000000000000031200000754fc0200000009fb000000100044006900730070006c00610079007301000000690000029a0000017800fffffffb0000000a00560069006500770073010000030f000001280000012300fffffffb0000001a0049006d006100670065002000280043006f006c006f007200290100000443000001b50000002100fffffffb0000001a0049006d006100670065002000280044006500700074006800290100000604000001b90000002100fffffffb0000000800480065006c00700000000342000000bb000000cf00fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000000a0049006d00610067006500000004ed0000020e0000000000000000fb0000000a0049006d00610067006500000006d4000000e90000000000000000000000010000036a00000754fc0200000004fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000069000006d80000028e00fffffffb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c0069006400650072010000074d000000700000007000fffffffb0000001a0049006d006100670065002000280043006f006c006f0072002900000000690000037a0000000000000000fb0000001a0049006d0061006700650020002800440065007000740068002900000003ef000003ce0000000000000000000007e80000075400000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000200000000000002e800000754fc0200000008fb000000100044006900730070006c0061007900730100000069000002c80000017800fffffffb0000002800570072006900730074002000430061006d006500720061002000280049006d0061006700650029010000033d000002380000002100fffffffb0000001a0049006d00610067006500200028004400650070007400680029000000025c0000017c0000000000000000fb0000000800480065006c00700000000342000000bb000000cf00fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000002e00450078007400650072006e0061006c002000430061006d006500720061002000280049006d006100670065002901000005810000023c0000002100fffffffb0000000a0049006d00610067006500000006d4000000e90000000000000000000000010000036a00000754fc0200000006fb0000000a005600690065007700730100000069000001f60000012300fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000026b000004850000028e00fffffffb0000000a0049006d00610067006501000001b6000001c30000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c006900640065007201000006fc000000c10000007000fffffffb0000001a0049006d006100670065002000280043006f006c006f0072002900000000690000037a0000000000000000fb0000001a0049006d0061006700650020002800440065007000740068002900000003ef000003ce0000000000000000000008120000075400000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 3708
+  Wrist Camera (Image):
+    collapsed: false
   X: 132
   Y: 64
