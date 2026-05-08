@@ -95,7 +95,7 @@ Important defaults:
 - `move_group_name`: `manipulator`.
 - `planning_frame`: `base_link`.
 - `ee_frame_name`: `flange`.
-- `robot_link_command_frame`: `base_link`.
+- `robot_link_command_frame`: `flange`.
 - `cartesian_command_in_topic`: `/servo_server/delta_twist_cmds`.
 - `command_out_type`: `std_msgs/Float64MultiArray`.
 - `command_out_topic`: `/joint_group_vel_controller/command`.
@@ -111,7 +111,7 @@ Experimental velocity-control launch.
 
 - `planning_frame`: Defaults to `base_link`.
 - `ee_frame_name`: Defaults to `flange`.
-- `robot_link_command_frame`: Defaults to `base_link`.
+- `robot_link_command_frame`: Defaults to `flange`.
 - `command_out_topic`: Defaults to `/joint_group_vel_controller/command`.
 - `command_out_type`: Defaults to `std_msgs/Float64MultiArray`.
 - `publish_joint_positions`: Defaults to `false`.
@@ -185,11 +185,3 @@ timeout: 5.0"
 ```
 
 If the Universal Robots UR driver was launched with its default controller list, `joint_group_vel_controller` is normally loaded in the stopped state and can be activated with the command above.
-
-## Generate an urdf file from a xacro file
-
-```shell
-rosrun xacro xacro ur5e_gazebo.xacro > OUTPUT_FILE
-```
-
-Useful for having the urdf on Viewport.

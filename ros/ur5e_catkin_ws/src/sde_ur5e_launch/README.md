@@ -96,3 +96,13 @@ roslaunch sde_launch flexbe_app_default.launch
 ```
 
 Load the `UR5e Example Behavior` behavior in the FlexBE App and press **Start**.
+
+## Generate a URDF File from a Xacro File
+
+The robot description xacro files in `urdf/` can be expanded into a flat URDF for inspection or for tools (such as the URDF viewport) that do not run xacro themselves:
+
+```shell
+rosrun xacro xacro $(rospack find sde_ur5e_launch)/urdf/ur5e_gazebo.xacro > /tmp/ur5e_gazebo.urdf
+```
+
+Replace `ur5e_gazebo.xacro` with `ur5e_realworld.xacro` to generate the real-robot variant.
