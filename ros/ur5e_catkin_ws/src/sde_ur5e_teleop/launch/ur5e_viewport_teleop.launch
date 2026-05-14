@@ -3,11 +3,11 @@
 <launch>
 
   <!-- https://github.com/ros-teleop/twist_modifier -->
-  <!-- SDE-specific launch: runs 'twist_to_stamped.py' for viewport teleoperation. -->
+  <!-- SDE-specific launch: runs 'ur5e_viewport_teleop_node.py' for viewport teleoperation. -->
 
-  <node pkg="twist_modifier"
-        type="twist_to_stamped.py"
-        name="ur5e_viewport_teleop"
+  <node pkg="sde_ur5e_teleop"
+        type="ur5e_viewport_teleop_node.py"
+        name="ur5e_viewport_teleop_node"
         output="screen" />
 
 </launch>
