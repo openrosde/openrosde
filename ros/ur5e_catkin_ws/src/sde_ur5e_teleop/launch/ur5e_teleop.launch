@@ -101,4 +101,6 @@
     <arg name="max_angular_acceleration" value="$(arg max_angular_acceleration)" />
   </include>
 
+  <include file="$(find sde_ur5e_teleop)/launch/ur5e_viewport_teleop.launch" />
+
 </launch>
