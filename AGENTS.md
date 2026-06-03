@@ -350,7 +350,7 @@ Platform-specific behavior guidelines:
   Use sentence capitalization for labels and edge text.
 - Use `#[optional-arg]` and `<required-arg>` syntax in command usage examples.
 - Use Title Case for all headers (e.g., `## Adding a New Platform`, `### Step 1: Create the Environment Template`). Articles (`a`, `an`, `the`), short prepositions (`in`, `of`, `at`), and short conjunctions (`and`, `or`, `if`) are lowercase unless they are the first word.
-- Do not use em dashes (`—`). Use `: ` as the separator in list items (e.g., `- \`file.txt\`: description`) and rephrase mid-sentence asides as separate clauses or parenthetical notes.
+- Do not use em dashes (`—`), en dashes (`–`), or semicolons (`;`) in prose. Use a comma, a period, or a colon (`:`) instead, or rephrase mid-sentence asides as separate clauses or parenthetical notes. The plain ASCII hyphen `-` remains fine for kebab-case identifiers, CLI flags, and bullet markers.
 - Do not use thematic breaks (`---`). Use blank lines and heading levels to separate sections instead.
 - Keep `README.md` concise with links to detailed guides in `docs/`.
 - Platform-specific documentation goes in `docs/robot-platforms/`.
