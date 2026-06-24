@@ -55,13 +55,13 @@ If `spacenav_node` is already running elsewhere, disable the local include:
 roslaunch sde_ur5e_teleop ur5e_spacenav_node.launch launch_spacenav_node:=false
 ```
 
-### Start the Viewport Teleop Bridge
+### Start the Viewport Bridge
 
 ```shell
-roslaunch sde_ur5e_teleop ur5e_viewport_teleop.launch
+roslaunch sde_ur5e_teleop ur5e_viewport.launch
 ```
 
-This starts `ur5e_viewport_teleop_node.py`, which bridges the viewport teleop panel to MoveIt Servo.
+This starts `ur5e_viewport_moveit_servo.py`, which bridges the viewport teleop panel to MoveIt Servo.
 It subscribes to an unstamped `geometry_msgs/Twist` on `/cmd_vel`, applies per-axis exponential moving average smoothing, and republishes a `geometry_msgs/TwistStamped` on `/servo_server/delta_twist_cmds`.
 When no input arrives within `input_timeout` seconds the target is treated as zero so the robot decelerates to a stop.
 This bridge is an alternative input to the SpaceMouse and publishes to the same Servo topic.
@@ -170,9 +170,9 @@ The Gazebo wrapper in `sde_ur5e_launch` keeps these same user-facing defaults so
 - `start_spacenavd`: If `true`, starts the `spacenavd` daemon before launching the teleop stack. Defaults to `true`.
 - `controller_mode`: Selects the UR controller path. Use `velocity` or `trajectory`. Defaults to `trajectory`.
 - `reverse_for_front_view`: If `true`, flips `linear_x`, `linear_y`, `angular_x`, and `angular_y` so front-of-robot operation feels natural. Defaults to `false`.
-- `launch_viewport_teleop`: If `true`, also starts the viewport teleop bridge. Defaults to `false`. This bridge publishes to the same Servo topic as the SpaceMouse, so do not enable it together with the SpaceMouse input.
+- `launch_viewport`: If `true`, also starts the viewport bridge. Defaults to `false`. This bridge publishes to the same Servo topic as the SpaceMouse, so do not enable it together with the SpaceMouse input.
 
-### `ur5e_viewport_teleop.launch`
+### `ur5e_viewport.launch`
 
 - `input_twist_topic`: Input `geometry_msgs/Twist` topic from the viewport teleop panel. Defaults to `/cmd_vel`.
 - `output_twist_topic`: Output `geometry_msgs/TwistStamped` topic for MoveIt Servo. Defaults to `/servo_server/delta_twist_cmds`.

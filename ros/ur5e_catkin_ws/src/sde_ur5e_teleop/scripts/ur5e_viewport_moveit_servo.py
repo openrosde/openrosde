@@ -13,7 +13,7 @@ import rospy
 from geometry_msgs.msg import Twist, TwistStamped
 
 
-class Ur5eViewportTeleopNode(object):
+class Ur5eViewportMoveitServo(object):
     def __init__(self):
         self.input_twist_topic = rospy.get_param("~input_twist_topic", "/cmd_vel")
         self.output_twist_topic = rospy.get_param("~output_twist_topic", "/servo_server/delta_twist_cmds")
@@ -68,8 +68,8 @@ class Ur5eViewportTeleopNode(object):
 
 
 def main():
-    rospy.init_node("ur5e_viewport_teleop_node")
-    Ur5eViewportTeleopNode().run()
+    rospy.init_node("ur5e_viewport_moveit_servo")
+    Ur5eViewportMoveitServo().run()
 
 
 if __name__ == "__main__":
