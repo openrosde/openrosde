@@ -55,6 +55,18 @@ If `spacenav_node` is already running elsewhere, disable the local include:
 roslaunch sde_ur5e_teleop ur5e_spacenav_node.launch launch_spacenav_node:=false
 ```
 
+### Start the Viewport Teleop Bridge
+
+```shell
+roslaunch sde_ur5e_teleop ur5e_viewport_teleop.launch
+```
+
+This starts `ur5e_viewport_teleop_node.py`, which bridges the viewport teleop panel to MoveIt Servo.
+It subscribes to an unstamped `geometry_msgs/Twist` on `/cmd_vel`, applies per-axis exponential moving average smoothing, and republishes a `geometry_msgs/TwistStamped` on `/servo_server/delta_twist_cmds`.
+When no input arrives within `input_timeout` seconds the target is treated as zero so the robot decelerates to a stop.
+This bridge is an alternative input to the SpaceMouse and publishes to the same Servo topic.
+Do not run both inputs at the same time.
+
 ## Runtime Prerequisites
 
 Before launching the teleoperation bridge, make sure the rest of the robot stack is already available in your ROS graph:
@@ -158,6 +170,16 @@ The Gazebo wrapper in `sde_ur5e_launch` keeps these same user-facing defaults so
 - `start_spacenavd`: If `true`, starts the `spacenavd` daemon before launching the teleop stack. Defaults to `true`.
 - `controller_mode`: Selects the UR controller path. Use `velocity` or `trajectory`. Defaults to `trajectory`.
 - `reverse_for_front_view`: If `true`, flips `linear_x`, `linear_y`, `angular_x`, and `angular_y` so front-of-robot operation feels natural. Defaults to `false`.
+- `launch_viewport_teleop`: If `true`, also starts the viewport teleop bridge. Defaults to `false`. This bridge publishes to the same Servo topic as the SpaceMouse, so do not enable it together with the SpaceMouse input.
+
+### `ur5e_viewport_teleop.launch`
+
+- `input_twist_topic`: Input `geometry_msgs/Twist` topic from the viewport teleop panel. Defaults to `/cmd_vel`.
+- `output_twist_topic`: Output `geometry_msgs/TwistStamped` topic for MoveIt Servo. Defaults to `/servo_server/delta_twist_cmds`.
+- `frame_id`: Frame attached to the outgoing `TwistStamped`. Defaults to `base_link`.
+- `publish_rate`: Fixed publish rate of the smoothed twist stream in Hz. Defaults to `100.0`.
+- `input_timeout`: Time in seconds before stale viewport input is treated as zero. Defaults to `0.2`.
+- `smoothing_alpha`: Exponential moving average smoothing factor in the range `(0, 1]`. Lower values produce smoother motion and higher values respond faster. Defaults to `0.1`.
 
 ## Controller Switching
 

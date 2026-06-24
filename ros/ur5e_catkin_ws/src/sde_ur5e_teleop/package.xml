@@ -24,5 +24,4 @@
 
   <exec_depend>moveit_servo</exec_depend>
   <exec_depend>spacenav_node</exec_depend>
-  <exec_depend>twist_modifier</exec_depend>
 </package>

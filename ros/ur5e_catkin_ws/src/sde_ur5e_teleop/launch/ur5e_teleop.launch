@@ -24,6 +24,9 @@
   <arg name="wait_for_switch_service_timeout" default="20.0" />
 
   <arg name="launch_spacenav_node" default="true" />
+  <!-- Viewport teleop publishes to the same Servo topic as the SpaceMouse bridge, -->
+  <!-- so it is opt-in and should not be enabled together with the SpaceMouse input. -->
+  <arg name="launch_viewport_teleop" default="false" />
   <arg name="input_twist_topic" default="/spacenav/twist" />
   <arg name="output_twist_topic" default="/servo_server/delta_twist_cmds" />
   <arg name="joy_topic" default="/spacenav/joy" />
@@ -101,6 +104,11 @@
     <arg name="max_angular_acceleration" value="$(arg max_angular_acceleration)" />
   </include>
 
-  <include file="$(find sde_ur5e_teleop)/launch/ur5e_viewport_teleop.launch" />
+  <!-- Only the Servo output topic and frame are shared with the SpaceMouse bridge. -->
+  <!-- The viewport input topic is left at its own default ('/cmd_vel'). -->
+  <include if="$(arg launch_viewport_teleop)" file="$(find sde_ur5e_teleop)/launch/ur5e_viewport_teleop.launch">
+    <arg name="output_twist_topic" value="$(arg output_twist_topic)" />
+    <arg name="frame_id" value="$(arg frame_id)" />
+  </include>
 
 </launch>
