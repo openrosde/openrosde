@@ -6,7 +6,7 @@
 
   <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default) or 'viewport' (Coarobo Viewport panel). -->
   <!-- Pass 'input_source:=viewport' to drive from the panel. -->
-  <arg name="input_source" default="viewport" />
+  <arg name="input_source" default="spacemouse" />
 
   <!-- Real-world controller configuration. -->
   <arg name="controller_mode" default="trajectory" />
