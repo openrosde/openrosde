@@ -64,12 +64,29 @@ Notes:
 - `ur5e_bringup_default_realworld.launch` loads the SDE SRDF and kinematics config so RViz (with the MoveIt plugin) works independently of `move_group`.
 - `ur5e_bringup_default_realworld.launch` starts `publish-gripper-joint-states.py`, which reads live gripper width from `/OnRobotRGInput` and publishes all OnRobot RG2 joint states to `/joint_states` so `robot_state_publisher` can compute TF for all gripper links and animate the gripper in RViz.
 - Both the real-world and Gazebo teleop wrappers expose `reverse_for_front_view:=true` to flip the planar and tilt controls when operating from in front of the robot.
+- `ur5e_teleop_default_realworld.launch` defaults to the SpaceMouse input; pass `input_source:=viewport` (and start a rosbridge server) to drive from the Coarobo Viewport panel instead. See [Teleop Input Source](#teleop-input-source).
 
 To start the same real robot stack in the predefined Terminator layout:
 
 ```shell
 bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 ```
+
+## Teleop Input Source
+
+The teleop wrappers select their input with the `input_source` argument, accepting `spacemouse` (3Dconnexion SpaceMouse) or `viewport` (Coarobo Viewport panel).
+Both wrappers default to `spacemouse`.
+Only one input bridge is started, so the two never contend for the shared MoveIt Servo command topic.
+With `input_source:=viewport` the moveit_servo stack still starts, but the SpaceMouse bridge and the `spacenav_node` driver do not, and vice versa.
+
+To drive the robot from the Coarobo Viewport panel instead, pass `input_source:=viewport`:
+
+```shell
+roslaunch sde_ur5e_launch ur5e_teleop_default_realworld.launch input_source:=viewport
+roslaunch sde_ur5e_launch ur5e_teleop_default_gazebo.launch input_source:=viewport
+```
+
+The Coarobo Viewport panel connects to ROS over `rosbridge`, so pair the viewport input with `sde_launch:rosbridge_server_default.launch` (already part of the `default-realworld` Terminator layout).
 
 ## Launch Files
 
@@ -84,8 +101,8 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 | `ur5e_description_default_realworld.launch` | Robot description adapter for the UR5e driver (real robot) |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper control (Gazebo) |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper control (real robot) |
-| `ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceMouse teleoperation (Gazebo) |
-| `ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceMouse teleoperation (real robot) |
+| `ur5e_teleop_default_gazebo.launch` | SpaceMouse or Viewport teleoperation (Gazebo) |
+| `ur5e_teleop_default_realworld.launch` | SpaceMouse or Viewport teleoperation (real robot) |
 
 ## FlexBE Behavior
 

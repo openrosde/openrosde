@@ -139,7 +139,7 @@ class Ur5eSpacenavNodeOnrobotRgControl(object):
 
 
 def main():
-    rospy.init_node("ur5e_spacenav_node_onrobot_rg_control")
+    rospy.init_node("ur5e_onrobot_rg_control_spacenav_node")
     Ur5eSpacenavNodeOnrobotRgControl()
     rospy.spin()
 

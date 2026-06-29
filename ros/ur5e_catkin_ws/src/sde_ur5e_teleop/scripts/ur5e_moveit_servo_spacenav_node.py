@@ -187,7 +187,7 @@ class Ur5eSpacenavNodeMoveitServo(object):
 
 
 def main():
-    rospy.init_node("ur5e_spacenav_node_moveit_servo")
+    rospy.init_node("ur5e_moveit_servo_spacenav_node")
     Ur5eSpacenavNodeMoveitServo()
     rospy.spin()
 

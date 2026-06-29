@@ -10,7 +10,7 @@ Platform-specific documentation for the [Universal Robots UR5e](https://www.univ
 - ROS Industrial Universal Robot: [https://github.com/ros-industrial/universal_robot](https://github.com/ros-industrial/universal_robot)
 - Osaka University Harada Laboratory OnRobot ROS: [https://github.com/UOsaka-Harada-Laboratory/onrobot](https://github.com/UOsaka-Harada-Laboratory/onrobot)
 - Intel RealSense ROS: [https://github.com/realsenseai/realsense-ros](https://github.com/realsenseai/realsense-ros)
-- ROS SpaceNavigator: [https://wiki.ros.org/spacenav_node](https://wiki.ros.org/spacenav_node)
+- ROS spacenav_node: [https://wiki.ros.org/spacenav_node](https://wiki.ros.org/spacenav_node)
 - PickNik Robotics UR5 RealSense Camera Adapter: [https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1)
 
 ## 🔩 Hardware Overview
@@ -242,8 +242,8 @@ The following launch files are available for the Universal Robots UR5e platform 
 | `realsense_camera_default_realworld.launch` | Intel RealSense D435i wrist and external cameras (external optional) |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper via Modbus TCP |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper (Gazebo) |
-| `ur5e_teleop_default_realworld.launch` | 3Dconnexion SpaceNavigator teleoperation (real robot) |
-| `ur5e_teleop_default_gazebo.launch` | 3Dconnexion SpaceNavigator teleoperation (Gazebo) |
+| `ur5e_teleop_default_realworld.launch` | SpaceMouse or Viewport teleoperation (real robot, `input_source:=`) |
+| `ur5e_teleop_default_gazebo.launch` | SpaceMouse or Viewport teleoperation (Gazebo, `input_source:=`) |
 
 ## 🧪 FlexBE Behavior
 

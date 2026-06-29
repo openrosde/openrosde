@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.11.0] - 2026-06-29
+
+### Added
+
+- Coarobo Viewport teleop input for the UR5e, bridging `/cmd_vel` (`geometry_msgs/Twist`) to MoveIt Servo with per-axis exponential moving average smoothing and input-timeout deceleration (`ur5e_moveit_servo_viewport.py`, `ur5e_teleop_viewport.launch`) (!17).
+- `input_source` argument on `ur5e_teleop.launch` and the `sde_ur5e_launch` teleop wrappers to select `spacemouse` (3Dconnexion SpaceMouse) or `viewport` (Coarobo Viewport panel), starting exactly one input bridge so the two never contend for the shared MoveIt Servo command topic (!17).
+
+### Changed
+
+- Reorganized and renamed the `sde_ur5e_teleop` launch files and scripts to a consistent `ur5e_<subsystem>_<qualifier>` scheme (`ur5e_teleop_spacenav_node.launch`, `ur5e_teleop_viewport.launch`, `ur5e_moveit_servo_spacenav_node.py`, `ur5e_moveit_servo_viewport.py`, `ur5e_onrobot_rg_control_spacenav_node.py`, `ur5e_controller_manager_switch.py`, `ur5e_spacenavd_daemon.bash`) (!17).
+- Restructured the `sde_ur5e_teleop` README into mirrored SpaceMouse and Coarobo Viewport sections and standardized the human-facing device name to SpaceMouse (!17).
+
+### Fixed
+
+- SpaceMouse `spacenav_node` driver startup race: the driver is now started with `respawn` and `spacenavd` is started before MoveIt Servo, so the driver reliably connects on a cold start instead of exiting with "Could not open the space navigator device" (!17).
+- `frame_id` default in the SpaceMouse bridge launch aligned to `base_link`, matching the rest of the teleop stack and its documentation (!17).
+
 ## [2.10.0] - 2026-05-08
 
 ### Added
