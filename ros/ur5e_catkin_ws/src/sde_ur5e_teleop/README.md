@@ -40,32 +40,32 @@ This keeps the older `trajectory_msgs/JointTrajectory` output path and publishes
 ### Start the SpaceMouse Bridge
 
 ```shell
-roslaunch sde_ur5e_teleop ur5e_spacenav_node.launch
+roslaunch sde_ur5e_teleop ur5e_teleop_spacenav_node.launch
 ```
 
 This launch file starts:
 
-- The 3Dconnexion SpaceMouse-to-Servo bridge node `ur5e_spacenav_node_moveit_servo.py`.
-- The OnRobot RG2 button bridge node `ur5e_spacenav_node_onrobot_rg_control.py` when `enable_gripper_button:=true`.
+- The 3Dconnexion SpaceMouse-to-Servo bridge node `ur5e_moveit_servo_spacenav_node.py`.
+- The OnRobot RG2 button bridge node `ur5e_onrobot_rg_control_spacenav_node.py` when `enable_gripper_button:=true`.
 - `spacenav_node/classic.launch` when `launch_spacenav_node:=true`.
 
-If `spacenav_node` is already running elsewhere, disable the local include:
+If `spacenav_node` is already running elsewhere, disable the local driver include:
 
 ```shell
-roslaunch sde_ur5e_teleop ur5e_spacenav_node.launch launch_spacenav_node:=false
+roslaunch sde_ur5e_teleop ur5e_teleop_spacenav_node.launch launch_spacenav_node:=false
 ```
 
 ### Start the Viewport Bridge
 
 ```shell
-roslaunch sde_ur5e_teleop ur5e_viewport.launch
+roslaunch sde_ur5e_teleop ur5e_teleop_viewport.launch
 ```
 
-This starts `ur5e_viewport_moveit_servo.py`, which bridges the viewport teleop panel to MoveIt Servo.
+This starts `ur5e_moveit_servo_viewport.py`, which bridges the viewport teleop panel to MoveIt Servo.
 It subscribes to an unstamped `geometry_msgs/Twist` on `/cmd_vel`, applies per-axis exponential moving average smoothing, and republishes a `geometry_msgs/TwistStamped` on `/servo_server/delta_twist_cmds`.
 When no input arrives within `input_timeout` seconds the target is treated as zero so the robot decelerates to a stop.
 This bridge is an alternative input to the SpaceMouse and publishes to the same Servo topic.
-Do not run both inputs at the same time.
+When started through `ur5e_teleop.launch` (or the `sde_ur5e_launch` wrappers), use `input_source:=viewport` so the SpaceMouse bridge is not started at the same time.
 
 ## Runtime Prerequisites
 
@@ -74,7 +74,7 @@ Before launching the teleoperation bridge, make sure the rest of the robot stack
 - A running Universal Robots UR5e driver publishing robot state and accepting the controller type used by the selected teleop mode.
 - A valid MoveIt configuration and planning scene for the robot.
 - The OnRobot RG2 command service at `/onrobot_rg/set_command` if gripper toggling is enabled.
-- `spacenavd` running on the machine connected to the 3Dconnexion SpaceMouse (started automatically by `start-spacenavd-daemon.bash`).
+- `spacenavd` running on the machine connected to the 3Dconnexion SpaceMouse (started automatically by `ur5e_spacenavd_daemon.bash`).
 
 This package does not launch the robot driver, controllers, MoveIt configuration, or the OnRobot RG2 backend service.
 
@@ -92,7 +92,7 @@ Use `controller_mode:=velocity` only when you explicitly want the experimental v
 Set `reverse_for_front_view:=true` when operating from in front of the robot.
 This flips the planar translational and tilt axes so the hand-to-robot mapping feels like the default behind-the-robot setup.
 
-If you want to launch components separately, start `ur5e_moveit_servo_velocity.launch` before `ur5e_spacenav_node.launch` for velocity mode.
+If you want to launch components separately, start `ur5e_moveit_servo_velocity.launch` before `ur5e_teleop_spacenav_node.launch` for velocity mode.
 For the older trajectory path, use `ur5e_moveit_servo_trajectory.launch` instead.
 
 ## Servo Configuration
@@ -129,9 +129,9 @@ Experimental velocity-control launch.
 - `publish_joint_positions`: Defaults to `false`.
 - `publish_joint_velocities`: Defaults to `true`.
 
-### `ur5e_spacenav_node.launch`
+### `ur5e_teleop_spacenav_node.launch`
 
-- `launch_spacenav_node`: If `true`, includes `spacenav_node/classic.launch`.
+- `launch_spacenav_node`: If `true`, includes the upstream `spacenav_node/classic.launch` driver. Set to `false` if `spacenav_node` is already running elsewhere.
 - `input_twist_topic`: Input topic from the 3Dconnexion SpaceMouse driver. Defaults to `/spacenav/twist`.
 - `output_twist_topic`: Output topic for MoveIt Servo. Defaults to `/servo_server/delta_twist_cmds`.
 - `joy_topic`: Joystick button topic from the 3Dconnexion SpaceMouse driver. Defaults to `/spacenav/joy`.
@@ -167,12 +167,12 @@ The Gazebo wrapper in `sde_ur5e_launch` keeps these same user-facing defaults so
 
 ### `ur5e_teleop.launch`
 
-- `start_spacenavd`: If `true`, starts the `spacenavd` daemon before launching the teleop stack. Defaults to `true`.
+- `input_source`: Selects the teleop input. Use `spacemouse` (3Dconnexion SpaceMouse) or `viewport` (Coarobo Viewport panel). Defaults to `spacemouse`. Exactly one input bridge is started, so the two never contend for the shared Servo command topic. The `spacenavd` daemon and `spacenav_node` driver are only started for `spacemouse`.
+- `start_spacenavd`: If `true`, starts the `spacenavd` daemon before launching the SpaceMouse stack. Only applies when `input_source:=spacemouse`. Defaults to `true`.
 - `controller_mode`: Selects the UR controller path. Use `velocity` or `trajectory`. Defaults to `trajectory`.
 - `reverse_for_front_view`: If `true`, flips `linear_x`, `linear_y`, `angular_x`, and `angular_y` so front-of-robot operation feels natural. Defaults to `false`.
-- `launch_viewport`: If `true`, also starts the viewport bridge. Defaults to `false`. This bridge publishes to the same Servo topic as the SpaceMouse, so do not enable it together with the SpaceMouse input.
 
-### `ur5e_viewport.launch`
+### `ur5e_teleop_viewport.launch`
 
 - `input_twist_topic`: Input `geometry_msgs/Twist` topic from the viewport teleop panel. Defaults to `/cmd_vel`.
 - `output_twist_topic`: Output `geometry_msgs/TwistStamped` topic for MoveIt Servo. Defaults to `/servo_server/delta_twist_cmds`.

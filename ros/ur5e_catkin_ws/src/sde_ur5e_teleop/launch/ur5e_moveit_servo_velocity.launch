@@ -20,8 +20,8 @@
   <arg name="wait_for_switch_service_timeout" default="20.0" />
 
   <node pkg="sde_ur5e_teleop"
-    type="ur5e_switch_controller_mode.py"
-    name="ur5e_switch_controller_mode"
+    type="ur5e_controller_manager_switch.py"
+    name="ur5e_controller_manager_switch"
     output="screen"
     if="$(arg switch_controllers)">
     <param name="switch_service_name" value="$(arg switch_service_name)" />

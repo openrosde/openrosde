@@ -120,7 +120,7 @@ class Ur5eSwitchControllerModeNode(object):
 
 
 def main():
-    rospy.init_node("ur5e_switch_controller_mode")
+    rospy.init_node("ur5e_controller_manager_switch")
     Ur5eSwitchControllerModeNode()
 
 

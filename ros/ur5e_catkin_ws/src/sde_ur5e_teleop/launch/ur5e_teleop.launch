@@ -3,11 +3,9 @@
 <launch>
 
   <!-- https://github.com/moveit/moveit/tree/master/moveit_ros/moveit_servo -->
-  <!-- SDE-specific launch: orchestrates 'moveit_servo' and SpaceNavigator node for UR5e teleop. -->
+  <!-- SDE-specific launch: orchestrates 'moveit_servo' and the selected teleop input (SpaceMouse or Viewport) for UR5e teleop. -->
 
   <arg name="start_spacenavd" default="true" />
-
-  <node if="$(arg start_spacenavd)" pkg="sde_ur5e_teleop" type="start-spacenavd-daemon.bash" name="start_spacenavd" output="screen" />
 
   <arg name="planning_frame" default="base_link" />
   <arg name="ee_frame_name" default="flange" />
@@ -24,9 +22,9 @@
   <arg name="wait_for_switch_service_timeout" default="20.0" />
 
   <arg name="launch_spacenav_node" default="true" />
-  <!-- Viewport teleop publishes to the same Servo topic as the SpaceMouse bridge, -->
-  <!-- so it is opt-in and should not be enabled together with the SpaceMouse input. -->
-  <arg name="launch_viewport" default="false" />
+  <!-- Selects the teleop input source: 'spacemouse' (3Dconnexion SpaceMouse) or 'viewport' (Coarobo Viewport panel). -->
+  <!-- Exactly one input bridge is started, so the two never contend for the shared Servo command topic ('output_twist_topic'). -->
+  <arg name="input_source" default="spacemouse" />
   <arg name="input_twist_topic" default="/spacenav/twist" />
   <arg name="output_twist_topic" default="/servo_server/delta_twist_cmds" />
   <arg name="joy_topic" default="/spacenav/joy" />
@@ -58,6 +56,11 @@
   <arg name="max_linear_acceleration" default="4.0" />
   <arg name="max_angular_acceleration" default="6.0" />
 
+  <!-- Start spacenavd first (in spacemouse mode) so it is ready before the slower moveit_servo startup and before the spacenav_node driver connects. -->
+  <group if="$(eval arg('input_source') == 'spacemouse')">
+    <node if="$(arg start_spacenavd)" pkg="sde_ur5e_teleop" type="ur5e_spacenavd_daemon.bash" name="ur5e_spacenavd_daemon" output="screen" />
+  </group>
+
   <include file="$(find sde_ur5e_teleop)/launch/ur5e_moveit_servo_velocity.launch">
     <arg name="planning_frame" value="$(arg planning_frame)" />
     <arg name="ee_frame_name" value="$(arg ee_frame_name)" />
@@ -73,42 +76,49 @@
     <arg name="wait_for_switch_service_timeout" value="$(arg wait_for_switch_service_timeout)" />
   </include>
 
-  <include file="$(find sde_ur5e_teleop)/launch/ur5e_spacenav_node.launch">
-    <arg name="launch_spacenav_node" value="$(arg launch_spacenav_node)" />
-    <arg name="input_twist_topic" value="$(arg input_twist_topic)" />
-    <arg name="output_twist_topic" value="$(arg output_twist_topic)" />
-    <arg name="joy_topic" value="$(arg joy_topic)" />
-    <arg name="frame_id" value="$(arg frame_id)" />
-    <arg name="require_enable_button" value="$(arg require_enable_button)" />
-    <arg name="enable_button_index" value="$(arg enable_button_index)" />
-    <arg name="publish_zero_when_disabled" value="$(arg publish_zero_when_disabled)" />
-    <arg name="enable_gripper_button" value="$(arg enable_gripper_button)" />
-    <arg name="gripper_button_index" value="$(arg gripper_button_index)" />
-    <arg name="gripper_service_name" value="$(arg gripper_service_name)" />
-    <arg name="gripper_open_command" value="$(arg gripper_open_command)" />
-    <arg name="gripper_close_command" value="$(arg gripper_close_command)" />
-    <arg name="gripper_initial_state" value="$(arg gripper_initial_state)" />
-    <arg name="linear_x_scale" value="$(eval str(-float(arg('linear_x_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('linear_x_scale'))" />
-    <arg name="linear_y_scale" value="$(eval str(-float(arg('linear_y_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('linear_y_scale'))" />
-    <arg name="linear_z_scale" value="$(arg linear_z_scale)" />
-    <arg name="angular_x_scale" value="$(eval str(-float(arg('angular_x_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('angular_x_scale'))" />
-    <arg name="angular_y_scale" value="$(eval str(-float(arg('angular_y_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('angular_y_scale'))" />
-    <arg name="angular_z_scale" value="$(arg angular_z_scale)" />
-    <arg name="publish_rate" value="$(arg publish_rate)" />
-    <arg name="input_timeout" value="$(arg input_timeout)" />
-    <arg name="linear_deadband" value="$(arg linear_deadband)" />
-    <arg name="angular_deadband" value="$(arg angular_deadband)" />
-    <arg name="linear_smoothing_time_constant" value="$(arg linear_smoothing_time_constant)" />
-    <arg name="angular_smoothing_time_constant" value="$(arg angular_smoothing_time_constant)" />
-    <arg name="max_linear_acceleration" value="$(arg max_linear_acceleration)" />
-    <arg name="max_angular_acceleration" value="$(arg max_angular_acceleration)" />
-  </include>
+  <!-- SpaceMouse input: start the SpaceMouse-to-Servo bridge, gripper node, and spacenav_node driver. -->
+  <group if="$(eval arg('input_source') == 'spacemouse')">
 
-  <!-- Only the Servo output topic and frame are shared with the SpaceMouse bridge. -->
-  <!-- The viewport input topic is left at its own default ('/cmd_vel'). -->
-  <include if="$(arg launch_viewport)" file="$(find sde_ur5e_teleop)/launch/ur5e_viewport.launch">
-    <arg name="output_twist_topic" value="$(arg output_twist_topic)" />
-    <arg name="frame_id" value="$(arg frame_id)" />
-  </include>
+    <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop_spacenav_node.launch">
+      <arg name="launch_spacenav_node" value="$(arg launch_spacenav_node)" />
+      <arg name="input_twist_topic" value="$(arg input_twist_topic)" />
+      <arg name="output_twist_topic" value="$(arg output_twist_topic)" />
+      <arg name="joy_topic" value="$(arg joy_topic)" />
+      <arg name="frame_id" value="$(arg frame_id)" />
+      <arg name="require_enable_button" value="$(arg require_enable_button)" />
+      <arg name="enable_button_index" value="$(arg enable_button_index)" />
+      <arg name="publish_zero_when_disabled" value="$(arg publish_zero_when_disabled)" />
+      <arg name="enable_gripper_button" value="$(arg enable_gripper_button)" />
+      <arg name="gripper_button_index" value="$(arg gripper_button_index)" />
+      <arg name="gripper_service_name" value="$(arg gripper_service_name)" />
+      <arg name="gripper_open_command" value="$(arg gripper_open_command)" />
+      <arg name="gripper_close_command" value="$(arg gripper_close_command)" />
+      <arg name="gripper_initial_state" value="$(arg gripper_initial_state)" />
+      <arg name="linear_x_scale" value="$(eval str(-float(arg('linear_x_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('linear_x_scale'))" />
+      <arg name="linear_y_scale" value="$(eval str(-float(arg('linear_y_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('linear_y_scale'))" />
+      <arg name="linear_z_scale" value="$(arg linear_z_scale)" />
+      <arg name="angular_x_scale" value="$(eval str(-float(arg('angular_x_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('angular_x_scale'))" />
+      <arg name="angular_y_scale" value="$(eval str(-float(arg('angular_y_scale'))) if str(arg('reverse_for_front_view')).lower() in ['true', '1', 'yes'] else arg('angular_y_scale'))" />
+      <arg name="angular_z_scale" value="$(arg angular_z_scale)" />
+      <arg name="publish_rate" value="$(arg publish_rate)" />
+      <arg name="input_timeout" value="$(arg input_timeout)" />
+      <arg name="linear_deadband" value="$(arg linear_deadband)" />
+      <arg name="angular_deadband" value="$(arg angular_deadband)" />
+      <arg name="linear_smoothing_time_constant" value="$(arg linear_smoothing_time_constant)" />
+      <arg name="angular_smoothing_time_constant" value="$(arg angular_smoothing_time_constant)" />
+      <arg name="max_linear_acceleration" value="$(arg max_linear_acceleration)" />
+      <arg name="max_angular_acceleration" value="$(arg max_angular_acceleration)" />
+    </include>
+
+  </group>
+
+  <!-- Viewport input: bridge the Coarobo Viewport 'Twist' stream to Servo. -->
+  <!-- The viewport input topic is left at its own default ('/cmd_vel'); only the Servo output topic and frame are shared with the SpaceMouse path. -->
+  <group if="$(eval arg('input_source') == 'viewport')">
+    <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop_viewport.launch">
+      <arg name="output_twist_topic" value="$(arg output_twist_topic)" />
+      <arg name="frame_id" value="$(arg frame_id)" />
+    </include>
+  </group>
 
 </launch>

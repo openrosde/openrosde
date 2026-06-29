@@ -24,7 +24,7 @@
     args="joint_state_controller joint_position_controller" />
 
   <node pkg="sde_ur5e_teleop"
-    type="ur5e_spacenav_node_onrobot_rg_control.py"
+    type="ur5e_onrobot_rg_control_spacenav_node.py"
     name="ur5e_onrobot_rg_control_gazebo"
     output="screen">
     <param name="enable_joy_control" value="false" />

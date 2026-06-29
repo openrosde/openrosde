@@ -68,7 +68,7 @@ class Ur5eViewportMoveitServo(object):
 
 
 def main():
-    rospy.init_node("ur5e_viewport_moveit_servo")
+    rospy.init_node("ur5e_moveit_servo_viewport")
     Ur5eViewportMoveitServo().run()
 
 

@@ -4,12 +4,13 @@
 
   <!-- https://github.com/ros-drivers/joystick_drivers/tree/main/spacenav_node -->
   <!-- Upstream default: $(find spacenav_node)/launch/classic.launch -->
+  <!-- This launch file starts the SpaceMouse-to-Servo bridge node, the OnRobot RG2 gripper-button node, and (optionally) the upstream spacenav_node driver. -->
 
   <arg name="launch_spacenav_node" default="true" />
   <arg name="input_twist_topic" default="/spacenav/twist" />
   <arg name="output_twist_topic" default="/servo_server/delta_twist_cmds" />
   <arg name="joy_topic" default="/spacenav/joy" />
-  <arg name="frame_id" default="flange" />
+  <arg name="frame_id" default="base_link" />
 
   <arg name="require_enable_button" default="true" />
   <arg name="enable_button_index" default="0" />
@@ -36,11 +37,16 @@
   <arg name="max_linear_acceleration" default="4.0" />
   <arg name="max_angular_acceleration" default="6.0" />
 
-  <include file="$(find spacenav_node)/launch/classic.launch" if="$(arg launch_spacenav_node)" />
+  <!-- Inline the upstream 'spacenav_node' classic node so it can be marked 'respawn'. -->
+  <!-- The driver exits if 'spacenavd' is not accepting connections yet at startup, so respawn lets it reconnect once 'spacenavd' is ready. -->
+  <node if="$(arg launch_spacenav_node)" pkg="spacenav_node" type="spacenav_node" name="$(anon spacenav_node)" output="screen" respawn="true" respawn_delay="2">
+    <param name="zero_when_static" value="true" />
+    <param name="static_count_threshold" value="30" />
+  </node>
 
   <node pkg="sde_ur5e_teleop"
-    type="ur5e_spacenav_node_moveit_servo.py"
-    name="ur5e_spacenav_node_moveit_servo"
+    type="ur5e_moveit_servo_spacenav_node.py"
+    name="ur5e_moveit_servo_spacenav_node"
     output="screen">
     <param name="input_twist_topic" value="$(arg input_twist_topic)" />
     <param name="output_twist_topic" value="$(arg output_twist_topic)" />
@@ -66,8 +72,8 @@
   </node>
 
   <node pkg="sde_ur5e_teleop"
-    type="ur5e_spacenav_node_onrobot_rg_control.py"
-    name="ur5e_spacenav_node_onrobot_rg_control"
+    type="ur5e_onrobot_rg_control_spacenav_node.py"
+    name="ur5e_onrobot_rg_control_spacenav_node"
     output="screen"
     if="$(arg enable_gripper_button)">
     <param name="joy_topic" value="$(arg joy_topic)" />

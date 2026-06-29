@@ -355,7 +355,7 @@ Platform-specific behavior guidelines:
 - Keep `README.md` concise with links to detailed guides in `docs/`.
 - Platform-specific documentation goes in `docs/robot-platforms/`.
 - Use badges following the `[![Label](badge-url)](link-url)` pattern.
-- Prefix product names with their maker name (e.g., Universal Robots UR5e, OnRobot RG2, Intel RealSense D435i, Robotis TurtleBot3, 3Dconnexion SpaceNavigator).
+- Prefix product names with their maker name (e.g., Universal Robots UR5e, OnRobot RG2, Intel RealSense D435i, Robotis TurtleBot3, 3Dconnexion SpaceMouse).
 - Reference the host machine as "Ubuntu development machine".
 - Decorate all `##` and `###` headers with a leading emoji in `README.md` and `docs/` files only (not in package-level READMEs or `AGENTS.md`).
   Use a single emoji that reflects the section topic, placed before the header text (e.g., `## 🚀 Quick Start`).
