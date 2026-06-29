@@ -65,9 +65,9 @@ These rules apply to all GitLab issue, milestone, and merge request titles and d
 
 ### Milestones
 
-- Name milestones after the target release version: `v2.8.0`, `v3.0.0`.
-  This matches the convention expected by GitLab's changelog generator and by `release-please`-style automation.
-- Close a milestone immediately after its release is published.
+- Name milestones as long-lived thematic epics with a verb-first descriptive title (e.g., `Port the SDE to ROS 2 on Ubuntu 26.04 LTS`), not after individual release versions.
+- A release belongs to the epic milestone that contains its work. Link the release and its merge requests to that epic.
+- Keep epic milestones open until the epic itself is complete. Do not close an epic when one of its releases is published.
 
 ### Changelog
 
@@ -93,16 +93,20 @@ Release procedure (per release):
    git push origin vX.Y.Z
    ```
 
-4. Create the GitLab release with `glab`, sourcing the notes from the changelog section and linking the milestone:
+4. Create the GitLab release with `glab`, sourcing the notes from the changelog section and linking the epic milestone:
 
    ```shell
    glab release create vX.Y.Z \
      --name "vX.Y.Z" \
-     --milestone "vX.Y.Z" \
+     --milestone "<epic milestone title>" \
      --notes-file <(awk '/^## \[X.Y.Z\]/{p=1;next} p&&/^## \[/{exit} p' CHANGELOG.md)
    ```
 
-5. Close the `vX.Y.Z` milestone on GitLab.
+5. `glab release create --milestone` closes the linked milestone. Because epics span many releases, reopen it right after so it stays active:
+
+   ```shell
+   glab api -X PUT "projects/:id/milestones/:milestone_id" -f "state_event=activate"
+   ```
 
 ## Reporting Issues
 

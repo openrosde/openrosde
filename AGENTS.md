@@ -474,9 +474,9 @@ Agent rules:
   - Subject is imperative, lowercase, no trailing period.
 - MR descriptions follow the structure documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#merge-requests). Sections: Summary, Changes, Testing, Related, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
 - Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues with labels (`bug`, `feature`, `docs`, `chore`, `question`, `platform::<name>`).
-- Milestones are named after the target release version (`v2.8.0`, `v3.0.0`).
+- Milestones are long-lived thematic epics with a verb-first descriptive title (e.g., `Refactor the SDE into a multi-platform reference implementation`), not per-release versions. A release belongs to the epic milestone that contains its work.
 - Every MR adds a one-line entry under the matching subsection of `## [Unreleased]` in `CHANGELOG.md`, referencing its MR number (e.g., `- Add HSR platform support (!42).`).
-- Releases are tagged `vX.Y.Z` on `main` and published on GitLab via `glab release create`, with notes sourced from the matching `CHANGELOG.md` section and linked to the `vX.Y.Z` milestone.
+- Releases are tagged `vX.Y.Z` on `main` and published on GitLab via `glab release create`, with notes sourced from the matching `CHANGELOG.md` section and linked to their epic milestone. Note that `glab release create --milestone` closes the linked milestone, so reopen the epic afterward with `glab api -X PUT "projects/:id/milestones/:milestone_id" -f "state_event=activate"`.
 - Never force-push to `main`. Never rewrite published history. MR title and description edits are safe and do not touch Git history.
 - Do not use semicolons (`;`), en dashes (`–`), or em dashes (`—`) in any GitLab text: issue titles/descriptions, milestone titles/descriptions, MR titles/descriptions. Use a full stop or a new sentence instead of a semicolon. Use `: ` or a plain hyphen `-` instead of a dash.
 - Use backticks for code identifiers (file names, commands, environment variables, functions, ROS packages, paths) in all GitLab text: issue titles/descriptions, milestone titles/descriptions, MR titles/descriptions. Do not use single quotes for code identifiers in GitLab text. Single quotes are reserved for Bash and ROS launch-file comments.
