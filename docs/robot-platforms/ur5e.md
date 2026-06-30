@@ -177,6 +177,18 @@ roslaunch sde_ur5e_launch ur5e_rviz_default.launch
 
 You should be able to plan and execute motions from RViz.
 
+### 🌳 TF Frames
+
+When inspecting the TF tree (e.g. with `rqt_tf_tree`), you will notice two frames attached near `base_link` that are **not** broadcast by `robot_state_publisher`: `base` and `tool0_controller`.
+This is expected, not a misconfiguration. Both are published by the upstream Universal Robots driver (broadcaster `/ur_hardware_interface`) and appear on every real UR robot:
+
+- **`base`**: the robot controller's own base frame. It is rotated 180 degrees about Z relative to the ROS-standard `base_link` (the UR controller convention has X pointing backward, whereas REP-103 and `base_link` have X forward, Z up). The driver publishes the static `base_link` to `base` transform so ROS poses can be related to what the teach pendant and controller report.
+- **`tool0_controller`**: the TCP/flange pose as measured and reported live by the UR controller, as opposed to `tool0`, which `robot_state_publisher` computes via forward kinematics from `/joint_states`. The two should be nearly identical. `tool0_controller` is useful for validating the driver's kinematics against the controller's own reading.
+
+> [!TIP]
+> For motion planning and downstream math, always use the URDF/FK frames `base_link` and `tool0`, not `base` or `tool0_controller`, to avoid the 180 degree rotation surprise.
+> See the [Universal Robots ROS Driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver) documentation for more details.
+
 ### 📷 Intel RealSense Cameras
 
 The platform uses two Intel RealSense D435i cameras: a wrist-mounted camera and an external environment camera.
