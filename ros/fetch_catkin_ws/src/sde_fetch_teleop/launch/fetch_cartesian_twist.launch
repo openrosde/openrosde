@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- SDE-specific launch: starts the Fetch Cartesian twist relay node. -->
+  <!-- The relay forwards end effector twist commands to the Fetch native Cartesian twist controller ('arm_controller/cartesian_twist'). -->
+  <!-- This is the Fetch counterpart of the UR5e 'ur5e_moveit_servo_velocity.launch' file. -->
+
+  <!-- Input end effector twist command (geometry_msgs/TwistStamped), as published by the Quest application. -->
+  <arg name="input_twist_topic" default="fetch_ee_cmd_vel" />
+  <!-- Output command topic consumed by the Fetch Cartesian twist controller. -->
+  <arg name="command_out_topic" default="/arm_controller/cartesian_twist/command" />
+
+  <!-- Start already in velocity control so the user does not need to switch anything. -->
+  <arg name="start_in_velocity_control" default="true" />
+
+  <!-- Steady send period. -->
+  <!-- Fetch needs a continuous stream (at least 20 Hz) or the arm can fall. -->
+  <arg name="send_period" default="0.050" />
+  <!-- Safety limits. -->
+  <!-- Keep small so there is always time to reach the stop button. -->
+  <arg name="max_linear_velocity" default="0.05" />
+  <arg name="max_angular_velocity" default="0.10" />
+
+  <node pkg="sde_fetch_teleop" type="fetch_cartesian_twist_control.py" name="fetch_cartesian_twist_control" output="screen">
+    <param name="input_twist_topic" value="$(arg input_twist_topic)" />
+    <param name="command_out_topic" value="$(arg command_out_topic)" />
+    <param name="start_in_velocity_control" value="$(arg start_in_velocity_control)" />
+    <param name="send_period" value="$(arg send_period)" />
+    <param name="max_linear_velocity" value="$(arg max_linear_velocity)" />
+    <param name="max_angular_velocity" value="$(arg max_angular_velocity)" />
+  </node>
+
+</launch>

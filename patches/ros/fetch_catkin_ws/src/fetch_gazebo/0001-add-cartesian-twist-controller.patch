@@ -1,0 +1,23 @@
+diff --git a/fetch_gazebo/config/default_controllers.yaml b/fetch_gazebo/config/default_controllers.yaml
+index 70ea4aa..a5729b4 100644
+--- a/fetch_gazebo/config/default_controllers.yaml
++++ b/fetch_gazebo/config/default_controllers.yaml
+@@ -14,6 +14,10 @@ arm_controller:
+     root: "torso_lift_link"
+     tip: "gripper_link"
+     autostart: true
++  cartesian_twist:
++    type: "robot_controllers/CartesianTwistController"
++    root: "torso_lift_link"
++    tip: "gripper_link"
+ 
+ arm_with_torso_controller:
+   follow_joint_trajectory:
+@@ -67,6 +71,7 @@ gazebo:
+   default_controllers:
+     - "arm_controller/follow_joint_trajectory"
+     - "arm_controller/gravity_compensation"
++    - "arm_controller/cartesian_twist"
+     - "arm_with_torso_controller/follow_joint_trajectory"
+     - "base_controller"
+     - "head_controller/follow_joint_trajectory"
