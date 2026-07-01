@@ -20,6 +20,7 @@ catkin_install_python(
     scripts/ur5e_controller_manager_switch.py
     scripts/ur5e_moveit_servo_spacenav_node.py
     scripts/ur5e_onrobot_rg_control_spacenav_node.py
+    scripts/ur5e_onrobot_rg_control_gripper_action.py
     scripts/ur5e_moveit_servo_viewport.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

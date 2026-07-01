@@ -2,11 +2,11 @@
 
 <launch>
 
-  <!-- SDE-specific launch: starts the Fetch Cartesian twist relay node. -->
-  <!-- The relay forwards end effector twist commands to the Fetch native Cartesian twist controller ('arm_controller/cartesian_twist'). -->
-  <!-- This is the Fetch counterpart of the UR5e 'ur5e_moveit_servo_velocity.launch' file. -->
+  <!-- SDE-specific launch: starts the extra ROS nodes needed for Coarobo Sightline teleoperation. -->
+  <!-- Coarobo Sightline is an OpenXR application (for example on the Meta Quest 3) that publishes end effector twist commands. -->
+  <!-- This launch starts the Cartesian twist relay that forwards those commands to the Fetch native Cartesian twist controller ('arm_controller/cartesian_twist'). -->
 
-  <!-- Input end effector twist command (geometry_msgs/TwistStamped), as published by the Quest application. -->
+  <!-- Input end effector twist command (geometry_msgs/TwistStamped), as published by the Coarobo Sightline application. -->
   <arg name="input_twist_topic" default="fetch_ee_cmd_vel" />
   <!-- Output command topic consumed by the Fetch Cartesian twist controller. -->
   <arg name="command_out_topic" default="/arm_controller/cartesian_twist/command" />

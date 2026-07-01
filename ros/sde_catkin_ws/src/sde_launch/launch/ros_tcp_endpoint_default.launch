@@ -6,7 +6,7 @@
   <!-- Upstream default: $(find ros_tcp_endpoint)/launch/endpoint.launch -->
 
   <!-- Start the Unity ROS TCP Endpoint bound to all interfaces on port 10000. -->
-  <!-- Unity clients (e.g. coarobo-sightline on Meta Quest) connect to this endpoint over TCP. -->
+  <!-- Unity clients (for example Coarobo Sightline on the Meta Quest 3) connect to this endpoint over TCP. -->
 
   <include file="$(find ros_tcp_endpoint)/launch/endpoint.launch">
     <arg name="tcp_ip" value="0.0.0.0" />

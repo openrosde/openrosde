@@ -2,11 +2,10 @@
 
 """Relay end effector twist commands to the Fetch native Cartesian twist controller.
 
-Unlike the UR5e, which uses MoveIt Servo, the Fetch has a native Cartesian twist
-controller (robot_controllers/CartesianTwistController). This node subscribes to a
-geometry_msgs/TwistStamped end effector velocity command (for example published by the
-coarobo-sightline Quest application), clamps it to safe limits, and republishes it at a
-fixed rate to the Fetch arm Cartesian twist controller. When commands go stale the relay
+The Fetch has a native Cartesian twist controller (robot_controllers/CartesianTwistController).
+This node subscribes to a geometry_msgs/TwistStamped end effector velocity command (for example
+published by the Coarobo Sightline OpenXR application), clamps it to safe limits, and republishes
+it at a fixed rate to the Fetch arm Cartesian twist controller. When commands go stale the relay
 publishes zeros so the arm holds its pose instead of drifting (deadman behaviour).
 
 By default the node starts in velocity control so teleoperation is live as soon as it
@@ -14,8 +13,7 @@ launches, with no manual controller switch required. A fetch_switch_controllers 
 is still provided to disable or re-enable forwarding, and to return the arm to a held
 trajectory position.
 
-Ported from the Fetch-era fetch_servoing package (author: Gustavo Garcia) into the SDE,
-mirroring the role of sde_ur5e_teleop.
+Ported from the Fetch-era fetch_servoing package (author: Gustavo Garcia) into the SDE.
 """
 
 import rospy

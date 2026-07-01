@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- SDE-specific launch: starts the extra ROS nodes needed for Coarobo Sightline teleoperation. -->
+  <!-- Coarobo Sightline is an OpenXR application (for example on the Meta Quest 3) that publishes end effector twist commands to MoveIt Servo directly, so no input bridge is started here. -->
+  <!-- This launch adds the OnRobot RG-2 gripper action interface that Coarobo Sightline drives. -->
+
+  <!-- Gripper action interface consumed by the Coarobo Sightline application. -->
+  <arg name="action_name" default="/gripper_controller/gripper_action" />
+  <!-- OnRobot RG service that actually drives the gripper. -->
+  <arg name="gripper_service_name" default="/onrobot_rg/set_command" />
+  <arg name="gripper_open_command" default="o" />
+  <arg name="gripper_close_command" default="c" />
+  <!-- A commanded position at or above this threshold opens the gripper, below it closes. -->
+  <arg name="open_position_threshold" default="0.05" />
+
+  <node pkg="sde_ur5e_teleop" type="ur5e_onrobot_rg_control_gripper_action.py" name="ur5e_onrobot_rg_control_gripper_action" output="screen">
+    <param name="action_name" value="$(arg action_name)" />
+    <param name="gripper_service_name" value="$(arg gripper_service_name)" />
+    <param name="gripper_open_command" value="$(arg gripper_open_command)" />
+    <param name="gripper_close_command" value="$(arg gripper_close_command)" />
+    <param name="open_position_threshold" value="$(arg open_position_threshold)" />
+  </node>
+
+</launch>

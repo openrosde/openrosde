@@ -3,7 +3,7 @@
 <launch>
 
   <!-- SDE-specific launch: configures Fetch end effector teleop. -->
-  <!-- It relays geometry_msgs/TwistStamped commands on 'fetch_ee_cmd_vel' (for example from the coarobo-sightline Quest app) to the Fetch native Cartesian twist controller. -->
+  <!-- It relays geometry_msgs/TwistStamped commands on 'fetch_ee_cmd_vel' (for example from the Coarobo Sightline application) to the Fetch native Cartesian twist controller. -->
   <!-- The same configuration applies to both the Gazebo simulation and the realworld robot. -->
 
   <!-- Start already in velocity control so teleoperation is live on launch with no manual switch. -->

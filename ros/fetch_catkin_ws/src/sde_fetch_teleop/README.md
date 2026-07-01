@@ -1,6 +1,6 @@
 # sde_fetch_teleop
 
-The `sde_fetch_teleop` package provides the launch files and node for end effector teleoperation of a Fetch robot. It mirrors the role of `sde_ur5e_teleop` for the Fetch platform.
+The `sde_fetch_teleop` package provides the launch files and node for end effector teleoperation of a Fetch robot.
 
 - Maintainer: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
 - Author: Lotfi El Hafi ([lotfi@coarobo.com](mailto:lotfi@coarobo.com)).
@@ -8,15 +8,15 @@ The `sde_fetch_teleop` package provides the launch files and node for end effect
 
 ## Overview
 
-Unlike the UR5e, which uses MoveIt Servo, the Fetch has a native Cartesian twist controller (`robot_controllers/CartesianTwistController`). This package provides a thin relay node that:
+The Fetch has a native Cartesian twist controller (`robot_controllers/CartesianTwistController`). This package provides a thin relay node that:
 
-1. Subscribes to an end effector velocity command `geometry_msgs/TwistStamped` on `fetch_ee_cmd_vel`, for example published by the coarobo-sightline Quest application.
+1. Subscribes to an end effector velocity command `geometry_msgs/TwistStamped` on `fetch_ee_cmd_vel`, for example published by the Coarobo Sightline OpenXR application.
 2. Clamps the command to safe linear and angular velocity limits.
 3. Republishes it at a fixed rate (at least 20 Hz) to `arm_controller/cartesian_twist/command`, sending zeros when the input goes stale so the arm holds its pose instead of drifting.
 
 The relay starts in velocity control by default, so teleoperation is live as soon as the launch file runs and the user does not need to switch controllers.
 
-`fetch_teleop.launch` is the main entry point. It includes `fetch_cartesian_twist.launch`, which starts the relay node `fetch_cartesian_twist_control.py`. This layering mirrors how `ur5e_teleop.launch` includes `ur5e_moveit_servo_velocity.launch` in `sde_ur5e_teleop`.
+`fetch_teleop.launch` is the main entry point. It includes `fetch_teleop_sightline.launch`, which starts the relay node `fetch_cartesian_twist_control.py` and any other ROS nodes the Coarobo Sightline application needs on the Fetch platform.
 
 The origin of this node is the Fetch-era `fetch_servoing` package (author: Gustavo Garcia), ported into the SDE.
 
@@ -37,12 +37,12 @@ Parameters:
 - `max_linear_velocity`: Maximum linear velocity in m/s. Keep it small for safety. Defaults to `0.05`.
 - `max_angular_velocity`: Maximum angular velocity in rad/s. Keep it small for safety. Defaults to `0.10`.
 
-## Cartesian Twist Relay
+## Coarobo Sightline Nodes
 
-Run the relay node on its own:
+Run the Coarobo Sightline teleop nodes on their own:
 
 ```shell
-roslaunch sde_fetch_teleop fetch_cartesian_twist.launch
+roslaunch sde_fetch_teleop fetch_teleop_sightline.launch
 ```
 
 This starts `fetch_cartesian_twist_control.py`, which relays the clamped end effector twist stream to the Fetch Cartesian twist controller. It accepts the same parameters as the full stack.

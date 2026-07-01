@@ -4,7 +4,7 @@
 
   <!-- SDE-specific launch: main entry point for Fetch end effector teleoperation. -->
   <!-- It starts the Fetch Cartesian twist relay so teleoperation is live on launch with no manual controller switch. -->
-  <!-- Publish geometry_msgs/TwistStamped end effector velocity commands on 'fetch_ee_cmd_vel' (for example from the coarobo-sightline Quest app) to move the arm. -->
+  <!-- Publish geometry_msgs/TwistStamped end effector velocity commands on 'fetch_ee_cmd_vel' (for example from the Coarobo Sightline application) to move the arm. -->
 
   <!-- Input end effector twist command (geometry_msgs/TwistStamped), as published by the Quest application. -->
   <arg name="input_twist_topic" default="fetch_ee_cmd_vel" />
@@ -22,7 +22,7 @@
   <arg name="max_linear_velocity" default="0.05" />
   <arg name="max_angular_velocity" default="0.10" />
 
-  <!-- 'pass_all_args' forwards every arg declared above to the relay launch, so a new parameter only needs to be added in one place. -->
-  <include file="$(find sde_fetch_teleop)/launch/fetch_cartesian_twist.launch" pass_all_args="true" />
+  <!-- 'pass_all_args' forwards every arg declared above to the Coarobo Sightline teleop launch, so a new parameter only needs to be added in one place. -->
+  <include file="$(find sde_fetch_teleop)/launch/fetch_teleop_sightline.launch" pass_all_args="true" />
 
 </launch>
