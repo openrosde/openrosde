@@ -23,5 +23,8 @@
   <depend>std_msgs</depend>
 
   <exec_depend>moveit_servo</exec_depend>
+  <exec_depend>nodelet</exec_depend>
+  <exec_depend>pcl_ros</exec_depend>
   <exec_depend>spacenav_node</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
 </package>
