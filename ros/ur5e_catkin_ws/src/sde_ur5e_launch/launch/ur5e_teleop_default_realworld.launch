@@ -4,8 +4,8 @@
 
   <!-- SDE-specific launch: configures teleop for the realworld robot. -->
 
-  <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default) or 'viewport' (Coarobo Viewport panel). -->
-  <!-- Pass 'input_source:=viewport' to drive from the panel. -->
+  <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default), 'viewport' (Coarobo Viewport panel), or 'sightline' (Coarobo Sightline OpenXR application). -->
+  <!-- Pass 'input_source:=viewport' to drive from the panel, or 'input_source:=sightline' to drive from the Meta Quest 3. -->
   <arg name="input_source" default="spacemouse" />
 
   <!-- Real-world controller configuration. -->
@@ -15,8 +15,9 @@
   <arg name="controllers_to_start" default="$(eval 'joint_group_vel_controller' if arg('controller_mode') == 'velocity' else 'scaled_pos_joint_traj_controller')" />
   <arg name="controllers_to_stop" default="$(eval 'scaled_pos_joint_traj_controller' if arg('controller_mode') == 'velocity' else 'joint_group_vel_controller')" />
 
-  <!-- SpaceMouse motion frame configuration. -->
-  <arg name="ee_frame_name" default="flange" />
+  <!-- Motion frame configuration. -->
+  <!-- Coarobo Sightline grabs the gripper hologram, so the sightline input drives the gripper frame while the other inputs keep the flange. -->
+  <arg name="ee_frame_name" default="$(eval 'onrobot_rg2_base_link' if arg('input_source') == 'sightline' else 'flange')" />
   <arg name="robot_link_command_frame" default="base_link" />
   <arg name="frame_id" default="base_link" />
 
