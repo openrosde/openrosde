@@ -18,5 +18,6 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>onrobot_rg_control</exec_depend>
+  <exec_depend>sde_ur5e_teleop</exec_depend>
 
 </package>

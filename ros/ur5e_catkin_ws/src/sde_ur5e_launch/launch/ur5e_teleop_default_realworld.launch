@@ -6,10 +6,12 @@
 
   <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default), 'viewport' (Coarobo Viewport panel), or 'sightline' (Coarobo Sightline OpenXR application). -->
   <!-- Pass 'input_source:=viewport' to drive from the panel, or 'input_source:=sightline' to drive from the Meta Quest 3. -->
-  <arg name="input_source" default="spacemouse" />
+  <arg name="input_source" default="sightline" />
 
   <!-- Real-world controller configuration. -->
-  <arg name="controller_mode" default="trajectory" />
+  <!-- Velocity mode streams joint velocities to 'joint_group_vel_controller', which is the correct mode for real-time teleoperation. -->
+  <!-- Trajectory mode publishes sparse JointTrajectory points that cause 'No trajectory defined at current time' errors under continuous teleop. -->
+  <arg name="controller_mode" default="velocity" />
   <arg name="command_out_topic" default="$(eval '/joint_group_vel_controller/command' if arg('controller_mode') == 'velocity' else '/scaled_pos_joint_traj_controller/command')" />
   <arg name="switch_controllers" default="true" />
   <arg name="controllers_to_start" default="$(eval 'joint_group_vel_controller' if arg('controller_mode') == 'velocity' else 'scaled_pos_joint_traj_controller')" />
