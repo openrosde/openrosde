@@ -13,7 +13,7 @@ command_in_type: speed_units
 cartesian_command_in_topic: /servo_server/delta_twist_cmds
 joint_command_in_topic: /servo_server/delta_joint_cmds
 robot_link_command_frame: flange
-incoming_command_timeout: 0.25
+incoming_command_timeout: 0.5
 lower_singularity_threshold: 17.0
 hard_stop_singularity_threshold: 30.0
 move_group_name: manipulator
