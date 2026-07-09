@@ -43,3 +43,8 @@
 	url = https://github.com/DENSORobot/denso_cobotta_ros.git
 	branch = melodic-devel
 	ignore = dirty
+[submodule "ros/sde_catkin_ws/src/ros_tcp_endpoint"]
+	path = ros/sde_catkin_ws/src/ros_tcp_endpoint
+	url = https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
+	branch = main
+	ignore = dirty

@@ -2,13 +2,16 @@
 
 # This script runs a Docker container instance with a name based on [docker-project].
 #
-# Usage: bash ./RUN-DOCKER-CONTAINER.bash [docker-project] [ros-launch]
+# Usage: bash ./RUN-DOCKER-CONTAINER.bash [docker-project] [ros-launch] [launch-args...]
 #
 # [docker-project]: Used to name the Docker container and create multiple instances if needed.
 #                   Default value is '$USER'.
 # [ros-launch]:     Used to automatically preload a ROS launch file when entering the Docker container for convenience.
 #                   Format is 'filename.launch'.
 #                   Use '--no-exec' to start the container without entering it.
+# [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch' after the launch file.
+#                   They override a launch file argument without modifying the launch file itself
+#                   (e.g., 'bash ./RUN-DOCKER-CONTAINER.bash myproject ur5e_teleop_default_realworld.launch input_source:=sightline').
 
 ################################################################################
 
@@ -87,5 +90,5 @@ if [ "$2" = "--no-exec" ]; then
 elif [ -z "$2" ]; then
   docker exec -i -t ${SDE_DOCKER_CONTAINER} bash
 else
-  docker exec -i -t ${SDE_DOCKER_CONTAINER} bash -i -c "source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/run-roslaunch-repeatedly.bash $2"
+  docker exec -i -t ${SDE_DOCKER_CONTAINER} bash -i -c "source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/run-roslaunch-repeatedly.bash ${*:2}"
 fi

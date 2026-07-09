@@ -117,10 +117,12 @@ Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu 
 1. Run the Docker container:
 
     ```shell
-    bash ./RUN-DOCKER-CONTAINER.bash #[docker-project] #[ros-launch]
+    bash ./RUN-DOCKER-CONTAINER.bash #[docker-project] #[ros-launch] #[launch-args...]
     ```
 
     This script creates or updates the container following the instructions found in `docker/docker-compose.yaml`.
+    The optional `[ros-launch]` argument preloads a ROS launch file in the opened shell.
+    Any `arg:=value` tokens after it are forwarded to `roslaunch` as is, which overrides a launch file argument without modifying the launch file itself (e.g., `ur5e_teleop_default_realworld.launch input_source:=sightline`).
     It allows the container to share system resources, such as volumes and devices, with the Ubuntu development machine.
 2. Configure the freshly built Docker container by executing the following Bash function inside it:
 

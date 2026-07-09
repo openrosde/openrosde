@@ -104,6 +104,15 @@ The following launch files are available for the Fetch Robotics Fetch platform (
 | `fetch_mapping_default.launch` | SLAM mapping (build_map) |
 | `fetch_moveit_default.launch` | MoveIt motion planning |
 | `fetch_rviz_default.launch` | RViz visualization |
+| `fetch_teleop_default.launch` | End effector teleoperation for Coarobo Sightline (package: `sde_fetch_teleop`) |
+
+## 🥽 Coarobo Sightline Teleoperation
+
+The Fetch end effector can be teleoperated from a Meta Quest 3 headset running the [Coarobo Sightline](https://gitlab.com/coarobo/coarobo-sightline) mixed reality application.
+
+- `fetch_teleop_default.launch` starts the `sde_fetch_teleop` bridge, which converts the headset twist commands on `fetch_ee_cmd_vel` to the Fetch Cartesian twist controller.
+- The headset connects through the ROS TCP Endpoint terminal (`sde_launch:ros_tcp_endpoint_default.launch`) on port `10000`.
+- Both are preloaded in the Fetch Terminator layouts.
 
 ## 🧪 FlexBE Behavior
 
