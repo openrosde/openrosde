@@ -3,21 +3,27 @@
 # This script runs a ROS launch file and prompts the user to select the execution mode (remote, local, or child shell).
 # It is used by Terminator sub-terminals to conveniently preload launch files.
 #
-# Usage: bash run-roslaunch-repeatedly.bash <launch-file>
+# Usage: bash run-roslaunch-repeatedly.bash <launch-file> [launch-args...]
 #
-# <launch-file>: The ROS launch file to run (e.g., 'example_roslaunch_file.launch').
-#                Optionally, specify the ROS package with the 'package:file.launch' format.
-#                If no package is specified, the 'SDE_LAUNCH_PACKAGE' environment variable is used.
+# <launch-file>:    The ROS launch file to run (e.g., 'example_roslaunch_file.launch').
+#                   Optionally, specify the ROS package with the 'package:file.launch' format.
+#                   If no package is specified, the 'SDE_LAUNCH_PACKAGE' environment variable is used.
+# [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch' as is.
+#                   They override a launch file argument without modifying the launch file itself
+#                   (e.g., 'run-roslaunch-repeatedly.bash ur5e_teleop_default_realworld.launch input_source:=sightline').
 
 ################################################################################
 
-# Parse the optional 'package:file.launch' format from the argument.
+# Parse the optional 'package:file.launch' format from the first argument.
 if [[ "$1" == *":"* ]]; then
   SDE_LAUNCH_PACKAGE="${1%%:*}"
   SDE_LAUNCH_FILE="${1#*:}"
 else
   SDE_LAUNCH_FILE=$1
 fi
+
+# Forward the remaining arguments to 'roslaunch' (e.g., 'input_source:=sightline').
+SDE_LAUNCH_ARGS="${*:2}"
 
 if [ -z "${SDE_LAUNCH_FILE}" ]; then
   echo "No launch file is specified."
@@ -30,7 +36,7 @@ SDE_PROMPT_START=$'\e[4m\e[1m'
 SDE_PROMPT_END=$'\e[0m'
 SDE_KEY_START=$'\e[7m'
 SDE_KEY_END=$'\e[0m'${SDE_PROMPT_START}
-SDE_PROMPT="${SDE_PROMPT_START}Run '${SDE_LAUNCH_FILE}'? Press:"$'\n'"'${SDE_KEY_START}r${SDE_KEY_END}' to run as remote,"$'\n'"'${SDE_KEY_START}l${SDE_KEY_END}' to run as local,"$'\n'"'${SDE_KEY_START}c${SDE_KEY_END}' to enter a child shell."$'\n'"${SDE_PROMPT_END}"
+SDE_PROMPT="${SDE_PROMPT_START}Run '${SDE_LAUNCH_FILE}${SDE_LAUNCH_ARGS:+ ${SDE_LAUNCH_ARGS}}'? Press:"$'\n'"'${SDE_KEY_START}r${SDE_KEY_END}' to run as remote,"$'\n'"'${SDE_KEY_START}l${SDE_KEY_END}' to run as local,"$'\n'"'${SDE_KEY_START}c${SDE_KEY_END}' to enter a child shell."$'\n'"${SDE_PROMPT_END}"
 
 while true; do
   read -n 1 -s -p "${SDE_PROMPT}" input;
@@ -51,7 +57,7 @@ EOF
   else
     continue;
   fi;
-  roslaunch ${SDE_LAUNCH_PACKAGE} ${SDE_LAUNCH_FILE};
+  roslaunch ${SDE_LAUNCH_PACKAGE} ${SDE_LAUNCH_FILE} ${SDE_LAUNCH_ARGS};
   echo "" # Display an empty line.
 done
 

@@ -6,7 +6,7 @@
 
   <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default), 'viewport' (Coarobo Viewport panel), or 'sightline' (Coarobo Sightline OpenXR application). -->
   <!-- Pass 'input_source:=viewport' to drive from the panel, or 'input_source:=sightline' to drive from the Meta Quest 3. -->
-  <arg name="input_source" default="sightline" />
+  <arg name="input_source" default="spacemouse" />
 
   <!-- Real-world controller configuration. -->
   <!-- Trajectory mode is the default because the velocity controller is still experimental on the real robot and needs tuning before it moves smoothly. -->
