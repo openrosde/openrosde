@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.0] - 2026-07-09
+
+### Added
+
+- Coarobo Sightline teleop input for the UR5e: `input_source:=sightline` on the teleop wrappers starts MoveIt Servo for the headset with the end effector frame switched to `onrobot_rg2_base_link`, the OnRobot RG-2 gripper action interface on `/gripper_controller/gripper_action`, and the relayed wrist camera streams (`/wrist_camera/depth/color/points_downsampled` at 5 Hz on a 2 cm voxel grid and `/wrist_camera/color/image_raw/compressed_throttled` at 10 Hz).
+- `sde_fetch_teleop` package for Fetch end effector teleoperation from Coarobo Sightline, bridging the headset twist commands to the Fetch Cartesian twist controller.
+- `ros_tcp_endpoint` submodule with `sde_launch:ros_tcp_endpoint_default.launch` and a dedicated terminal in the Terminator layouts, so the headset connects on port `10000`.
+- Launch argument forwarding through `RUN-DOCKER-CONTAINER.bash` and `run-roslaunch-repeatedly.bash`: `arg:=value` tokens after the launch file are passed to `roslaunch` as is, so a Terminator terminal can override a launch argument without modifying the launch file itself.
+- TF frames documentation for the UR5e platform.
+
+### Changed
+
+- The UR5e Terminator layouts preload the teleop terminals with `input_source:=sightline`, while the launch file default remains `spacemouse`.
+- Reorganized `sde_fetch_teleop` and `sde_ur5e_teleop` for the Coarobo Sightline integration.
+
+### Fixed
+
+- The MoveIt Servo configs tolerate brief teleop command gaps, with a raised incoming command timeout and low latency mode enabled.
+- The real world teleop wrapper defaults back to trajectory control, since the earlier trajectory glitches came from headset side time stamping that Coarobo Sightline now performs in the ROS graph time. Velocity mode stays available through the `controller_mode` argument.
+
 ## [2.11.0] - 2026-06-29
 
 ### Added

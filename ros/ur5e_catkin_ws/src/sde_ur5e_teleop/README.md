@@ -129,6 +129,25 @@ Parameters:
 - `input_timeout`: Time in seconds before stale viewport input is treated as zero. Defaults to `0.2`.
 - `smoothing_alpha`: Exponential moving average smoothing factor in the range `(0, 1]`. Lower values produce smoother motion and higher values respond faster. Defaults to `0.1`.
 
+## Coarobo Sightline Input
+
+Run the Sightline support nodes on their own:
+
+```shell
+roslaunch sde_ur5e_teleop ur5e_teleop_sightline.launch
+```
+
+Coarobo Sightline is an OpenXR application (for example on the Meta Quest 3) that publishes `geometry_msgs/TwistStamped` end effector commands to `/servo_server/delta_twist_cmds` directly, so no input bridge is started.
+This launch adds the extra nodes the headset consumes.
+
+- The OnRobot RG-2 gripper action interface on `/gripper_controller/gripper_action` (`control_msgs/GripperCommandAction`), bridged to the `/onrobot_rg/set_command` service by `ur5e_onrobot_rg_control_gripper_action.py`.
+- A wrist camera point cloud relay on `/wrist_camera/depth/color/points_downsampled`, throttled to `5.0` Hz and voxel downsampled to a `0.02` m grid with the packed rgb data kept, since the full resolution stream saturates the ROS TCP Endpoint connection and makes the teleoperation commands stutter.
+- A wrist camera compressed image relay on `/wrist_camera/color/image_raw/compressed_throttled`, throttled to `10.0` Hz.
+
+The headset connects to the ROS graph through the ROS TCP Endpoint (`sde_launch:ros_tcp_endpoint_default.launch`, port `10000`), which is part of the UR5e Terminator layouts.
+When `input_source:=sightline` is selected, the parent `ur5e_teleop.launch` also switches the MoveIt Servo end effector frame to `onrobot_rg2_base_link`, so the commands act at the gripper.
+The UR5e Terminator layouts preload the teleop terminal with `input_source:=sightline`.
+
 ## MoveIt Servo
 
 Both input bridges publish to MoveIt Servo, which `ur5e_teleop.launch` starts automatically.
