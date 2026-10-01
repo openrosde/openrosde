@@ -20,8 +20,10 @@ stages:
 # Define the common configuration of Docker-in-Docker for all jobs.
 
 # Use Docker-in-Docker with TLS disabled in the Docker executor.
-# https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#docker-in-docker-with-tls-disabled-in-the-docker-executor
-image: docker:latest
+# https://docs.gitlab.com/ci/docker/docker_in_docker/
+# The Docker images are pinned to one version, as GitLab recommends, so that a new 'latest' cannot break the pipeline unannounced.
+# The CLI image and the Docker-in-Docker service must be updated together.
+image: docker:29.8.1-cli
 
 # Create a mount point to share files between the Docker-in-Docker container and the child containers.
 # https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#limitations-of-docker-in-docker
@@ -32,7 +34,7 @@ variables:
   SDE_MOUNT_POINT: /builds/${CI_PROJECT_PATH}/mnt
   SDE_CONTAINER_ROOT_DIR: /root/SDE
 services:
-  - docker:dind
+  - docker:29.8.1-dind
 
 before_script:
   - docker info
