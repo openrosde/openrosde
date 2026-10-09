@@ -4,8 +4,8 @@
 
   <!-- SDE-specific launch: configures teleop for Gazebo. -->
 
-  <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default), 'viewport' (Coarobo Viewport panel), or 'sightline' (Coarobo Sightline OpenXR application). -->
-  <!-- Pass 'input_source:=viewport' to drive from the panel, or 'input_source:=sightline' to drive from the Meta Quest 3. -->
+  <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default), 'viewport' (Coarobo Viewport panel), 'spacemouse_viewport' (both at once), 'sightline' (Coarobo Sightline OpenXR application), or 'spacemouse_viewport_sightline' (all three at once). -->
+  <!-- Pass 'input_source:=viewport' to drive from the panel, 'input_source:=spacemouse_viewport' to drive from either, 'input_source:=sightline' to drive from the Meta Quest 3, or 'input_source:=spacemouse_viewport_sightline' to drive from any of the three. -->
   <arg name="input_source" default="spacemouse" />
 
   <!-- Gazebo controller configuration. -->
@@ -17,6 +17,7 @@
 
   <!-- Motion frame configuration. -->
   <!-- Coarobo Sightline grabs the gripper hologram, so the sightline input drives the gripper frame while the other inputs keep the flange. -->
+  <!-- With all three inputs, the flange stays, since every input stamps its twists in 'base_link', where the end effector frame does not change how MoveIt Servo applies them. -->
   <arg name="ee_frame_name" default="$(eval 'onrobot_rg2_base_link' if arg('input_source') == 'sightline' else 'flange')" />
   <arg name="robot_link_command_frame" default="base_link" />
   <arg name="frame_id" default="base_link" />

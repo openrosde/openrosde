@@ -19,12 +19,12 @@
 
   <!-- External RealSense D435i camera position (attached to 'world', setup-dependent). -->
   <!-- Override via 'SDE_UR5E_EXTERNAL_CAMERA_*' environment variables. -->
-  <xacro:arg name="external_camera_x"     default="0" />
-  <xacro:arg name="external_camera_y"     default="-0.254" />
-  <xacro:arg name="external_camera_z"     default="0.38" />
+  <xacro:arg name="external_camera_x"     default="-0.10" />
+  <xacro:arg name="external_camera_y"     default="0.35" />
+  <xacro:arg name="external_camera_z"     default="0.10" />
   <xacro:arg name="external_camera_roll"  default="0" />
-  <xacro:arg name="external_camera_pitch" default="0.31" />
-  <xacro:arg name="external_camera_yaw"   default="2.60159" />
+  <xacro:arg name="external_camera_pitch" default="0" />
+  <xacro:arg name="external_camera_yaw"   default="-2.35619" />
 
   <xacro:ur_robot
     prefix=""

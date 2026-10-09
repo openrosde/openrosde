@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- SDE-specific: everything the Coarobo Viewport demo of the UR5e adds on top of the robot, camera, teleop, and rosbridge launches. -->
+  <!-- It starts the light streams of both cameras and, unless disabled, FastSAM on both cameras. -->
+
+  <arg name="enable_fastsam" default="true" />
+
+  <include file="$(find sde_user_launch)/launch/viewport_streams_ur5e.launch" />
+
+  <include file="$(find sde_user_launch)/launch/seg_fastsam_ur5e_cameras.launch" if="$(arg enable_fastsam)" />
+
+</launch>

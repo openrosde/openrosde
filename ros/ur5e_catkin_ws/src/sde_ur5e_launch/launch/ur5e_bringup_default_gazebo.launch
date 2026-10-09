@@ -17,12 +17,12 @@
 
   <!-- External RealSense D435i camera position arguments. -->
   <!-- These default to the 'SDE_UR5E_EXTERNAL_CAMERA_*' environment variables. -->
-  <arg name="external_camera_x"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_X 0)" />
-  <arg name="external_camera_y"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_Y -0.254)" />
-  <arg name="external_camera_z"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_Z 0.38)" />
+  <arg name="external_camera_x"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_X -0.10)" />
+  <arg name="external_camera_y"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_Y 0.35)" />
+  <arg name="external_camera_z"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_Z 0.10)" />
   <arg name="external_camera_roll"  default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_ROLL 0)" />
-  <arg name="external_camera_pitch" default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_PITCH 0.31)" />
-  <arg name="external_camera_yaw"   default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_YAW 2.60159)" />
+  <arg name="external_camera_pitch" default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_PITCH 0)" />
+  <arg name="external_camera_yaw"   default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_YAW -2.35619)" />
 
   <!-- Gazebo controller arguments. -->
   <arg name="controller_config_file" default="$(find ur_gazebo)/config/ur5e_controllers.yaml" />

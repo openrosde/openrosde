@@ -74,10 +74,11 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 
 ## Teleop Input Source
 
-The teleop wrappers select their input with the `input_source` argument, accepting `spacemouse` (3Dconnexion SpaceMouse) or `viewport` (Coarobo Viewport panel).
+The teleop wrappers select their input with the `input_source` argument, accepting `spacemouse` (3Dconnexion SpaceMouse), `viewport` (Coarobo Viewport panel), `spacemouse_viewport` (both at once), `sightline` (Coarobo Sightline), or `spacemouse_viewport_sightline` (all three at once).
 Both wrappers default to `spacemouse`.
-Only one input bridge is started, so the two never contend for the shared MoveIt Servo command topic.
+With a single input, only one input bridge is started, so the inputs never contend for the shared MoveIt Servo command topic.
 With `input_source:=viewport` the moveit_servo stack still starts, but the SpaceMouse bridge and the `spacenav_node` driver do not, and vice versa.
+With a combination, each input publishes only while it is in use, so whichever input is in use drives MoveIt Servo.
 
 To drive the robot from the Coarobo Viewport panel instead, pass `input_source:=viewport`:
 
@@ -97,7 +98,7 @@ The Coarobo Viewport panel connects to ROS over `rosbridge`, so pair the viewpor
 | `ur5e_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `ur5e_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `ur5e_rviz_default.launch` | RViz visualization (Gazebo and real robot) |
-| `realsense_camera_default_realworld.launch` | Intel RealSense D435i camera (real robot) |
+| `realsense_camera_default_realworld.launch` | Intel RealSense D435 wrist and D435i external cameras (real robot) |
 | `ur5e_description_default_realworld.launch` | Robot description adapter for the UR5e driver (real robot) |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper control (Gazebo) |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper control (real robot) |

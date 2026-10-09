@@ -7,10 +7,14 @@
 
   <!-- Start the Unity ROS TCP Endpoint bound to all interfaces on port 10000. -->
   <!-- Unity clients (for example Coarobo Sightline on the Meta Quest 3) connect to this endpoint over TCP. -->
+  <!-- The node runs the upstream server through 'ros_tcp_endpoint_server.py', which adds the system commands that remove a registration, so a client that drops its last subscription on a topic keeps its connection. -->
 
-  <include file="$(find ros_tcp_endpoint)/launch/endpoint.launch">
-    <arg name="tcp_ip" value="0.0.0.0" />
-    <arg name="tcp_port" value="10000" />
-  </include>
+  <arg name="tcp_ip" default="0.0.0.0" />
+  <arg name="tcp_port" default="10000" />
+
+  <node name="unity_endpoint" pkg="sde_launch" type="ros_tcp_endpoint_server.py" output="screen">
+    <param name="tcp_ip" type="string" value="$(arg tcp_ip)" />
+    <param name="tcp_port" type="int" value="$(arg tcp_port)" />
+  </node>
 
 </launch>

@@ -7,6 +7,10 @@ teleop panel, applies per-axis exponential moving average (EMA) smoothing, and
 republishes the result as a ``geometry_msgs/TwistStamped`` for MoveIt Servo.
 When no input arrives within ``input_timeout`` seconds the target is treated as
 zero so the robot decelerates to a stop.
+
+With ``stop_publishing_when_idle`` set, the bridge publishes one exact zero once
+the smoothed twist has settled, then stays silent until new input arrives, so
+another input such as the SpaceMouse bridge can drive MoveIt Servo meanwhile.
 """
 
 import rospy
@@ -24,6 +28,12 @@ class Ur5eViewportMoveitServo(object):
         # Exponential moving average smoothing factor (0 < alpha <= 1).
         # Lower values produce smoother motion; higher values respond faster.
         self.smoothing_alpha = rospy.get_param("~smoothing_alpha", 0.1)
+
+        # Stop publishing once idle, so the bridge can share MoveIt Servo with another input.
+        self.stop_publishing_when_idle = rospy.get_param("~stop_publishing_when_idle", False)
+        # Largest absolute axis value still treated as settled at zero.
+        self.idle_threshold = rospy.get_param("~idle_threshold", 0.001)
+        self.idle = False
 
         self.latest_twist = Twist()
         self.smoothed_twist = Twist()
@@ -47,6 +57,17 @@ class Ur5eViewportMoveitServo(object):
         self.smoothed_twist.angular.y = self._ema(self.smoothed_twist.angular.y, target.angular.y)
         self.smoothed_twist.angular.z = self._ema(self.smoothed_twist.angular.z, target.angular.z)
 
+    def _is_settled(self):
+        values = (
+            self.smoothed_twist.linear.x,
+            self.smoothed_twist.linear.y,
+            self.smoothed_twist.linear.z,
+            self.smoothed_twist.angular.x,
+            self.smoothed_twist.angular.y,
+            self.smoothed_twist.angular.z,
+        )
+        return all(abs(value) < self.idle_threshold for value in values)
+
     def _publish_smoothed_twist(self):
         servo_twist = TwistStamped()
         servo_twist.header.stamp = rospy.Time.now()
@@ -62,7 +83,16 @@ class Ur5eViewportMoveitServo(object):
             target = Twist() if stale else self.latest_twist
 
             self._smooth_toward(target)
-            self._publish_smoothed_twist()
+
+            if self.stop_publishing_when_idle and stale and self._is_settled():
+                if not self.idle:
+                    # Publish one exact zero so MoveIt Servo stops, then stay silent for the other input.
+                    self.smoothed_twist = Twist()
+                    self._publish_smoothed_twist()
+                    self.idle = True
+            else:
+                self.idle = False
+                self._publish_smoothed_twist()
 
             rate.sleep()
 
