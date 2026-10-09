@@ -16,7 +16,7 @@ services:
       - SDE_ONROBOT_COMPUTE_BOX_IP=${SDE_ONROBOT_COMPUTE_BOX_IP}
       # Whether to start the external Intel RealSense D435i camera at bringup.
       - SDE_UR5E_ENABLE_EXTERNAL_CAMERA=${SDE_UR5E_ENABLE_EXTERNAL_CAMERA}
-      # Serial number of the wrist-mounted Intel RealSense D435i camera.
+      # Serial number of the wrist-mounted Intel RealSense D435 camera.
       - SDE_UR5E_WRIST_CAMERA_SERIAL_NO=${SDE_UR5E_WRIST_CAMERA_SERIAL_NO}
       # Serial number of the external Intel RealSense D435i camera.
       - SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO=${SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO}

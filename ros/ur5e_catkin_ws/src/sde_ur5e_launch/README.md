@@ -97,7 +97,7 @@ The Coarobo Viewport panel connects to ROS over `rosbridge`, so pair the viewpor
 | `ur5e_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `ur5e_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `ur5e_rviz_default.launch` | RViz visualization (Gazebo and real robot) |
-| `realsense_camera_default_realworld.launch` | Intel RealSense D435i camera (real robot) |
+| `realsense_camera_default_realworld.launch` | Intel RealSense D435 wrist and D435i external cameras (real robot) |
 | `ur5e_description_default_realworld.launch` | Robot description adapter for the UR5e driver (real robot) |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper control (Gazebo) |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper control (real robot) |
