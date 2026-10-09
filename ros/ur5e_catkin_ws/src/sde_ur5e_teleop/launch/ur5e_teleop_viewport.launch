@@ -10,6 +10,8 @@
   <arg name="publish_rate" default="100.0" />
   <arg name="input_timeout" default="0.2" />
   <arg name="smoothing_alpha" default="0.1" />
+  <!-- Stop publishing once idle, so the SpaceMouse bridge can drive MoveIt Servo at the same time. -->
+  <arg name="stop_publishing_when_idle" default="false" />
 
   <node pkg="sde_ur5e_teleop"
         type="ur5e_moveit_servo_viewport.py"
@@ -21,6 +23,7 @@
     <param name="publish_rate" value="$(arg publish_rate)" />
     <param name="input_timeout" value="$(arg input_timeout)" />
     <param name="smoothing_alpha" value="$(arg smoothing_alpha)" />
+    <param name="stop_publishing_when_idle" value="$(arg stop_publishing_when_idle)" />
   </node>
 
 </launch>

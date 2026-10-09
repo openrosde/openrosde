@@ -4,8 +4,8 @@
 
   <!-- SDE-specific launch: configures teleop for the realworld robot. -->
 
-  <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default), 'viewport' (Coarobo Viewport panel), or 'sightline' (Coarobo Sightline OpenXR application). -->
-  <!-- Pass 'input_source:=viewport' to drive from the panel, or 'input_source:=sightline' to drive from the Meta Quest 3. -->
+  <!-- Teleop input source: 'spacemouse' (3Dconnexion SpaceMouse, default), 'viewport' (Coarobo Viewport panel), 'spacemouse_viewport' (both at once), or 'sightline' (Coarobo Sightline OpenXR application). -->
+  <!-- Pass 'input_source:=viewport' to drive from the panel, 'input_source:=spacemouse_viewport' to drive from either, or 'input_source:=sightline' to drive from the Meta Quest 3. -->
   <arg name="input_source" default="spacemouse" />
 
   <!-- Real-world controller configuration. -->

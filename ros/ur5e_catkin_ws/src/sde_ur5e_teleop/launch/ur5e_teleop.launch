@@ -7,8 +7,8 @@
 
   <arg name="start_spacenavd" default="true" />
 
-  <!-- Selects the teleop input source: 'spacemouse' (3Dconnexion SpaceMouse), 'viewport' (Coarobo Viewport panel), or 'sightline' (Coarobo Sightline OpenXR application). -->
-  <!-- Exactly one input is active at a time, so the sources never contend for the shared Servo command topic. -->
+  <!-- Selects the teleop input source: 'spacemouse' (3Dconnexion SpaceMouse), 'viewport' (Coarobo Viewport panel), 'spacemouse_viewport' (both at once), or 'sightline' (Coarobo Sightline OpenXR application). -->
+  <!-- A single input owns the shared Servo command topic, except with 'spacemouse_viewport', where each bridge publishes only while its input is in use. -->
   <arg name="input_source" default="spacemouse" />
 
   <arg name="planning_frame" default="base_link" />
@@ -61,7 +61,7 @@
   <arg name="max_angular_acceleration" default="6.0" />
 
   <!-- Start spacenavd first (in spacemouse mode) so it is ready before the slower moveit_servo startup and before the spacenav_node driver connects. -->
-  <group if="$(eval arg('input_source') == 'spacemouse')">
+  <group if="$(eval arg('input_source') in ['spacemouse', 'spacemouse_viewport'])">
     <node if="$(arg start_spacenavd)" pkg="sde_ur5e_teleop" type="ur5e_spacenavd_daemon.bash" name="ur5e_spacenavd_daemon" output="screen" />
   </group>
 
@@ -81,7 +81,7 @@
   </include>
 
   <!-- SpaceMouse input: start the SpaceMouse-to-Servo bridge, gripper node, and spacenav_node driver. -->
-  <group if="$(eval arg('input_source') == 'spacemouse')">
+  <group if="$(eval arg('input_source') in ['spacemouse', 'spacemouse_viewport'])">
 
     <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop_spacenav_node.launch">
       <arg name="launch_spacenav_node" value="$(arg launch_spacenav_node)" />
@@ -118,10 +118,12 @@
 
   <!-- Viewport input: bridge the Coarobo Viewport 'Twist' stream to Servo. -->
   <!-- The viewport input topic is left at its own default ('/cmd_vel'); only the Servo output topic and frame are shared with the SpaceMouse path. -->
-  <group if="$(eval arg('input_source') == 'viewport')">
+  <!-- Next to the SpaceMouse, the bridge falls silent once idle, since the SpaceMouse bridge already publishes only while its enable button is held. -->
+  <group if="$(eval arg('input_source') in ['viewport', 'spacemouse_viewport'])">
     <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop_viewport.launch">
       <arg name="output_twist_topic" value="$(arg output_twist_topic)" />
       <arg name="frame_id" value="$(arg frame_id)" />
+      <arg name="stop_publishing_when_idle" value="$(eval arg('input_source') == 'spacemouse_viewport')" />
     </include>
   </group>
 

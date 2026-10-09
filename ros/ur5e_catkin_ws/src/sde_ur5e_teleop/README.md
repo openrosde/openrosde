@@ -13,6 +13,9 @@ Both inputs drive the same MoveIt Servo command topic, and an OnRobot RG2 grippe
 It starts MoveIt Servo, performs the controller switch based on `controller_mode`, and starts exactly one input bridge selected by the `input_source` argument.
 The two input sources are mirrored: each has its own launch file and `moveit_servo` bridge node that converts its input into a `geometry_msgs/TwistStamped` on the shared Servo command topic `/servo_server/delta_twist_cmds`.
 Because only one input bridge runs at a time, the SpaceMouse and Viewport inputs never contend for that topic.
+The exception is `input_source:=spacemouse_viewport`, which starts both bridges for a demo where either input can drive the robot.
+There the SpaceMouse bridge publishes only while its enable button is held, and the Viewport bridge stops publishing once its input has settled to zero, so whichever input is in use drives MoveIt Servo.
+Both inputs used at the same moment interleave their commands, so only one person drives at a time.
 
 | Property | SpaceMouse (`spacenav_node`) | Coarobo Viewport |
 | --- | --- | --- |
@@ -36,8 +39,8 @@ Velocity mode is still experimental.
 
 Parameters:
 
-- `input_source`: Selects the teleop input. Use `spacemouse` (3Dconnexion SpaceMouse) or `viewport` (Coarobo Viewport panel). Defaults to `spacemouse`. Exactly one input bridge is started, so the two never contend for the shared Servo command topic. The `spacenavd` daemon and `spacenav_node` driver are only started for `spacemouse`.
-- `start_spacenavd`: If `true`, starts the `spacenavd` daemon before launching the SpaceMouse stack. Only applies when `input_source:=spacemouse`. Defaults to `true`.
+- `input_source`: Selects the teleop input. Use `spacemouse` (3Dconnexion SpaceMouse), `viewport` (Coarobo Viewport panel), or `spacemouse_viewport` (both at once). Defaults to `spacemouse`. With `spacemouse` or `viewport`, exactly one input bridge is started, so the two never contend for the shared Servo command topic. The `spacenavd` daemon and `spacenav_node` driver are only started for `spacemouse` and `spacemouse_viewport`.
+- `start_spacenavd`: If `true`, starts the `spacenavd` daemon before launching the SpaceMouse stack. Only applies when `input_source:=spacemouse` or `input_source:=spacemouse_viewport`. Defaults to `true`.
 - `controller_mode`: Selects the UR controller path. Use `velocity` or `trajectory`. Defaults to `trajectory`.
 - `reverse_for_front_view`: If `true`, flips `linear_x`, `linear_y`, `angular_x`, and `angular_y` so front-of-robot operation feels natural. Defaults to `false`.
 
@@ -66,6 +69,7 @@ roslaunch sde_ur5e_teleop ur5e_teleop_spacenav_node.launch launch_spacenav_node:
 Usage notes:
 
 - `spacenavd` is started automatically by `ur5e_spacenavd_daemon.bash` (the launch starts it before MoveIt Servo so it is ready by the time the `spacenav_node` driver connects).
+- Plug the 3Dconnexion Universal Receiver into a USB 2 port, since the 3Dconnexion SpaceMouse delivers no event on a USB 3 port (see the [UR5e platform documentation](../../../../docs/robot-platforms/ur5e.md#hardware-overview)).
 - Hold Button 0 as the deadman and move the SpaceMouse to send twist commands.
 - Press Button 1 to toggle the OnRobot RG2 gripper when gripper control is enabled.
 - Set `reverse_for_front_view:=true` (through `ur5e_teleop.launch`) when operating from in front of the robot; this flips the planar translational and tilt axes so the hand-to-robot mapping feels like the default behind-the-robot setup.
@@ -128,6 +132,7 @@ Parameters:
 - `publish_rate`: Fixed publish rate of the smoothed twist stream in Hz. Defaults to `100.0`.
 - `input_timeout`: Time in seconds before stale viewport input is treated as zero. Defaults to `0.2`.
 - `smoothing_alpha`: Exponential moving average smoothing factor in the range `(0, 1]`. Lower values produce smoother motion and higher values respond faster. Defaults to `0.1`.
+- `stop_publishing_when_idle`: If `true`, publishes one exact zero once the smoothed twist has settled, then stays silent until new input arrives, so the SpaceMouse bridge can drive MoveIt Servo meanwhile. `ur5e_teleop.launch` sets it for `input_source:=spacemouse_viewport`. Defaults to `false`.
 
 ## Coarobo Sightline Input
 
