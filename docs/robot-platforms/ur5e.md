@@ -19,10 +19,15 @@ The Universal Robots UR5e platform consists of the following components:
 
 - **Robot arm:** [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) collaborative robot (serial number: `XXXXXXXXXXX`).
 - **Gripper:** [OnRobot RG2](https://onrobot.com/products/rg2) electric parallel gripper, mounted on an [OnRobot Quick Changer](https://onrobot.com/products/quick-changer) (Robot Side 109498 QC-R v3), itself attached to the Universal Robots UR5e tool flange.
-- **Wrist camera:** [Intel RealSense D435i](https://www.intelrealsense.com/depth-camera-d435i/) depth camera, mounted between the Universal Robots UR5e tool flange and the OnRobot Quick Changer using a [camera adapter from PickNik Robotics](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1).
+- **Wrist camera:** Intel RealSense D435 depth camera, mounted between the Universal Robots UR5e tool flange and the OnRobot Quick Changer using a [camera adapter from PickNik Robotics](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1).
 - **External camera:** [Intel RealSense D435i](https://www.intelrealsense.com/depth-camera-d435i/) depth camera, mounted on a fixed stand to provide an environment view of the workspace.
 - **Gripper controller:** OnRobot Compute Box from the OnRobot Robot Kit, connected to the gripper via the OnRobot Quick Changer and to the network via Ethernet.
   It communicates with the Ubuntu development machine over Modbus TCP (port `502`).
+- **Teleop input:** 3Dconnexion SpaceMouse, connected wirelessly to the Ubuntu development machine through a 3Dconnexion Universal Receiver (USB ID `256f:c652`).
+
+> [!WARNING]
+> Plug the 3Dconnexion Universal Receiver into a USB 2 port of the Ubuntu development machine, never into a USB 3 port (usually blue).
+> On a USB 3 port, the receiver still shows up in `lsusb` and `spacenavd` still opens it, but no motion or button event ever reaches it, so the 3Dconnexion SpaceMouse silently does nothing.
 
 ## ⚙️ Platform Configuration
 
@@ -47,15 +52,16 @@ If the external camera is not available in your setup, disable it in `.env.custo
 SDE_UR5E_ENABLE_EXTERNAL_CAMERA=false
 ```
 
-The external camera pose (position in meters and orientation in radians, expressed in the `world` frame which is co-located with the robot `base_link`) is also setup-dependent and can be overridden in `.env.custom`:
+The external camera pose (position in meters and orientation in radians, expressed in the `world` frame which is co-located with the robot `base_link`) is also setup-dependent and can be overridden in `.env.custom`.
+The defaults below match the Coarobo setup measured on 2026-10-07: the camera stands 0.35 m along `+y` and 0.10 m along `-x` from the robot base, 0.10 m up, level with the ground, and turned 45 degrees from the `-x` axis toward `-y` (yaw of -135 degrees):
 
 ```shell
-SDE_UR5E_EXTERNAL_CAMERA_X=0
-SDE_UR5E_EXTERNAL_CAMERA_Y=-0.254
-SDE_UR5E_EXTERNAL_CAMERA_Z=0.38
+SDE_UR5E_EXTERNAL_CAMERA_X=-0.10
+SDE_UR5E_EXTERNAL_CAMERA_Y=0.35
+SDE_UR5E_EXTERNAL_CAMERA_Z=0.10
 SDE_UR5E_EXTERNAL_CAMERA_ROLL=0
-SDE_UR5E_EXTERNAL_CAMERA_PITCH=0.31
-SDE_UR5E_EXTERNAL_CAMERA_YAW=2.60159
+SDE_UR5E_EXTERNAL_CAMERA_PITCH=0
+SDE_UR5E_EXTERNAL_CAMERA_YAW=-2.35619
 ```
 
 These values are baked into the URDF at bringup time, so any change requires restarting the bringup launch file.
@@ -191,8 +197,17 @@ This is expected, not a misconfiguration. Both are published by the upstream Uni
 
 ### 📷 Intel RealSense Cameras
 
-The platform uses two Intel RealSense D435i cameras: a wrist-mounted camera and an external environment camera.
+The platform uses two Intel RealSense cameras: a wrist-mounted Intel RealSense D435 and an external Intel RealSense D435i for the environment view.
 The serial numbers are setup-dependent and must be set in `.env.custom` (see [Platform Configuration](#platform-configuration)).
+
+> [!WARNING]
+> Connect the two cameras to two different USB host controllers of the Ubuntu development machine, never to two ports of the same controller.
+> With both cameras streaming through one controller, the controller stopped responding and disconnected every USB device on it, including the 3Dconnexion Universal Receiver, until the Ubuntu development machine was rebooted.
+> This command prints the PCI address of the controller behind each camera, and the two addresses must differ:
+>
+> ```shell
+> for d in /sys/bus/usb/devices/*; do if [ "$(cat ${d}/idVendor 2>/dev/null)" = 8086 ]; then echo "$(cat ${d}/product): $(basename $(dirname $(readlink -f /sys/bus/usb/devices/usb$(cat ${d}/busnum))))"; fi; done
+> ```
 
 To start both cameras with point cloud generation:
 
@@ -233,8 +248,8 @@ The gripper can be controlled via the ROS service `/onrobot_rg/set_command`.
 The UR5e can be teleoperated from a Meta Quest 3 headset running the [Coarobo Sightline](https://gitlab.com/coarobo/coarobo-sightline) mixed reality application.
 
 - Start the teleop stack with `input_source:=sightline`, which starts MoveIt Servo with the end effector frame set to `onrobot_rg2_base_link` and relays the wrist camera streams for the headset.
-- The UR5e Terminator layouts preload the teleop terminal with `input_source:=sightline`, so pressing `r` in that terminal starts the Sightline stack directly.
-- To teleoperate with the SpaceMouse instead, press `c` in the teleop terminal and run `roslaunch sde_ur5e_launch ur5e_teleop_default_realworld.launch` without arguments, since the launch file default remains `spacemouse`.
+- The UR5e Terminator layouts preload the teleop terminal with `input_source:=spacemouse_viewport` in the `default-realworld` layout and `input_source:=spacemouse` in the `default-gazebo` layout.
+- To teleoperate with Sightline instead, press `c` in the teleop terminal and run `roslaunch sde_ur5e_launch ur5e_teleop_default_realworld.launch input_source:=sightline`.
 - The headset connects through the ROS TCP Endpoint terminal (`sde_launch:ros_tcp_endpoint_default.launch`) on port `10000`.
 - The relayed camera topics are the point cloud on `/wrist_camera/depth/color/points_downsampled` (5 Hz, 2 cm voxel grid) and the compressed image on `/wrist_camera/color/image_raw/compressed_throttled` (10 Hz).
 
@@ -261,11 +276,11 @@ The following launch files are available for the Universal Robots UR5e platform 
 | `ur5e_moveit_default_realworld.launch` | MoveIt motion planning (real robot) |
 | `ur5e_moveit_default_gazebo.launch` | MoveIt motion planning (Gazebo) |
 | `ur5e_rviz_default.launch` | RViz visualization (Gazebo and real robot) |
-| `realsense_camera_default_realworld.launch` | Intel RealSense D435i wrist and external cameras (external optional) |
+| `realsense_camera_default_realworld.launch` | Intel RealSense D435 wrist and D435i external cameras (external optional) |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper via Modbus TCP |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper (Gazebo) |
-| `ur5e_teleop_default_realworld.launch` | SpaceMouse, Viewport, or Sightline teleoperation (real robot, `input_source:=`) |
-| `ur5e_teleop_default_gazebo.launch` | SpaceMouse, Viewport, or Sightline teleoperation (Gazebo, `input_source:=`) |
+| `ur5e_teleop_default_realworld.launch` | SpaceMouse, Viewport, both, or Sightline teleoperation (real robot, `input_source:=`) |
+| `ur5e_teleop_default_gazebo.launch` | SpaceMouse, Viewport, both, or Sightline teleoperation (Gazebo, `input_source:=`) |
 
 ## 🧪 FlexBE Behavior
 
