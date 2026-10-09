@@ -74,10 +74,11 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 
 ## Teleop Input Source
 
-The teleop wrappers select their input with the `input_source` argument, accepting `spacemouse` (3Dconnexion SpaceMouse) or `viewport` (Coarobo Viewport panel).
+The teleop wrappers select their input with the `input_source` argument, accepting `spacemouse` (3Dconnexion SpaceMouse), `viewport` (Coarobo Viewport panel), `spacemouse_viewport` (both at once), `sightline` (Coarobo Sightline), or `spacemouse_viewport_sightline` (all three at once).
 Both wrappers default to `spacemouse`.
-Only one input bridge is started, so the two never contend for the shared MoveIt Servo command topic.
+With a single input, only one input bridge is started, so the inputs never contend for the shared MoveIt Servo command topic.
 With `input_source:=viewport` the moveit_servo stack still starts, but the SpaceMouse bridge and the `spacenav_node` driver do not, and vice versa.
+With a combination, each input publishes only while it is in use, so whichever input is in use drives MoveIt Servo.
 
 To drive the robot from the Coarobo Viewport panel instead, pass `input_source:=viewport`:
 

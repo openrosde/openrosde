@@ -7,14 +7,15 @@
 
   <arg name="start_spacenavd" default="true" />
 
-  <!-- Selects the teleop input source: 'spacemouse' (3Dconnexion SpaceMouse), 'viewport' (Coarobo Viewport panel), 'spacemouse_viewport' (both at once), or 'sightline' (Coarobo Sightline OpenXR application). -->
-  <!-- A single input owns the shared Servo command topic, except with 'spacemouse_viewport', where each bridge publishes only while its input is in use. -->
+  <!-- Selects the teleop input source: 'spacemouse' (3Dconnexion SpaceMouse), 'viewport' (Coarobo Viewport panel), 'spacemouse_viewport' (both at once), 'sightline' (Coarobo Sightline OpenXR application), or 'spacemouse_viewport_sightline' (all three at once). -->
+  <!-- A single input owns the shared Servo command topic, except with 'spacemouse_viewport' and 'spacemouse_viewport_sightline', where each input publishes only while it is in use. -->
   <arg name="input_source" default="spacemouse" />
 
   <arg name="planning_frame" default="base_link" />
   <!-- End effector frame the servo commands. -->
   <!-- Coarobo Sightline grabs the gripper hologram, so for that input source the servo commands the gripper frame to match. -->
   <!-- The SpaceMouse and Viewport keep the flange as the end effector frame. -->
+  <!-- With all three inputs, the servo keeps the flange too, since MoveIt Servo applies a twist stamped in 'base_link' the same way whatever the end effector frame, and every input stamps 'base_link'. -->
   <arg name="ee_frame_name" default="$(eval 'onrobot_rg2_base_link' if arg('input_source') == 'sightline' else 'flange')" />
   <arg name="robot_link_command_frame" default="base_link" />
   <arg name="controller_mode" default="trajectory" />
@@ -61,7 +62,7 @@
   <arg name="max_angular_acceleration" default="6.0" />
 
   <!-- Start spacenavd first (in spacemouse mode) so it is ready before the slower moveit_servo startup and before the spacenav_node driver connects. -->
-  <group if="$(eval arg('input_source') in ['spacemouse', 'spacemouse_viewport'])">
+  <group if="$(eval arg('input_source') in ['spacemouse', 'spacemouse_viewport', 'spacemouse_viewport_sightline'])">
     <node if="$(arg start_spacenavd)" pkg="sde_ur5e_teleop" type="ur5e_spacenavd_daemon.bash" name="ur5e_spacenavd_daemon" output="screen" />
   </group>
 
@@ -81,7 +82,7 @@
   </include>
 
   <!-- SpaceMouse input: start the SpaceMouse-to-Servo bridge, gripper node, and spacenav_node driver. -->
-  <group if="$(eval arg('input_source') in ['spacemouse', 'spacemouse_viewport'])">
+  <group if="$(eval arg('input_source') in ['spacemouse', 'spacemouse_viewport', 'spacemouse_viewport_sightline'])">
 
     <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop_spacenav_node.launch">
       <arg name="launch_spacenav_node" value="$(arg launch_spacenav_node)" />
@@ -118,18 +119,18 @@
 
   <!-- Viewport input: bridge the Coarobo Viewport 'Twist' stream to Servo. -->
   <!-- The viewport input topic is left at its own default ('/cmd_vel'); only the Servo output topic and frame are shared with the SpaceMouse path. -->
-  <!-- Next to the SpaceMouse, the bridge falls silent once idle, since the SpaceMouse bridge already publishes only while its enable button is held. -->
-  <group if="$(eval arg('input_source') in ['viewport', 'spacemouse_viewport'])">
+  <!-- Next to the SpaceMouse, the bridge falls silent once idle, since the SpaceMouse bridge already publishes only while its enable button is held, and Coarobo Sightline only while its hologram is held. -->
+  <group if="$(eval arg('input_source') in ['viewport', 'spacemouse_viewport', 'spacemouse_viewport_sightline'])">
     <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop_viewport.launch">
       <arg name="output_twist_topic" value="$(arg output_twist_topic)" />
       <arg name="frame_id" value="$(arg frame_id)" />
-      <arg name="stop_publishing_when_idle" value="$(eval arg('input_source') == 'spacemouse_viewport')" />
+      <arg name="stop_publishing_when_idle" value="$(eval arg('input_source') != 'viewport')" />
     </include>
   </group>
 
   <!-- Coarobo Sightline input: start the extra nodes for the OpenXR teleoperation stack. -->
   <!-- Coarobo Sightline publishes end effector twist commands to Servo directly, so no input bridge is started for it. -->
-  <group if="$(eval arg('input_source') == 'sightline')">
+  <group if="$(eval arg('input_source') in ['sightline', 'spacemouse_viewport_sightline'])">
     <include file="$(find sde_ur5e_teleop)/launch/ur5e_teleop_sightline.launch" />
   </group>
 

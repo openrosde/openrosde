@@ -248,8 +248,9 @@ The gripper can be controlled via the ROS service `/onrobot_rg/set_command`.
 The UR5e can be teleoperated from a Meta Quest 3 headset running the [Coarobo Sightline](https://gitlab.com/coarobo/coarobo-sightline) mixed reality application.
 
 - Start the teleop stack with `input_source:=sightline`, which starts MoveIt Servo with the end effector frame set to `onrobot_rg2_base_link` and relays the wrist camera streams for the headset.
-- The UR5e Terminator layouts preload the teleop terminal with `input_source:=spacemouse_viewport` in the `default-realworld` layout and `input_source:=spacemouse` in the `default-gazebo` layout.
-- To teleoperate with Sightline instead, press `c` in the teleop terminal and run `roslaunch sde_ur5e_launch ur5e_teleop_default_realworld.launch input_source:=sightline`.
+- Start it with `input_source:=spacemouse_viewport_sightline` to run Sightline next to the 3Dconnexion SpaceMouse and Coarobo Viewport, each input driving MoveIt Servo only while it is in use.
+- The UR5e Terminator layouts preload the teleop terminal with `input_source:=spacemouse_viewport_sightline` in the `default-realworld` layout and `input_source:=spacemouse` in the `default-gazebo` layout.
+- To teleoperate with Sightline alone, press `c` in the teleop terminal and run `roslaunch sde_ur5e_launch ur5e_teleop_default_realworld.launch input_source:=sightline`.
 - The headset connects through the ROS TCP Endpoint terminal (`sde_launch:ros_tcp_endpoint_default.launch`) on port `10000`.
 - The relayed camera topics are the point cloud on `/wrist_camera/depth/color/points_downsampled` (5 Hz, 2 cm voxel grid) and the compressed image on `/wrist_camera/color/image_raw/compressed_throttled` (10 Hz).
 
@@ -279,8 +280,8 @@ The following launch files are available for the Universal Robots UR5e platform 
 | `realsense_camera_default_realworld.launch` | Intel RealSense D435 wrist and D435i external cameras (external optional) |
 | `onrobot_rg_control_default_realworld.launch` | OnRobot RG2 gripper via Modbus TCP |
 | `onrobot_rg_control_default_gazebo.launch` | OnRobot RG2 gripper (Gazebo) |
-| `ur5e_teleop_default_realworld.launch` | SpaceMouse, Viewport, both, or Sightline teleoperation (real robot, `input_source:=`) |
-| `ur5e_teleop_default_gazebo.launch` | SpaceMouse, Viewport, both, or Sightline teleoperation (Gazebo, `input_source:=`) |
+| `ur5e_teleop_default_realworld.launch` | SpaceMouse, Viewport, Sightline, or a combination of them (real robot, `input_source:=`) |
+| `ur5e_teleop_default_gazebo.launch` | SpaceMouse, Viewport, Sightline, or a combination of them (Gazebo, `input_source:=`) |
 
 ## 🧪 FlexBE Behavior
 
