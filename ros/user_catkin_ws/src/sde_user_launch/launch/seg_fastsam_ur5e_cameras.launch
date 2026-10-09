@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- SDE-specific: runs FastSAM on both Intel RealSense cameras of the UR5e for the Coarobo Viewport demo. -->
+  <!-- Each overlay comes out as '/<camera>/fastsam/image_raw' and as a JPEG copy on '/<camera>/fastsam/image_raw/compressed'. -->
+  <!-- A camera whose overlay nobody watches skips inference, so the GPU serves the overlays in use. -->
+
+  <arg name="weights" default="$(find sde_user_launch)/models/fastsam/FastSAM-x.pt" />
+  <arg name="rate_hz" default="10.0" />
+  <arg name="enable_wrist_camera" default="true" />
+  <!-- The external camera follows 'SDE_UR5E_ENABLE_EXTERNAL_CAMERA' of '.env.custom', like the camera launch of 'sde_ur5e_launch'. -->
+  <!-- '$(eval ... or ...)' treats an empty string the same as unset, so a missing variable defaults to 'true'. -->
+  <arg name="enable_external_camera" default="$(eval optenv('SDE_UR5E_ENABLE_EXTERNAL_CAMERA', 'true') or 'true')" />
+
+  <!-- Wrist-mounted Intel RealSense D435. -->
+  <group ns="wrist_camera" if="$(arg enable_wrist_camera)">
+    <include file="$(find sde_user_launch)/launch/seg_fastsam.launch">
+      <arg name="input_topic" value="/wrist_camera/color/image_raw" />
+      <arg name="output_topic" value="/wrist_camera/fastsam/image_raw" />
+      <arg name="weights" value="$(arg weights)" />
+      <arg name="rate_hz" value="$(arg rate_hz)" />
+      <arg name="publish_compressed" value="true" />
+      <arg name="rviz" value="false" />
+    </include>
+  </group>
+
+  <!-- External Intel RealSense D435i. -->
+  <group ns="external_camera" if="$(arg enable_external_camera)">
+    <include file="$(find sde_user_launch)/launch/seg_fastsam.launch">
+      <arg name="input_topic" value="/external_camera/color/image_raw" />
+      <arg name="output_topic" value="/external_camera/fastsam/image_raw" />
+      <arg name="weights" value="$(arg weights)" />
+      <arg name="rate_hz" value="$(arg rate_hz)" />
+      <arg name="publish_compressed" value="true" />
+      <arg name="rviz" value="false" />
+    </include>
+  </group>
+
+</launch>

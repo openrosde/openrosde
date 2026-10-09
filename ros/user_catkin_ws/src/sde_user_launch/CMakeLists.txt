@@ -8,3 +8,10 @@ catkin_package()
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+catkin_install_python(
+  PROGRAMS
+    scripts/seg_fastsam_node.py
+    scripts/depth_colorizer_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
