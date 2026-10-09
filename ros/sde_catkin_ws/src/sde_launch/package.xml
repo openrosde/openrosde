@@ -15,4 +15,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <run_depend>rospy</run_depend>
+  <run_depend>ros_tcp_endpoint</run_depend>
+
 </package>
