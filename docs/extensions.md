@@ -17,8 +17,9 @@ The SDE treats every extension the same way, and only what an extension holds gi
 | Platform | One robot as sold, with its public drivers: `env/<platform>.env`, `docker/<platform>-devel/`, `ros/<platform>_catkin_ws/` | `openrosde-platform-ur5e` |
 | Device | One piece of hardware anyone can buy, such as a gripper, a camera, or an input device, which names no robot | `openrosde-device-realsense` |
 | Extension | Anything else added beside a platform, such as a product binding or packages of a project | `coarobo-extension-sightline` |
+| Setup | One installation of a robot: the platform, devices, and extensions it pins, the description that mounts the devices, the calibration, addresses, serial numbers, layouts, and runbook of that installation alone | `coarobo-setup-ur5e-office` |
 
-Setups, which pin one platform with its devices and extensions for one installation of a robot, come next in [#38](https://gitlab.com/coarobo/SDE/-/issues/38).
+The setup of a company and the setup of its client take the same shape, and both are usually private, while platforms and devices anyone can buy are usually public.
 
 ## 📁 Layout
 
@@ -26,7 +27,9 @@ An extension shares the layout of the core, so that the SDE finds its files with
 
 ```
 extensions/<extension>/
-  env/<platform>.env                     # Platform template, which declares 'SDE_ROBOT_PLATFORM=<platform>' (platforms only).
+  env/<platform>.env                     # Platform template, the default setup, which declares 'SDE_ROBOT_PLATFORM=<platform>' and 'SDE_ROBOT_SETUP=<platform>' (platforms only).
+  env/<setup>.env                        # Setup template, which declares 'SDE_ROBOT_SETUP=<setup>', its platform, and its extensions (setups only).
+  env/<setup>.repos                      # Repositories of the setup for 'vcstool' (setups only).
   docker/<platform>-devel/Dockerfile     # Platform image, built on 'sde-base' (platforms only).
   docker/docker-compose-<name>.yaml      # Docker Compose overlay: environment variables, volumes, devices.
   ros/<name>_catkin_ws/src/              # One or more Catkin workspaces.
@@ -41,10 +44,10 @@ extensions/<extension>/
 
 ## 🔎 How the SDE Finds Files
 
-- A file named after a platform, such as `env/<platform>.env`, `docker/<platform>-devel/Dockerfile`, `terminator/<platform>.config`, or `scripts/<platform>/bringup-ros-robot.bash`, is looked up in the core first, then in every cloned extension in alphabetical order.
+- A file named after a setup or a platform, such as `env/<platform>.env`, `docker/<platform>-devel/Dockerfile`, `terminator/<platform>.config`, or `scripts/<platform>/bringup-ros-robot.bash`, is looked up in the core first, then in every cloned extension in alphabetical order.
 - `bash ./SWITCH-ROBOT-PLATFORM.bash` lists the platforms of the core and of every cloned extension, so a platform extension needs no registration.
-- The extensions listed in `SDE_ROBOT_EXTENSIONS` are the active ones, and the extension that holds the active platform is always active.
-- The Catkin workspaces are built and sourced in this order: `ros/sde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `SDE_ROBOT_EXTENSIONS`, then `ros/user_catkin_ws` of the core.
+- The extensions listed in `SDE_ROBOT_EXTENSIONS` are the active ones, and the extensions that hold the active platform and the active setup are always active.
+- The Catkin workspaces are built and sourced in this order: `ros/sde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `SDE_ROBOT_EXTENSIONS`, the workspaces of the setup, then `ros/user_catkin_ws` of the core.
 - `RUN-DOCKER-CONTAINER.bash` adds every `docker/docker-compose*.yaml` of the active extensions after the overlay of the platform.
 - `bash ./scripts/update-git-submodules.bash` updates the Git submodules of the core and of every cloned extension, and applies the `patches/` of each repository to its own submodules.
 
@@ -53,16 +56,58 @@ extensions/<extension>/
 
 `scripts/load-extension-paths.bash` holds these rules, on the host and inside the Docker container alike.
 
+## 🧭 Setups
+
+A setup is an environment template `env/<setup>.env` that declares its own name, its platform, and its extensions:
+
+```shell
+SDE_ROBOT_PLATFORM=ur5e
+SDE_ROBOT_SETUP=my-lab-ur5e
+SDE_ROBOT_EXTENSIONS="openrosde-device-onrobot-rg openrosde-device-realsense"
+```
+
+The template of every platform is its default setup, named after the platform, so `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` and `bash ./SWITCH-ROBOT-SETUP.bash <platform>` do the same.
+
+Beside the template, `env/<setup>.repos` lists where to clone the repositories the setup needs, in the format of [`vcstool`](https://github.com/dirk-thomas/vcstool), the tool ROS projects use for the same purpose:
+
+```yaml
+repositories:
+  openrosde-device-onrobot-rg:
+    type: git
+    url: https://github.com/<organization>/openrosde-device-onrobot-rg.git
+    version: v1.0.0
+  openrosde-device-realsense:
+    type: git
+    url: https://github.com/<organization>/openrosde-device-realsense.git
+    version: v1.2.0
+```
+
+`bash ./SWITCH-ROBOT-SETUP.bash <setup>` clones the repositories that are missing from `extensions/`, at the versions the file pins, leaves the ones already cloned as they are, then copies the template to `.env.custom`.
+Run `vcs import --input <setup>.repos extensions` to bring the cloned ones to the pinned versions as well.
+
+The folder that holds the setup is always active, after the extensions of `SDE_ROBOT_EXTENSIONS`, so its workspace builds last, before the user workspace.
+A file named after the setup takes precedence over the file named after its platform, such as `scripts/<setup>/bringup-ros-robot.bash` over `scripts/<platform>/bringup-ros-robot.bash`, or `terminator/<setup>.config` over `terminator/<platform>.config`.
+
+> [!NOTE]
+> A `.env.custom` written before setups existed declares no setup, so the SDE uses its platform as the setup and keeps its platform files.
+
 ## 🚀 Using an Extension
 
-1. Clone the extension into `extensions/`, with your own credentials if it is private:
+1. For a setup, clone the extension that holds it, then switch to it, which clones the rest:
+
+    ```shell
+    git clone <repository-url> extensions/<extension>
+    bash ./SWITCH-ROBOT-SETUP.bash <setup>
+    ```
+
+    Otherwise, clone the extension into `extensions/`, with your own credentials if it is private:
 
     ```shell
     git clone <repository-url> extensions/<extension>
     bash ./scripts/update-git-submodules.bash
     ```
 
-2. For a platform extension, switch to its platform, which it lists like a platform of the core:
+2. For a platform extension, switch to its platform, which `SWITCH-ROBOT-PLATFORM.bash` lists like a platform of the core:
 
     ```shell
     bash ./SWITCH-ROBOT-PLATFORM.bash <platform>
@@ -86,6 +131,7 @@ extensions/<extension>/
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
+| `SDE_ROBOT_SETUP` | The platform | Active setup, named after its template `env/<setup>.env` |
 | `SDE_ROBOT_EXTENSIONS` | Empty | Folder names of the active extensions in `extensions/`, separated by spaces, in the order their workspaces build |
 | `SDE_DOCKER_REGISTRY` | `registry.gitlab.com/coarobo/sde` | Registry where the base and platform images are pulled from and pushed to |
 
@@ -96,6 +142,5 @@ Set `SDE_DOCKER_REGISTRY` in `.env.custom` to use a registry of your own.
 
 The rest of [#38](https://gitlab.com/coarobo/SDE/-/issues/38) builds on these rules:
 
-- Setups, which pin one platform, its devices, and its extensions in a `.repos` file for `vcstool`, and which `SWITCH-ROBOT-PLATFORM.bash` clones and selects in one command.
 - Docker layers of devices and extensions between the platform image and the user overlay.
 - `tmux` sessions built from the panes each part declares, in place of Terminator.

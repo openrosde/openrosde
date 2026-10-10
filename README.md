@@ -168,10 +168,12 @@ RUN-TERMINATOR-TERMINAL.bash             # Multi-terminal launcher script.
 BRINGUP-ROS-ROBOT.bash                   # Robot bringup script.
 RESTART-CHRONY-SERVICE.bash              # Host and robot clock sync script.
 SWITCH-ROBOT-PLATFORM.bash               # Platform switching script.
+SWITCH-ROBOT-SETUP.bash                  # Setup switching script, which clones the extensions of a setup.
 scripts/
   load-sde-env.bash                      # Shared environment loader.
   load-extension-paths.bash              # Resolves the files of the platform and the extensions.
   list-robot-platforms.bash              # Lists the platforms found by name.
+  list-robot-setups.bash                 # Lists the setups found by name.
   <platform>/                            # Optional platform scripts (shell, bringup, Chrony).
 docker/
   docker-compose.yaml                    # Docker service definitions.

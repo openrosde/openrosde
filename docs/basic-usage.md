@@ -89,6 +89,7 @@ Select the target robot platform with the following instructions.
     ```
 
 For platform-specific details, refer to the [Robot Platform Documentation](robot-platforms/).
+For a robot whose setup lives in an extension, such as a platform with its devices for one installation, switch with `bash ./SWITCH-ROBOT-SETUP.bash <setup>` instead, as the [Extensions](extensions.md) guide explains.
 
 ## 🐳 Step 3: Build the Docker Image
 

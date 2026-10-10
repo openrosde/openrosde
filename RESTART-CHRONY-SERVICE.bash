@@ -2,7 +2,7 @@
 
 # This script resyncs the host and robot clocks via Chrony.
 # Docker containers use the host clock, so their time is accurate if the host clock is.
-# The robot side lives in the Chrony script of the active platform, 'scripts/<platform>/restart-chrony-service.bash', if the platform has one.
+# The robot side lives in the Chrony script of the active setup or platform, 'scripts/<setup>/restart-chrony-service.bash' or 'scripts/<platform>/restart-chrony-service.bash', if it has one.
 #
 # Usage: bash ./RESTART-CHRONY-SERVICE.bash [docker-project]
 #
@@ -31,8 +31,8 @@ echo "Chrony service restarted on the host machine."
 
 ################################################################################
 
-# Run the Chrony script of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/restart-chrony-service.bash' in the core or in an extension, if the platform has one.
-SDE_CHRONY_SCRIPT_PATH="$(sde-find-extension-file "scripts/${SDE_ROBOT_PLATFORM}/restart-chrony-service.bash")"
+# Run the Chrony script of the setup, or else of the platform, in the core or in an extension, if either has one.
+SDE_CHRONY_SCRIPT_PATH="$(sde-find-setup-file "scripts/%s/restart-chrony-service.bash")"
 if [ -n "${SDE_CHRONY_SCRIPT_PATH}" ]; then
   bash "${SDE_CHRONY_SCRIPT_PATH}"
 else
