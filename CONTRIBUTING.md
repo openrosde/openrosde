@@ -120,6 +120,8 @@ Include the platform name, host OS, and the output of the failing command.
 > Use the [User Overlay](docs/user-overlay.md) (Layer 3) instead. It lives in [docker/user-devel/Dockerfile](docker/user-devel/Dockerfile), [ros/user_catkin_ws/](ros/user_catkin_ws/), and [docker/docker-compose-user.yaml](docker/docker-compose-user.yaml), and works on top of any selected `SDE_ROBOT_PLATFORM` without any of the steps below.
 
 The SDE is designed to make adding a new platform straightforward.
+A platform can live in the core or in an extension repository of its own, cloned into `extensions/`, with the same files in the same places (see [docs/extensions.md](docs/extensions.md)).
+An extension platform needs no change of the core at all, so it suits a robot that is private, or that the maintainers do not merge upstream.
 All platform-specific behavior is controlled by the `SDE_ROBOT_PLATFORM` variable.
 Adding a new platform named `<platform>` (e.g., `myrobot`) requires creating a small set of files, which the SDE finds by that name, and adding `<platform>` to the few lists that remain.
 

@@ -12,7 +12,7 @@
 
 services:
   sde-base:
-    image: registry.gitlab.com/coarobo/sde/sde-base:latest
+    image: ${SDE_DOCKER_REGISTRY}/sde-base:latest
     build:
       context: ../
       dockerfile: ./docker/sde-base/Dockerfile
@@ -21,13 +21,15 @@ services:
         - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
 
   sde-platform:
-    image: registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest
+    image: ${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:latest
     build:
       context: ../
-      dockerfile: ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile
+      # The Dockerfile of the platform lives in the core or in an extension, as 'scripts/load-sde-env.bash' resolves it.
+      dockerfile: ./${SDE_ROBOT_PLATFORM_DOCKERFILE}
       args:
         - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
         - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+        - SDE_BASE_IMAGE=${SDE_DOCKER_REGISTRY}/sde-base:latest
 
   sde:
     hostname: sde-${SDE_ROBOT_PLATFORM}
@@ -46,13 +48,14 @@ services:
       - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
       # Pass the SDE root directory path.
       - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
-    image: registry.gitlab.com/coarobo/sde/user-devel:latest
+    image: ${SDE_DOCKER_REGISTRY}/user-devel:latest
     build:
       context: ../
       dockerfile: ./docker/user-devel/Dockerfile
       args:
         - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}
         - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+        - SDE_PLATFORM_IMAGE=${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:latest
     volumes:
       # Map repository root for convenient access.
       - ../:${SDE_CONTAINER_ROOT_DIR}/

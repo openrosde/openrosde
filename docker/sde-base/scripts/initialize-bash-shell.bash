@@ -15,10 +15,8 @@ if [ -f ${SDE_CONTAINER_ROOT_DIR}/.env.custom ]; then
   source ${SDE_CONTAINER_ROOT_DIR}/.env.custom
 fi
 
-# Derive the shared, platform-specific, and user catkin workspace paths.
-SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
-SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
-SDE_USER_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/user_catkin_ws"
+# Resolve where the files of the platform and of the extensions live, and list their Catkin workspaces in order.
+source ${SDE_CONTAINER_ROOT_DIR}/scripts/load-extension-paths.bash ${SDE_CONTAINER_ROOT_DIR}
 
 ################################################################################
 
@@ -43,9 +41,9 @@ stty -ixon
 
 # TODO: If switched from Dockerfile-sensitive generation to folder-sensitive generation,
 # then show latest commit of the platform-devel folder with 'git log -n 1 --format="%h %aN %s %ad" -- $directory'.
-SDE_DOCKERFILE_LATEST_HASH=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)
-SDE_DOCKERFILE_LATEST_DATE=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%cd ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)
-SDE_DOCKERFILE_CREATION_DATE=$(git -C ${SDE_CONTAINER_ROOT_DIR}/ show --no-patch --no-notes --pretty='%cd' ${SDE_DOCKER_IMAGE_VERSION})
+SDE_DOCKERFILE_LATEST_HASH=$(git -C ${SDE_ROBOT_PLATFORM_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)
+SDE_DOCKERFILE_LATEST_DATE=$(git -C ${SDE_ROBOT_PLATFORM_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%cd ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)
+SDE_DOCKERFILE_CREATION_DATE=$(git -C ${SDE_ROBOT_PLATFORM_ROOT_DIR}/ show --no-patch --no-notes --pretty='%cd' ${SDE_DOCKER_IMAGE_VERSION})
 
 echo -e "Container version: ${SDE_ROBOT_PLATFORM}-devel:${SDE_DOCKER_IMAGE_VERSION:0:7} from ${SDE_DOCKERFILE_CREATION_DATE}"
 if [[ "${SDE_DOCKERFILE_CREATION_DATE}" != "${SDE_DOCKERFILE_LATEST_DATE}" ]]; then
@@ -66,8 +64,10 @@ source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/source-catkin-workspace
 
 ################################################################################
 
-# Add the shared, platform-specific, and user Catkin workspaces to the 'ROS_PACKAGE_PATH'.
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_SHARED_CATKIN_WS}/src/:${SDE_ROBOT_PLATFORM_CATKIN_WS}/src/:${SDE_USER_CATKIN_WS}/src/
+# Add the shared, platform-specific, extension, and user Catkin workspaces to the 'ROS_PACKAGE_PATH'.
+for SDE_CATKIN_WS in "${SDE_CATKIN_WORKSPACE_DIRS[@]}"; do
+  export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${SDE_CATKIN_WS}/src/
+done
 
 ################################################################################
 
@@ -185,9 +185,10 @@ fi
 SDE_LAUNCH_PACKAGE=sde_${SDE_ROBOT_PLATFORM}_launch
 export SDE_LAUNCH_PACKAGE
 
-# Source the shell configuration of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash', if the platform has one.
-if [ -f ${SDE_CONTAINER_ROOT_DIR}/scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash ]; then
-  source ${SDE_CONTAINER_ROOT_DIR}/scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash
+# Source the shell configuration of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash' in the core or in an extension, if the platform has one.
+SDE_SHELL_SCRIPT_PATH="$(sde-find-extension-file "scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash")"
+if [ -n "${SDE_SHELL_SCRIPT_PATH}" ]; then
+  source ${SDE_SHELL_SCRIPT_PATH}
 fi
 
 ################################################################################

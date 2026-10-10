@@ -31,9 +31,9 @@ echo "Chrony service restarted on the host machine."
 
 ################################################################################
 
-# Run the Chrony script of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/restart-chrony-service.bash', if the platform has one.
-SDE_CHRONY_SCRIPT_PATH="${SDE_ROOT_DIR}/scripts/${SDE_ROBOT_PLATFORM}/restart-chrony-service.bash"
-if [ -f "${SDE_CHRONY_SCRIPT_PATH}" ]; then
+# Run the Chrony script of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/restart-chrony-service.bash' in the core or in an extension, if the platform has one.
+SDE_CHRONY_SCRIPT_PATH="$(sde-find-extension-file "scripts/${SDE_ROBOT_PLATFORM}/restart-chrony-service.bash")"
+if [ -n "${SDE_CHRONY_SCRIPT_PATH}" ]; then
   bash "${SDE_CHRONY_SCRIPT_PATH}"
 else
   echo "No robot Chrony restart is configured for the '${SDE_ROBOT_PLATFORM}' platform."

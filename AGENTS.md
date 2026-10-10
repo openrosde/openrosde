@@ -112,13 +112,15 @@ Record a change of a topic name, a message type, a port, or the launch file that
   - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
   - `hsr_catkin_ws/`: HSR workspace (`sde_hsr_launch/`, `sde_hsr_behaviors/`).
   - `user_catkin_ws/`: User overlay workspace (`sde_user_launch/`, `sde_user_behaviors/`). Platform-agnostic, apart from the Coarobo demo work (FastSAM and the Coarobo Viewport streams of the UR5e) that waits there for its extraction.
-- `scripts/`: Shared shell scripts (`load-sde-env.bash`, `list-robot-platforms.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each platform in `scripts/<platform>/`.
+- `scripts/`: Shared shell scripts (`load-sde-env.bash`, `load-extension-paths.bash`, `list-robot-platforms.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each platform in `scripts/<platform>/`.
 - `patches/`: Patches of the Git submodules, mirroring the submodule paths.
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`) plus `user.env` (user overlay reference template).
+- `extensions/`: Extensions, each a Git repository cloned into `extensions/<extension>/` and ignored by the Git of the core, apart from `README.md`.
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
   - `user-overlay.md`: User overlay (Layer 3) usage and customization.
+  - `extensions.md`: Extensions cloned into `extensions/`, and how the SDE finds their files.
   - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`, `hsr.md`).
 - `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`, `hsr.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline (`gitlab-ci.yml`), image push script (`PUSH-DOCKER-IMAGE.bash`), and runner setup script (`SETUP-GITLAB-RUNNER.bash`).
@@ -137,8 +139,10 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
 - Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`, `cobotta-devel`, `hsr-devel`) extend the base with robot-specific packages.
 - A user overlay image (`user-devel`) extends the selected platform image and is the actual runtime container. It is platform-agnostic and built locally only (never pushed to the registry).
-- Three Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`), platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`), then user overlay (`user_catkin_ws`).
-- All scripts derive their behavior from `SDE_ROBOT_PLATFORM` loaded via `scripts/load-sde-env.bash`.
+- The Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`), platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`), the workspaces of the active extensions, then user overlay (`user_catkin_ws`).
+- All scripts derive their behavior from `SDE_ROBOT_PLATFORM` and `SDE_ROBOT_EXTENSIONS` loaded via `scripts/load-sde-env.bash`.
+- A platform lives in the core or in an extension cloned into `extensions/`, and `scripts/load-extension-paths.bash` resolves where its files are, on the host and inside the container alike (see `docs/extensions.md`).
+  A file named after a platform is looked up in the core first, then in every cloned extension, while workspaces and Docker Compose overlays only come from the platform and the extensions of `SDE_ROBOT_EXTENSIONS`.
 
 ### Configuration System
 
@@ -211,12 +215,15 @@ Number: 15 (`terminal29`) is standardized across all platforms and both environm
 
 All custom environment variables use the `SDE_` prefix. Examples:
 - `SDE_ROBOT_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`, `fetch`).
+- `SDE_ROBOT_EXTENSIONS`: Folder names of the active extensions in `extensions/`, separated by spaces.
+- `SDE_DOCKER_REGISTRY`: Registry of the base and platform images (`registry.gitlab.com/coarobo/sde` by default).
 - `SDE_CONTAINER_ROOT_DIR`: SDE root path inside the Docker container.
 - `SDE_ROOT_DIR`: SDE root path on the host (auto-resolved, not in `.env`).
 - `SDE_DOCKER_PROJECT`: Docker project name for container naming.
 - `SDE_DOCKER_CONTAINER`: Derived container name (`sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1`).
 - `SDE_USER_ID` / `SDE_GROUP_ID`: Host user/group IDs passed to the container.
 - `SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA` / `SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA`: Git commit hashes for image traceability.
+- `SDE_ROBOT_PLATFORM_DOCKERFILE`: Derived path of the platform Dockerfile, relative to the SDE root, in the core or in an extension.
 
 ## Code Style
 
@@ -464,6 +471,7 @@ Current patches:
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full step-by-step guide.
 The platforms are found by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `SDE_ROBOT_PLATFORM=<platform>`, and the rest of the extension system of the [OpenRoSDE Split](#openrosde-split) (#38) changes this section again.
+A new platform goes either into the core or into an extension repository of its own with the same layout, cloned into `extensions/` (see `docs/extensions.md`), where it needs no registration at all.
 When adding a platform named `<platform>`, create these files:
 
 - `env/<platform>.env`: environment template, which declares `SDE_ROBOT_PLATFORM=<platform>`.
@@ -514,7 +522,7 @@ Then update `<platform>` in the files that still list the platforms:
 
 - The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`).
 - No runner takes the jobs of the project yet, so every pipeline fails until the runner on an office machine of Coarobo is set up, as #37 tracks.
-- Docker images are pushed to `registry.gitlab.com/coarobo/sde/`, which serves them to anyone without a token, so never write a registry token in a script.
+- Docker images are pushed to `SDE_DOCKER_REGISTRY`, `registry.gitlab.com/coarobo/sde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
 - CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
 

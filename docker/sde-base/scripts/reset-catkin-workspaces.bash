@@ -6,10 +6,8 @@
 
 ################################################################################
 
-# Derive the shared, platform-specific, and user catkin workspace paths.
-SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
-SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
-SDE_USER_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/user_catkin_ws"
+# List the Catkin workspaces of the core, the platform, and the active extensions, in order.
+source ${SDE_CONTAINER_ROOT_DIR}/scripts/load-extension-paths.bash ${SDE_CONTAINER_ROOT_DIR}
 
 ################################################################################
 
@@ -23,10 +21,14 @@ rosdep update --rosdistro noetic
 
 ################################################################################
 
-# Remove all Catkin workspace leftovers (all workspaces under ros/).
+# Remove all Catkin workspace leftovers (all workspaces under 'ros/' of the core, then the workspaces of the platform and the active extensions).
+# The core workspaces appear in both lists, so a workspace already cleaned is skipped.
 
-for SDE_WS in ${SDE_CONTAINER_ROOT_DIR}/ros/*_catkin_ws; do
+SDE_CLEANED_CATKIN_WORKSPACES=" "
+for SDE_WS in ${SDE_CONTAINER_ROOT_DIR}/ros/*_catkin_ws "${SDE_CATKIN_WORKSPACE_DIRS[@]}"; do
   [ -d "${SDE_WS}" ] || continue
+  [[ "${SDE_CLEANED_CATKIN_WORKSPACES}" == *" ${SDE_WS} "* ]] && continue
+  SDE_CLEANED_CATKIN_WORKSPACES="${SDE_CLEANED_CATKIN_WORKSPACES}${SDE_WS} "
   echo "Cleaning workspace: ${SDE_WS}"
 
   # Delete unexpected 'catkin_make' artefacts.
@@ -40,19 +42,14 @@ done
 
 ################################################################################
 
-# Initialize and build the shared, platform-specific, and (if present) user workspaces.
+# Initialize the shared, platform-specific, extension, and (if present) user workspaces.
 
-SDE_INIT_WORKSPACES=("${SDE_SHARED_CATKIN_WS}" "${SDE_ROBOT_PLATFORM_CATKIN_WS}")
-if [ -d "${SDE_USER_CATKIN_WS}/src" ]; then
-  SDE_INIT_WORKSPACES+=("${SDE_USER_CATKIN_WS}")
-fi
-
-for SDE_WS in "${SDE_INIT_WORKSPACES[@]}"; do
+for SDE_WS in "${SDE_CATKIN_WORKSPACE_DIRS[@]}"; do
   echo "Initializing workspace: ${SDE_WS}"
   cd ${SDE_WS}/src/ && catkin_init_workspace
 done
 
 ################################################################################
 
-# Build all workspaces (shared, platform-specific, and user).
+# Build all workspaces (shared, platform-specific, extension, and user).
 source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/build-catkin-workspaces.bash

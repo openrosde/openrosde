@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Extensions: a platform, a device, or other packages cloned from a repository of their own into `extensions/`, public or private, whose files `scripts/load-extension-paths.bash` finds by name on the host and inside the container, with `SDE_ROBOT_EXTENSIONS` naming the active ones and `docs/extensions.md` as the guide (#38).
+- `SDE_DOCKER_REGISTRY` sets the registry of the base and platform images in `.env`, in place of `registry.gitlab.com/coarobo/sde` written in the Docker Compose file and the push script (#38).
 - `color_width`, `color_height`, `color_fps`, `depth_width`, `depth_height`, `depth_fps`, and `align_depth` arguments on `realsense_camera_default_realworld.launch`, applied to both UR5e cameras and kept at the upstream `-1` by default, with `align_depth` kept at the upstream `false`.
 - Light streams of both UR5e cameras for Coarobo Viewport in the user overlay (`viewport_streams_ur5e.launch`): a colorized JPEG of each depth image from `depth_colorizer_node.py`, and each point cloud throttled to 5 Hz on a 2 cm voxel grid, plus the FastSAM overlay projected in 3D on the aligned depth, started with FastSAM by `viewport_demo_ur5e.launch`.
 - FastSAM segmentation in the user overlay (`sde_user_launch`), from the `add_segmentation` branch by Hajime Teruoka, with a JPEG copy of the overlay for Coarobo Viewport and `seg_fastsam_ur5e_cameras.launch` for both UR5e cameras, for the ATR Open House 2026 demo.
@@ -21,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The SDE finds the platforms by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `SDE_ROBOT_PLATFORM=<platform>`, and `SWITCH-ROBOT-PLATFORM.bash`, `BUILD-DOCKER-IMAGE.bash`, and `gitlab-ci/PUSH-DOCKER-IMAGE.bash` use it in place of their written lists (#38).
 - The platform-specific parts of `BRINGUP-ROS-ROBOT.bash`, `RESTART-CHRONY-SERVICE.bash`, and `docker/sde-base/scripts/initialize-bash-shell.bash` move to optional scripts in `scripts/<platform>/`, and the launch package is derived as `sde_<platform>_launch` (#38).
+- The Catkin workspaces build and source in the order the platform and the active extensions give them, and `sde-fix-permission-issues` returns the files of every one of them to the host user, the user workspace included (#38).
+- `scripts/apply-submodule-patches.bash` takes the root directory of the repository whose patches it applies, so that every extension patches its own Git submodules (#38).
 - `scripts/load-sde-env.bash` exports every `SDE_*` variable in place of a list per platform, so a new variable of a platform or of the user overlay needs no change of the loader (#38).
 - `AGENTS.md` describes the approved split of the SDE into the OpenRoSDE core and its extensions, the rules that hold during it, the interfaces that Coarobo Sightline and Coarobo Viewport use, the work on `dev`, and the labels of the `coarobo` group, and corrects the Terminator pane numbers, the submodules, and the patches.
 - UR5e documentation cites the camera adapter from PickNik Robotics in the BSD-3-Clause `picknik_accessories` repository, whose `picknik_ur5_realsense_camera_adapter_rev2.STL` the SDE mesh matches byte for byte, with that license next to the mesh, in place of the GrabCAD page, whose terms forbid redistribution.
