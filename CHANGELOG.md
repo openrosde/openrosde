@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `gitlab-ci/SETUP-GITLAB-RUNNER.bash` registers the runner with a runner authentication token starting with `glrt-`, as the runner creation workflow of GitLab 16.0 and later expects, and can be run again without installing or registering anything twice.
 - `gitlab-ci/gitlab-ci.yml` pins the Docker CLI image and the Docker-in-Docker service to `29.8.1` instead of `latest`, as GitLab recommends.
 
+### Security
+
+- `BUILD-DOCKER-IMAGE.bash` no longer logs in to the GitLab registry with a read-only deploy token written in the script, since the registry of the public project serves its images to anyone, and that token is revoked.
+
 ## [2.12.0] - 2026-07-09
 
 ### Added

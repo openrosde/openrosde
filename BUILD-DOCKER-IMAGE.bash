@@ -51,9 +51,7 @@ elif [[ "${SDE_DOCKER_PROJECT}" == "local" ]]; then
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-platform
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde
 else
-  # Login into the GitLab Docker registry using a read-only deploy token.
-  echo "Login into 'registry.gitlab.com' using a read-only deploy token."
-  docker login -u "<deploy-token-user>" --password-stdin registry.gitlab.com/coarobo/sde
+  # The registry of the public project needs no login, so the images are pulled anonymously.
   # Try to pull from registry, fall back to build with cache if pull fails.
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull sde-base
   if [[ "$?" -ne "0" ]]; then
