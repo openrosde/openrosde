@@ -6,6 +6,7 @@ This file contains instructions for AI coding agents working on this project.
 
 This project is the open-source reference implementation of the Software Development Environment (SDE) for collaborative robotics research (see `README.md` for details).
 It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch, Sciurus17, COBOTTA, HSR) through a shared configuration system.
+It is being split into OpenRoSDE, a platform-agnostic core with extensions, as [OpenRoSDE Split](#openrosde-split) describes, so read that section before changing anything.
 
 ### Tool Chain
 
@@ -23,8 +24,63 @@ It provides a containerized, multi-platform development environment based on Doc
 - CI/CD: [GitLab CI](https://docs.gitlab.com/ee/ci/).
 - Repository: [Git](https://git-scm.com/) (versioning), [GitLab](https://about.gitlab.com/) (hosting).
 - Editor: [VS Code](https://code.visualstudio.com/).
-- Agent: [GitHub Copilot](https://github.com/features/copilot).
-- License: [MIT](LICENSE).
+- Agents: [Claude Code](https://claude.com/claude-code), [GitHub Copilot](https://github.com/features/copilot).
+- License: [MIT](LICENSE), until the move to GitHub as OpenRoSDE under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+## OpenRoSDE Split
+
+On 2026-10-10 the maintainers approved the split of the SDE into OpenRoSDE, read "Open Robotic SDE": a platform-agnostic open core, with platforms, devices, and extensions around it, composed into setups.
+The steps are tracked as issues #37 to #42 of the `Split the SDE into the OpenRoSDE core and its extensions` milestone (%5), and the ROS 2 work in the `Run OpenRoSDE on ROS 2 beside ROS 1` milestone (%3).
+The reasoning and the full plan live in the maintainers' notes, which are not public: `Shin-Coarobo SDE Split` holds the plan and `Shin-Coarobo OpenRoSDE` the state of the work.
+
+### Target Shape
+
+- The core keeps the entry scripts, `scripts/`, `gitlab-ci/`, the `sde-base` image, the generic Docker Compose files, and `ros/sde_catkin_ws/` with FlexBE and `sde_launch`.
+- Every file named after a platform (`env/<platform>.env`, `docker/<platform>-devel/`, `docker/docker-compose-<platform>.yaml`, `ros/<platform>_catkin_ws/`, `terminator/<platform>.config`, `docs/robot-platforms/<platform>.md`, and its patches) moves to the repository of that platform, or to a device or a setup where it belongs to one.
+- A platform is one robot as sold, with its public drivers, and each canonical robot moves to an `openrosde-platform-<name>` repository: `turtlebot3`, `fetch`, `sciurus17`, `cobotta`, `hsr`, and the plain Universal Robots UR5e.
+- A device is one piece of hardware anyone can buy, such as a gripper, a camera, or an input device, which names no robot and moves to a public `openrosde-device-<name>` repository: first the OnRobot RG grippers with the gripper action shim, the Intel RealSense cameras, and the 3Dconnexion SpaceMouse.
+- A setup is one installation of a robot: it pins its platform, devices, and extensions, mounts the devices in the robot description, and holds the calibration, addresses, serial numbers, poses, layouts, and runbook of that installation alone.
+  Each platform ships a default setup with the plain robot, and the user selects a setup rather than a platform.
+- The Coarobo UR5e bench becomes the first setup, `coarobo-setup-ur5e-office`, owned by Coarobo, and the setup of a client takes the same shape in a private repository of its own.
+- The bindings of Coarobo Sightline and Coarobo Viewport and the FastSAM segmentation move to extensions owned by Coarobo.
+- The Unity ROS TCP Endpoint leaves the core once Coarobo Sightline reaches robots through `rosbridge`, and moves with the Sightline bindings until then.
+- `sde_launch:rosbridge_server_default.launch` stays in the core, since any web or Unity client can use it.
+- The user layer stays in the core as the template every extension starts from.
+- Terminator gives way to `tmux` sessions built by one core script from the panes each part declares, as part of the extension system (#38).
+- The repository then moves to GitHub as OpenRoSDE under the Apache License 2.0, with a `NOTICE` that keeps the MIT notice of the earlier code, and the GitLab URL keeps resolving, since papers cite it.
+- ROS 2 then comes beside ROS 1 and never replaces it, since robots such as the Fetch run only on ROS 1.
+
+### Rules During the Split
+
+- Keep every platform building and running on ROS 1 at every step, since the Coarobo UR5e bench runs its demos from `dev`.
+- Add no new Coarobo setup or product binding to the core or to a canonical platform layer.
+  Until its repository exists, put it in the user layer, or in the UR5e layer for the bench, and add it to the matching extraction issue.
+- Design every mechanism so that a private setup or extension, cloned from a private repository of a client, works exactly as a public one does.
+  Hard-code no Git group, registry, or host, and give the setups and extensions of Coarobo no special case.
+- Keep `LICENSE` and the `<license>` of every `package.xml` on MIT until the move to GitHub, and change them only as part of that step.
+- Keep the interfaces that Coarobo products use working through every step, as [Interfaces Used by Coarobo Products](#interfaces-used-by-coarobo-products) lists.
+
+### Interfaces Used by Coarobo Products
+
+Coarobo Sightline and Coarobo Viewport reach the robot through the interfaces below, started by the files named beside them.
+The contract is kept in `Docs/robot-interface.md` of `coarobo/coarobo-sightline`, a private repository, and in the maintainers' `Shin-Coarobo SDE Split` note.
+Record a change of a topic name, a message type, a port, or the launch file that starts one of them in both places before making it.
+
+- `/joint_states`, `/tf`, `/tf_static`, and `clock`: the bringup of each platform.
+- `/servo_server/delta_twist_cmds`: MoveIt Servo, started by `sde_ur5e_teleop/launch/ur5e_teleop.launch`.
+- `/gripper_controller/gripper_action`: the bench shim `ur5e_onrobot_rg_control_gripper_action.py` over `/onrobot_rg/set_command`.
+- `/wrist_camera/depth/color/points_downsampled` and `/wrist_camera/color/image_raw/compressed_throttled`: `sde_ur5e_teleop/launch/ur5e_teleop_sightline.launch`.
+- `/cmd_vel` for Coarobo Viewport: `ur5e_moveit_servo_viewport.py` of `ur5e_teleop_viewport.launch`.
+- The camera streams of Coarobo Viewport: `sde_user_launch/launch/viewport_streams_ur5e.launch` and `viewport_demo_ur5e.launch`.
+- `fetch_ee_cmd_vel`, relayed to the Cartesian twist controller of the Fetch: `sde_fetch_teleop`, started by `fetch_teleop_default.launch`.
+- Port `10000` of the Unity ROS TCP Endpoint `0.7.0`: `sde_launch:ros_tcp_endpoint_default.launch`.
+- Port `9090` of `rosbridge`: `sde_launch:rosbridge_server_default.launch`.
+
+### Parallel Work
+
+- Coarobo Sightline (`coarobo/coarobo-sightline`) and Coarobo Viewport (`coarobo/coarobo-viewport`) are developed in their own repositories, often by other agents at the same time as one working here.
+- An agent working here owns this repository and the extension repositories of the split, and leaves those two repositories to their own sessions.
+- Coarobo Sightline is moving from the Unity ROS TCP Endpoint to `rosbridge`, which Coarobo Viewport already uses, so that it no longer depends on the SDE and runs on ROS 1 and ROS 2 alike.
 
 ## Directory Structure
 
@@ -48,15 +104,16 @@ It provides a containerized, multi-platform development environment based on Doc
   - `docker-compose-hsr.yaml`: HSR platform overlay.
   - `docker-compose-user.yaml`: User overlay (always loaded by `RUN-DOCKER-CONTAINER.bash`).
 - `ros/`: ROS Catkin workspaces.
-  - `sde_catkin_ws/`: Shared workspace (FlexBE packages).
+  - `sde_catkin_ws/`: Shared workspace (FlexBE packages, `ros_tcp_endpoint`, `sde_launch/`).
   - `turtlebot3_catkin_ws/`: TurtleBot3 workspace (`sde_turtlebot3_launch/`, `sde_turtlebot3_behaviors/`).
   - `ur5e_catkin_ws/`: UR5e workspace (`sde_ur5e_launch/`, `sde_ur5e_teleop/`, `sde_ur5e_behaviors/`).
-  - `fetch_catkin_ws/`: Fetch workspace (`sde_fetch_launch/`, `sde_fetch_behaviors/`).
+  - `fetch_catkin_ws/`: Fetch workspace (`sde_fetch_launch/`, `sde_fetch_teleop/`, `sde_fetch_behaviors/`).
   - `sciurus17_catkin_ws/`: Sciurus17 workspace (`sde_sciurus17_launch/`, `sde_sciurus17_behaviors/`).
   - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
   - `hsr_catkin_ws/`: HSR workspace (`sde_hsr_launch/`, `sde_hsr_behaviors/`).
-  - `user_catkin_ws/`: User overlay workspace (`sde_user_launch/`, `sde_user_behaviors/`). Platform-agnostic.
-- `scripts/`: Shared shell scripts (`load-sde-env.bash`).
+  - `user_catkin_ws/`: User overlay workspace (`sde_user_launch/`, `sde_user_behaviors/`). Platform-agnostic, apart from the Coarobo demo work (FastSAM and the Coarobo Viewport streams of the UR5e) that waits there for its extraction.
+- `scripts/`: Shared shell scripts (`load-sde-env.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`).
+- `patches/`: Patches of the Git submodules, mirroring the submodule paths.
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`) plus `user.env` (user overlay reference template).
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
@@ -64,7 +121,7 @@ It provides a containerized, multi-platform development environment based on Doc
   - `user-overlay.md`: User overlay (Layer 3) usage and customization.
   - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`, `hsr.md`).
 - `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`, `hsr.config`).
-- `gitlab-ci/`: GitLab CI/CD pipeline scripts.
+- `gitlab-ci/`: GitLab CI/CD pipeline (`gitlab-ci.yml`), image push script (`PUSH-DOCKER-IMAGE.bash`), and runner setup script (`SETUP-GITLAB-RUNNER.bash`).
 
 ## Agent Persona
 
@@ -125,8 +182,8 @@ Components:
 
 `SDE_USER_*` defaults live in the top-level `.env` and in every per-platform `env/*.env` template (so platform switching does not erase the user-overlay defaults).
 `scripts/load-sde-env.bash` exports each `SDE_USER_*` variable so it can be interpolated by `docker-compose-user.yaml`.
-The user overlay reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${SDE_ROBOT_PLATFORM}.config`, and Number 13 (`terminal26`) of every platform layout is pre-wired to the user-overlay starter (`sde_user_launch:user_example_default.launch`).
-The remaining spare panes (Numbers 8-12) are free shells reserved for additional user-overlay launches.
+The user overlay reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${SDE_ROBOT_PLATFORM}.config`, and Number 12 (`terminal25`) of every platform layout is pre-wired to the user-overlay starter (`sde_user_launch:user_example_default.launch`).
+The remaining spare panes (Numbers 8-11) are free shells reserved for additional user-overlay launches.
 
 ### Terminator Layouts
 
@@ -144,9 +201,10 @@ The bottom-left 4 terminals are standardized across all platforms and both envir
 - `terminal9` (Number: 6): MoveIt (or navigation, depending on platform).
 - `terminal10` (Number: 7): FlexBE app (`sde_launch:flexbe_app_default.launch`), on all platforms and in both gazebo and realworld layouts.
 The top-right pair (`terminal13` / `terminal14`, Numbers: 2 / 3) is used for platform-specific secondary launches (e.g., gripper control, teleop, mapping).
-Spare terminals (Numbers: 8–12) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 8 in the UR5e realworld layout).
-Number: 13 (`terminal26`) is standardized across all platforms and both environments for `sde_user_launch:user_example_default.launch` (user overlay starter).
-Number: 14 (`terminal28`) is standardized across all platforms and both environments for `sde_launch:rqt_suite_default.launch`.
+Spare terminals (Numbers: 8-11) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 8 and `sde_user_launch:viewport_demo_ur5e.launch` at Number: 9 in the UR5e realworld layout).
+Number: 12 (`terminal25`) is standardized across all platforms and both environments for `sde_user_launch:user_example_default.launch` (user overlay starter).
+Number: 13 (`terminal26`) is standardized across all platforms and both environments for `sde_launch:rqt_suite_default.launch`.
+Number: 14 (`terminal28`) is standardized across all platforms and both environments for `sde_launch:ros_tcp_endpoint_default.launch` (Unity ROS TCP Endpoint for Coarobo Sightline).
 Number: 15 (`terminal29`) is standardized across all platforms and both environments for `sde_launch:rosbridge_server_default.launch`.
 
 ### Variable Naming Convention
@@ -385,7 +443,7 @@ The Dockerfile installs their system dependencies via `apt-get`, and the package
 All submodules use `ignore = dirty` in `.gitmodules`.
 
 Current submodules:
-- Shared (`sde_catkin_ws`): `flexbe_behavior_engine`, `flexbe_app`, `flexbe_generic_states`.
+- Shared (`sde_catkin_ws`): `flexbe_behavior_engine`, `flexbe_app`, `flexbe_generic_states`, `ros_tcp_endpoint` (Unity ROS TCP Endpoint, branch `main`, wrapped by `sde_launch/scripts/ros_tcp_endpoint_server.py`).
 - UR5e (`ur5e_catkin_ws`): `onrobot`, `roboticsgroup_upatras_gazebo_plugins`.
 - Fetch (`fetch_catkin_ws`): `fetch_gazebo` (branch `gazebo11`, provides `fetch_gazebo` and `fetch_gazebo_demo`).
 - Sciurus17 (`sciurus17_catkin_ws`): `sciurus17_ros` (branch `master`, ROS 1), `sciurus17_description` (branch `main`, dependency package used by ROS 1 setup).
@@ -399,10 +457,13 @@ Current patches:
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0002-fix-gripper-pid-gain.patch`: Uncomments the `joint_gripper` PID gain entry in `gazebo_cobotta_control.yaml` to eliminate a `gazebo_ros_control` error when spawning the robot with `gripper_type:=parallel` in Gazebo.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0003-fix-blender-mesh-materials.patch`: Sets `ambient` to `0.5 0.5 0.5 1` and `emission` to `0.04 0.04 0.04 1` in 6 Blender-exported Collada mesh files (`J4.dae`, `gripper_base.dae`, `left_finger.dae`, `right_finger.dae`, `pad.dae`, `vacuum.dae`) to fix black rendering under OGRE/Mesa caused by explicit `ambient: 0 0 0 1`.
 - `patches/ros/cobotta_catkin_ws/src/denso_cobotta_ros/0004-add-srdf-named-states.patch`: Adds `home` (j3=π/2, all others=0) and `up` (j2=−π/4, j3=π/2, j5=π/4) named group states to `cobotta.srdf.xacro` for the `arm` group, enabling `SrdfStateToMoveit` FlexBE states to drive the arm to pre-defined configurations.
+- `patches/ros/fetch_catkin_ws/src/fetch_gazebo/0001-add-cartesian-twist-controller.patch`: Adds `arm_controller/cartesian_twist` to `default_controllers.yaml` of `fetch_gazebo` and loads it in Gazebo, for `sde_fetch_teleop` to drive from Coarobo Sightline.
+- `patches/ros/ur5e_catkin_ws/src/onrobot/0001-fix-duplicate-world.patch`: Comments out the `world` link and its joint in `onrobot_rg2.xacro`, which duplicate the `world` link of the UR5e description.
 
 ## Adding a New Platform
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full step-by-step guide.
+The extension system of the [OpenRoSDE Split](#openrosde-split) replaces the hand-written platform lists below with discovery by name, and this section changes with it.
 When adding a platform named `<platform>`, create these files:
 
 - `env/<platform>.env`: environment template.
@@ -445,10 +506,17 @@ And update `<platform>` in every platform-aware file:
 - Verify Catkin workspaces build inside the container with `sde-reset-catkin-workspaces`.
 - Check for hardcoded paths: `grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .`
 
+## Real Robots
+
+- Never publish a topic, call a service or an action, or start a node or a launch file that can move a real robot or its gripper, unless a person is with the robot and has asked for it.
+- Check a change in Gazebo first, and leave the test on the real robot to a person standing by it.
+- The Coarobo UR5e bench runs its demos from `dev`, so a change merged into `dev` reaches a real robot.
+
 ## Deployment Considerations
 
 - The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`).
-- Docker images are pushed to `registry.gitlab.com/coarobo/sde/`.
+- No runner takes the jobs of the project yet, so every pipeline fails until the runner on an office machine of Coarobo is set up, as #37 tracks.
+- Docker images are pushed to `registry.gitlab.com/coarobo/sde/`, which serves them to anyone without a token, so never write a registry token in a script.
 - CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`).
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
 
@@ -466,14 +534,20 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md#gitlab-project-organization) for the ful
 
 Agent rules:
 
-- Default branch is `main`. All MRs target `main`. There is no long-lived `devel` branch.
-- Feature branches are short-lived, kebab-case, verb-first (e.g., `add-myrobot-platform`, `fix-cobotta-gripper-pid`, `docs-update-readme`). Branch from the latest `main`.
+- Default branch is `main`, which holds the releases.
+  `dev` is the protected integration branch, where agents work and from which the Coarobo UR5e bench runs its demos.
+- Short-lived branches are named `<type>/<slug>` after the Conventional Commit type (e.g., `feat/atr-open-house-demo`, `fix/registry-anonymous-pull`), branch from the latest `dev`, and merge back into `dev` through an MR.
+- `dev` merges into `main` through an MR when the maintainers decide that a release is due.
+- Where `CONTRIBUTING.md` still describes a single trunk on `main` or other labels, this section is the current one.
+- Ask the maintainer before every `git add`, commit, merge, rebase, reset, push, or branch deletion, and show the diff first.
+- Never stash, reset, restore, check out over, or clean work that someone else left in a working tree.
+- End every commit an agent writes with a `Co-authored-by: <agent and model> <noreply address>` trailer after a blank line, as [GitHub documents it](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/creating-a-commit-with-multiple-authors), while the maintainer stays the author.
 - Commit messages and MR titles use Conventional Commits: `type(scope): subject`.
   - Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
   - Scope is a platform name only: `turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`. Omit the scope entirely for cross-platform or repository-wide changes.
   - Subject is imperative, lowercase, no trailing period.
 - MR descriptions follow the structure documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#merge-requests). Sections: Summary, Changes, Testing, Related, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
-- Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues with labels (`bug`, `feature`, `docs`, `chore`, `question`, `platform::<name>`).
+- Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues and MRs with the labels of the `coarobo` group (`default:bug`, `default:enhancement`, `default:documentation`, `default:discussion`, `default:critical`, `default:suggestion`, `default:support`, `default:confirmed`, `custom:hardware`, `custom:administration`).
 - Milestones are long-lived thematic epics with a verb-first descriptive title (e.g., `Refactor the SDE into a multi-platform reference implementation`), not per-release versions. A release belongs to the epic milestone that contains its work.
 - Every MR adds a one-line entry under the matching subsection of `## [Unreleased]` in `CHANGELOG.md`, referencing its MR number (e.g., `- Add HSR platform support (!42).`).
 - Releases are tagged `vX.Y.Z` on `main` and published on GitLab via `glab release create`, with notes sourced from the matching `CHANGELOG.md` section and linked to their epic milestone. Note that `glab release create --milestone` closes the linked milestone, so reopen the epic afterward with `glab api -X PUT "projects/:id/milestones/:milestone_id" -f "state_event=activate"`.
