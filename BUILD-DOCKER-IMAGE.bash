@@ -35,9 +35,10 @@ fi
 # Otherwise, try to pull from registry, fall back to build with cache if pull fails.
 if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
   # Build all platform images from scratch without cache.
+  # The platforms are found by name, as 'scripts/list-robot-platforms.bash' lists them.
   # The user overlay ('sde' service) is built locally on top of each platform.
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
-  for SDE_PLATFORM in turtlebot3 ur5e fetch sciurus17 cobotta hsr; do
+  for SDE_PLATFORM in $(bash ./scripts/list-robot-platforms.bash); do
     export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
     export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
     echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."

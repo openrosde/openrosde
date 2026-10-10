@@ -170,6 +170,8 @@ RESTART-CHRONY-SERVICE.bash              # Host and robot clock sync script.
 SWITCH-ROBOT-PLATFORM.bash               # Platform switching script.
 scripts/
   load-sde-env.bash                      # Shared environment loader.
+  list-robot-platforms.bash              # Lists the platforms found by name.
+  <platform>/                            # Optional platform scripts (shell, bringup, Chrony).
 docker/
   docker-compose.yaml                    # Docker service definitions.
   docker-compose-turtlebot3.yaml         # TurtleBot3 platform overlay.

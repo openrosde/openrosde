@@ -5,30 +5,33 @@
 # Usage: bash ./SWITCH-ROBOT-PLATFORM.bash <robot-platform>
 #
 # <robot-platform>: The target robot platform to switch to.
-#                   Available platforms are listed in the 'env/' directory.
+#                   Available platforms are found by name, as 'scripts/list-robot-platforms.bash' lists them.
 
 ################################################################################
+
+# List the available platforms, found by name.
+SDE_AVAILABLE_PLATFORM_NAMES="$(bash ./scripts/list-robot-platforms.bash)"
 
 # Validate the required argument.
 if [ -z "$1" ]; then
   echo "Usage: bash ./SWITCH-ROBOT-PLATFORM.bash <robot-platform>"
   echo ""
   echo "Available platforms:"
-  for SDE_ENV_FILE in ./env/*.env; do
-    echo "  - $(basename "${SDE_ENV_FILE}" .env)"
+  for SDE_PLATFORM_NAME in ${SDE_AVAILABLE_PLATFORM_NAMES}; do
+    echo "  - ${SDE_PLATFORM_NAME}"
   done
   exit 1
 fi
 
 ################################################################################
 
-# Verify the platform template exists.
-if [ ! -f "./env/$1.env" ]; then
-  echo "Error: Platform template 'env/$1.env' not found."
+# Verify the platform is one of the available platforms.
+if ! echo "${SDE_AVAILABLE_PLATFORM_NAMES}" | grep -qxF "$1"; then
+  echo "Error: Platform '$1' not found."
   echo ""
   echo "Available platforms:"
-  for SDE_ENV_FILE in ./env/*.env; do
-    echo "  - $(basename "${SDE_ENV_FILE}" .env)"
+  for SDE_PLATFORM_NAME in ${SDE_AVAILABLE_PLATFORM_NAMES}; do
+    echo "  - ${SDE_PLATFORM_NAME}"
   done
   exit 1
 fi

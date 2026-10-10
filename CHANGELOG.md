@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The SDE finds the platforms by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `SDE_ROBOT_PLATFORM=<platform>`, and `SWITCH-ROBOT-PLATFORM.bash`, `BUILD-DOCKER-IMAGE.bash`, and `gitlab-ci/PUSH-DOCKER-IMAGE.bash` use it in place of their written lists (#38).
+- The platform-specific parts of `BRINGUP-ROS-ROBOT.bash`, `RESTART-CHRONY-SERVICE.bash`, and `docker/sde-base/scripts/initialize-bash-shell.bash` move to optional scripts in `scripts/<platform>/`, and the launch package is derived as `sde_<platform>_launch` (#38).
+- `scripts/load-sde-env.bash` exports every `SDE_*` variable in place of a list per platform, so a new variable of a platform or of the user overlay needs no change of the loader (#38).
 - `AGENTS.md` describes the approved split of the SDE into the OpenRoSDE core and its extensions, the rules that hold during it, the interfaces that Coarobo Sightline and Coarobo Viewport use, the work on `dev`, and the labels of the `coarobo` group, and corrects the Terminator pane numbers, the submodules, and the patches.
 - UR5e documentation cites the camera adapter from PickNik Robotics in the BSD-3-Clause `picknik_accessories` repository, whose `picknik_ur5_realsense_camera_adapter_rev2.STL` the SDE mesh matches byte for byte, with that license next to the mesh, in place of the GrabCAD page, whose terms forbid redistribution.
 - The `default-realworld` UR5e Terminator layout preloads the Coarobo Viewport demo: the teleop with `input_source:=spacemouse_viewport_sightline`, the cameras at 640 by 480 and 15 fps with the depth aligned to color, and `sde_user_launch:viewport_demo_ur5e.launch` in Number 9, while the `default-gazebo` layout preloads the teleop with `input_source:=spacemouse`.
@@ -26,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `SWITCH-ROBOT-PLATFORM.bash` no longer offers the user overlay template `user` as a platform (#38).
 - `sde_launch:ros_tcp_endpoint_default.launch` runs the Unity ROS TCP Endpoint through `ros_tcp_endpoint_server.py`, which adds the `__remove_subscriber`, `__remove_publisher`, `__remove_ros_service`, and `__remove_unity_service` system commands missing from the ROS 1 endpoint `0.7.0`, so Coarobo Sightline no longer loses its connection for two seconds when it drops its last subscription on a topic, as when a sensor layer is turned off or an alignment starts.
 - UR5e documentation and configuration comments name the wrist camera an Intel RealSense D435, as mounted on the robot, instead of a D435i.
 - `gitlab-ci/SETUP-GITLAB-RUNNER.bash` registers the runner with a runner authentication token starting with `glrt-`, as the runner creation workflow of GitLab 16.0 and later expects, and can be run again without installing or registering anything twice.

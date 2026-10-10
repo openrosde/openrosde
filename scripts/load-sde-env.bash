@@ -33,61 +33,23 @@ SDE_DOCKER_CONTAINER="sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1"
 
 ################################################################################
 
-# Export shared SDE variables so that they can be interpolated in 'docker-compose.yaml'.
-export SDE_USER_ID="$(id -u)"
-export SDE_GROUP_ID="$(id -g)"
-export SDE_ROBOT_PLATFORM
-export SDE_CONTAINER_ROOT_DIR
-export SDE_DOCKER_PROJECT
-export SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/sde-base/Dockerfile)"
-export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
-export SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/user-devel/Dockerfile)"
+# Derive the user and group IDs and the Dockerfile commit hashes that 'docker-compose.yaml' passes to the images.
+SDE_USER_ID="$(id -u)"
+SDE_GROUP_ID="$(id -g)"
+SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/sde-base/Dockerfile)"
+SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
+SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/user-devel/Dockerfile)"
 
-# Export user overlay variables so that they can be interpolated in 'docker-compose-user.yaml'.
-export SDE_USER_EXAMPLE_VAR
-
-# Export platform-specific variables so that they can be interpolated in 'docker-compose-${SDE_ROBOT_PLATFORM}.yaml'.
-if [ "${SDE_ROBOT_PLATFORM}" = "ur5e" ]; then
-  export SDE_UR5E_TEACH_PENDANT_IP
-  export SDE_ONROBOT_COMPUTE_BOX_IP
-  export SDE_UR5E_ENABLE_EXTERNAL_CAMERA
-  export SDE_UR5E_WRIST_CAMERA_SERIAL_NO
-  export SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO
-  export SDE_UR5E_EXTERNAL_CAMERA_X
-  export SDE_UR5E_EXTERNAL_CAMERA_Y
-  export SDE_UR5E_EXTERNAL_CAMERA_Z
-  export SDE_UR5E_EXTERNAL_CAMERA_ROLL
-  export SDE_UR5E_EXTERNAL_CAMERA_PITCH
-  export SDE_UR5E_EXTERNAL_CAMERA_YAW
-fi
+# Export every 'SDE_*' variable, so that the Docker Compose files of the core, of the platform, and of the user overlay can interpolate it, and the platform scripts in 'scripts/<platform>/' can read it.
+for SDE_VARIABLE_NAME in $(compgen -v SDE_); do
+  export "${SDE_VARIABLE_NAME}"
+done
+unset SDE_VARIABLE_NAME
 
 ################################################################################
 
-# Print shared SDE variables for debugging purposes.
-echo "$0: SDE_USER_ID=${SDE_USER_ID}"
-echo "$0: SDE_GROUP_ID=${SDE_GROUP_ID}"
-echo "$0: SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}"
-echo "$0: SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}"
-echo "$0: SDE_DOCKER_PROJECT=${SDE_DOCKER_PROJECT}"
-echo "$0: SDE_DOCKER_CONTAINER=${SDE_DOCKER_CONTAINER}"
-echo "$0: SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}"
-echo "$0: SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}"
-echo "$0: SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}"
-
-# Print user overlay variables for debugging purposes.
-echo "$0: SDE_USER_EXAMPLE_VAR=${SDE_USER_EXAMPLE_VAR}"
-
-# Print platform-specific variables for debugging purposes.
-if [ "${SDE_ROBOT_PLATFORM}" = "ur5e" ]; then
-  echo "$0: SDE_UR5E_TEACH_PENDANT_IP=${SDE_UR5E_TEACH_PENDANT_IP}"
-  echo "$0: SDE_ONROBOT_COMPUTE_BOX_IP=${SDE_ONROBOT_COMPUTE_BOX_IP}"
-  echo "$0: SDE_UR5E_ENABLE_EXTERNAL_CAMERA=${SDE_UR5E_ENABLE_EXTERNAL_CAMERA}"
-  echo "$0: SDE_UR5E_WRIST_CAMERA_SERIAL_NO=${SDE_UR5E_WRIST_CAMERA_SERIAL_NO}"
-  echo "$0: SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO=${SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO}"
-  echo "$0: SDE_UR5E_EXTERNAL_CAMERA_X=${SDE_UR5E_EXTERNAL_CAMERA_X}"
-  echo "$0: SDE_UR5E_EXTERNAL_CAMERA_Y=${SDE_UR5E_EXTERNAL_CAMERA_Y}"
-  echo "$0: SDE_UR5E_EXTERNAL_CAMERA_Z=${SDE_UR5E_EXTERNAL_CAMERA_Z}"
-  echo "$0: SDE_UR5E_EXTERNAL_CAMERA_ROLL=${SDE_UR5E_EXTERNAL_CAMERA_ROLL}"
-  echo "$0: SDE_UR5E_EXTERNAL_CAMERA_PITCH=${SDE_UR5E_EXTERNAL_CAMERA_PITCH}"
-  echo "$0: SDE_UR5E_EXTERNAL_CAMERA_YAW=${SDE_UR5E_EXTERNAL_CAMERA_YAW}"
-fi
+# Print every 'SDE_*' variable for debugging purposes.
+for SDE_VARIABLE_NAME in $(compgen -v SDE_ | sort); do
+  echo "$0: ${SDE_VARIABLE_NAME}=${!SDE_VARIABLE_NAME}"
+done
+unset SDE_VARIABLE_NAME
