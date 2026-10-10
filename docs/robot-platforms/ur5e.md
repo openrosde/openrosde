@@ -11,7 +11,7 @@ Platform-specific documentation for the [Universal Robots UR5e](https://www.univ
 - Osaka University Harada Laboratory OnRobot ROS: [https://github.com/UOsaka-Harada-Laboratory/onrobot](https://github.com/UOsaka-Harada-Laboratory/onrobot)
 - Intel RealSense ROS: [https://github.com/realsenseai/realsense-ros](https://github.com/realsenseai/realsense-ros)
 - ROS spacenav_node: [https://wiki.ros.org/spacenav_node](https://wiki.ros.org/spacenav_node)
-- PickNik Robotics UR5 RealSense Camera Adapter: [https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1)
+- PickNik Robotics UR5 RealSense Camera Adapter: [https://github.com/PickNikRobotics/picknik_accessories/blob/main/descriptions/brackets/ur_realsense_camera_adapter/picknik_ur5_realsense_camera_adapter_rev2.STL](https://github.com/PickNikRobotics/picknik_accessories/blob/main/descriptions/brackets/ur_realsense_camera_adapter/picknik_ur5_realsense_camera_adapter_rev2.STL)
 
 ## 🔩 Hardware Overview
 
@@ -19,7 +19,7 @@ The Universal Robots UR5e platform consists of the following components:
 
 - **Robot arm:** [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) collaborative robot (serial number: `XXXXXXXXXXX`).
 - **Gripper:** [OnRobot RG2](https://onrobot.com/products/rg2) electric parallel gripper, mounted on an [OnRobot Quick Changer](https://onrobot.com/products/quick-changer) (Robot Side 109498 QC-R v3), itself attached to the Universal Robots UR5e tool flange.
-- **Wrist camera:** Intel RealSense D435 depth camera, mounted between the Universal Robots UR5e tool flange and the OnRobot Quick Changer using a [camera adapter from PickNik Robotics](https://grabcad.com/library/moveit-studio-ur5-realsense-camera-adapter-from-picknik-robotics-1).
+- **Wrist camera:** Intel RealSense D435 depth camera, mounted between the Universal Robots UR5e tool flange and the OnRobot Quick Changer using a [camera adapter from PickNik Robotics](https://github.com/PickNikRobotics/picknik_accessories/blob/main/descriptions/brackets/ur_realsense_camera_adapter/picknik_ur5_realsense_camera_adapter_rev2.STL).
 - **External camera:** [Intel RealSense D435i](https://www.intelrealsense.com/depth-camera-d435i/) depth camera, mounted on a fixed stand to provide an environment view of the workspace.
 - **Gripper controller:** OnRobot Compute Box from the OnRobot Robot Kit, connected to the gripper via the OnRobot Quick Changer and to the network via Ethernet.
   It communicates with the Ubuntu development machine over Modbus TCP (port `502`).

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- UR5e documentation cites the camera adapter from PickNik Robotics in the BSD-3-Clause `picknik_accessories` repository, whose `picknik_ur5_realsense_camera_adapter_rev2.STL` the SDE mesh matches byte for byte, with that license next to the mesh, in place of the GrabCAD page, whose terms forbid redistribution.
 - The `default-realworld` UR5e Terminator layout preloads the Coarobo Viewport demo: the teleop with `input_source:=spacemouse_viewport_sightline`, the cameras at 640 by 480 and 15 fps with the depth aligned to color, and `sde_user_launch:viewport_demo_ur5e.launch` in Number 9, while the `default-gazebo` layout preloads the teleop with `input_source:=spacemouse`.
 - The default pose of the UR5e external camera matches the Coarobo setup measured on 2026-10-07 (`x=-0.10`, `y=0.35`, `z=0.10`, level, yaw `-2.35619`) in `env/ur5e.env`, the launch file fallbacks, the xacro defaults, and the documentation.
 
