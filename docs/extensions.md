@@ -31,6 +31,7 @@ extensions/<extension>/
   env/<setup>.env                        # Setup template, which declares 'SDE_ROBOT_SETUP=<setup>', its platform, and its extensions (setups only).
   env/<setup>.repos                      # Repositories of the setup for 'vcstool' (setups only).
   docker/<platform>-devel/Dockerfile     # Platform image, built on 'sde-base' (platforms only).
+  docker/<name>-devel/Dockerfile         # Docker layer of a device or an extension, built on the image below it (optional).
   docker/docker-compose-<name>.yaml      # Docker Compose overlay: environment variables, volumes, devices.
   ros/<name>_catkin_ws/src/              # One or more Catkin workspaces.
   scripts/<platform>/                    # Optional platform scripts (shell, bringup, Chrony), as for the core.
@@ -49,6 +50,7 @@ extensions/<extension>/
 - The extensions listed in `SDE_ROBOT_EXTENSIONS` are the active ones, and the extensions that hold the active platform and the active setup are always active.
 - The Catkin workspaces are built and sourced in this order: `ros/sde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `SDE_ROBOT_EXTENSIONS`, the workspaces of the setup, then `ros/user_catkin_ws` of the core.
 - `RUN-DOCKER-CONTAINER.bash` adds every `docker/docker-compose*.yaml` of the active extensions after the overlay of the platform.
+- `BUILD-DOCKER-IMAGE.bash` builds every `docker/<name>-devel/Dockerfile` of the active extensions whose `<name>` is not a platform, each on top of the previous one, between the platform image and the user overlay, as the next section shows.
 - `bash ./scripts/update-git-submodules.bash` updates the Git submodules of the core and of every cloned extension, and applies the `patches/` of each repository to its own submodules.
 
 > [!NOTE]
@@ -90,6 +92,34 @@ A file named after the setup takes precedence over the file named after its plat
 
 > [!NOTE]
 > A `.env.custom` written before setups existed declares no setup, so the SDE uses its platform as the setup and keeps its platform files.
+
+## 🐳 Docker Layers
+
+A device or an extension that needs system packages, such as the driver of a camera, holds a Docker layer in `docker/<name>-devel/Dockerfile`, built on the image below it:
+
+```dockerfile
+# Inherit from the image below this layer, given by 'BUILD-DOCKER-IMAGE.bash'.
+ARG SDE_PARENT_IMAGE
+FROM ${SDE_PARENT_IMAGE}
+
+# Install the system dependencies of the extension.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  ros-noetic-realsense2-camera \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Embed the commit hash of this Dockerfile for traceability.
+ARG SDE_DOCKERFILE_COMMIT_SHORT_SHA
+```
+
+The layers stack in the order of the active folders, so the image of a setup reads from the bottom up:
+
+```
+sde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel  ->  <setup>-devel  ->  user-devel
+```
+
+- Each layer is built from the folder of its extension, so its `COPY` instructions read from there.
+- The layers are always built locally by `BUILD-DOCKER-IMAGE.bash`, in both its default and `local` modes, and never pushed, like the user overlay, so the layers of a private extension never leave the machine.
+- The CI build of all platforms (`gitlab-ci` mode) builds no layer, since layers belong to a setup.
 
 ## 🚀 Using an Extension
 
@@ -142,5 +172,4 @@ Set `SDE_DOCKER_REGISTRY` in `.env.custom` to use a registry of your own.
 
 The rest of [#38](https://gitlab.com/coarobo/SDE/-/issues/38) builds on these rules:
 
-- Docker layers of devices and extensions between the platform image and the user overlay.
 - `tmux` sessions built from the panes each part declares, in place of Terminator.

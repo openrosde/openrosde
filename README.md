@@ -100,6 +100,7 @@ flowchart TD
 ```
 
 The Docker image stack has three layers: **Layer 1** (`sde-base`) provides the shared ROS/Gazebo/FlexBE toolchain; **Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `SDE_ROBOT_PLATFORM`; **Layer 3** (`user-devel`) is the user overlay where you add your own packages and customizations without touching the platform images.
+Extensions cloned into `extensions/` can add their own layers between Layers 2 and 3, as the [Extensions](docs/extensions.md) guide explains.
 
 ## 🚀 Quick Start
 
