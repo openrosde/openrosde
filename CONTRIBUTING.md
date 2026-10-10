@@ -209,9 +209,18 @@ Then in `.gitmodules`, set `branch` and `ignore = dirty` for the new submodule.
 If the upstream packages need source-level fixes (e.g., broken XML, missing PID configs), create patch files under `patches/ros/<platform>_catkin_ws/src/<package>/` following the naming convention `NNNN-verb-noun-noun.patch`.
 See [`AGENTS.md`](AGENTS.md#submodule-patches) for the patch workflow.
 
-### Step 6: Create the Terminator Layout
+### Step 6: Create the Tmux Panes and the Terminator Layout
 
-Create `terminator/<platform>.config` by copying the closest existing config:
+Create `tmux/<platform>.panes` with the panes of the platform in its `tmux` session, one per line, following `tmux/ur5e.panes`:
+
+```shell
+default-gazebo     robot  <platform>_bringup_default_gazebo.launch
+default-gazebo     robot  <platform>_rviz_default.launch
+default-realworld  robot  <platform>_bringup_default_realworld.launch
+```
+
+The core adds its own windows (`tools`, `user`, `host`) from `tmux/sde.panes`.
+Until `tmux` replaces Terminator, also create the matching Terminator layout, `terminator/<platform>.config`, by copying the closest existing config:
 
 ```shell
 cp terminator/cobotta.config terminator/<platform>.config

@@ -111,6 +111,13 @@ sudo apt-get update && sudo apt-get install -y \
   vcstool
 
 ################################################################################
+
+# Install 'tmux', which 'RUN-TMUX-SESSION.bash' runs the terminals of the SDE in.
+# https://github.com/tmux/tmux/wiki
+sudo apt-get update && sudo apt-get install -y \
+  tmux
+
+################################################################################
 # Local user environment setup (no 'sudo' required).
 ################################################################################
 

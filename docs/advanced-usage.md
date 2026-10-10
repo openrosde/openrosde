@@ -27,8 +27,24 @@ Including, but not limited to:
 
 ## 🖥️ Multiple Terminal Operation
 
-You can simultaneously run multiple terminals using `RUN-TERMINATOR-TERMINAL.bash`.
-This script opens [Terminator](https://gnometerminator.blogspot.com/) with the platform-specific layout configuration stored in `terminator/${SDE_ROBOT_PLATFORM}.config`.
+You can simultaneously run multiple terminals in a [`tmux`](https://github.com/tmux/tmux/wiki) session using `RUN-TMUX-SESSION.bash`:
+
+```shell
+bash ./RUN-TMUX-SESSION.bash #[docker-project] #[session-layout]
+```
+
+The session gathers the panes that the platform, the active extensions, the setup, and the core declare in `tmux/<name>.panes`, one window per group: `robot` for the bringup, RViz, and MoveIt of the platform, `tools` for the FlexBE app, the rqt suite, and the bridges, `user` for the user overlay and a container shell, and `host` for a shell on the Ubuntu development machine.
+`[session-layout]` selects the panes of a layout, `default-gazebo` by default or `default-realworld` for the real robot.
+
+- Click a pane or a window to select it, and scroll with the wheel, since the session turns the mouse on.
+- Press `Ctrl+b` then `d` to detach from the session, which keeps running, and run the same command again to attach to it, from the same machine or over SSH.
+- Run `tmux kill-session -t sde-<platform>-<docker-project>` to close the session and every terminal in it.
+
+Each line of a pane file reads `<layouts> <window> <launch-file> [<arg:=value> ...]`, where `<layouts>` is `*` or a comma-separated list, and the words `shell` and `host` open a shell in the container or on the host.
+
+> [!NOTE]
+> `RUN-TERMINATOR-TERMINAL.bash` still opens the same terminals in [Terminator](https://gnometerminator.blogspot.com/) with the layout stored in `terminator/${SDE_ROBOT_PLATFORM}.config`, until `tmux` replaces it for good.
+
 Each sub-terminal automatically executes `RUN-DOCKER-CONTAINER.bash` with a predefined ROS launch file for convenience.
 You can then select execution options by pressing specific keys, as shown in the example below:
 

@@ -18,7 +18,7 @@ It is being split into OpenRoSDE, a platform-agnostic core with extensions, as [
 - Visualization: [Rviz](https://github.com/ros-visualization/rviz).
 - Behavior Engine: [FlexBE](http://flexbe.github.io/).
 - Build System: [catkin](https://wiki.ros.org/catkin) (via `catkin build`).
-- Multi-Terminal: [Terminator](https://gnometerminator.blogspot.com/).
+- Multi-Terminal: [tmux](https://github.com/tmux/tmux/wiki), and [Terminator](https://gnometerminator.blogspot.com/) until `tmux` replaces it.
 - Scripting: [Bash](https://www.gnu.org/software/bash/).
 - Configuration: `.env` / `.env.custom` files.
 - CI/CD: [GitLab CI](https://docs.gitlab.com/ee/ci/).
@@ -46,7 +46,7 @@ The reasoning and the full plan live in the maintainers' notes, which are not pu
 - The Unity ROS TCP Endpoint leaves the core once Coarobo Sightline reaches robots through `rosbridge`, and moves with the Sightline bindings until then.
 - `sde_launch:rosbridge_server_default.launch` stays in the core, since any web or Unity client can use it.
 - The user layer stays in the core as the template every extension starts from.
-- Terminator gives way to `tmux` sessions built by one core script from the panes each part declares, as part of the extension system (#38).
+- Terminator gives way to `tmux` sessions built by `RUN-TMUX-SESSION.bash` from the panes each part declares, and leaves once the maintainers have run the `tmux` sessions on a real robot (#38).
 - The repository then moves to GitHub as OpenRoSDE under the Apache License 2.0, with a `NOTICE` that keeps the MIT notice of the earlier code, and the GitLab URL keeps resolving, since papers cite it.
 - ROS 2 then comes beside ROS 1 and never replaces it, since robots such as the Fetch run only on ROS 1.
 
@@ -122,6 +122,7 @@ Record a change of a topic name, a message type, a port, or the launch file that
   - `user-overlay.md`: User overlay (Layer 3) usage and customization.
   - `extensions.md`: Extensions cloned into `extensions/`, and how the SDE finds their files.
   - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`, `hsr.md`).
+- `tmux/`: Pane files of the `tmux` sessions: `sde.panes` for the core and `<platform>.panes` for each platform.
 - `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`, `hsr.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline (`gitlab-ci.yml`), image push script (`PUSH-DOCKER-IMAGE.bash`), and runner setup script (`SETUP-GITLAB-RUNNER.bash`).
 
@@ -192,6 +193,15 @@ Components:
 `scripts/load-sde-env.bash` exports every `SDE_*` variable, the `SDE_USER_*` ones included, so it can be interpolated by `docker-compose-user.yaml`.
 The user overlay reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${SDE_ROBOT_PLATFORM}.config`, and Number 12 (`terminal25`) of every platform layout is pre-wired to the user-overlay starter (`sde_user_launch:user_example_default.launch`).
 The remaining spare panes (Numbers 8-11) are free shells reserved for additional user-overlay launches.
+
+### Tmux Sessions
+
+`RUN-TMUX-SESSION.bash [docker-project] [session-layout]` runs the terminals in a `tmux` session named `sde-<platform>-<docker-project>`, or attaches to it if it already runs.
+The session gathers the pane files of the platform (`tmux/<platform>.panes`), of the active extensions and the setup (every `tmux/*.panes` of their folders), then of the core (`tmux/sde.panes`), and opens a window on the first pane of each window name.
+Each line of a pane file reads `<layouts> <window> <launch-file> [<arg:=value> ...]`, where `<layouts>` is `*` or a comma-separated list of layouts (`default-gazebo`, `default-realworld`, or a layout of a setup), and the words `shell` and `host` open a shell in the container or on the host.
+The windows are `robot` (bringup, RViz, MoveIt, and the secondary launches of the platform), `extra` (further launches of the platform), the windows of the extensions and the setup, `tools` (FlexBE app, rqt suite, ROS TCP Endpoint, `rosbridge`), `user` (user overlay starter and a container shell), and `host`.
+The session turns the mouse on and titles the terminal `SDE (<session>)`, which `maximize-app-window.bash` matches like the Terminator title.
+Until Terminator is retired, keep `tmux/<platform>.panes` in step with `terminator/<platform>.config`, since the platform pane files were generated from the Terminator layouts.
 
 ### Terminator Layouts
 
@@ -484,7 +494,8 @@ When adding a platform named `<platform>`, create these files:
 - `docker/docker-compose-<platform>.yaml`: Docker Compose overlay.
 - `ros/<platform>_catkin_ws/src/sde_<platform>_launch/`: ROS launch package (5 launch files, `package.xml`, `CMakeLists.txt`, `README.md`, `.gitignore`).
 - `ros/<platform>_catkin_ws/src/sde_<platform>_behaviors/`: FlexBE behaviors package (two sub-packages: `sde_<platform>_flexbe_behaviors/` and `sde_<platform>_flexbe_states/`, plus `README.md` and `.gitignore`).
-- `terminator/<platform>.config`: Terminator layouts.
+- `tmux/<platform>.panes`: panes of the `tmux` session.
+- `terminator/<platform>.config`: Terminator layouts, until `tmux` replaces them.
 - `docs/robot-platforms/<platform>.md`: platform documentation.
 - `scripts/<platform>/initialize-bash-shell.bash` (optional): shell configuration sourced inside the container by `docker/sde-base/scripts/initialize-bash-shell.bash`.
 - `scripts/<platform>/bringup-ros-robot.bash` (optional): robot bringup run by `BRINGUP-ROS-ROBOT.bash` with the ROS master host name.
@@ -507,7 +518,8 @@ Then update `<platform>` in the files that still list the platforms:
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Switch setup: `bash ./SWITCH-ROBOT-SETUP.bash <setup>` (clones the repositories of `env/<setup>.repos` with `vcstool`, then selects the setup).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
-- Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash`.
+- Run `tmux` session: `bash ./RUN-TMUX-SESSION.bash [docker-project] [session-layout]`.
+- Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash` (until `tmux` replaces it).
 - Restart Chrony service: `bash ./RESTART-CHRONY-SERVICE.bash` (resyncs host and robot clocks via Chrony).
 - Bringup robot: `bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname>` (SSH into the robot and launch bringup nodes).
 - Push Docker images: `bash gitlab-ci/PUSH-DOCKER-IMAGE.bash` (uses `docker logout`/`docker login` to force re-authentication).

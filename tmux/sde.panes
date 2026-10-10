@@ -1,0 +1,11 @@
+# Panes of the core for 'RUN-TMUX-SESSION.bash', in the windows 'tools', 'user', and 'host' of every session, after the windows of the platform, the extensions, and the setup.
+# Each line reads '<layouts> <window> <launch-file> [<arg:=value> ...]', where '<layouts>' is '*' or a comma-separated list such as 'default-gazebo,default-realworld'.
+# The word 'shell' opens a shell inside the Docker container, and the word 'host' opens a shell on the Ubuntu development machine.
+
+*  tools  sde_launch:flexbe_app_default.launch
+*  tools  sde_launch:rqt_suite_default.launch
+*  tools  sde_launch:ros_tcp_endpoint_default.launch
+*  tools  sde_launch:rosbridge_server_default.launch
+*  user   sde_user_launch:user_example_default.launch
+*  user   shell
+*  host   host
