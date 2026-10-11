@@ -33,9 +33,9 @@ variables:
 
 default:
   image: docker:29.8.1-cli
+  # GitLab names the service 'docker' after its image, which 'DOCKER_HOST' reaches.
   services:
-    - name: docker:29.8.1-dind
-      alias: docker
+    - docker:29.8.1-dind
   # The tag selects the runner: 'privileged-docker' for the runner of the office, or the tag of an instance runner of GitLab.com, set when the pipeline runs.
   tags:
     - $SDE_CI_RUNNER_TAG
