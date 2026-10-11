@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script builds the Catkin workspaces of one platform in the CI, inside a container of the platform image of the pipeline.
+# This script builds the Catkin workspaces of one platform in the CI, inside a container of the platform image of the pipeline, then checks that every launch entry point of its 'tmux' sessions resolves, with 'check-launch-files.bash'.
 # The repository goes into the container through 'docker cp', rather than a bind mount, since the Docker-in-Docker daemon cannot see the files of the job on every runner.
 # On failure, the Catkin logs are copied to 'ci-logs/' for the artifacts of the job.
 #
@@ -22,13 +22,13 @@ bash ./scripts/apply-submodule-patches.bash "${PWD}"
 
 ################################################################################
 
-# Create the container, copy the repository into it, then reset and build the workspaces.
+# Create the container, copy the repository into it, then reset and build the workspaces, and check the launch entry points.
 docker create \
   --name "${SDE_CI_CONTAINER_NAME}" \
   --env "SDE_ROBOT_PLATFORM=$1" \
   --env "SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}" \
   "${SDE_CI_IMAGE_NAME}" \
-  bash ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspaces.bash || exit 1
+  bash -c "bash ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspaces.bash && bash ${SDE_CONTAINER_ROOT_DIR}/gitlab-ci/check-launch-files.bash $1" || exit 1
 docker cp "${PWD}/." "${SDE_CI_CONTAINER_NAME}:${SDE_CONTAINER_ROOT_DIR}/" || exit 1
 docker start --attach "${SDE_CI_CONTAINER_NAME}"
 SDE_CI_EXIT_CODE=$?

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Setups: a template `env/<setup>.env` that declares `SDE_ROBOT_SETUP=<setup>` with its platform and extensions, in the core or in an extension, which `SWITCH-ROBOT-SETUP.bash` selects after cloning the repositories of its `env/<setup>.repos` with `vcstool`, and whose own files and scripts take precedence over those of the platform (#38).
 - `SETUP-DEVEL-MACHINE.bash` installs `vcstool` (#38).
 - `RUN-TMUX-SESSION.bash` runs the terminals in a `tmux` session, with the mouse on and one window per group of panes, which the platform, the active extensions, the setup, and the core declare in `tmux/<name>.panes`, and `SETUP-DEVEL-MACHINE.bash` installs `tmux` (#38).
+- The CI checks that every launch entry point of the `tmux` sessions of each platform resolves with `roslaunch --files`, which starts no node, after its Catkin workspaces build (#30).
 - A new CI pipeline: a parent pipeline generates a child pipeline of one image job and one test job per platform found by name, each image built only when the hash of its folders changed and otherwise retagged on the registry, the Catkin workspaces of every platform built inside its image, and the images published as `dev` and `main` from those branches (#37).
 - The CI hands every image through the registry with Docker-in-Docker over TLS and lets every artifact expire, so the same pipeline runs on a self-managed runner and on the instance runners of GitLab.com, which `SDE_CI_RUNNER_TAG` selects (#37).
 - `SDE_DOCKER_IMAGE_TAG` selects the `main` or `dev` images, and derives the tag from the branch by default (#37).
@@ -51,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `build-catkin-workspaces.bash` ends with a failure status when a workspace fails to build, which `reset-catkin-workspaces.bash` passes on, so the CI and `sde-reset-catkin-workspaces` no longer report success over a broken package (#30).
 - `SWITCH-ROBOT-PLATFORM.bash` no longer offers the user overlay template `user` as a platform (#38).
 - `sde_launch:ros_tcp_endpoint_default.launch` runs the Unity ROS TCP Endpoint through `ros_tcp_endpoint_server.py`, which adds the `__remove_subscriber`, `__remove_publisher`, `__remove_ros_service`, and `__remove_unity_service` system commands missing from the ROS 1 endpoint `0.7.0`, so Coarobo Sightline no longer loses its connection for two seconds when it drops its last subscription on a topic, as when a sensor layer is turned off or an alignment starts.
 - UR5e documentation and configuration comments name the wrist camera an Intel RealSense D435, as mounted on the robot, instead of a D435i.
