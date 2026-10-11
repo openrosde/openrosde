@@ -16,6 +16,13 @@
 # Name the image, its tag in this pipeline, and the hash of its sources.
 SDE_CI_IMAGE_NAME="${CI_REGISTRY_IMAGE}/$1"
 SDE_CI_PIPELINE_TAG="pipeline-${CI_PIPELINE_ID}"
+
+# Tag the images of a branch other than 'dev' and 'main' as 'branch-<branch>' too, so that the next pipeline of the branch reuses them, until the cleanup policy removes the tag a few days later.
+if [ "${CI_COMMIT_REF_SLUG}" = "dev" ] || [ "${CI_COMMIT_REF_SLUG}" = "main" ]; then
+  SDE_CI_BRANCH_TAG=""
+else
+  SDE_CI_BRANCH_TAG="branch-${CI_COMMIT_REF_SLUG}"
+fi
 SDE_CI_SOURCE_HASH="$(for SDE_CI_SOURCE_DIR in ${3//,/ }; do git rev-parse "HEAD:${SDE_CI_SOURCE_DIR}"; done | sha256sum | cut -c1-40)"
 echo "Image '$1' from '$3' has the source hash '${SDE_CI_SOURCE_HASH}'."
 
@@ -23,12 +30,15 @@ echo "Image '$1' from '$3' has the source hash '${SDE_CI_SOURCE_HASH}'."
 
 # Reuse the image of the current branch, then of 'dev', then of 'main', if its source hash matches.
 # 'docker buildx imagetools' reads only the manifest and the configuration from the registry, and retags on the registry itself.
-for SDE_CI_CANDIDATE_TAG in "${CI_COMMIT_REF_SLUG}" dev main; do
+for SDE_CI_CANDIDATE_TAG in ${SDE_CI_BRANCH_TAG} dev main; do
   SDE_CI_CANDIDATE_HASH="$(docker buildx imagetools inspect "${SDE_CI_IMAGE_NAME}:${SDE_CI_CANDIDATE_TAG}" --format '{{ index .Image.Config.Labels "com.coarobo.sde.source-hash" }}' 2>/dev/null)"
   if [ "${SDE_CI_CANDIDATE_HASH}" = "${SDE_CI_SOURCE_HASH}" ]; then
     echo "Reusing '${SDE_CI_IMAGE_NAME}:${SDE_CI_CANDIDATE_TAG}', whose sources are identical."
-    docker buildx imagetools create --tag "${SDE_CI_IMAGE_NAME}:${SDE_CI_PIPELINE_TAG}" "${SDE_CI_IMAGE_NAME}:${SDE_CI_CANDIDATE_TAG}"
-    exit $?
+    docker buildx imagetools create --tag "${SDE_CI_IMAGE_NAME}:${SDE_CI_PIPELINE_TAG}" "${SDE_CI_IMAGE_NAME}:${SDE_CI_CANDIDATE_TAG}" || exit 1
+    if [ -n "${SDE_CI_BRANCH_TAG}" ] && [ "${SDE_CI_CANDIDATE_TAG}" != "${SDE_CI_BRANCH_TAG}" ]; then
+      docker buildx imagetools create --tag "${SDE_CI_IMAGE_NAME}:${SDE_CI_BRANCH_TAG}" "${SDE_CI_IMAGE_NAME}:${SDE_CI_PIPELINE_TAG}" || exit 1
+    fi
+    exit 0
   fi
 done
 
@@ -52,5 +62,6 @@ docker buildx build \
   --label "org.opencontainers.image.source=${CI_PROJECT_URL}" \
   --file "$2" \
   --tag "${SDE_CI_IMAGE_NAME}:${SDE_CI_PIPELINE_TAG}" \
+  ${SDE_CI_BRANCH_TAG:+--tag "${SDE_CI_IMAGE_NAME}:${SDE_CI_BRANCH_TAG}"} \
   --push \
   .
