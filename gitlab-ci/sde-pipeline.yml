@@ -50,11 +50,22 @@ default:
 
 ################################################################################
 
+# Run the jobs in every kind of pipeline, merge request pipelines included.
+# A job without 'rules' keeps the default of 'only: [branches, tags]', which leaves it out of the child of a merge request pipeline and leaves that child empty.
+# https://docs.gitlab.com/ci/jobs/job_rules/
+
+.sde-every-pipeline:
+  rules: &sde-every-pipeline
+    - when: on_success
+
+################################################################################
+
 # Build or reuse the base image, which takes hours to build from scratch on a small runner.
 
 build-base-image-job:
   stage: base-stage
   timeout: 4h
+  rules: *sde-every-pipeline
   script:
     - bash ./gitlab-ci/build-ci-image.bash sde-base docker/sde-base/Dockerfile docker/sde-base SDE_CONTAINER_ROOT_DIR=/root/SDE
 
@@ -65,6 +76,7 @@ build-base-image-job:
 .build-platform-image:
   stage: platform-stage
   timeout: 2h
+  rules: *sde-every-pipeline
   needs:
     - build-base-image-job
   script:
@@ -83,6 +95,7 @@ build-base-image-job:
 .test-catkin-workspaces:
   stage: test-stage
   timeout: 2h
+  rules: *sde-every-pipeline
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
