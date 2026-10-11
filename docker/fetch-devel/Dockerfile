@@ -4,7 +4,7 @@
 ################################################################################
 
 # Inherit from the SDE base image which provides all common tools.
-ARG SDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:latest
+ARG SDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:main
 FROM ${SDE_BASE_IMAGE}
 
 ################################################################################

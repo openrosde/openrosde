@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Setups: a template `env/<setup>.env` that declares `SDE_ROBOT_SETUP=<setup>` with its platform and extensions, in the core or in an extension, which `SWITCH-ROBOT-SETUP.bash` selects after cloning the repositories of its `env/<setup>.repos` with `vcstool`, and whose own files and scripts take precedence over those of the platform (#38).
 - `SETUP-DEVEL-MACHINE.bash` installs `vcstool` (#38).
 - `RUN-TMUX-SESSION.bash` runs the terminals in a `tmux` session, with the mouse on and one window per group of panes, which the platform, the active extensions, the setup, and the core declare in `tmux/<name>.panes`, and `SETUP-DEVEL-MACHINE.bash` installs `tmux` (#38).
+- A new CI pipeline: a parent pipeline generates a child pipeline of one image job and one test job per platform found by name, each image built only when the hash of its folders changed and otherwise retagged on the registry, the Catkin workspaces of every platform built inside its image, and the images published as `dev` and `main` from those branches (#37).
+- The CI hands every image through the registry with Docker-in-Docker over TLS and lets every artifact expire, so the same pipeline runs on a self-managed runner and on the instance runners of GitLab.com, which `SDE_CI_RUNNER_TAG` selects (#37).
+- `SDE_DOCKER_IMAGE_TAG` selects the `main` or `dev` images, and derives the tag from the branch by default (#37).
 - Docker layers of extensions: every `docker/<name>-devel/Dockerfile` of an active extension that is not a platform builds locally between the platform image and the user overlay, in the order of the active folders (#38).
 - `SDE_DOCKER_REGISTRY` sets the registry of the base and platform images in `.env`, in place of `registry.gitlab.com/coarobo/sde` written in the Docker Compose file and the push script (#38).
 - `color_width`, `color_height`, `color_fps`, `depth_width`, `depth_height`, `depth_fps`, and `align_depth` arguments on `realsense_camera_default_realworld.launch`, applied to both UR5e cameras and kept at the upstream `-1` by default, with `align_depth` kept at the upstream `false`.
@@ -36,16 +39,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `default-realworld` UR5e Terminator layout preloads the Coarobo Viewport demo: the teleop with `input_source:=spacemouse_viewport_sightline`, the cameras at 640 by 480 and 15 fps with the depth aligned to color, and `sde_user_launch:viewport_demo_ur5e.launch` in Number 9, while the `default-gazebo` layout preloads the teleop with `input_source:=spacemouse`.
 - The default pose of the UR5e external camera matches the Coarobo setup measured on 2026-10-07 (`x=-0.10`, `y=0.35`, `z=0.10`, level, yaw `-2.35619`) in `env/ur5e.env`, the launch file fallbacks, the xacro defaults, and the documentation.
 
+- `BUILD-DOCKER-IMAGE.bash` pulls the `main` or `dev` images instead of `latest`, which the registry no longer keeps (#37).
+
 ### Deprecated
 
 - `RUN-TERMINATOR-TERMINAL.bash` and `terminator/`, which `RUN-TMUX-SESSION.bash` and `tmux/` replace once the `tmux` sessions have run on a real robot (#38).
+
+### Removed
+
+- `gitlab-ci/PUSH-DOCKER-IMAGE.bash`, `gitlab-ci/SETUP-GITLAB-RUNNER.bash`, and the `gitlab-ci` mode of `BUILD-DOCKER-IMAGE.bash`, since the CI publishes the images itself, and the runner is set up with the infrastructure of whoever runs the CI (#37).
 
 ### Fixed
 
 - `SWITCH-ROBOT-PLATFORM.bash` no longer offers the user overlay template `user` as a platform (#38).
 - `sde_launch:ros_tcp_endpoint_default.launch` runs the Unity ROS TCP Endpoint through `ros_tcp_endpoint_server.py`, which adds the `__remove_subscriber`, `__remove_publisher`, `__remove_ros_service`, and `__remove_unity_service` system commands missing from the ROS 1 endpoint `0.7.0`, so Coarobo Sightline no longer loses its connection for two seconds when it drops its last subscription on a topic, as when a sensor layer is turned off or an alignment starts.
 - UR5e documentation and configuration comments name the wrist camera an Intel RealSense D435, as mounted on the robot, instead of a D435i.
-- `gitlab-ci/SETUP-GITLAB-RUNNER.bash` registers the runner with a runner authentication token starting with `glrt-`, as the runner creation workflow of GitLab 16.0 and later expects, and can be run again without installing or registering anything twice.
 - `gitlab-ci/gitlab-ci.yml` pins the Docker CLI image and the Docker-in-Docker service to `29.8.1` instead of `latest`, as GitLab recommends.
 
 ### Security

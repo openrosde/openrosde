@@ -124,7 +124,7 @@ Record a change of a topic name, a message type, a port, or the launch file that
   - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`, `hsr.md`).
 - `tmux/`: Pane files of the `tmux` sessions: `sde.panes` for the core and `<platform>.panes` for each platform.
 - `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`, `hsr.config`).
-- `gitlab-ci/`: GitLab CI/CD pipeline (`gitlab-ci.yml`), image push script (`PUSH-DOCKER-IMAGE.bash`), and runner setup script (`SETUP-GITLAB-RUNNER.bash`).
+- `gitlab-ci/`: GitLab CI/CD pipeline: the parent `gitlab-ci.yml`, the shared jobs of the child pipeline (`sde-pipeline.yml`), and the scripts that generate it (`generate-ci-pipeline.bash`), build or reuse an image (`build-ci-image.bash`), test the Catkin workspaces (`test-catkin-workspaces.bash`), and publish the images (`publish-ci-images.bash`).
 
 ## Agent Persona
 
@@ -164,8 +164,8 @@ The template of every platform is its default setup and declares `SDE_ROBOT_SETU
 
 `docker-compose.yaml` defines three services:
 - `sde-base` (build-only shared base image, no `container_name`).
-- `sde-platform` (build-only platform-specific image, no `container_name`; image is `<platform>-devel:latest`).
-- `sde` (runtime user-overlay container; image is `user-devel:latest`, inherits from `sde-platform`).
+- `sde-platform` (build-only platform-specific image, no `container_name`; image is `<platform>-devel:${SDE_DOCKER_IMAGE_TAG}`, `main` or `dev`).
+- `sde` (runtime user-overlay container; image is `user-devel:latest`, built locally only, inherits from `sde-platform`).
 
 Always target the `sde` service explicitly with `docker compose up -d sde` to avoid accidentally starting the build-only services, which have no `container_name` and would cause naming conflicts.
 `BUILD-DOCKER-IMAGE.bash` builds all three services in order: `sde-base` -> `sde-platform` -> `sde`. The `user-devel` image is always built locally and is not pushed by `gitlab-ci/PUSH-DOCKER-IMAGE.bash`.
@@ -232,6 +232,7 @@ All custom environment variables use the `SDE_` prefix. Examples:
 - `SDE_ROBOT_SETUP`: Active setup, named after its template `env/<setup>.env` (the platform name for a default setup).
 - `SDE_ROBOT_EXTENSIONS`: Folder names of the active extensions in `extensions/`, separated by spaces.
 - `SDE_DOCKER_REGISTRY`: Registry of the base and platform images (`registry.gitlab.com/coarobo/sde` by default).
+- `SDE_DOCKER_IMAGE_TAG`: Tag of the base and platform images, `main` or `dev`, or `auto` to derive it from the branch.
 - `SDE_CONTAINER_ROOT_DIR`: SDE root path inside the Docker container.
 - `SDE_ROOT_DIR`: SDE root path on the host (auto-resolved, not in `.env`).
 - `SDE_DOCKER_PROJECT`: Docker project name for container naming.
@@ -445,7 +446,9 @@ Platform-specific behavior guidelines:
 
 - Use 80-character `#` lines as section separators.
 - Use `SDE_` prefix for all custom CI variables.
-- Use parallel matrix builds for multi-platform CI jobs.
+- Generate the jobs of every platform in `gitlab-ci/generate-ci-pipeline.bash` rather than listing the platforms by hand.
+- Keep the logic of a job in a script of `gitlab-ci/`, so that the YAML only wires the jobs together.
+- Give every artifact an `expire_in`, and hand images between jobs through the registry, never through the disk of the runner.
 
 ### Submodule Patches
 
@@ -504,16 +507,14 @@ When adding a platform named `<platform>`, create these files:
 The platform scripts run with every `SDE_*` variable exported, and the launch package is always `sde_<platform>_launch`.
 Then update `<platform>` in the files that still list the platforms:
 
-- `gitlab-ci/gitlab-ci.yml`: CI matrix, until the CI runs again (#37) and generates it.
 - `README.md`: platform table, Mermaid diagram, directory structure, docs table.
 - `AGENTS.md`: platform lists, directory structure, submodule list, patch list.
 
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
-  - Default behavior: pulls from registry or builds current platform with cache.
+  - Default behavior: pulls the `main` or `dev` images from the registry, as `SDE_DOCKER_IMAGE_TAG` selects, or builds current platform with cache.
   - `bash ./BUILD-DOCKER-IMAGE.bash local`: builds current platform with cache (fast iteration).
-  - `bash ./BUILD-DOCKER-IMAGE.bash gitlab-ci`: builds all platforms from scratch without cache (CI/CD).
 - Build Catkin workspaces (inside container): `sde-reset-catkin-workspaces` or `sde-build-catkin-workspaces`.
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
 - Switch setup: `bash ./SWITCH-ROBOT-SETUP.bash <setup>` (clones the repositories of `env/<setup>.repos` with `vcstool`, then selects the setup).
@@ -522,7 +523,6 @@ Then update `<platform>` in the files that still list the platforms:
 - Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash` (until `tmux` replaces it).
 - Restart Chrony service: `bash ./RESTART-CHRONY-SERVICE.bash` (resyncs host and robot clocks via Chrony).
 - Bringup robot: `bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname>` (SSH into the robot and launch bringup nodes).
-- Push Docker images: `bash gitlab-ci/PUSH-DOCKER-IMAGE.bash` (uses `docker logout`/`docker login` to force re-authentication).
 
 ## Testing Pipeline
 
@@ -538,11 +538,14 @@ Then update `<platform>` in the files that still list the platforms:
 
 ## Deployment Considerations
 
-- The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`).
-- No runner takes the jobs of the project yet, so every pipeline fails until the runner on an office machine of Coarobo is set up, as #37 tracks.
+- The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`), with a parent pipeline that generates a child pipeline of one image job and one test job per platform found by name.
+- The jobs run on the runner whose tag `SDE_CI_RUNNER_TAG` names, `privileged-docker` by default for a self-managed Docker executor in privileged mode, or the tag of an instance runner of GitLab.com when shared runners are enabled.
+- Jobs hand their images to each other through the registry only, with Docker-in-Docker over TLS, so nothing is kept on the runner between jobs.
+- An image carries the label `com.coarobo.sde.source-hash`, the hash of the folders it is built from, and a job retags an identical `dev` or `main` image on the registry instead of building it again.
+- Every pipeline pushes its images as `pipeline-<id>`, and the pipelines of `dev` and `main` publish them as `dev` and `main`, the only tags the cleanup policy of the registry keeps.
+- Every artifact expires, the Catkin logs of a failed test after a week and the generated child pipeline after a day.
 - Docker images are pushed to `SDE_DOCKER_REGISTRY`, `registry.gitlab.com/coarobo/sde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
-- CI uses parallel matrix builds for all supported platforms (`turtlebot3`, `ur5e`, `fetch`, `sciurus17`, `cobotta`, `hsr`).
-- Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash.
+- Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash, and the labels `org.opencontainers.image.revision` and `org.opencontainers.image.source`.
 
 ## Versioning & Commits
 

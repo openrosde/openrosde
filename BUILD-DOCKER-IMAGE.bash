@@ -6,7 +6,6 @@
 #
 # [docker-project]: Used to name the Docker container and control the build strategy.
 #                   Special values:
-#                   - 'gitlab-ci': Build all platform images without cache (CI/CD pipeline).
 #                   - 'local': Build current platform image with cache (fast iteration on local machine).
 #                   Otherwise, try to pull from registry, fall back to build with cache if pull fails.
 #                   Default value is '$USER'.
@@ -32,7 +31,7 @@ fi
 # Build the Docker layers of the active extensions locally, each on top of the previous one, from the platform image up to the parent of the user overlay.
 # Each layer is built from the folder of its extension, so that its 'COPY' instructions read from there.
 function sde-build-extension-images () {
-  local SDE_PARENT_IMAGE_TAG="${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:latest"
+  local SDE_PARENT_IMAGE_TAG="${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:${SDE_DOCKER_IMAGE_TAG}"
   local SDE_EXTENSION_DOCKERFILE SDE_EXTENSION_ROOT_DIR SDE_EXTENSION_IMAGE_TAG
   for SDE_EXTENSION_DOCKERFILE in "${SDE_EXTENSION_DOCKERFILES[@]}"; do
     SDE_EXTENSION_ROOT_DIR="$(dirname "$(dirname "$(dirname "${SDE_EXTENSION_DOCKERFILE}")")")"
@@ -54,24 +53,10 @@ function sde-build-extension-images () {
 ################################################################################
 
 # Determine build strategy based on the Docker project name.
-# - 'gitlab-ci': Build all platform images without cache (CI/CD pipeline).
 # - 'local': Build current platform image with cache (fast iteration on local machine).
 # Otherwise, try to pull from registry, fall back to build with cache if pull fails.
-if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
-  # Build all platform images from scratch without cache.
-  # The platforms are found by name, as 'scripts/list-robot-platforms.bash' lists them.
-  # The user overlay ('sde' service) is built locally on top of each platform, without the Docker layers of extensions, which belong to a setup.
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
-  for SDE_PLATFORM in $(bash ./scripts/list-robot-platforms.bash); do
-    export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
-    sde-derive-platform-dockerfile "${SDE_ROBOT_PLATFORM}"
-    echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."
-    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-platform --no-cache
-    echo "Building user-devel image on top of ${SDE_ROBOT_PLATFORM}-devel..."
-    export SDE_USER_PARENT_IMAGE="${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:latest"
-    docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde --no-cache
-  done
-elif [[ "${SDE_DOCKER_PROJECT}" == "local" ]]; then
+# The CI builds and publishes the base and platform images itself, as 'gitlab-ci/gitlab-ci.yml' describes.
+if [[ "${SDE_DOCKER_PROJECT}" == "local" ]]; then
   # Build current platform, extension, and user images with cache (fast rebuild for local development).
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-platform

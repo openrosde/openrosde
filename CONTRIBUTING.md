@@ -144,7 +144,7 @@ SDE_ROBOT_SETUP=<platform>
 ```
 
 The template of a platform is its default setup, so it declares its own name as the setup too.
-The first line is how the SDE finds the platform: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares its own name, and `SWITCH-ROBOT-PLATFORM.bash`, `BUILD-DOCKER-IMAGE.bash`, and `gitlab-ci/PUSH-DOCKER-IMAGE.bash` use that list.
+The first line is how the SDE finds the platform: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares its own name, and `SWITCH-ROBOT-PLATFORM.bash` and the CI pipeline use that list.
 
 Update the `SDE_ROBOT_HOSTNAME` comment and value to match your platform's connectivity (SSH hostname, or empty if USB/local).
 Leave all defaults in this file: do not add `${VAR:-default}` fallback syntax in scripts.
@@ -254,14 +254,14 @@ The core scripts run the optional scripts of a platform from `scripts/<platform>
 Each script runs with every `SDE_*` variable that `scripts/load-sde-env.bash` exports.
 The launch package of the platform is always `sde_<platform>_launch`, so it needs no registration.
 
-### Step 9: Register the Platform in the Remaining Lists
+### Step 9: Add the Platform to the Documentation
 
+The scripts and the CI pipeline find the platform by name, so only the documentation lists it by hand.
 Add `<platform>` to every location in the table below.
 Search for an existing platform name (e.g., `cobotta`) to find the exact lines to update:
 
 | File | What to add |
 | --- | --- |
-| `gitlab-ci/gitlab-ci.yml` | Add `<platform>` to the `SDE_ROBOT_PLATFORM:` matrix list |
 | `README.md` | Update the platform table, Mermaid diagram, directory structure, and docs table |
 | `AGENTS.md` | Update all platform lists, directory structure, submodule list, and patch list |
 
