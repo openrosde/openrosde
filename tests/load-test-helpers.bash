@@ -45,6 +45,7 @@ function openrosde-test-create-copy () {
 # Add the stub of one outside command, which logs its call to 'OPENROSDE_TEST_COMMAND_LOG' and succeeds.
 # 'git log' prints a fixed commit, 'git remote get-url origin' prints the URL written in '<clone>/.git/test-origin-url', 'catkin_init_workspace' logs its folder, and any call that contains 'OPENROSDE_TEST_FAILING_CALL' fails.
 # 'git rev-parse --abbrev-ref HEAD' prints 'OPENROSDE_TEST_GIT_BRANCH', and 'git describe' and 'git tag --points-at HEAD' print 'OPENROSDE_TEST_GIT_TAG', with 'git describe' failing when it is empty, as on a commit without a tag.
+# 'git cat-file -e' fails when 'OPENROSDE_TEST_GIT_COMMIT_MISSING' is 'true', as for a commit that the repository does not hold, and 'git show --no-patch' prints a fixed date.
 function openrosde-test-add-stub () {
   cat > "${OPENROSDE_TEST_STUB_DIR}/$1" <<'EOF'
 #!/bin/bash
@@ -69,6 +70,12 @@ case "${OPENROSDE_TEST_STUB_CALL}" in
   "git "*" describe "*)
     [ -n "${OPENROSDE_TEST_GIT_TAG}" ] || exit 128
     echo "${OPENROSDE_TEST_GIT_TAG}"
+    ;;
+  "git "*" cat-file -e "*)
+    [ "${OPENROSDE_TEST_GIT_COMMIT_MISSING}" != "true" ] || exit 1
+    ;;
+  "git "*" show --no-patch "*)
+    echo "Mon Oct 12 09:00:00 2026 +0900"
     ;;
 esac
 if [ -n "${OPENROSDE_TEST_FAILING_CALL}" ] && [[ "${OPENROSDE_TEST_STUB_CALL}" == *"${OPENROSDE_TEST_FAILING_CALL}"* ]]; then

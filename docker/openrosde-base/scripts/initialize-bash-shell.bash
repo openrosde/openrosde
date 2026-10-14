@@ -41,11 +41,16 @@ stty -ixon
 # then show latest commit of the platform-devel folder with 'git log -n 1 --format="%h %aN %s %ad" -- $directory'.
 OPENROSDE_DOCKERFILE_LATEST_HASH=$(git -C ${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%h ./docker/${OPENROSDE_ROBOT_PLATFORM}-devel/Dockerfile)
 OPENROSDE_DOCKERFILE_LATEST_DATE=$(git -C ${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}/ log -n 1 --no-merges --pretty=format:%cd ./docker/${OPENROSDE_ROBOT_PLATFORM}-devel/Dockerfile)
-OPENROSDE_DOCKERFILE_CREATION_DATE=$(git -C ${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}/ show --no-patch --no-notes --pretty='%cd' ${OPENROSDE_DOCKER_IMAGE_VERSION})
 
-echo -e "Container version: ${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_VERSION:0:7} from ${OPENROSDE_DOCKERFILE_CREATION_DATE}"
-if [[ "${OPENROSDE_DOCKERFILE_CREATION_DATE}" != "${OPENROSDE_DOCKERFILE_LATEST_DATE}" ]]; then
-  echo -e "Newer image available: ${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKERFILE_LATEST_HASH} from ${OPENROSDE_DOCKERFILE_LATEST_DATE}"
+# Compare the dates only when the repository of the platform holds the commit embedded in the image, which a platform outside the core or a clone without that commit does not, so that no false 'Newer image available' is shown.
+if git -C ${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}/ cat-file -e "${OPENROSDE_DOCKER_IMAGE_VERSION}^{commit}" 2>/dev/null; then
+  OPENROSDE_DOCKERFILE_CREATION_DATE=$(git -C ${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}/ show --no-patch --no-notes --pretty='%cd' ${OPENROSDE_DOCKER_IMAGE_VERSION})
+  echo -e "Container version: ${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_VERSION:0:7} from ${OPENROSDE_DOCKERFILE_CREATION_DATE}"
+  if [[ "${OPENROSDE_DOCKERFILE_CREATION_DATE}" != "${OPENROSDE_DOCKERFILE_LATEST_DATE}" ]]; then
+    echo -e "Newer image available: ${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKERFILE_LATEST_HASH} from ${OPENROSDE_DOCKERFILE_LATEST_DATE}"
+  fi
+else
+  echo -e "Container version: ${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_VERSION:0:7}"
 fi
 
 ################################################################################

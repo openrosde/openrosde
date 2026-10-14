@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The shell of the container no longer announces a newer image, nor prints a Git error, when the repository of the platform does not hold the commit embedded in the image, as for a platform outside the core (#38).
 - The image of a platform held by an extension or a part builds from the folder of that platform, as the Docker layers do, so the `COPY` instructions of its Dockerfile read from there rather than from the core (#38).
 - A clone that is not active no longer supplies the Docker Compose overlay, the panes, the scripts, or the Terminator layout of the active platform or setup, since a file named after the setup now comes from the folder of the setup, and a file named after the platform from the folder of the platform, then the core (#38).
 - `build-catkin-workspaces.bash` ends with a failure status when a workspace fails to build, which `reset-catkin-workspaces.bash` passes on, so the CI and `openrosde-reset-catkin-workspaces` no longer report success over a broken package (#30).

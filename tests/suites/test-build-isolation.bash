@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This suite checks how the images are pulled and built, and what the entry scripts print.
-# It covers the images that 'OPENROSDE_DOCKER_BUILD_FALLBACK' lets 'BUILD-DOCKER-IMAGE.bash' build when a pull fails, the tag that 'auto' derives from the checkout, the local names of a setup, the values that the loader never prints, and the version of the core that a setup pins.
+# This suite checks how the images are pulled and built, and what the entry scripts and the container shell print.
+# It covers the images that 'OPENROSDE_DOCKER_BUILD_FALLBACK' lets 'BUILD-DOCKER-IMAGE.bash' build when a pull fails, the tag that 'auto' derives from the checkout, the local names of a setup, the values that the loader never prints, the version of the core that a setup pins, and the version check of the container shell.
 #
 # Usage: bash ./tests/run.bash test-build-isolation
 
@@ -142,6 +142,18 @@ OPENROSDE_TEST_GIT_BRANCH=dev OPENROSDE_TEST_GIT_TAG='' openrosde-test-run bash 
 openrosde-test-check "warns about nothing when the setup pins the checked out branch" \
   "0 " \
   "${OPENROSDE_TEST_EXIT_CODE} $(echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Warning:')"
+
+################################################################################
+
+# Check the version of the image that the shell of the container prints, with its commit held by the repository of the platform or not, as for a platform outside the core.
+# The shell reads '.env' of the copy, which names the TurtleBot3 and the root '/root/OpenRoSDE', where the stubbed 'git' answers all the same.
+for OPENROSDE_TEST_COMMIT_MISSING in false true; do
+  OPENROSDE_TEST_GIT_COMMIT_MISSING="${OPENROSDE_TEST_COMMIT_MISSING}" openrosde-test-run bash -c 'export OPENROSDE_CONTAINER_ROOT_DIR="${PWD}" OPENROSDE_DOCKER_IMAGE_VERSION=def5678; source ./docker/openrosde-base/scripts/initialize-bash-shell.bash'
+  OPENROSDE_TEST_SHELL_REPORT="${OPENROSDE_TEST_SHELL_REPORT}missing ${OPENROSDE_TEST_COMMIT_MISSING}: $(echo "${OPENROSDE_TEST_OUTPUT}" | grep -E '^(Container version|Newer image available):' | tr '\n' '|')"$'\n'
+done
+openrosde-test-check "compares the image with the latest Dockerfile only when the repository of the platform holds its commit" \
+  "$(printf '%s\n' "missing false: Container version: turtlebot3-devel:def5678 from Mon Oct 12 09:00:00 2026 +0900|Newer image available: turtlebot3-devel:abc1234 from abc1234|" "missing true: Container version: turtlebot3-devel:def5678|")" \
+  "${OPENROSDE_TEST_SHELL_REPORT%$'\n'}"
 
 ################################################################################
 
