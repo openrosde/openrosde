@@ -141,11 +141,13 @@ Extensions cloned into `extensions/` can add their own layers between Layers 2 a
     sde-initialize-new-container
     ```
 
-6. Exit the container (`Ctrl+d`) and launch the multi-terminal layout from the Ubuntu development machine:
+6. Exit the container (`Ctrl+d`) and launch the multi-terminal session from the Ubuntu development machine:
 
     ```shell
-    bash ./RUN-TERMINATOR-TERMINAL.bash
+    bash ./RUN-TMUX-SESSION.bash
     ```
+
+    The Terminator layout of earlier releases still opens with `bash ./RUN-TERMINATOR-TERMINAL.bash`.
 
 For detailed instructions, see the [Basic Usage](docs/basic-usage.md) guide.
 For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
@@ -165,7 +167,8 @@ env/
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
 RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.
-RUN-TERMINATOR-TERMINAL.bash             # Multi-terminal launcher script.
+RUN-TMUX-SESSION.bash                    # Multi-terminal 'tmux' session script.
+RUN-TERMINATOR-TERMINAL.bash             # Multi-terminal Terminator launcher script (until 'tmux' replaces it).
 BRINGUP-ROS-ROBOT.bash                   # Robot bringup script.
 RESTART-CHRONY-SERVICE.bash              # Host and robot clock sync script.
 SWITCH-ROBOT-PLATFORM.bash               # Platform switching script.
@@ -232,6 +235,9 @@ terminator/
   sciurus17.config                       # Sciurus17 Terminator layout.
   cobotta.config                         # COBOTTA Terminator layout.
   hsr.config                             # HSR Terminator layout.
+tmux/
+  sde.panes                              # Panes of the core in every 'tmux' session.
+  <platform>.panes                       # Panes of each platform in its 'tmux' session.
 patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git).
 gitlab-ci/                               # GitLab CI/CD scripts.

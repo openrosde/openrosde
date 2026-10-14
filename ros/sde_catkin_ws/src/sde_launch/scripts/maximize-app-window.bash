@@ -40,7 +40,7 @@ done
 # A non-blocking lock ensures only one concurrent instance runs this loop at a time.
 # Scripts that cannot acquire the lock skip focus-restore entirely (their window is already maximized).
 # This prevents simultaneous scripts (e.g. RViz, FlexBE, rqt suite) from flickering focus.
-# Match Terminator by its window title 'SDE (' which is shared by all platform layouts (set in terminator/*.config).
+# Match Terminator by its window title 'SDE (' which is shared by all platform layouts (set in terminator/*.config), or the terminal of a 'tmux' session, which 'RUN-TMUX-SESSION.bash' titles 'SDE (<session>)'.
 (
   flock --nonblock 200 || exit 0
   for SDE_FOCUS_ATTEMPT in $(seq 1 5); do

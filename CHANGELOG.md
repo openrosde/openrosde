@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extensions: a platform, a device, or other packages cloned from a repository of their own into `extensions/`, public or private, whose files `scripts/load-extension-paths.bash` finds by name on the host and inside the container, with `SDE_ROBOT_EXTENSIONS` naming the active ones and `docs/extensions.md` as the guide (#38).
 - Setups: a template `env/<setup>.env` that declares `SDE_ROBOT_SETUP=<setup>` with its platform and extensions, in the core or in an extension, which `SWITCH-ROBOT-SETUP.bash` selects after cloning the repositories of its `env/<setup>.repos` with `vcstool`, and whose own files and scripts take precedence over those of the platform (#38).
 - `SETUP-DEVEL-MACHINE.bash` installs `vcstool` (#38).
+- `RUN-TMUX-SESSION.bash` runs the terminals in a `tmux` session, with the mouse on and one window per group of panes, which the platform, the active extensions, the setup, and the core declare in `tmux/<name>.panes`, and `SETUP-DEVEL-MACHINE.bash` installs `tmux` (#38).
 - Docker layers of extensions: every `docker/<name>-devel/Dockerfile` of an active extension that is not a platform builds locally between the platform image and the user overlay, in the order of the active folders (#38).
 - `SDE_DOCKER_REGISTRY` sets the registry of the base and platform images in `.env`, in place of `registry.gitlab.com/coarobo/sde` written in the Docker Compose file and the push script (#38).
 - `color_width`, `color_height`, `color_fps`, `depth_width`, `depth_height`, `depth_fps`, and `align_depth` arguments on `realsense_camera_default_realworld.launch`, applied to both UR5e cameras and kept at the upstream `-1` by default, with `align_depth` kept at the upstream `false`.
@@ -34,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UR5e documentation cites the camera adapter from PickNik Robotics in the BSD-3-Clause `picknik_accessories` repository, whose `picknik_ur5_realsense_camera_adapter_rev2.STL` the SDE mesh matches byte for byte, with that license next to the mesh, in place of the GrabCAD page, whose terms forbid redistribution.
 - The `default-realworld` UR5e Terminator layout preloads the Coarobo Viewport demo: the teleop with `input_source:=spacemouse_viewport_sightline`, the cameras at 640 by 480 and 15 fps with the depth aligned to color, and `sde_user_launch:viewport_demo_ur5e.launch` in Number 9, while the `default-gazebo` layout preloads the teleop with `input_source:=spacemouse`.
 - The default pose of the UR5e external camera matches the Coarobo setup measured on 2026-10-07 (`x=-0.10`, `y=0.35`, `z=0.10`, level, yaw `-2.35619`) in `env/ur5e.env`, the launch file fallbacks, the xacro defaults, and the documentation.
+
+### Deprecated
+
+- `RUN-TERMINATOR-TERMINAL.bash` and `terminator/`, which `RUN-TMUX-SESSION.bash` and `tmux/` replace once the `tmux` sessions have run on a real robot (#38).
 
 ### Fixed
 

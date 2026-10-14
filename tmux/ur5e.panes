@@ -1,0 +1,16 @@
+# Panes of the Universal Robots UR5e platform for 'RUN-TMUX-SESSION.bash', in the windows 'robot' and 'extra' of the session.
+# Each line reads '<layouts> <window> <launch-file> [<arg:=value> ...]', where '<layouts>' is '*' or a comma-separated list such as 'default-gazebo,default-realworld'.
+# The panes of the core, such as the FlexBE app and 'rosbridge', come from 'tmux/sde.panes'.
+
+default-gazebo     robot  ur5e_bringup_default_gazebo.launch
+default-gazebo     robot  ur5e_rviz_default.launch
+default-gazebo     robot  onrobot_rg_control_default_gazebo.launch
+default-gazebo     robot  ur5e_teleop_default_gazebo.launch input_source:=spacemouse
+
+default-realworld  robot  ur5e_bringup_default_realworld.launch
+default-realworld  robot  ur5e_rviz_default.launch
+default-realworld  robot  ur5e_moveit_default_realworld.launch
+default-realworld  robot  onrobot_rg_control_default_realworld.launch
+default-realworld  robot  ur5e_teleop_default_realworld.launch input_source:=spacemouse_viewport_sightline
+default-realworld  extra  realsense_camera_default_realworld.launch color_width:=640 color_height:=480 color_fps:=15 depth_width:=640 depth_height:=480 depth_fps:=15 align_depth:=true
+default-realworld  extra  sde_user_launch:viewport_demo_ur5e.launch

@@ -35,7 +35,8 @@ extensions/<extension>/
   docker/docker-compose-<name>.yaml      # Docker Compose overlay: environment variables, volumes, devices.
   ros/<name>_catkin_ws/src/              # One or more Catkin workspaces.
   scripts/<platform>/                    # Optional platform scripts (shell, bringup, Chrony), as for the core.
-  terminator/<platform>.config           # Terminator layouts of the platform (platforms only).
+  tmux/<name>.panes                      # Panes of the 'tmux' session, in windows of their own.
+  terminator/<platform>.config           # Terminator layouts of the platform, until 'tmux' replaces them (platforms only).
   patches/                               # Patches of the Git submodules of this extension.
   docs/                                  # Documentation of the extension.
 ```
@@ -50,6 +51,7 @@ extensions/<extension>/
 - The extensions listed in `SDE_ROBOT_EXTENSIONS` are the active ones, and the extensions that hold the active platform and the active setup are always active.
 - The Catkin workspaces are built and sourced in this order: `ros/sde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `SDE_ROBOT_EXTENSIONS`, the workspaces of the setup, then `ros/user_catkin_ws` of the core.
 - `RUN-DOCKER-CONTAINER.bash` adds every `docker/docker-compose*.yaml` of the active extensions after the overlay of the platform.
+- `RUN-TMUX-SESSION.bash` opens the panes of the platform, then those of every `tmux/*.panes` of the active extensions and the setup, then those of the core, and a setup can declare a layout of its own, such as `lab-demo`, for its demo.
 - `BUILD-DOCKER-IMAGE.bash` builds every `docker/<name>-devel/Dockerfile` of the active extensions whose `<name>` is not a platform, each on top of the previous one, between the platform image and the user overlay, as the next section shows.
 - `bash ./scripts/update-git-submodules.bash` updates the Git submodules of the core and of every cloned extension, and applies the `patches/` of each repository to its own submodules.
 
@@ -170,6 +172,4 @@ Set `SDE_DOCKER_REGISTRY` in `.env.custom` to use a registry of your own.
 
 ## 🛣️ What Comes Next
 
-The rest of [#38](https://gitlab.com/coarobo/SDE/-/issues/38) builds on these rules:
-
-- `tmux` sessions built from the panes each part declares, in place of Terminator.
+Terminator leaves the SDE once the `tmux` sessions have run on a real robot, which closes [#38](https://gitlab.com/coarobo/SDE/-/issues/38).
