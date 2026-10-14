@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The pipeline of `dev` or `main` after a merge reuses the images that the pipeline of the merged branch built, which it finds from the message of the merge commit, rather than building them again (#37).
 - **Breaking:** the SDE becomes OpenRoSDE in every name: `OPENROSDE_*` variables in place of `SDE_*`, `openrosde_*` ROS packages in `ros/openrosde_catkin_ws/` in place of `sde_*`, the `openrosde-base` image, the `openrosde` Docker Compose service and container, `openrosde-*` shell functions, the `OpenRoSDE (<session>)` terminal title, and `/root/OpenRoSDE` inside the container, so every image and container is built again, packages of the user overlay that depend on a renamed package take its new name, and a `.env.custom` with the old names keeps working with a warning that says how to rename them.
 - `SWITCH-ROBOT-PLATFORM.bash` switches to the default setup of the platform, its own template, which now declares `OPENROSDE_ROBOT_SETUP=<platform>`, and a `.env.custom` written earlier keeps its platform files (#38).
 - OpenRoSDE finds the platforms by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `OPENROSDE_ROBOT_PLATFORM=<platform>`, and `SWITCH-ROBOT-PLATFORM.bash`, `BUILD-DOCKER-IMAGE.bash`, and `gitlab-ci/PUSH-DOCKER-IMAGE.bash` use it in place of their written lists (#38).
