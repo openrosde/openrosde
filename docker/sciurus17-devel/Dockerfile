@@ -3,9 +3,9 @@
 
 ################################################################################
 
-# Inherit from the SDE base image which provides all common tools.
-ARG SDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:main
-FROM ${SDE_BASE_IMAGE}
+# Inherit from the OpenRoSDE base image which provides all common tools.
+ARG OPENROSDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/openrosde-base:main
+FROM ${OPENROSDE_BASE_IMAGE}
 
 ################################################################################
 
@@ -47,9 +47,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ################################################################################
 
 # Set the platform identifier as an environment variable.
-ARG SDE_ROBOT_PLATFORM=sciurus17
-ENV SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+ARG OPENROSDE_ROBOT_PLATFORM=sciurus17
+ENV OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
 
 # Pass variables for version traceability.
-ARG SDE_DOCKERFILE_COMMIT_SHORT_SHA
-ENV SDE_DOCKER_IMAGE_VERSION=${SDE_DOCKERFILE_COMMIT_SHORT_SHA}
+ARG OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA
+ENV OPENROSDE_DOCKER_IMAGE_VERSION=${OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA}

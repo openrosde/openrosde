@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- OpenRoSDE-specific launch: configures Fetch end effector teleop. -->
+  <!-- It relays geometry_msgs/TwistStamped commands on 'fetch_ee_cmd_vel' (for example from the Coarobo Sightline application) to the Fetch native Cartesian twist controller. -->
+  <!-- The same configuration applies to both the Gazebo simulation and the realworld robot. -->
+
+  <!-- Start already in velocity control so teleoperation is live on launch with no manual switch. -->
+  <arg name="start_in_velocity_control" default="true" />
+
+  <!-- Safety limits. -->
+  <!-- Keep small so there is always time to reach the stop button. -->
+  <arg name="max_linear_velocity" default="0.05" />
+  <arg name="max_angular_velocity" default="0.10" />
+
+  <!-- 'pass_all_args' forwards every arg declared above to the teleop stack, so a new parameter only needs to be added in one place. -->
+  <include file="$(find openrosde_fetch_teleop)/launch/fetch_teleop.launch" pass_all_args="true" />
+
+</launch>

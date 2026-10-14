@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="COBOTTA Example Behavior">
+
+	<executable package_path="openrosde_cobotta_flexbe_behaviors.cobotta_example_behavior_sm" class="CobottaExampleBehaviorSM" />
+	<tagstring>demo</tagstring>
+	<author>Lotfi El Hafi</author>
+	<date>Wed Apr 22 2026</date>
+<description>Example of a FlexBE behavior that implements a looping arm dance for a COBOTTA robot. The arm cycles between the 'home' and 'up' named configurations, with a configurable wait time between moves.</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="wait_time" default="1.0" label="wait_time" hint="Sets the wait_time between arm moves (seconds)">
+			<min value="0.0" />
+			<max value="10.0" />
+		</param>
+
+	</params>
+
+
+</behavior>

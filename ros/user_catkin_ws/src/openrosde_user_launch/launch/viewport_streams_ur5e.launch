@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- OpenRoSDE-specific: light streams of both UR5e cameras for Coarobo Viewport over rosbridge. -->
+  <!-- The raw depth images and point clouds are far too heavy for rosbridge, so each camera gets: -->
+  <!-- '/<camera>/viewport/depth_colorized/compressed', a colorized JPEG of the depth, and -->
+  <!-- '/<camera>/viewport/points', its colored point cloud throttled and downsampled on a voxel grid, and -->
+  <!-- '/<camera>/viewport/fastsam_points', the FastSAM overlay in 3D, downsampled on the same grid. -->
+  <!-- The color images need nothing more, since '/<camera>/color/image_raw/compressed' is already a JPEG. -->
+
+  <!-- Depth range in meters mapped onto the colormap, from red (near) to blue (far). -->
+  <arg name="min_depth" default="0.2" />
+  <arg name="max_depth" default="2.0" />
+  <arg name="depth_rate" default="10.0" />
+
+  <!-- Point cloud rate in Hz after throttling, voxel edge in meters, and range limit in meters. -->
+  <arg name="cloud_rate" default="5.0" />
+  <arg name="cloud_voxel_leaf_size" default="0.02" />
+  <arg name="cloud_range_limit" default="3.0" />
+
+  <!-- The external camera follows 'OPENROSDE_UR5E_ENABLE_EXTERNAL_CAMERA' of '.env.custom', like the camera launch of 'openrosde_ur5e_launch'. -->
+  <!-- '$(eval ... or ...)' treats an empty string the same as unset, so a missing variable defaults to 'true'. -->
+  <arg name="enable_external_camera" default="$(eval optenv('OPENROSDE_UR5E_ENABLE_EXTERNAL_CAMERA', 'true') or 'true')" />
+
+  <node pkg="nodelet" type="nodelet" name="viewport_streams_nodelet_manager" args="manager" output="screen" />
+
+  <!-- Wrist-mounted Intel RealSense D435. -->
+  <group ns="wrist_camera">
+    <node pkg="openrosde_user_launch" type="depth_colorizer_node.py" name="viewport_depth_colorizer" output="screen">
+      <param name="input_topic" value="/wrist_camera/depth/image_rect_raw" />
+      <param name="output_topic" value="/wrist_camera/viewport/depth_colorized/compressed" />
+      <param name="min_depth" value="$(arg min_depth)" />
+      <param name="max_depth" value="$(arg max_depth)" />
+      <param name="rate_hz" value="$(arg depth_rate)" />
+    </node>
+
+    <!-- The cloud is throttled first so the voxel grid only processes messages that will actually be delivered. -->
+    <node pkg="topic_tools" type="throttle" name="viewport_cloud_throttle" output="screen"
+          args="messages /wrist_camera/depth/color/points $(arg cloud_rate) /wrist_camera/viewport/points_throttled" />
+
+    <!-- The voxel grid keeps the packed rgb data, so the downsampled cloud stays colored. -->
+    <node pkg="nodelet" type="nodelet" name="viewport_cloud_voxel_grid"
+          args="load pcl/VoxelGrid /viewport_streams_nodelet_manager" output="screen">
+      <remap from="~input" to="/wrist_camera/viewport/points_throttled" />
+      <remap from="~output" to="/wrist_camera/viewport/points" />
+      <param name="leaf_size" value="$(arg cloud_voxel_leaf_size)" />
+      <param name="filter_field_name" value="z" />
+      <param name="filter_limit_min" value="0.0" />
+      <param name="filter_limit_max" value="$(arg cloud_range_limit)" />
+    </node>
+
+    <!-- The FastSAM overlay projected on the depth aligned to color, so the segments appear in 3D around the robot. -->
+    <!-- It needs the cameras started with 'align_depth:=true', and both nodelets share the manager to avoid copying the full cloud. -->
+    <node pkg="nodelet" type="nodelet" name="viewport_fastsam_cloud"
+          args="load depth_image_proc/point_cloud_xyzrgb /viewport_streams_nodelet_manager" output="screen">
+      <remap from="rgb/image_rect_color" to="/wrist_camera/fastsam/image_raw" />
+      <remap from="rgb/camera_info" to="/wrist_camera/color/camera_info" />
+      <remap from="depth_registered/image_rect" to="/wrist_camera/aligned_depth_to_color/image_raw" />
+      <remap from="depth_registered/points" to="/wrist_camera/fastsam/points" />
+      <param name="queue_size" value="10" />
+    </node>
+
+    <node pkg="nodelet" type="nodelet" name="viewport_fastsam_cloud_voxel_grid"
+          args="load pcl/VoxelGrid /viewport_streams_nodelet_manager" output="screen">
+      <remap from="~input" to="/wrist_camera/fastsam/points" />
+      <remap from="~output" to="/wrist_camera/viewport/fastsam_points" />
+      <param name="leaf_size" value="$(arg cloud_voxel_leaf_size)" />
+      <param name="filter_field_name" value="z" />
+      <param name="filter_limit_min" value="0.0" />
+      <param name="filter_limit_max" value="$(arg cloud_range_limit)" />
+    </node>
+  </group>
+
+  <!-- External Intel RealSense D435i. -->
+  <group ns="external_camera" if="$(arg enable_external_camera)">
+    <node pkg="openrosde_user_launch" type="depth_colorizer_node.py" name="viewport_depth_colorizer" output="screen">
+      <param name="input_topic" value="/external_camera/depth/image_rect_raw" />
+      <param name="output_topic" value="/external_camera/viewport/depth_colorized/compressed" />
+      <param name="min_depth" value="$(arg min_depth)" />
+      <param name="max_depth" value="$(arg max_depth)" />
+      <param name="rate_hz" value="$(arg depth_rate)" />
+    </node>
+
+    <node pkg="topic_tools" type="throttle" name="viewport_cloud_throttle" output="screen"
+          args="messages /external_camera/depth/color/points $(arg cloud_rate) /external_camera/viewport/points_throttled" />
+
+    <node pkg="nodelet" type="nodelet" name="viewport_cloud_voxel_grid"
+          args="load pcl/VoxelGrid /viewport_streams_nodelet_manager" output="screen">
+      <remap from="~input" to="/external_camera/viewport/points_throttled" />
+      <remap from="~output" to="/external_camera/viewport/points" />
+      <param name="leaf_size" value="$(arg cloud_voxel_leaf_size)" />
+      <param name="filter_field_name" value="z" />
+      <param name="filter_limit_min" value="0.0" />
+      <param name="filter_limit_max" value="$(arg cloud_range_limit)" />
+    </node>
+
+    <!-- The FastSAM overlay projected on the depth aligned to color, so the segments appear in 3D around the robot. -->
+    <!-- It needs the cameras started with 'align_depth:=true', and both nodelets share the manager to avoid copying the full cloud. -->
+    <node pkg="nodelet" type="nodelet" name="viewport_fastsam_cloud"
+          args="load depth_image_proc/point_cloud_xyzrgb /viewport_streams_nodelet_manager" output="screen">
+      <remap from="rgb/image_rect_color" to="/external_camera/fastsam/image_raw" />
+      <remap from="rgb/camera_info" to="/external_camera/color/camera_info" />
+      <remap from="depth_registered/image_rect" to="/external_camera/aligned_depth_to_color/image_raw" />
+      <remap from="depth_registered/points" to="/external_camera/fastsam/points" />
+      <param name="queue_size" value="10" />
+    </node>
+
+    <node pkg="nodelet" type="nodelet" name="viewport_fastsam_cloud_voxel_grid"
+          args="load pcl/VoxelGrid /viewport_streams_nodelet_manager" output="screen">
+      <remap from="~input" to="/external_camera/fastsam/points" />
+      <remap from="~output" to="/external_camera/viewport/fastsam_points" />
+      <param name="leaf_size" value="$(arg cloud_voxel_leaf_size)" />
+      <param name="filter_field_name" value="z" />
+      <param name="filter_limit_min" value="0.0" />
+      <param name="filter_limit_max" value="$(arg cloud_range_limit)" />
+    </node>
+  </group>
+
+</launch>

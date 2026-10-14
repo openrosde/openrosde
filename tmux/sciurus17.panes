@@ -1,6 +1,6 @@
 # Panes of the RT Sciurus17 platform for 'RUN-TMUX-SESSION.bash', in the windows 'robot' and 'extra' of the session.
 # Each line reads '<layouts> <window> <launch-file> [<arg:=value> ...]', where '<layouts>' is '*' or a comma-separated list such as 'default-gazebo,default-realworld'.
-# The panes of the core, such as the FlexBE app and 'rosbridge', come from 'tmux/sde.panes'.
+# The panes of the core, such as the FlexBE app and 'rosbridge', come from 'tmux/openrosde.panes'.
 
 default-gazebo     robot  sciurus17_bringup_default_gazebo.launch
 default-gazebo     robot  sciurus17_rviz_default.launch

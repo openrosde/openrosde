@@ -1,0 +1,18 @@
+<package format="2">
+  <name>openrosde_hsr_launch</name>
+  <version>1.0.0</version>
+  <description>
+    The 'openrosde_hsr_launch' package provides launch files for the Toyota HSR (Human Support Robot) platform.
+  </description>
+  <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">https://coarobo.com/</url>
+  <url type="repository">https://gitlab.com/coarobo/SDE</url>
+  <url type="bugtracker">https://gitlab.com/coarobo/SDE/-/issues</url>
+  <author email="lotfi@coarobo.com">Lotfi El Hafi</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

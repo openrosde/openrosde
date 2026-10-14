@@ -1,0 +1,27 @@
+<package format="2">
+  <name>openrosde_sciurus17_flexbe_behaviors</name>
+  <version>1.0.0</version>
+  <description>
+    The 'openrosde_sciurus17_flexbe_behaviors' package provides FlexBE behaviors for the RT Sciurus17 platform.
+  </description>
+  <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">https://coarobo.com/</url>
+  <url type="repository">https://gitlab.com/coarobo/SDE</url>
+  <url type="bugtracker">https://gitlab.com/coarobo/SDE/-/issues</url>
+  <author email="lotfi@coarobo.com">Lotfi El Hafi</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>flexbe_core</exec_depend>
+  <exec_depend>flexbe_states</exec_depend>
+  <exec_depend>flexbe_manipulation_states</exec_depend>
+
+  <export>
+    <flexbe_behaviors />
+  </export>
+
+</package>

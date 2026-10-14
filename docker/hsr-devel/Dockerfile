@@ -5,7 +5,7 @@
 
 # Global build argument used by the second 'FROM' stage below.
 # It must be declared before any 'FROM' so buildkit treats it as a global ARG.
-ARG SDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/sde-base:main
+ARG OPENROSDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/openrosde-base:main
 
 ################################################################################
 
@@ -18,12 +18,12 @@ FROM ghcr.io/hsr-project/tmc_wrs_binary:noetic-latest AS hsr_binary
 
 ################################################################################
 
-# Stage 2: SDE base image (CUDA + ROS Noetic + SDE tooling).
-FROM ${SDE_BASE_IMAGE}
+# Stage 2: OpenRoSDE base image (CUDA + ROS Noetic + OpenRoSDE tooling).
+FROM ${OPENROSDE_BASE_IMAGE}
 
 ################################################################################
 
-# Copy the additional ROS packages (tmc_*, hsrb_*) from Toyota's binary image into the existing '/opt/ros/noetic' tree without clobbering 'sde-base' files.
+# Copy the additional ROS packages (tmc_*, hsrb_*) from Toyota's binary image into the existing '/opt/ros/noetic' tree without clobbering 'openrosde-base' files.
 # The binary image builds these packages as a catkin workspace with '--cmake-args -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic', so they live directly under '/opt/ros/noetic' and are available as soon as that setup.bash is sourced.
 # No separate workspace overlay is needed.
 COPY --from=hsr_binary /opt/ros/noetic /tmp/hsr_ros_overlay
@@ -34,7 +34,7 @@ RUN cp -rn /tmp/hsr_ros_overlay/share/. /opt/ros/noetic/share/ \
   && rm -rf /tmp/hsr_ros_overlay
 
 # Install additional runtime dependencies required by the HSR Gazebo bringup.
-# 'ros-noetic-desktop-full' (installed by 'sde-base') already provides 'gazebo_ros', 'xacro', 'rviz', 'robot_state_publisher', and 'joint_state_publisher'.
+# 'ros-noetic-desktop-full' (installed by 'openrosde-base') already provides 'gazebo_ros', 'xacro', 'rviz', 'robot_state_publisher', and 'joint_state_publisher'.
 # 'ros-noetic-gazebo-ros-control' wires Gazebo simulated joints to 'controller_manager'.
 # 'ros-noetic-joint-state-controller' and 'ros-noetic-joint-trajectory-controller' provide the controllers loaded by 'hsrb_gazebo_bringup' (arm, head, gripper, base).
 # 'ros-noetic-joint-state-publisher-gui' provides an interactive sliders panel to drive the URDF in RViz.
@@ -52,9 +52,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ################################################################################
 
 # Set the platform identifier as an environment variable.
-ARG SDE_ROBOT_PLATFORM=hsr
-ENV SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+ARG OPENROSDE_ROBOT_PLATFORM=hsr
+ENV OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
 
 # Pass variables for version traceability.
-ARG SDE_DOCKERFILE_COMMIT_SHORT_SHA
-ENV SDE_DOCKER_IMAGE_VERSION=${SDE_DOCKERFILE_COMMIT_SHORT_SHA}
+ARG OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA
+ENV OPENROSDE_DOCKER_IMAGE_VERSION=${OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA}

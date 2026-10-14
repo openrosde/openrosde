@@ -1,6 +1,6 @@
-# Software Development Environment (SDE)
+# OpenRoSDE
 
-Open-source reference implementation of the Software Development Environment (SDE) described in "**Software Development Environment for Collaborative Research Workflow in Robotic System Integration**" (DOI: [10.1080/01691864.2022.2068353](https://doi.org/10.1080/01691864.2022.2068353)) and maintained by [Coarobo GK](https://coarobo.com/).
+OpenRoSDE, read "Open Robotic SDE", is the open-source reference implementation of the Software Development Environment (SDE) described in "**Software Development Environment for Collaborative Research Workflow in Robotic System Integration**" (DOI: [10.1080/01691864.2022.2068353](https://doi.org/10.1080/01691864.2022.2068353)) and maintained by [Coarobo GK](https://coarobo.com/).
 
 [![Docker](https://img.shields.io/badge/Docker-Containerization-blue?logo=docker&logoColor=white)](https://www.docker.com/)
 [![ROS Noetic](https://img.shields.io/badge/ROS_Noetic-Framework-blue?logo=ros&logoColor=white)](http://wiki.ros.org/noetic)
@@ -51,7 +51,7 @@ config:
 flowchart TD
     subgraph host["Ubuntu development machine"]
         env["'.env' / '.env.custom'"]
-        loader["'scripts/load-sde-env.bash'"]
+        loader["'scripts/load-openrosde-env.bash'"]
         setup["'SETUP-DEVEL-MACHINE.bash'"]
         build["'BUILD-DOCKER-IMAGE.bash'"]
         run["'RUN-DOCKER-CONTAINER.bash'"]
@@ -62,7 +62,7 @@ flowchart TD
     end
 
     subgraph images["Docker images (Layer 1 → Layer 2 → Layer 3)"]
-        base["'sde-base'<br/>(L1: Ubuntu 20.04, ROS Noetic,<br/>Gazebo, FlexBE, etc.)"]
+        base["'openrosde-base'<br/>(L1: Ubuntu 20.04, ROS Noetic,<br/>Gazebo, FlexBE, etc.)"]
         turtlebot3["'turtlebot3-devel'<br/>(L2)"]
         ur5e["'ur5e-devel'<br/>(L2)"]
         base --> turtlebot3
@@ -85,8 +85,8 @@ flowchart TD
     end
 
     subgraph container["Docker container"]
-        shared["'sde_catkin_ws'<br/>(shared packages)"]
-        platws["'SDE_ROBOT_PLATFORM_catkin_ws'<br/>(platform packages)"]
+        shared["'openrosde_catkin_ws'<br/>(shared packages)"]
+        platws["'OPENROSDE_ROBOT_PLATFORM_catkin_ws'<br/>(platform packages)"]
         userws["'user_catkin_ws'<br/>(user overlay packages)"]
         rosenv["ROS environment<br/>(Gazebo, RViz, FlexBE, etc.)"]
         shared --> rosenv
@@ -95,17 +95,17 @@ flowchart TD
     end
 
     build -->|"Build / pull images"| images
-    images -.->|"Selected by<br/>'SDE_ROBOT_PLATFORM'"| container
+    images -.->|"Selected by<br/>'OPENROSDE_ROBOT_PLATFORM'"| container
     run -->|"Enter container shell"| container
 ```
 
-The Docker image stack has three layers: **Layer 1** (`sde-base`) provides the shared ROS/Gazebo/FlexBE toolchain; **Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `SDE_ROBOT_PLATFORM`; **Layer 3** (`user-devel`) is the user overlay where you add your own packages and customizations without touching the platform images.
+The Docker image stack has three layers: **Layer 1** (`openrosde-base`) provides the shared ROS/Gazebo/FlexBE toolchain; **Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `OPENROSDE_ROBOT_PLATFORM`; **Layer 3** (`user-devel`) is the user overlay where you add your own packages and customizations without touching the platform images.
 Extensions cloned into `extensions/` can add their own layers between Layers 2 and 3, as the [Extensions](docs/extensions.md) guide explains.
 
 ## 🚀 Quick Start
 
 > [!NOTE]
-> The whole SDE is containerized/virtualized using [Docker](https://www.docker.com/).
+> The whole OpenRoSDE is containerized/virtualized using [Docker](https://www.docker.com/).
 > This ensures that all the contributors work in the exact same software environment.
 
 1. Clone and set up:
@@ -138,7 +138,7 @@ Extensions cloned into `extensions/` can add their own layers between Layers 2 a
 5. Inside the container, initialize the environment:
 
     ```shell
-    sde-initialize-new-container
+    openrosde-initialize-new-container
     ```
 
 6. Exit the container (`Ctrl+d`) and launch the multi-terminal session from the Ubuntu development machine:
@@ -174,7 +174,7 @@ RESTART-CHRONY-SERVICE.bash              # Host and robot clock sync script.
 SWITCH-ROBOT-PLATFORM.bash               # Platform switching script.
 SWITCH-ROBOT-SETUP.bash                  # Setup switching script, which clones the extensions of a setup.
 scripts/
-  load-sde-env.bash                      # Shared environment loader.
+  load-openrosde-env.bash                      # Shared environment loader.
   load-extension-paths.bash              # Resolves the files of the platform and the extensions.
   list-robot-platforms.bash              # Lists the platforms found by name.
   list-robot-setups.bash                 # Lists the setups found by name.
@@ -190,7 +190,7 @@ docker/
   docker-compose-user.yaml               # User overlay (always loaded).
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
-  sde-base/                              # Shared base Docker image.
+  openrosde-base/                              # Shared base Docker image.
     Dockerfile
     scripts/                             # Container helper scripts.
   turtlebot3-devel/                      # TurtleBot3 platform image.
@@ -208,14 +208,14 @@ docker/
   user-devel/                            # User overlay image (Layer 3, runtime container).
     Dockerfile
 ros/
-  sde_catkin_ws/                         # Shared Catkin workspace.
+  openrosde_catkin_ws/                         # Shared Catkin workspace.
   turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
   ur5e_catkin_ws/                        # UR5e Catkin workspace.
   fetch_catkin_ws/                       # Fetch Catkin workspace.
   sciurus17_catkin_ws/                   # Sciurus17 Catkin workspace.
   cobotta_catkin_ws/                     # COBOTTA Catkin workspace.
   hsr_catkin_ws/                         # HSR Catkin workspace.
-  user_catkin_ws/                        # User overlay Catkin workspace (sde_user_launch, sde_user_behaviors).
+  user_catkin_ws/                        # User overlay Catkin workspace (openrosde_user_launch, openrosde_user_behaviors).
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md
@@ -236,7 +236,7 @@ terminator/
   cobotta.config                         # COBOTTA Terminator layout.
   hsr.config                             # HSR Terminator layout.
 tmux/
-  sde.panes                              # Panes of the core in every 'tmux' session.
+  openrosde.panes                              # Panes of the core in every 'tmux' session.
   <platform>.panes                       # Panes of each platform in its 'tmux' session.
 patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git).
@@ -255,12 +255,12 @@ gitlab-ci/                               # GitLab CI/CD pipeline and its scripts
 | [Robot Platforms / Sciurus17](docs/robot-platforms/sciurus17.md) | RT Sciurus17 robot configuration, installation, and operation |
 | [Robot Platforms / COBOTTA](docs/robot-platforms/cobotta.md) | Denso COBOTTA robot configuration, installation, and operation |
 | [Robot Platforms / HSR](docs/robot-platforms/hsr.md) | Toyota HSR (Human Support Robot) simulation-only configuration, installation, and operation |
-| [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking the SDE |
+| [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking OpenRoSDE |
 | [Extensions](docs/extensions.md) | Add a platform, a device, or other packages from a repository of their own, public or private, cloned into `extensions/` |
 
 ## 📄 Related Publications
 
-Summaries of the development history, requirements, vision, and goals of the SDE have been published in the following papers:
+Summaries of the development history, requirements, vision, and goals of OpenRoSDE have been published in the following papers:
 - International journals:
   - L. El Hafi, G. A. Garcia Ricardez, F. von Drigalski, Y. Inoue, M. Yamamoto, and T. Yamamoto, "**Software Development Environment for Collaborative Research Workflow in Robotic System Integration**", in *RSJ Advanced Robotics (AR), Special Issue on Software Framework for Robot System Integration*, vol. 36, no. 11, pp. 533-547, Jun. 3, 2022. DOI: [10.1080/01691864.2022.2068353](https://doi.org/10.1080/01691864.2022.2068353)
 - Domestic conferences:
@@ -269,8 +269,8 @@ Summaries of the development history, requirements, vision, and goals of the SDE
   - L. El Hafi, Y. Hagiwara, and T. Taniguchi, "**Abstraction-Rich Workflow for Agile Collaborative Development and Deployment of Robotic Solutions**", in *Proceedings of 2018 Annual Conference of the Robotics Society of Japan (RSJ 2018)*, ref. RSJ2018AC3D3-02, pp. 1-3, Kasugai, Japan, Sep. 5, 2018.
 
 > [!NOTE]
-> Cite these papers if you are using the SDE to implement your research!
-> It is crucially important to disseminate the SDE across the robotics research community.
+> Cite these papers if you are using OpenRoSDE to implement your research!
+> It is crucially important to disseminate OpenRoSDE across the robotics research community.
 
 ## 🔗 External Resources
 
@@ -338,7 +338,7 @@ See [`LICENSE`](LICENSE) for details.
 
 ## 📜 Third-Party Software
 
-The SDE Docker images bundle third-party robotics middleware, drivers, and simulation assets, each governed by its own license.
+The OpenRoSDE Docker images bundle third-party robotics middleware, drivers, and simulation assets, each governed by its own license.
 Notable platform-specific bundling:
 
 | Platform | Component | License |

@@ -1,6 +1,6 @@
 # Fetch
 
-Platform-specific documentation for the [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) within the SDE.
+Platform-specific documentation for the [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) within OpenRoSDE.
 
 ## 🔗 External Resources
 
@@ -42,7 +42,7 @@ The Fetch Robotics Fetch robot uses mDNS host names for network discovery.
 To connect to the real robot, update the ROS master hostname in `.env.custom`:
 
 ```shell
-SDE_ROS_MASTER_HOSTNAME=fetch.local
+OPENROSDE_ROS_MASTER_HOSTNAME=fetch.local
 ```
 
 ## 🚀 Gazebo Simulation
@@ -56,10 +56,10 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-gazebo
 Or start the launch files manually in the Docker container:
 
 ```shell
-roslaunch sde_fetch_launch fetch_bringup_default_gazebo.launch
-roslaunch sde_fetch_launch fetch_navigation_default_gazebo.launch
-roslaunch sde_fetch_launch fetch_moveit_default.launch
-roslaunch sde_fetch_launch fetch_rviz_default.launch
+roslaunch openrosde_fetch_launch fetch_bringup_default_gazebo.launch
+roslaunch openrosde_fetch_launch fetch_navigation_default_gazebo.launch
+roslaunch openrosde_fetch_launch fetch_moveit_default.launch
+roslaunch openrosde_fetch_launch fetch_rviz_default.launch
 ```
 
 ## 🕐 Clock Synchronization
@@ -73,7 +73,7 @@ bash ./RESTART-CHRONY-SERVICE.bash
 
 > [!NOTE]
 > The script connects to the robot via SSH using the default credentials (`fetch` / `robotics`).
-> The robot hostname is resolved from `SDE_ROBOT_HOSTNAME` in `env/fetch.env` (default: `fetch.local`).
+> The robot hostname is resolved from `OPENROSDE_ROBOT_HOSTNAME` in `env/fetch.env` (default: `fetch.local`).
 
 ## 🤖 Real Robot Operation
 
@@ -86,15 +86,15 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 Or start the launch files manually in the Docker container:
 
 ```shell
-roslaunch sde_fetch_launch fetch_bringup_default_realworld.launch
-roslaunch sde_fetch_launch fetch_mapping_default.launch
-roslaunch sde_fetch_launch fetch_moveit_default.launch
-roslaunch sde_fetch_launch fetch_rviz_default.launch
+roslaunch openrosde_fetch_launch fetch_bringup_default_realworld.launch
+roslaunch openrosde_fetch_launch fetch_mapping_default.launch
+roslaunch openrosde_fetch_launch fetch_moveit_default.launch
+roslaunch openrosde_fetch_launch fetch_rviz_default.launch
 ```
 
 ## 📋 Launch Files Reference
 
-The following launch files are available for the Fetch Robotics Fetch platform (package: `sde_fetch_launch`):
+The following launch files are available for the Fetch Robotics Fetch platform (package: `openrosde_fetch_launch`):
 
 | Launch File | Description |
 | --- | --- |
@@ -104,24 +104,24 @@ The following launch files are available for the Fetch Robotics Fetch platform (
 | `fetch_mapping_default.launch` | SLAM mapping (build_map) |
 | `fetch_moveit_default.launch` | MoveIt motion planning |
 | `fetch_rviz_default.launch` | RViz visualization |
-| `fetch_teleop_default.launch` | End effector teleoperation for Coarobo Sightline (package: `sde_fetch_teleop`) |
+| `fetch_teleop_default.launch` | End effector teleoperation for Coarobo Sightline (package: `openrosde_fetch_teleop`) |
 
 ## 🥽 Coarobo Sightline Teleoperation
 
 The Fetch end effector can be teleoperated from a Meta Quest 3 headset running the [Coarobo Sightline](https://gitlab.com/coarobo/coarobo-sightline) mixed reality application.
 
-- `fetch_teleop_default.launch` starts the `sde_fetch_teleop` bridge, which converts the headset twist commands on `fetch_ee_cmd_vel` to the Fetch Cartesian twist controller.
-- The headset connects through the ROS TCP Endpoint terminal (`sde_launch:ros_tcp_endpoint_default.launch`) on port `10000`.
+- `fetch_teleop_default.launch` starts the `openrosde_fetch_teleop` bridge, which converts the headset twist commands on `fetch_ee_cmd_vel` to the Fetch Cartesian twist controller.
+- The headset connects through the ROS TCP Endpoint terminal (`openrosde_launch:ros_tcp_endpoint_default.launch`) on port `10000`.
 - Both are preloaded in the Fetch Terminator layouts.
 
 ## 🧪 FlexBE Behavior
 
-The `sde_fetch_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints using `MoveBaseState` and `WaitState`.
+The `openrosde_fetch_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints using `MoveBaseState` and `WaitState`.
 
 To start the FlexBE behavior engine and app:
 
 ```shell
-roslaunch sde_launch flexbe_app_default.launch
+roslaunch openrosde_launch flexbe_app_default.launch
 ```
 
 Load the `Fetch Example Behavior` behavior in the FlexBE App and press **Start**.

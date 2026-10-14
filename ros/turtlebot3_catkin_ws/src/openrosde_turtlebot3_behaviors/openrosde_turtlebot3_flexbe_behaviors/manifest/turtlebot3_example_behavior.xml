@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="TurtleBot3 Example Behavior">
+
+	<executable package_path="openrosde_turtlebot3_flexbe_behaviors.turtlebot3_example_behavior_sm" class="TurtleBot3ExampleBehaviorSM" />
+	<tagstring>demo</tagstring>
+	<author>Lotfi El Hafi</author>
+	<date>Sun Aug 18 2024</date>
+	<description>Example of a FlexBE behavior that implements looping navigation for a TurtleBot3 robot. The robot loops between two waypoints, with a configurable wait time at each waypoint.</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="wait_time" default="1.0" label="wait_time" hint="Sets the wait_time">
+			<min value="0.0" />
+			<max value="10.0" />
+		</param>
+
+	</params>
+
+
+</behavior>

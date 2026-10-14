@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script explains why the COBOTTA robot has no Chrony service to restart, as 'RESTART-CHRONY-SERVICE.bash' calls it when 'cobotta' is the active platform.
-# It runs with every 'SDE_*' variable exported by 'scripts/load-sde-env.bash'.
+# It runs with every 'OPENROSDE_*' variable exported by 'scripts/load-openrosde-env.bash'.
 #
 # Usage: bash ./scripts/cobotta/restart-chrony-service.bash
 

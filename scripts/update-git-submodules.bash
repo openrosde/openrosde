@@ -7,17 +7,17 @@
 
 ################################################################################
 
-# Resolve the SDE root directory.
-SDE_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Resolve the OpenRoSDE root directory.
+OPENROSDE_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 ################################################################################
 
 # Download and initialize all the Git submodules recursively, in the core and in every cloned extension.
 # https://git-scm.com/book/en/v2/Git-Tools-Submodules
 # Then apply the patches of each repository to its own Git submodules (if any).
-for SDE_REPOSITORY_ROOT_DIR in "${SDE_ROOT_DIR}" "${SDE_ROOT_DIR}"/extensions/*; do
-  if [ -e "${SDE_REPOSITORY_ROOT_DIR}/.git" ]; then
-    git -C "${SDE_REPOSITORY_ROOT_DIR}" submodule update --init --recursive
-    bash "${SDE_ROOT_DIR}/scripts/apply-submodule-patches.bash" "${SDE_REPOSITORY_ROOT_DIR}"
+for OPENROSDE_REPOSITORY_ROOT_DIR in "${OPENROSDE_ROOT_DIR}" "${OPENROSDE_ROOT_DIR}"/extensions/*; do
+  if [ -e "${OPENROSDE_REPOSITORY_ROOT_DIR}/.git" ]; then
+    git -C "${OPENROSDE_REPOSITORY_ROOT_DIR}" submodule update --init --recursive
+    bash "${OPENROSDE_ROOT_DIR}/scripts/apply-submodule-patches.bash" "${OPENROSDE_REPOSITORY_ROOT_DIR}"
   fi
 done

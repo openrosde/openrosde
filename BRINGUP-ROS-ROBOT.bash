@@ -21,15 +21,15 @@ fi
 
 ################################################################################
 
-# Load the SDE environment variables.
-source ./scripts/load-sde-env.bash "$2"
+# Load the OpenRoSDE environment variables.
+source ./scripts/load-openrosde-env.bash "$2"
 
 ################################################################################
 
 # Run the bringup script of the setup, or else of the platform, in the core or in an extension, if either has one.
-SDE_BRINGUP_SCRIPT_PATH="$(sde-find-setup-file "scripts/%s/bringup-ros-robot.bash")"
-if [ -n "${SDE_BRINGUP_SCRIPT_PATH}" ]; then
-  bash "${SDE_BRINGUP_SCRIPT_PATH}" "$1"
+OPENROSDE_BRINGUP_SCRIPT_PATH="$(openrosde-find-setup-file "scripts/%s/bringup-ros-robot.bash")"
+if [ -n "${OPENROSDE_BRINGUP_SCRIPT_PATH}" ]; then
+  bash "${OPENROSDE_BRINGUP_SCRIPT_PATH}" "$1"
 else
-  echo "No robot bringup is configured for the '${SDE_ROBOT_PLATFORM}' platform. Please start the robot manually."
+  echo "No robot bringup is configured for the '${OPENROSDE_ROBOT_PLATFORM}' platform. Please start the robot manually."
 fi

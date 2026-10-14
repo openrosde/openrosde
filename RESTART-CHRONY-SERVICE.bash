@@ -6,13 +6,13 @@
 #
 # Usage: bash ./RESTART-CHRONY-SERVICE.bash [docker-project]
 #
-# [docker-project]: Used to resolve the SDE environment variables.
+# [docker-project]: Used to resolve the OpenRoSDE environment variables.
 #                   Default value is '$USER'.
 
 ################################################################################
 
-# Load the SDE environment variables.
-source ./scripts/load-sde-env.bash "$1"
+# Load the OpenRoSDE environment variables.
+source ./scripts/load-openrosde-env.bash "$1"
 
 ################################################################################
 
@@ -32,9 +32,9 @@ echo "Chrony service restarted on the host machine."
 ################################################################################
 
 # Run the Chrony script of the setup, or else of the platform, in the core or in an extension, if either has one.
-SDE_CHRONY_SCRIPT_PATH="$(sde-find-setup-file "scripts/%s/restart-chrony-service.bash")"
-if [ -n "${SDE_CHRONY_SCRIPT_PATH}" ]; then
-  bash "${SDE_CHRONY_SCRIPT_PATH}"
+OPENROSDE_CHRONY_SCRIPT_PATH="$(openrosde-find-setup-file "scripts/%s/restart-chrony-service.bash")"
+if [ -n "${OPENROSDE_CHRONY_SCRIPT_PATH}" ]; then
+  bash "${OPENROSDE_CHRONY_SCRIPT_PATH}"
 else
-  echo "No robot Chrony restart is configured for the '${SDE_ROBOT_PLATFORM}' platform."
+  echo "No robot Chrony restart is configured for the '${OPENROSDE_ROBOT_PLATFORM}' platform."
 fi

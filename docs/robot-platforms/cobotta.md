@@ -1,6 +1,6 @@
 # COBOTTA
 
-Platform-specific documentation for the [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) within the SDE.
+Platform-specific documentation for the [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) within OpenRoSDE.
 
 ## 🔗 External Resources
 
@@ -32,7 +32,7 @@ bash ./SWITCH-ROBOT-PLATFORM.bash cobotta
 ## 🌐 Network Configuration
 
 The Denso COBOTTA connects to the Ubuntu development machine over USB via the `denso_cobotta` kernel module.
-No network configuration is required, as `SDE_ROBOT_HOSTNAME` is not applicable for this platform.
+No network configuration is required, as `OPENROSDE_ROBOT_HOSTNAME` is not applicable for this platform.
 
 ## 🚀 Gazebo Simulation
 
@@ -45,9 +45,9 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-gazebo
 Or start the launch files manually in the Docker container:
 
 ```shell
-roslaunch sde_cobotta_launch cobotta_bringup_default_gazebo.launch
-roslaunch sde_cobotta_launch cobotta_moveit_default_gazebo.launch
-roslaunch sde_cobotta_launch cobotta_rviz_default.launch
+roslaunch openrosde_cobotta_launch cobotta_bringup_default_gazebo.launch
+roslaunch openrosde_cobotta_launch cobotta_moveit_default_gazebo.launch
+roslaunch openrosde_cobotta_launch cobotta_rviz_default.launch
 ```
 
 > [!NOTE]
@@ -74,14 +74,14 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 Or start the launch files manually in the Docker container:
 
 ```shell
-roslaunch sde_cobotta_launch cobotta_bringup_default_realworld.launch
-roslaunch sde_cobotta_launch cobotta_moveit_default_realworld.launch
-roslaunch sde_cobotta_launch cobotta_rviz_default.launch
+roslaunch openrosde_cobotta_launch cobotta_bringup_default_realworld.launch
+roslaunch openrosde_cobotta_launch cobotta_moveit_default_realworld.launch
+roslaunch openrosde_cobotta_launch cobotta_rviz_default.launch
 ```
 
 ## 📋 Launch Files Reference
 
-The following launch files are available for the Denso COBOTTA platform (package: `sde_cobotta_launch`):
+The following launch files are available for the Denso COBOTTA platform (package: `openrosde_cobotta_launch`):
 
 | Launch File | Description |
 | --- | --- |
@@ -93,12 +93,12 @@ The following launch files are available for the Denso COBOTTA platform (package
 
 ## 🧪 FlexBE Behavior
 
-The `sde_cobotta_flexbe_behaviors` package provides an example behavior that loops the arm between the `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+The `openrosde_cobotta_flexbe_behaviors` package provides an example behavior that loops the arm between the `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
 
 To start the FlexBE behavior engine and app:
 
 ```shell
-roslaunch sde_launch flexbe_app_default.launch
+roslaunch openrosde_launch flexbe_app_default.launch
 ```
 
 Load the `COBOTTA Example Behavior` behavior in the FlexBE App and press **Start**.

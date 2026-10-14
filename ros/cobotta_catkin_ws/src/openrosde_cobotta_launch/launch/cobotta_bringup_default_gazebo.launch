@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/DENSORobot/denso_cobotta_ros -->
+  <!-- Upstream default: $(find denso_cobotta_gazebo)/launch/denso_cobotta_gazebo.launch -->
+
+  <!-- "gripper_type": Select from none/parallel/vacuum. -->
+  <arg name="gripper_type" default="parallel" />
+  <group ns="/cobotta">
+    <param name="gripper_type" value="$(arg gripper_type)" />
+  </group>
+
+  <!-- Launch the Denso COBOTTA Gazebo simulation. -->
+  <include file="$(find denso_cobotta_gazebo)/launch/denso_cobotta_gazebo.launch">
+    <arg name="gripper_type" value="$(arg gripper_type)" />
+  </include>
+
+  <!-- Load the SRDF so FlexBE can load behaviors before 'move_group' starts. -->
+  <!-- 'SrdfStateToMoveit' reads '/robot_description_semantic' in '__init__' (at behavior load time). -->
+  <param name="robot_description_semantic"
+    command="$(find xacro)/xacro $(find denso_cobotta_moveit_config)/config/cobotta.srdf.xacro gripper_type:=$(arg gripper_type)" />
+
+  <!-- Maximize the Gazebo window after it opens. -->
+  <node name="maximize_gazebo" pkg="openrosde_launch" type="maximize-app-window.bash" args="Gazebo" />
+
+</launch>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="HSR Example Behavior">
+
+	<executable package_path="openrosde_hsr_flexbe_behaviors.hsr_example_behavior_sm" class="HsrExampleBehaviorSM" />
+	<tagstring>demo</tagstring>
+	<author>Lotfi El Hafi</author>
+	<date>Sat Apr 25 2026</date>
+<description>Example of a FlexBE behavior that implements looping navigation for a Toyota HSR (Human Support Robot). The robot loops between two waypoints in the WRS 2020 apartment world, with a configurable wait time at each waypoint.</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="wait_time" default="1.0" label="wait_time" hint="Sets the wait_time at each waypoint (seconds)">
+			<min value="0.0" />
+			<max value="10.0" />
+		</param>
+
+	</params>
+
+
+</behavior>

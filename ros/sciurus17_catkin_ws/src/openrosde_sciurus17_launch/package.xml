@@ -1,0 +1,18 @@
+<package format="2">
+  <name>openrosde_sciurus17_launch</name>
+  <version>1.0.0</version>
+  <description>
+    The 'openrosde_sciurus17_launch' package provides launch files for the RT Sciurus17 platform.
+  </description>
+  <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">https://coarobo.com/OpenRoSDE</url>
+  <url type="repository">https://gitlab.com/coarobo/SDE</url>
+  <url type="bugtracker">https://gitlab.com/coarobo/SDE/-/issues</url>
+  <author email="lotfi@coarobo.com">Lotfi El Hafi</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
