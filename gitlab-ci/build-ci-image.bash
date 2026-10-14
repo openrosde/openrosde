@@ -17,6 +17,11 @@
 OPENROSDE_CI_IMAGE_NAME="${CI_REGISTRY_IMAGE}/$1"
 OPENROSDE_CI_PIPELINE_TAG="pipeline-${CI_PIPELINE_ID}"
 
+# Name the tag 'branch-<slug>' of a branch, slugged as GitLab slugs 'CI_COMMIT_REF_SLUG'.
+function openrosde-ci-branch-tag () {
+  echo "branch-$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-63 | sed -e 's/^-*//' -e 's/-*$//')"
+}
+
 # Tag the images of a branch other than 'dev' and 'main' as 'branch-<branch>' too, so that the next pipeline of the branch reuses them, until the cleanup policy removes the tag a few days later.
 if [ "${CI_COMMIT_REF_SLUG}" = "dev" ] || [ "${CI_COMMIT_REF_SLUG}" = "main" ]; then
   OPENROSDE_CI_BRANCH_TAG=""
@@ -27,16 +32,23 @@ fi
 # Name the tag of the target branch of a merge request, which 'OPENROSDE_CI_TARGET_BRANCH' gives, slugged as GitLab slugs a branch, so that a branch stacked on another starts from its images.
 OPENROSDE_CI_TARGET_TAG=""
 if [ -n "${OPENROSDE_CI_TARGET_BRANCH}" ] && [ "${OPENROSDE_CI_TARGET_BRANCH}" != "dev" ] && [ "${OPENROSDE_CI_TARGET_BRANCH}" != "main" ]; then
-  OPENROSDE_CI_TARGET_TAG="branch-$(echo "${OPENROSDE_CI_TARGET_BRANCH}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-63 | sed -e 's/^-*//' -e 's/-*$//')"
+  OPENROSDE_CI_TARGET_TAG="$(openrosde-ci-branch-tag "${OPENROSDE_CI_TARGET_BRANCH}")"
+fi
+
+# Name the tag of the branch that a merge commit brings in, read from its message 'Merge branch '<branch>' into '<target>'', so that the pipeline of 'dev' after a merge reuses the images that the merge request already built.
+OPENROSDE_CI_MERGED_TAG=""
+OPENROSDE_CI_MERGED_BRANCH="$(echo "${CI_COMMIT_MESSAGE}" | sed -n "1s/^Merge branch '\([^']*\)' into .*/\1/p")"
+if [ -n "${OPENROSDE_CI_MERGED_BRANCH}" ]; then
+  OPENROSDE_CI_MERGED_TAG="$(openrosde-ci-branch-tag "${OPENROSDE_CI_MERGED_BRANCH}")"
 fi
 OPENROSDE_CI_SOURCE_HASH="$(for OPENROSDE_CI_SOURCE_DIR in ${3//,/ }; do git rev-parse "HEAD:${OPENROSDE_CI_SOURCE_DIR}"; done | sha256sum | cut -c1-40)"
 echo "Image '$1' from '$3' has the source hash '${OPENROSDE_CI_SOURCE_HASH}'."
 
 ################################################################################
 
-# Reuse the image of the current branch, then of the target branch of the merge request, then of 'dev', then of 'main', if its source hash matches.
+# Reuse the image of the current branch, then of the target branch of the merge request, then of the merged branch, then of 'dev', then of 'main', if its source hash matches.
 # 'docker buildx imagetools' reads only the manifest and the configuration from the registry, and retags on the registry itself.
-for OPENROSDE_CI_CANDIDATE_TAG in ${OPENROSDE_CI_BRANCH_TAG} ${OPENROSDE_CI_TARGET_TAG} dev main; do
+for OPENROSDE_CI_CANDIDATE_TAG in ${OPENROSDE_CI_BRANCH_TAG} ${OPENROSDE_CI_TARGET_TAG} ${OPENROSDE_CI_MERGED_TAG} dev main; do
   OPENROSDE_CI_CANDIDATE_HASH="$(docker buildx imagetools inspect "${OPENROSDE_CI_IMAGE_NAME}:${OPENROSDE_CI_CANDIDATE_TAG}" --format '{{ index .Image.Config.Labels "com.coarobo.openrosde.source-hash" }}' 2>/dev/null)"
   if [ "${OPENROSDE_CI_CANDIDATE_HASH}" = "${OPENROSDE_CI_SOURCE_HASH}" ]; then
     echo "Reusing '${OPENROSDE_CI_IMAGE_NAME}:${OPENROSDE_CI_CANDIDATE_TAG}', whose sources are identical."
