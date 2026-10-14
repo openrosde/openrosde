@@ -5,6 +5,7 @@
 # The template of every platform is its default setup, named after the platform.
 # If 'env/<setup>.repos' lies beside the template, 'vcs import' of 'vcstool' clones the repositories it lists into 'extensions/', skipping those already cloned, with a warning for every clone whose 'origin' points to another repository than the file, over HTTPS and SSH alike.
 # The switch fails, and leaves the setup unchanged, when the platform of the setup or any name of its 'OPENROSDE_ROBOT_EXTENSIONS' does not resolve once the repositories are cloned.
+# A setup may pin the version of the core it was tested with, 'OPENROSDE_CORE_VERSION=<tag or branch>', and the switch then warns when the core is checked out at another version, with the command that checks out the pinned one.
 #
 # Usage: bash ./SWITCH-ROBOT-SETUP.bash <robot-setup>
 #
@@ -125,3 +126,16 @@ echo "Switched to '$1' setup."
 
 # Update Git submodules and apply patches to ensure the workspace is in sync.
 bash "${OPENROSDE_ROOT_DIR}/scripts/update-git-submodules.bash"
+
+################################################################################
+
+# Warn when the setup pins the core at a version, 'OPENROSDE_CORE_VERSION', that is neither a tag of the checked out commit nor the checked out branch, and print the command that checks it out.
+# The switch itself still succeeds, since the setup may well run on another version, and the warning comes last so that it stays in view.
+OPENROSDE_SETUP_CORE_VERSION="$(source "${OPENROSDE_SETUP_ENV_FILE}" > /dev/null 2>&1; echo "${OPENROSDE_CORE_VERSION}")"
+if [ -n "${OPENROSDE_SETUP_CORE_VERSION}" ]; then
+  OPENROSDE_CHECKED_OUT_CORE_VERSIONS="$(git -C "${OPENROSDE_ROOT_DIR}" tag --points-at HEAD 2>/dev/null; git -C "${OPENROSDE_ROOT_DIR}" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+  if ! echo "${OPENROSDE_CHECKED_OUT_CORE_VERSIONS}" | grep -qxF "${OPENROSDE_SETUP_CORE_VERSION}"; then
+    echo "Warning: Setup '$1' pins the core at '${OPENROSDE_SETUP_CORE_VERSION}', but the core is checked out at '$(git -C "${OPENROSDE_ROOT_DIR}" describe --tags --always HEAD 2>/dev/null)'."
+    echo "Check out the pinned version, then switch again, with: git -C '${OPENROSDE_ROOT_DIR}' checkout '${OPENROSDE_SETUP_CORE_VERSION}' && bash '${OPENROSDE_ROOT_DIR}/SWITCH-ROBOT-SETUP.bash' '$1'"
+  fi
+fi

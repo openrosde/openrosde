@@ -157,6 +157,7 @@ OpenRoSDE supports multiple robot platforms through a single codebase controlled
 - `.env`: Default configuration (committed to Git). Do not add fallback defaults (`:-`) in scripts; all defaults live here.
 - `.env.custom`: User overrides (Git-ignored, created from a platform template in `env/`).
 - `scripts/load-openrosde-env.bash`: Shared loader sourced by all top-level `*.bash` scripts. Resolves `OPENROSDE_ROOT_DIR`, loads `.env`/`.env.custom`, and exports every `OPENROSDE_*` variable for Docker Compose interpolation and for the platform scripts.
+  It prints every `OPENROSDE_*` variable unless `OPENROSDE_QUIET=true`, and never prints the value of one whose name holds `PASSWORD`, `TOKEN`, or `SECRET`, so name every credential that way.
 
 ### Platform Switching
 
@@ -239,8 +240,11 @@ All custom environment variables use the `OPENROSDE_` prefix. Examples:
 - `OPENROSDE_ROBOT_SETUP`: Active setup, named after its template `env/<setup>.env` (the platform name for a default setup).
 - `OPENROSDE_ROBOT_EXTENSIONS`: Names of the active extensions in `extensions/` or of their parts in `extensions/<extension>/parts/`, separated by spaces, each held by one folder only.
 - `OPENROSDE_DOCKER_REGISTRY`: Registry of the base and platform images (`registry.gitlab.com/coarobo/sde` by default).
-- `OPENROSDE_DOCKER_IMAGE_TAG`: Tag of the base and platform images, `main` or `dev`, or `auto` to derive it from the branch.
+- `OPENROSDE_DOCKER_IMAGE_TAG`: Tag of the base and platform images, `main` or `dev`, or `auto` to derive it from the checkout (`main` on `main`, the release `vX.Y.Z` on a detached checkout of exactly that tag, `main` on any other detached checkout, and `dev` elsewhere).
+- `OPENROSDE_DOCKER_BUILD_FALLBACK`: Images that `BUILD-DOCKER-IMAGE.bash` builds when their pull fails, `true` for the base and platform images, `platform` for the platform image alone, or `false` for neither, which a CI job sets so that a failed pull fails rather than building the base for hours.
+- `OPENROSDE_QUIET`: `true` leaves out the list of every `OPENROSDE_*` variable that the entry scripts print.
 - `OPENROSDE_LOCAL_IMAGE_PREFIX`: Derived prefix `openrosde-local/<setup>` of the local Docker layers and of the user overlay.
+- `OPENROSDE_CORE_VERSION`: Version of the core that a setup template pins, as a release tag or a branch, which `SWITCH-ROBOT-SETUP.bash` compares with the checkout.
 - `OPENROSDE_CONTAINER_ROOT_DIR`: OpenRoSDE root path inside the Docker container.
 - `OPENROSDE_ROOT_DIR`: OpenRoSDE root path on the host (auto-resolved, not in `.env`).
 - `OPENROSDE_DOCKER_PROJECT`: Docker project name for container naming.
@@ -521,7 +525,7 @@ Then update `<platform>` in the files that still list the platforms:
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
-  - Default behavior: pulls the `main` or `dev` images from the registry, as `OPENROSDE_DOCKER_IMAGE_TAG` selects, or builds current platform with cache.
+  - Default behavior: pulls the `main` or `dev` images from the registry, as `OPENROSDE_DOCKER_IMAGE_TAG` selects, or builds current platform with cache, as far as `OPENROSDE_DOCKER_BUILD_FALLBACK` allows.
   - `bash ./BUILD-DOCKER-IMAGE.bash local`: builds current platform with cache (fast iteration).
 - Build Catkin workspaces (inside container): `openrosde-reset-catkin-workspaces` or `openrosde-build-catkin-workspaces`.
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).

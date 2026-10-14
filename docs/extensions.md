@@ -136,6 +136,15 @@ The switch warns about a clone whose `origin` points to another repository than 
 A clone over SSH of a repository that the file lists over HTTPS, or the reverse, is the same repository and raises no warning.
 It fails, and leaves the setup unchanged, when the platform of the setup or a name of its `OPENROSDE_ROBOT_EXTENSIONS` is still missing once the repositories are cloned.
 
+A setup may also pin the version of OpenRoSDE it was tested with, as a release tag or a branch:
+
+```shell
+OPENROSDE_CORE_VERSION=v3.0.0
+```
+
+`bash ./SWITCH-ROBOT-SETUP.bash <setup>` then warns when OpenRoSDE is checked out at another version, neither a tag of the checked out commit nor the checked out branch, and prints the `git checkout` command of the pinned version.
+The switch still succeeds, since the setup may well run on another version.
+
 The folder that holds the setup is always active, after the extensions of `OPENROSDE_ROBOT_EXTENSIONS`, so its workspace builds last, before the user workspace.
 A file named after the setup takes precedence over the file named after its platform, such as `scripts/<setup>/bringup-ros-robot.bash` over `scripts/<platform>/bringup-ros-robot.bash`, `terminator/<setup>.config` over `terminator/<platform>.config`, or `tmux/<setup>.panes` over `tmux/<platform>.panes`, whose panes it replaces.
 
@@ -216,8 +225,12 @@ openrosde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel 
 | `OPENROSDE_ROBOT_SETUP` | The platform | Active setup, named after its template `env/<setup>.env` |
 | `OPENROSDE_ROBOT_EXTENSIONS` | Empty | Folder names of the active extensions in `extensions/` or of their parts, separated by spaces, in the order their workspaces build |
 | `OPENROSDE_DOCKER_REGISTRY` | `registry.gitlab.com/coarobo/sde` | Registry where the base and platform images are pulled from and pushed to |
+| `OPENROSDE_DOCKER_BUILD_FALLBACK` | `true` | Images that `BUILD-DOCKER-IMAGE.bash` builds locally when their pull fails: `true` for the base and platform images, `platform` for the platform image alone, or `false` for neither |
+| `OPENROSDE_QUIET` | `false` | Leaves out the list of every `OPENROSDE_*` variable that the entry scripts print, whose passwords, tokens, and secrets always print as `<redacted>` |
+| `OPENROSDE_CORE_VERSION` | Empty | Version of OpenRoSDE that a setup template pins, as a release tag or a branch, which `SWITCH-ROBOT-SETUP.bash` compares with the checkout |
 
 A platform image that the registry does not hold, such as the image of a private platform, is built locally by `BUILD-DOCKER-IMAGE.bash`, which falls back to a build when the pull fails.
+A CI job sets `OPENROSDE_DOCKER_BUILD_FALLBACK=platform` in `.env.custom` to build a private platform but never the base image, which takes hours, or `false` to fail as soon as a pull fails.
 Set `OPENROSDE_DOCKER_REGISTRY` in `.env.custom` to use a registry of your own.
 
 ## 🛣️ What Comes Next

@@ -44,6 +44,7 @@ function openrosde-test-create-copy () {
 
 # Add the stub of one outside command, which logs its call to 'OPENROSDE_TEST_COMMAND_LOG' and succeeds.
 # 'git log' prints a fixed commit, 'git remote get-url origin' prints the URL written in '<clone>/.git/test-origin-url', 'catkin_init_workspace' logs its folder, and any call that contains 'OPENROSDE_TEST_FAILING_CALL' fails.
+# 'git rev-parse --abbrev-ref HEAD' prints 'OPENROSDE_TEST_GIT_BRANCH', and 'git describe' and 'git tag --points-at HEAD' print 'OPENROSDE_TEST_GIT_TAG', with 'git describe' failing when it is empty, as on a commit without a tag.
 function openrosde-test-add-stub () {
   cat > "${OPENROSDE_TEST_STUB_DIR}/$1" <<'EOF'
 #!/bin/bash
@@ -58,6 +59,16 @@ case "${OPENROSDE_TEST_STUB_CALL}" in
     ;;
   "git "*"log -n 1 "*)
     echo -n "abc1234"
+    ;;
+  "git "*"rev-parse --abbrev-ref HEAD")
+    [ -n "${OPENROSDE_TEST_GIT_BRANCH}" ] && echo "${OPENROSDE_TEST_GIT_BRANCH}"
+    ;;
+  "git "*"tag --points-at HEAD")
+    [ -n "${OPENROSDE_TEST_GIT_TAG}" ] && echo "${OPENROSDE_TEST_GIT_TAG}"
+    ;;
+  "git "*" describe "*)
+    [ -n "${OPENROSDE_TEST_GIT_TAG}" ] || exit 128
+    echo "${OPENROSDE_TEST_GIT_TAG}"
     ;;
 esac
 if [ -n "${OPENROSDE_TEST_FAILING_CALL}" ] && [[ "${OPENROSDE_TEST_STUB_CALL}" == *"${OPENROSDE_TEST_FAILING_CALL}"* ]]; then
@@ -147,6 +158,7 @@ function openrosde-test-print-paths () {
     echo "panes: ${OPENROSDE_TMUX_PANES_FILES[*]}"
     echo "user-parent: ${OPENROSDE_USER_PARENT_IMAGE}"
     echo "platform-dockerfile: ${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE}"
+    echo "image-tag: ${OPENROSDE_DOCKER_IMAGE_TAG}"
     echo "local-prefix: ${OPENROSDE_LOCAL_IMAGE_PREFIX}"
     for OPENROSDE_TEST_SETUP_FILE in "scripts/%s/bringup-ros-robot.bash" "scripts/%s/restart-chrony-service.bash" "scripts/%s/initialize-bash-shell.bash" "terminator/%s.config" "tmux/%s.panes"; do
       echo "setup-file ${OPENROSDE_TEST_SETUP_FILE}: $(openrosde-find-setup-file "${OPENROSDE_TEST_SETUP_FILE}")"

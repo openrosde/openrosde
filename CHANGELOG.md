@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `OPENROSDE_DOCKER_BUILD_FALLBACK` sets which images `BUILD-DOCKER-IMAGE.bash` builds locally when their pull fails: `true` for the base and platform images as before, `platform` for the platform image alone, such as a private platform, or `false` for neither, so that a CI job fails rather than building the base image for hours (#38).
 - `scripts/build-extension-layers.bash` builds the Docker layers of the active extensions on the parent image it is given, for `BUILD-DOCKER-IMAGE.bash` and for a CI job alike (#38).
+- A setup template may pin the version of the core it was tested with, `OPENROSDE_CORE_VERSION`, as a release tag or a branch, and `SWITCH-ROBOT-SETUP.bash` warns, with the `git checkout` command, when the core is checked out at another version (#38).
+- `OPENROSDE_QUIET=true` leaves out the list of every `OPENROSDE_*` variable that the entry scripts print, as a CI job needs (#38).
 - Parts: an extension of a company holds the units of several robots in `parts/<part>/`, each with the layout of the core, whose templates are listed like those of an extension, whose patches `scripts/update-git-submodules.bash` applies, and which `OPENROSDE_ROBOT_EXTENSIONS` activates by name, with an error when no folder or several folders hold that name (#38).
 - `tests/run.bash` runs the test suites of the loader and the entry scripts in a Debian container with no network, on scratch copies of the repository with every outside command stubbed (#38).
 - Extensions: a platform, a device, or other packages cloned from a repository of their own into `extensions/`, public or private, whose files `scripts/load-extension-paths.bash` finds by name on the host and inside the container, with `OPENROSDE_ROBOT_EXTENSIONS` naming the active ones and `docs/extensions.md` as the guide (#38).
@@ -33,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The Docker layers of the extensions and the user overlay are tagged `openrosde-local/<setup>/<name>-devel:latest` and `openrosde-local/<setup>/user-devel:latest` in place of the name of the registry, so two setups that share a device no longer overwrite each other's layer, and the next `bash ./BUILD-DOCKER-IMAGE.bash` builds them under their new names, after which `docker image rm` can remove the old `registry.gitlab.com/coarobo/sde/user-devel:latest` (#38).
+- `OPENROSDE_DOCKER_IMAGE_TAG=auto` takes the images of the release `vX.Y.Z` on a detached checkout of exactly that tag, rather than those of `main`, which it still takes on any other detached checkout (#38).
 - `scripts/load-openrosde-env.bash` reads the platforms that the templates declare rather than running `scripts/list-robot-platforms.bash`, whose warnings every entry script printed (#38).
 - The panes of a setup, `tmux/<setup>.panes`, replace those of its platform, as its Terminator layout does, and an active extension no longer adds a Docker Compose overlay or a pane file named after a platform or a setup that is not active (#38).
 - `SWITCH-ROBOT-SETUP.bash` fails, and leaves the setup unchanged, when its platform or an extension it lists is still missing after `vcs import`, and warns about a clone whose `origin` points to another repository than the `.repos` file, over HTTPS and SSH alike, with a `git remote set-url` command that would point it there (#38).
@@ -77,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- The entry scripts print `<redacted>` in place of the value of every `OPENROSDE_*` variable whose name holds `PASSWORD`, `TOKEN`, or `SECRET`, so a credential of a setup reaches no terminal recording or job log (#38).
 - No `docker push` can publish a local Docker layer or the user overlay any more, since their names no longer carry the name of the public registry, where one push of a maintainer logged in to it would have published a private layer (#38).
 - `BUILD-DOCKER-IMAGE.bash` no longer logs in to the GitLab registry with a read-only deploy token written in the script, since the registry of the public project serves its images to anyone, and that token is revoked.
 

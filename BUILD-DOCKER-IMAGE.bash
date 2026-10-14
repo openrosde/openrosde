@@ -7,13 +7,19 @@
 # [docker-project]: Used to name the Docker container and control the build strategy.
 #                   Special values:
 #                   - 'local': Build current platform image with cache (fast iteration on local machine).
-#                   Otherwise, try to pull from registry, fall back to build with cache if pull fails.
+#                   Otherwise, try to pull from registry, fall back to build with cache if pull fails, as far as 'OPENROSDE_DOCKER_BUILD_FALLBACK' allows.
 #                   Default value is '$USER'.
 
 ################################################################################
 
 # Load the OpenRoSDE environment variables.
 source ./scripts/load-openrosde-env.bash "$1"
+
+# Check that 'OPENROSDE_DOCKER_BUILD_FALLBACK' names which images may be built when their pull fails, before anything is stopped or pulled.
+if [ "${OPENROSDE_DOCKER_BUILD_FALLBACK}" != "true" ] && [ "${OPENROSDE_DOCKER_BUILD_FALLBACK}" != "platform" ] && [ "${OPENROSDE_DOCKER_BUILD_FALLBACK}" != "false" ]; then
+  echo "Error: 'OPENROSDE_DOCKER_BUILD_FALLBACK' is '${OPENROSDE_DOCKER_BUILD_FALLBACK}', but it must be 'true', 'platform', or 'false'."
+  exit 1
+fi
 
 ################################################################################
 
@@ -30,7 +36,7 @@ fi
 
 # Determine build strategy based on the Docker project name.
 # - 'local': Build current platform image with cache (fast iteration on local machine).
-# Otherwise, try to pull from registry, fall back to build with cache if pull fails.
+# Otherwise, try to pull from registry, fall back to build with cache if pull fails, as far as 'OPENROSDE_DOCKER_BUILD_FALLBACK' allows.
 # The CI builds and publishes the base and platform images itself, as 'gitlab-ci/gitlab-ci.yml' describes.
 # The Docker layers of the active extensions are built locally on top of the platform image by 'scripts/build-extension-layers.bash', and the script stops if one fails.
 if [[ "${OPENROSDE_DOCKER_PROJECT}" == "local" ]]; then
@@ -41,13 +47,22 @@ if [[ "${OPENROSDE_DOCKER_PROJECT}" == "local" ]]; then
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde
 else
   # The registry of the public project needs no login, so the images are pulled anonymously.
-  # Try to pull from registry, fall back to build with cache if pull fails.
+  # Try to pull from registry, fall back to build with cache if pull fails: the base image only with 'OPENROSDE_DOCKER_BUILD_FALLBACK=true', and the platform image with 'true' or 'platform'.
+  # Otherwise a failed pull stops the script, so that a CI job fails rather than building the base image for hours.
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull openrosde-base
   if [[ "$?" -ne "0" ]]; then
+    if [ "${OPENROSDE_DOCKER_BUILD_FALLBACK}" != "true" ]; then
+      echo "Error: The pull of '${OPENROSDE_DOCKER_REGISTRY}/openrosde-base:${OPENROSDE_DOCKER_IMAGE_TAG}' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=${OPENROSDE_DOCKER_BUILD_FALLBACK}' does not build it locally."
+      exit 1
+    fi
     docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde-base
   fi
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull openrosde-platform
   if [[ "$?" -ne "0" ]]; then
+    if [ "${OPENROSDE_DOCKER_BUILD_FALLBACK}" = "false" ]; then
+      echo "Error: The pull of '${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_TAG}' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=false' does not build it locally."
+      exit 1
+    fi
     docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde-platform
   fi
   # Always build the Docker layers of the active extensions and the user overlay ('openrosde' service) locally on top of the platform image.

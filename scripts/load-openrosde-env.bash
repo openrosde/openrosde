@@ -34,10 +34,17 @@ OPENROSDE_DOCKER_CONTAINER="openrosde-${OPENROSDE_ROBOT_PLATFORM}-${OPENROSDE_DO
 
 ################################################################################
 
-# Derive the tag of the base and platform images from the branch when 'OPENROSDE_DOCKER_IMAGE_TAG' is 'auto': 'main' on the 'main' branch and on a release tag, which checks out a detached 'HEAD', and 'dev' everywhere else.
+# Derive the tag of the base and platform images from the branch when 'OPENROSDE_DOCKER_IMAGE_TAG' is 'auto': 'main' on the 'main' branch, the release 'vX.Y.Z' on a detached 'HEAD' that sits exactly on that release tag, 'main' on any other detached 'HEAD', and 'dev' everywhere else.
 if [ "${OPENROSDE_DOCKER_IMAGE_TAG}" = "auto" ]; then
   OPENROSDE_GIT_BRANCH_NAME="$(git -C "${OPENROSDE_ROOT_DIR}" rev-parse --abbrev-ref HEAD 2>/dev/null)"
-  if [ "${OPENROSDE_GIT_BRANCH_NAME}" = "main" ] || [ "${OPENROSDE_GIT_BRANCH_NAME}" = "HEAD" ]; then
+  if [ "${OPENROSDE_GIT_BRANCH_NAME}" = "HEAD" ]; then
+    OPENROSDE_GIT_RELEASE_TAG="$(git -C "${OPENROSDE_ROOT_DIR}" describe --tags --exact-match --match 'v[0-9]*' HEAD 2>/dev/null)"
+    if [[ "${OPENROSDE_GIT_RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      OPENROSDE_DOCKER_IMAGE_TAG="${OPENROSDE_GIT_RELEASE_TAG}"
+    else
+      OPENROSDE_DOCKER_IMAGE_TAG=main
+    fi
+  elif [ "${OPENROSDE_GIT_BRANCH_NAME}" = "main" ]; then
     OPENROSDE_DOCKER_IMAGE_TAG=main
   else
     OPENROSDE_DOCKER_IMAGE_TAG=dev
@@ -93,8 +100,15 @@ unset OPENROSDE_VARIABLE_NAME
 
 ################################################################################
 
-# Print every 'OPENROSDE_*' variable for debugging purposes.
-for OPENROSDE_VARIABLE_NAME in $(compgen -v OPENROSDE_ | sort); do
-  echo "$0: ${OPENROSDE_VARIABLE_NAME}=${!OPENROSDE_VARIABLE_NAME}"
-done
-unset OPENROSDE_VARIABLE_NAME
+# Print every 'OPENROSDE_*' variable for debugging purposes, unless 'OPENROSDE_QUIET' is 'true', as in the CI.
+# The value of a variable whose name holds 'PASSWORD', 'TOKEN', or 'SECRET' is never printed, so that it never reaches a terminal recording or a job log.
+if [ "${OPENROSDE_QUIET}" != "true" ]; then
+  for OPENROSDE_VARIABLE_NAME in $(compgen -v OPENROSDE_ | sort); do
+    if [[ "${OPENROSDE_VARIABLE_NAME}" =~ PASSWORD|TOKEN|SECRET ]]; then
+      echo "$0: ${OPENROSDE_VARIABLE_NAME}=<redacted>"
+    else
+      echo "$0: ${OPENROSDE_VARIABLE_NAME}=${!OPENROSDE_VARIABLE_NAME}"
+    fi
+  done
+  unset OPENROSDE_VARIABLE_NAME
+fi
