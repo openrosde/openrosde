@@ -567,6 +567,7 @@ Then update `<platform>` in the files that still list the platforms:
   Outside the CI, `gitlab-ci/test-catkin-workspaces.bash` refuses to replace an existing `.env.custom`.
   It then disconnects the container from every network, checks with `gitlab-ci/check-launch-files.bash` that every launch entry point of the panes of the setup resolves with `roslaunch --files` and that no two panes of one layout start a node of the same name with `roslaunch --nodes`, both of which start no node, and runs `ci/check-in-container.bash` of every active extension that holds one.
 - `check-scripts-job` runs `gitlab-ci/check-no-motion.bash`, which fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, in `gitlab-ci/` of the core and `ci/` of the extensions, apart from the simulations that `allowed-simulation-launches.txt` of their folder names.
+  Every test job needs it, so no check of an extension runs before it passes.
 - Every artifact expires, the Catkin logs of a failed test after a week and the generated child pipeline after a day.
 - Docker images are pushed to `OPENROSDE_DOCKER_REGISTRY`, `registry.gitlab.com/coarobo/sde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
 - Image traceability: each image embeds `OPENROSDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash, and the labels `org.opencontainers.image.revision` and `org.opencontainers.image.source`.

@@ -3,7 +3,8 @@
 # This script checks that no script that the CI runs can move a robot, as part of the CI.
 # It fails on any 'roslaunch' that does more than resolve files, list nodes, or dump parameters, with '--files', '--nodes', or '--dump-params', and on any 'rosrun', 'rostopic pub', or 'rosservice call'.
 # A 'roslaunch' may still start a launch file of a simulation that the allowlist of its folder names, 'allowed-simulation-launches.txt', with one launch file name per line.
-# It reads every file of the given folders, apart from itself and the allowlists, leaves out the comment lines, and splits every other line into the commands that ';', '&&', '||', and '|' separate.
+# It reads every file of the given folders, apart from itself and the allowlists, leaves out the comment lines, and splits every other line into the commands that ';', '&', '|', and the parentheses and backquotes of a subshell separate.
+# A command counts after a path, such as '/opt/ros/noetic/bin/roslaunch', and an option or a launch file in a trailing comment, such as '# see --files', does not count.
 # It reads text only, so a program that the scripts call, such as a Python node, is left to the review of the folder that holds it, and to the containers of the CI, which have no network when a check runs.
 #
 # Usage: bash ./gitlab-ci/check-no-motion.bash <dir> [<dir> ...]
@@ -16,8 +17,8 @@
 # Resolve the path of this script, which names every command it looks for, so that it skips itself.
 OPENROSDE_NO_MOTION_SCRIPT_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
 
-# Name the patterns of the commands, as whole words, and of the options of 'roslaunch' that start no node.
-OPENROSDE_WORD_START_PATTERN='(^|[^[:alnum:]_./-])'
+# Name the patterns of the commands, as whole words that a path may precede, and of the options of 'roslaunch' that start no node.
+OPENROSDE_WORD_START_PATTERN='(^|[^[:alnum:]_.-])'
 OPENROSDE_WORD_END_PATTERN='([^[:alnum:]_.-]|$)'
 OPENROSDE_MOVING_COMMAND_PATTERN="${OPENROSDE_WORD_START_PATTERN}(rosrun|rostopic[[:space:]]+pub|rosservice[[:space:]]+call)${OPENROSDE_WORD_END_PATTERN}"
 OPENROSDE_ROSLAUNCH_PATTERN="${OPENROSDE_WORD_START_PATTERN}roslaunch${OPENROSDE_WORD_END_PATTERN}"
@@ -52,18 +53,16 @@ for OPENROSDE_CHECKED_DIR in "$@"; do
       if [[ "${OPENROSDE_CHECKED_LINE}" =~ ^[[:space:]]*# ]]; then
         continue
       fi
-      # Split the line into its commands, then check each one.
-      OPENROSDE_CHECKED_COMMANDS="${OPENROSDE_CHECKED_LINE//&&/$'\n'}"
-      OPENROSDE_CHECKED_COMMANDS="${OPENROSDE_CHECKED_COMMANDS//||/$'\n'}"
-      OPENROSDE_CHECKED_COMMANDS="${OPENROSDE_CHECKED_COMMANDS//;/$'\n'}"
-      OPENROSDE_CHECKED_COMMANDS="${OPENROSDE_CHECKED_COMMANDS//|/$'\n'}"
+      # Split the line into its commands, then check each one, with the options and the launch file of 'roslaunch' read before any trailing comment.
+      OPENROSDE_CHECKED_COMMANDS="${OPENROSDE_CHECKED_LINE//[;&|()\`]/$'\n'}"
       while IFS= read -r OPENROSDE_CHECKED_COMMAND; do
         OPENROSDE_MOVING_COMMAND=""
+        OPENROSDE_CHECKED_OPTIONS="${OPENROSDE_CHECKED_COMMAND%%[[:space:]]#*}"
         if [[ "${OPENROSDE_CHECKED_COMMAND}" =~ ${OPENROSDE_MOVING_COMMAND_PATTERN} ]]; then
           OPENROSDE_MOVING_COMMAND="${BASH_REMATCH[2]}"
-        elif [[ "${OPENROSDE_CHECKED_COMMAND}" =~ ${OPENROSDE_ROSLAUNCH_PATTERN} ]] && ! [[ "${OPENROSDE_CHECKED_COMMAND}" =~ ${OPENROSDE_SAFE_OPTION_PATTERN} ]]; then
+        elif [[ "${OPENROSDE_CHECKED_COMMAND}" =~ ${OPENROSDE_ROSLAUNCH_PATTERN} ]] && ! [[ "${OPENROSDE_CHECKED_OPTIONS}" =~ ${OPENROSDE_SAFE_OPTION_PATTERN} ]]; then
           OPENROSDE_MOVING_COMMAND="roslaunch"
-          if [[ "${OPENROSDE_CHECKED_COMMAND}" =~ ${OPENROSDE_LAUNCH_FILE_PATTERN} ]] && [ -n "${OPENROSDE_ALLOWED_LAUNCH_FILES}" ] && printf '%s\n' "${OPENROSDE_ALLOWED_LAUNCH_FILES}" | grep -q -x -F -e "${BASH_REMATCH[1]}"; then
+          if [[ "${OPENROSDE_CHECKED_OPTIONS}" =~ ${OPENROSDE_LAUNCH_FILE_PATTERN} ]] && [ -n "${OPENROSDE_ALLOWED_LAUNCH_FILES}" ] && printf '%s\n' "${OPENROSDE_ALLOWED_LAUNCH_FILES}" | grep -q -x -F -e "${BASH_REMATCH[1]}"; then
             OPENROSDE_MOVING_COMMAND=""
           fi
         fi

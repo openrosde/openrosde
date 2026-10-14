@@ -78,9 +78,9 @@ openrosde-test-check "prints one image job per platform, from its folder, one te
     test-acme-rover-lab-workspaces-job: test-cobotta-workspaces-job: test-fetch-workspaces-job: test-hsr-workspaces-job: test-rover-workspaces-job: \
     test-sciurus17-workspaces-job: test-turtlebot3-workspaces-job: test-ur5e-workspaces-job: test-core-workspaces-job: publish-images-job: "status 0")" \
   "$(openrosde-test-print-generated-jobs)"
-openrosde-test-check "makes the test job of a setup need the image job of its platform, and the core alone the base image" \
-  "$(printf '%s\n' "test-acme-rover-lab-workspaces-job: build-rover-image-job" "test-core-workspaces-job: build-base-image-job")" \
-  "$(echo "${OPENROSDE_TEST_OUTPUT}" | awk '/^test-(acme-rover-lab|core)-workspaces-job:$/ { name = $1; next } name != "" && /^    - / { print name, $2; name = "" }')"
+openrosde-test-check "makes the test job of a setup need the image job of its platform, and the core alone the base image, and both the check of the scripts" \
+  "$(printf '%s\n' "test-acme-rover-lab-workspaces-job: build-rover-image-job" "test-acme-rover-lab-workspaces-job: check-scripts-job" "test-core-workspaces-job: build-base-image-job" "test-core-workspaces-job: check-scripts-job")" \
+  "$(echo "${OPENROSDE_TEST_OUTPUT}" | awk '/^test-(acme-rover-lab|core)-workspaces-job:$/ { name = $1; next } name != "" && /^    - / { print name, $2; next } /^  variables:$/ { name = "" }')"
 export OPENROSDE_CI_EXTENSION_OVERRIDE="acme-robots=feat/foo@${OPENROSDE_TEST_COMMIT}"
 openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
 openrosde-test-check "keeps only the setups that activate the extension of the override, and their platforms, with no job of the core alone" \
@@ -204,15 +204,24 @@ openrosde-test-write-file ci-sample/check-in-container.bash \
   "rostopic  pub /cmd_vel geometry_msgs/Twist '{}'" \
   "echo done; rosservice call /reset" \
   "bash run-roslaunch-repeatedly.bash robot_realworld.launch" \
-  "rostopic echo /joint_states"
+  "rostopic echo /joint_states" \
+  "/opt/ros/noetic/bin/roslaunch acme_bringup robot_realworld.launch" \
+  "roslaunch acme_bringup robot_realworld.launch # see --files" \
+  "roslaunch acme_bringup robot_realworld.launch & echo --files" \
+  'roslaunch acme_bringup "${ACME_LAUNCH_FILE}" # sim_world_gazebo.launch' \
+  "roslaunch --files acme_bringup robot_realworld.launch # resolves the files only"
 openrosde-test-write-file ci-sample/allowed-simulation-launches.txt "# Simulations of the tests." "sim_world_gazebo.launch"
 openrosde-test-run bash ./gitlab-ci/check-no-motion.bash ci-sample missing-folder
-openrosde-test-check "fails on every command that could move a robot, and allows the rest, a simulation of the allowlist, and a missing folder" \
+openrosde-test-check "fails on every command that could move a robot, after a path, with an option or a launch file in a comment, or in the background, and allows the rest, a simulation of the allowlist, and a missing folder" \
   "$(printf '%s\n' "status 1" "Skipping 'missing-folder', which is not a folder." "Checked 1 files for commands that could move a robot." \
     "  - ci-sample/check-in-container.bash:7: 'roslaunch' in: roslaunch acme_bringup robot_realworld.launch" \
     "  - ci-sample/check-in-container.bash:8: 'rosrun' in: rosrun acme_tools move_arm.py" \
     "  - ci-sample/check-in-container.bash:9: 'rostopic  pub' in: rostopic  pub /cmd_vel geometry_msgs/Twist '{}'" \
-    "  - ci-sample/check-in-container.bash:10: 'rosservice call' in: rosservice call /reset")" \
+    "  - ci-sample/check-in-container.bash:10: 'rosservice call' in: rosservice call /reset" \
+    "  - ci-sample/check-in-container.bash:13: 'roslaunch' in: /opt/ros/noetic/bin/roslaunch acme_bringup robot_realworld.launch" \
+    "  - ci-sample/check-in-container.bash:14: 'roslaunch' in: roslaunch acme_bringup robot_realworld.launch # see --files" \
+    "  - ci-sample/check-in-container.bash:15: 'roslaunch' in: roslaunch acme_bringup robot_realworld.launch" \
+    '  - ci-sample/check-in-container.bash:16: '"'roslaunch'"' in: roslaunch acme_bringup "${ACME_LAUNCH_FILE}" # sim_world_gazebo.launch')" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | grep -E "^(Skipping|Checked|  - )")"
 openrosde-test-run bash ./gitlab-ci/check-no-motion.bash gitlab-ci
 openrosde-test-check "finds no command that could move a robot in the scripts of the CI of the core" \

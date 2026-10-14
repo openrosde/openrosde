@@ -241,7 +241,7 @@ repositories:
 - The image job of a platform builds its image from the folder that holds it, and reuses an image whose folders hash the same, each folder hashed in the Git repository that holds it.
 - The test job of a setup selects the setup as `bash ./SWITCH-ROBOT-SETUP.bash <setup>` does, builds its Docker layers and its Catkin workspaces in the image of its platform, then disconnects the container from every network before any check runs.
 - It then checks that every launch entry point of the panes of the setup resolves with `roslaunch --files`, and that no two panes of one layout start a node of the same name with `roslaunch --nodes`, both of which start no node, and fails when neither the setup nor its platform has a pane file.
-- It then runs `ci/check-in-container.bash` of every active extension that holds one, with the setup as its argument, in the container where the workspaces of the setup are built and sourced.
+- It then runs `ci/check-in-container.bash` of every active extension that holds one, with the setup as its argument, in the container where the workspaces of the setup are built and sourced, once `check-scripts-job` has passed.
 - The panes that name no package run the launch package of the platform, `openrosde_<platform>_launch`, unless `scripts/<setup or platform>/initialize-bash-shell.bash` sets another `OPENROSDE_LAUNCH_PACKAGE`, as it does in a shell of the container.
 
 Two panes of one layout that start a node of the same name shut each other down, so the check names both.
@@ -252,7 +252,7 @@ A line that names launch files, as written in the panes, allows the node only wh
 default-gazebo /robot_state_publisher foo_navigation_default_gazebo.launch foo_mapping_default.launch
 ```
 
-A check in `ci/` never moves a robot: `gitlab-ci/check-no-motion.bash` fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`.
+A check in `ci/` never moves a robot: `gitlab-ci/check-no-motion.bash` fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, even after a path such as `/opt/ros/noetic/bin/`, and an option in a trailing comment does not count.
 It lets a script of `ci/` start only the launch files of simulations that `ci/allowed-simulation-launches.txt` names, one file name per line, such as `foo_bringup_default_gazebo.launch`.
 
 A public extension tests one of its branches against the core with a job that triggers a pipeline of OpenRoSDE on `dev`, once `gitlab-ci/extensions.repos` lists it:

@@ -2,7 +2,7 @@
 
 # This script prints the child pipeline of OpenRoSDE in YAML: the shared jobs of 'gitlab-ci/openrosde-pipeline.yml', one image job per platform, one test job per setup, and the test job of the core alone.
 # The platforms and the setups are found by name, in the core and in the extensions that 'gitlab-ci/clone-extensions.bash' cloned, as 'scripts/list-robot-platforms.bash' and 'scripts/list-robot-setups.bash' list them, so adding one changes nothing here.
-# The image job of a platform builds it from the folder that holds it, the core, an extension, or a part, and the test job of a setup needs the image job of its platform.
+# The image job of a platform builds it from the folder that holds it, the core, an extension, or a part, and the test job of a setup needs the image job of its platform and 'check-scripts-job'.
 # When 'OPENROSDE_CI_EXTENSION_OVERRIDE' names an extension to test at another version, the pipeline tests only the setups that activate that extension, with the extensions of 'OPENROSDE_CI_EXTRA_EXTENSIONS' added to those they list, and builds only their platforms.
 #
 # Usage: bash ./gitlab-ci/generate-ci-pipeline.bash > <child-pipeline-file>
@@ -88,7 +88,7 @@ for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_CI_TESTED_PLATFORMS}; do
   echo "    OPENROSDE_CI_PLATFORM_ROOT_DIR: ${OPENROSDE_CI_PLATFORM_ROOT_DIR}"
 done
 
-# Print the test job of every setup, which needs the image of its platform.
+# Print the test job of every setup, which needs the image of its platform and the check of the scripts.
 while read -r OPENROSDE_CI_SETUP_NAME OPENROSDE_CI_SETUP_PLATFORM; do
   if [ -z "${OPENROSDE_CI_SETUP_NAME}" ]; then
     continue
@@ -98,17 +98,19 @@ while read -r OPENROSDE_CI_SETUP_NAME OPENROSDE_CI_SETUP_PLATFORM; do
   echo "  extends: .test-setup"
   echo "  needs:"
   echo "    - build-${OPENROSDE_CI_SETUP_PLATFORM}-image-job"
+  echo "    - check-scripts-job"
   echo "  variables:"
   echo "    OPENROSDE_CI_ROBOT_SETUP: ${OPENROSDE_CI_SETUP_NAME}"
 done <<< "${OPENROSDE_CI_TESTED_SETUPS}"
 
-# Print the test job of the core alone, with no platform, in the base image, unless the pipeline tests one extension.
+# Print the test job of the core alone, with no platform, in the base image, unless the pipeline tests one extension, which needs the check of the scripts too.
 if [ -z "${OPENROSDE_CI_OVERRIDE_DIR}" ]; then
   echo ""
   echo "test-core-workspaces-job:"
   echo "  extends: .test-setup"
   echo "  needs:"
   echo "    - build-base-image-job"
+  echo "    - check-scripts-job"
   echo "  variables:"
   echo "    OPENROSDE_CI_ROBOT_SETUP: openrosde"
 fi

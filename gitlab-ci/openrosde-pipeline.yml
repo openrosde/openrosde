@@ -98,6 +98,7 @@ build-base-image-job:
 ################################################################################
 
 # Test a setup, 'OPENROSDE_CI_ROBOT_SETUP', or the core alone with 'openrosde': build its Docker layers and its Catkin workspaces inside the image of its platform, check its launch entry points, and run the checks of its extensions.
+# Every test job needs 'check-scripts-job' besides the image of its platform, so that no check of an extension runs before the check that it cannot move a robot passes.
 # Keep the Catkin logs for a week when the test fails.
 
 .test-setup:
@@ -116,7 +117,7 @@ build-base-image-job:
 
 ################################################################################
 
-# Check that no script that the CI runs, in 'gitlab-ci/' of the core or in 'ci/' of an extension, can move a robot.
+# Check that no script that the CI runs, in 'gitlab-ci/' of the core or in 'ci/' of an extension, can move a robot, before any test job runs one.
 # The check reads files only, so it runs without Docker-in-Docker, at once.
 
 check-scripts-job:
