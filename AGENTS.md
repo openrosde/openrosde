@@ -139,6 +139,7 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 - A shared base Docker image (`sde-base`) contains common tools and dependencies.
 - Platform-specific images (`turtlebot3-devel`, `ur5e-devel`, `fetch-devel`, `sciurus17-devel`, `cobotta-devel`, `hsr-devel`) extend the base with robot-specific packages.
 - A user overlay image (`user-devel`) extends the selected platform image and is the actual runtime container. It is platform-agnostic and built locally only (never pushed to the registry).
+- The active extensions may add Docker layers (`docker/<name>-devel/Dockerfile`, `FROM ${SDE_PARENT_IMAGE}`) between the platform image and the user overlay, built locally only, in the order of the active folders, and `SDE_USER_PARENT_IMAGE` names the last one (see `docs/extensions.md`).
 - The Catkin workspaces are sourced in sequence: shared (`sde_catkin_ws`), platform-specific (`${SDE_ROBOT_PLATFORM}_catkin_ws`), the workspaces of the active extensions, then user overlay (`user_catkin_ws`).
 - All scripts derive their behavior from `SDE_ROBOT_PLATFORM` and `SDE_ROBOT_EXTENSIONS` loaded via `scripts/load-sde-env.bash`.
 - A platform lives in the core or in an extension cloned into `extensions/`, and `scripts/load-extension-paths.bash` resolves where its files are, on the host and inside the container alike (see `docs/extensions.md`).

@@ -56,6 +56,26 @@ function sde-derive-platform-dockerfile () {
 }
 sde-derive-platform-dockerfile "${SDE_ROBOT_PLATFORM}"
 
+# List the Docker layers of the active extensions: every 'docker/<name>-devel/Dockerfile' of an active folder other than the core, unless '<name>' is a platform.
+# They stack between the platform image and the user overlay, in the order of the active folders, and are always built locally, like the user overlay.
+SDE_EXTENSION_DOCKERFILES=()
+SDE_ROBOT_PLATFORM_NAMES=" $(bash "${SDE_ROOT_DIR}/scripts/list-robot-platforms.bash" | tr '\n' ' ') "
+for SDE_EXTENSION_ROOT_DIR in "${SDE_ACTIVE_ROOT_DIRS[@]:1}"; do
+  for SDE_EXTENSION_DOCKERFILE in "${SDE_EXTENSION_ROOT_DIR}"/docker/*-devel/Dockerfile; do
+    SDE_EXTENSION_IMAGE_NAME="$(basename "$(dirname "${SDE_EXTENSION_DOCKERFILE}")")"
+    if [ -f "${SDE_EXTENSION_DOCKERFILE}" ] && [[ "${SDE_ROBOT_PLATFORM_NAMES}" != *" ${SDE_EXTENSION_IMAGE_NAME%-devel} "* ]]; then
+      SDE_EXTENSION_DOCKERFILES+=("${SDE_EXTENSION_DOCKERFILE}")
+    fi
+  done
+done
+unset SDE_EXTENSION_ROOT_DIR SDE_EXTENSION_DOCKERFILE SDE_EXTENSION_IMAGE_NAME
+
+# Derive the parent image of the user overlay: the last Docker layer of the extensions, or else the platform image.
+SDE_USER_PARENT_IMAGE="${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:latest"
+if [ "${#SDE_EXTENSION_DOCKERFILES[@]}" -gt 0 ]; then
+  SDE_USER_PARENT_IMAGE="${SDE_DOCKER_REGISTRY}/$(basename "$(dirname "${SDE_EXTENSION_DOCKERFILES[${#SDE_EXTENSION_DOCKERFILES[@]}-1]}")"):latest"
+fi
+
 # Export every 'SDE_*' variable, so that the Docker Compose files of the core, of the platform, and of the user overlay can interpolate it, and the platform scripts in 'scripts/<platform>/' can read it.
 for SDE_VARIABLE_NAME in $(compgen -v SDE_); do
   export "${SDE_VARIABLE_NAME}"

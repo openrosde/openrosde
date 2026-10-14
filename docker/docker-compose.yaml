@@ -55,7 +55,8 @@ services:
       args:
         - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}
         - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
-        - SDE_PLATFORM_IMAGE=${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:latest
+        # The parent of the user overlay is the last Docker layer of the active extensions, or else the platform image, as 'scripts/load-sde-env.bash' derives it.
+        - SDE_PLATFORM_IMAGE=${SDE_USER_PARENT_IMAGE}
     volumes:
       # Map repository root for convenient access.
       - ../:${SDE_CONTAINER_ROOT_DIR}/
