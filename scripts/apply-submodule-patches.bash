@@ -7,7 +7,7 @@
 #
 # Usage: bash ./scripts/apply-submodule-patches.bash <repository-root-dir>
 #
-# <repository-root-dir>: Root directory of the repository whose 'patches/' apply to its own Git submodules, the core or an extension cloned into 'extensions/'.
+# <repository-root-dir>: Root directory of the repository whose 'patches/' apply to its own Git submodules, the core or an extension cloned into 'extensions/', or of a part of an extension in 'extensions/<extension>/parts/'.
 #
 # To create a patch: make changes in the submodule, run 'git diff > <patch-file>'.
 # Then reset the submodule with 'git checkout .'.

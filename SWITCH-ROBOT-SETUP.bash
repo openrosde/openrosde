@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # This script switches the active robot setup by copying its environment template to '.env.custom', after cloning the repositories the setup needs.
-# A setup is an environment template 'env/<setup>.env' that declares 'OPENROSDE_ROBOT_SETUP=<setup>', in the core or in an extension cloned into 'extensions/'.
+# A setup is an environment template 'env/<setup>.env' that declares 'OPENROSDE_ROBOT_SETUP=<setup>', in the core, in an extension cloned into 'extensions/', or in a part of an extension in 'extensions/<extension>/parts/'.
 # The template of every platform is its default setup, named after the platform.
-# If 'env/<setup>.repos' lies beside the template, 'vcs import' of 'vcstool' clones the repositories it lists into 'extensions/', skipping those already cloned.
+# If 'env/<setup>.repos' lies beside the template, 'vcs import' of 'vcstool' clones the repositories it lists into 'extensions/', skipping those already cloned, with a warning for every clone whose 'origin' is not the URL of the file.
+# The switch fails, and leaves the setup unchanged, when the platform of the setup or any name of its 'OPENROSDE_ROBOT_EXTENSIONS' does not resolve once the repositories are cloned.
 #
 # Usage: bash ./SWITCH-ROBOT-SETUP.bash <robot-setup>
 #
@@ -58,12 +59,47 @@ if [ -f "${OPENROSDE_SETUP_REPOS_FILE}" ]; then
     echo "Install it with 'sudo apt-get install vcstool', as 'SETUP-DEVEL-MACHINE.bash' does."
     exit 1
   fi
+
+  # Warn about every repository already cloned from another URL than the one the file lists, which 'vcs import --skip-existing' leaves at its old version, and print the command that points it to the URL of the file.
+  while read -r OPENROSDE_REPOSITORY_NAME OPENROSDE_REPOSITORY_URL; do
+    OPENROSDE_REPOSITORY_DIR="${OPENROSDE_ROOT_DIR}/extensions/${OPENROSDE_REPOSITORY_NAME}"
+    if [ -e "${OPENROSDE_REPOSITORY_DIR}/.git" ]; then
+      OPENROSDE_REPOSITORY_ORIGIN_URL="$(git -C "${OPENROSDE_REPOSITORY_DIR}" remote get-url origin 2>/dev/null)"
+      if [ -n "${OPENROSDE_REPOSITORY_ORIGIN_URL}" ] && [ "${OPENROSDE_REPOSITORY_ORIGIN_URL}" != "${OPENROSDE_REPOSITORY_URL}" ]; then
+        echo "Warning: 'extensions/${OPENROSDE_REPOSITORY_NAME}/' is cloned from '${OPENROSDE_REPOSITORY_ORIGIN_URL}' rather than from '${OPENROSDE_REPOSITORY_URL}', which '${OPENROSDE_SETUP_REPOS_FILE#${OPENROSDE_ROOT_DIR}/}' lists, so 'vcs import' leaves it as it is."
+        echo "Point it to the URL of the file with: git -C '${OPENROSDE_REPOSITORY_DIR}' remote set-url origin '${OPENROSDE_REPOSITORY_URL}'"
+      fi
+    fi
+  done < <(awk '/^  [^ #][^:]*:[[:space:]]*$/ { name = $1; sub(/:$/, "", name) } /^    url:/ { url = $2; gsub(/^["\047]|["\047]$/, "", url); print name, url }' "${OPENROSDE_SETUP_REPOS_FILE}")
+
   echo "Cloning the repositories of '$1' that are missing from 'extensions/'..."
   mkdir -p "${OPENROSDE_ROOT_DIR}/extensions"
   if ! vcs import --skip-existing --input "${OPENROSDE_SETUP_REPOS_FILE}" "${OPENROSDE_ROOT_DIR}/extensions"; then
     echo "Error: 'vcs import' failed, so the setup stays unchanged."
     exit 1
   fi
+fi
+
+################################################################################
+
+# Check that the platform of the setup and every name of its 'OPENROSDE_ROBOT_EXTENSIONS' resolve, now that its repositories are cloned, so that a missing one fails here rather than later in Docker Compose or Catkin.
+OPENROSDE_SETUP_PLATFORM_NAME="$(source "${OPENROSDE_SETUP_ENV_FILE}" > /dev/null 2>&1; echo "${OPENROSDE_ROBOT_PLATFORM}")"
+OPENROSDE_SETUP_EXTENSION_NAMES="$(source "${OPENROSDE_SETUP_ENV_FILE}" > /dev/null 2>&1; echo "${OPENROSDE_ROBOT_EXTENSIONS}")"
+if ! bash "${OPENROSDE_ROOT_DIR}/scripts/list-robot-platforms.bash" 2>/dev/null | grep -qxF "${OPENROSDE_SETUP_PLATFORM_NAME}"; then
+  echo "Error: Platform '${OPENROSDE_SETUP_PLATFORM_NAME}' of setup '$1' is not found, so the setup stays unchanged."
+  echo "Clone the extension that holds it into 'extensions/', or list it in 'env/$1.repos', as 'docs/extensions.md' explains."
+  exit 1
+fi
+OPENROSDE_UNRESOLVED_EXTENSION_NAMES=""
+for OPENROSDE_EXTENSION_NAME in ${OPENROSDE_SETUP_EXTENSION_NAMES}; do
+  if ! openrosde-find-extension-root "${OPENROSDE_EXTENSION_NAME}" > /dev/null; then
+    OPENROSDE_UNRESOLVED_EXTENSION_NAMES="${OPENROSDE_UNRESOLVED_EXTENSION_NAMES} '${OPENROSDE_EXTENSION_NAME}'"
+  fi
+done
+if [ -n "${OPENROSDE_UNRESOLVED_EXTENSION_NAMES}" ]; then
+  echo "Error: Extensions${OPENROSDE_UNRESOLVED_EXTENSION_NAMES} of setup '$1' do not resolve, so the setup stays unchanged."
+  echo "Clone each into 'extensions/', or list it in 'env/$1.repos', as 'docs/extensions.md' explains."
+  exit 1
 fi
 
 ################################################################################

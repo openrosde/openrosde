@@ -116,6 +116,7 @@ Record a change of a topic name, a message type, a port, or the launch file that
 - `patches/`: Patches of the Git submodules, mirroring the submodule paths.
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`) plus `user.env` (user overlay reference template).
 - `extensions/`: Extensions, each a Git repository cloned into `extensions/<extension>/` and ignored by the Git of the core, apart from `README.md`.
+  An extension of a company may split the units of several robots into parts, `extensions/<extension>/parts/<part>/`, each with the layout of the core and activated by its name.
 - `docs/`: Documentation.
   - `basic-usage.md`: Full setup guide.
   - `advanced-usage.md`: Advanced features and configuration.
@@ -143,8 +144,10 @@ OpenRoSDE supports multiple robot platforms through a single codebase controlled
 - The active extensions may add Docker layers (`docker/<name>-devel/Dockerfile`, `FROM ${OPENROSDE_PARENT_IMAGE}`) between the platform image and the user overlay, built locally only, in the order of the active folders, and `OPENROSDE_USER_PARENT_IMAGE` names the last one (see `docs/extensions.md`).
 - The Catkin workspaces are sourced in sequence: shared (`openrosde_catkin_ws`), platform-specific (`${OPENROSDE_ROBOT_PLATFORM}_catkin_ws`), the workspaces of the active extensions, then user overlay (`user_catkin_ws`).
 - All scripts derive their behavior from `OPENROSDE_ROBOT_PLATFORM` and `OPENROSDE_ROBOT_EXTENSIONS` loaded via `scripts/load-openrosde-env.bash`.
-- A platform lives in the core or in an extension cloned into `extensions/`, and `scripts/load-extension-paths.bash` resolves where its files are, on the host and inside the container alike (see `docs/extensions.md`).
-  A file named after a platform is looked up in the core first, then in every cloned extension, while workspaces and Docker Compose overlays only come from the platform and the extensions of `OPENROSDE_ROBOT_EXTENSIONS`.
+- A platform lives in the core, in an extension cloned into `extensions/`, or in a part of an extension, and `scripts/load-extension-paths.bash` resolves where its files are, on the host and inside the container alike (see `docs/extensions.md`).
+  An environment template `env/<name>.env` is looked up in the core first, then in every cloned extension followed by its parts.
+  A file named after the setup comes from the folder of the setup, and a file named after the platform from the folder of the platform, then from the core, so a clone that is not active never supplies one.
+  Workspaces, Docker layers, Docker Compose overlays, and `tmux` panes only come from the core, the platform, the extensions or parts of `OPENROSDE_ROBOT_EXTENSIONS`, and the setup, and an overlay or a pane file named after a platform or a setup that is not active is left out.
 
 ### Configuration System
 
@@ -197,7 +200,8 @@ The remaining spare panes (Numbers 8-11) are free shells reserved for additional
 ### Tmux Sessions
 
 `RUN-TMUX-SESSION.bash [docker-project] [session-layout]` runs the terminals in a `tmux` session named `openrosde-<platform>-<docker-project>`, or attaches to it if it already runs.
-The session gathers the pane files of the platform (`tmux/<platform>.panes`), of the active extensions and the setup (every `tmux/*.panes` of their folders), then of the core (`tmux/openrosde.panes`), and opens a window on the first pane of each window name.
+The session gathers the pane files of the setup (`tmux/<setup>.panes`), or else of the platform (`tmux/<platform>.panes`), of the active extensions and the setup (every other `tmux/*.panes` of their folders not named after a platform or a setup), then of the core (`tmux/openrosde.panes`), and opens a window on the first pane of each window name.
+The pane file of a setup replaces that of its platform, as its Terminator layout does, and a device ships no pane file, since its panes belong to each setup.
 Each line of a pane file reads `<layouts> <window> <launch-file> [<arg:=value> ...]`, where `<layouts>` is `*` or a comma-separated list of layouts (`default-gazebo`, `default-realworld`, or a layout of a setup), and the words `shell` and `host` open a shell in the container or on the host.
 The windows are `robot` (bringup, RViz, MoveIt, and the secondary launches of the platform), `extra` (further launches of the platform), the windows of the extensions and the setup, `tools` (FlexBE app, rqt suite, ROS TCP Endpoint, `rosbridge`), `user` (user overlay starter and a container shell), and `host`.
 The session turns the mouse on and titles the terminal `OpenRoSDE (<session>)`, which `maximize-app-window.bash` matches like the Terminator title.
@@ -230,7 +234,7 @@ Number: 15 (`terminal29`) is standardized across all platforms and both environm
 All custom environment variables use the `OPENROSDE_` prefix. Examples:
 - `OPENROSDE_ROBOT_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`, `fetch`).
 - `OPENROSDE_ROBOT_SETUP`: Active setup, named after its template `env/<setup>.env` (the platform name for a default setup).
-- `OPENROSDE_ROBOT_EXTENSIONS`: Folder names of the active extensions in `extensions/`, separated by spaces.
+- `OPENROSDE_ROBOT_EXTENSIONS`: Names of the active extensions in `extensions/` or of their parts in `extensions/<extension>/parts/`, separated by spaces, each held by one folder only.
 - `OPENROSDE_DOCKER_REGISTRY`: Registry of the base and platform images (`registry.gitlab.com/coarobo/sde` by default).
 - `OPENROSDE_DOCKER_IMAGE_TAG`: Tag of the base and platform images, `main` or `dev`, or `auto` to derive it from the branch.
 - `OPENROSDE_CONTAINER_ROOT_DIR`: OpenRoSDE root path inside the Docker container.
@@ -488,7 +492,7 @@ Current patches:
 ## Adding a New Platform
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full step-by-step guide.
-The platforms are found by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `OPENROSDE_ROBOT_PLATFORM=<platform>`, and the rest of the extension system of the [OpenRoSDE Split](#openrosde-split) (#38) changes this section again.
+The platforms are found by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `OPENROSDE_ROBOT_PLATFORM=<platform>` alone on its line, with no quotes and no trailing comment, and the rest of the extension system of the [OpenRoSDE Split](#openrosde-split) (#38) changes this section again.
 A new platform goes either into the core or into an extension repository of its own with the same layout, cloned into `extensions/` (see `docs/extensions.md`), where it needs no registration at all.
 When adding a platform named `<platform>`, create these files:
 
