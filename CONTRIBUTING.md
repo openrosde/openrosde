@@ -12,21 +12,24 @@ This guide describes how to contribute to the project, with a focus on the most 
 - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md` updates.
 - Keep commits focused: one logical change per commit.
 - Open a GitLab issue before starting non-trivial work so the maintainers can give early feedback.
-- Submit changes via a merge request (MR) from a feature branch into `main`.
+- Submit changes via a merge request (MR) from a feature branch into `dev`.
 - Read [`AGENTS.md`](AGENTS.md) for coding conventions, code style rules, and architecture details: these apply to both human contributors and AI agents.
 
 ## GitLab Project Organization
 
-The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-trunk workflow centered on the `main` branch.
+The project is hosted at <https://gitlab.com/coarobo/SDE> and works on two long-lived branches: `dev` for the work in progress, and `main` for the releases.
 
 ### Branches
 
-- `main`: the default and only long-lived branch.
-  All releases are tagged on `main`.
-  Direct pushes are not allowed. All changes land via merge requests.
-- Feature branches: short-lived, named with a kebab-case verb-first slug that mirrors the Conventional Commit type when practical.
-  Examples: `add-myrobot-platform`, `fix-cobotta-gripper-pid`, `docs-update-readme`.
-  Always branch from the latest `main` and rebase before merging.
+- `main`: the default branch, which holds the releases.
+  All releases are tagged on `main`, and `dev` merges into it for each release.
+- `dev`: the integration branch, which every change targets.
+  The CI publishes its images as `dev`, and the robots of the maintainers run their demonstrations from it.
+- Both are protected: direct pushes are not allowed, and all changes land via merge requests.
+- Feature branches: short-lived, named `<type>/<slug>` after the Conventional Commit type, with a kebab-case slug.
+  Examples: `feat/add-myrobot-platform`, `fix/cobotta-gripper-pid`, `docs/update-readme`.
+  Always branch from the latest `dev`.
+  A change that builds on another one still in review branches from it, and its merge request targets that branch until it is merged.
 
 ### Merge Requests
 
@@ -43,7 +46,7 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-t
   3. **Testing**: commands run and platforms verified.
   4. **Related**: `Closes #N`, `Refs #N`, or `None`.
   5. **Changelog**: which `CHANGELOG.md` subsection the change belongs to (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), and the one-line entry being added.
-- Merge commits are preserved (no squash) so the per-commit history of the feature branch lands on `main`.
+- Merge commits are preserved (no squash) so the per-commit history of the feature branch lands on `dev`.
 - After merging, delete the source branch.
 
 ### Issues
@@ -51,8 +54,7 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and follows a single-t
 - Use plain descriptive titles, not Conventional Commit format.
   Issues describe a problem or request. Commits describe a change.
   Example: `Gripper does not respond on COBOTTA realworld bringup` (good), `fix(cobotta): gripper does not respond` (avoid).
-- Categorize with labels rather than title prefixes.
-  Recommended labels: `bug`, `feature`, `docs`, `chore`, `question`, plus a per-platform label (`platform::turtlebot3`, etc.).
+- Categorize with the labels of the `coarobo` group rather than title prefixes: `default:bug`, `default:enhancement`, `default:documentation`, `default:discussion`, `default:critical`, `default:suggestion`, `default:support`, `default:confirmed`, `custom:hardware`, and `custom:administration`.
 - Link issues to the milestone of the release that will include the fix or feature.
 - Close issues automatically by referencing them from the merging MR's `## Related` section with `Closes #N`. Use `Refs #N` to link without closing.
 
@@ -83,8 +85,8 @@ The release notes mirror the corresponding `CHANGELOG.md` section.
 
 Release procedure (per release):
 
-1. On a release branch (`release-vX.Y.Z`), update `CHANGELOG.md`: rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD` and add a new empty `[Unreleased]` section.
-2. Open an MR titled `chore(release): vX.Y.Z`, get it reviewed, and merge to `main`.
+1. On a release branch (`release/vX.Y.Z`) from `dev`, update `CHANGELOG.md`: rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD` and add a new empty `[Unreleased]` section, then merge it into `dev`.
+2. Open an MR from `dev` to `main` titled `chore(release): vX.Y.Z`, get it reviewed, and merge it, which makes the CI publish the images as `main`.
 3. Tag the merge commit:
 
    ```shell
@@ -291,8 +293,8 @@ grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --i
 
 ### Step 11: Submit a Merge Request
 
-1. Commit your changes on a branch named `add-<platform>-support`.
-2. Push the branch and open a merge request targeting `main`.
+1. Commit your changes on a branch named `feat/add-<platform>-support`, from the latest `dev`.
+2. Push the branch and open a merge request targeting `dev`.
 3. The MR title should follow Conventional Commits: `feat(<platform>): add <Platform Name> platform support`.
 4. The MR description should follow the structure documented in [Merge Requests](#merge-requests): Summary, Changes (list new and updated platform-aware files), Testing (commands run and platforms verified), Related, Changelog.
 5. Add a `- Add <Platform Name> platform support (!N).` entry under `### Added` in the `## [Unreleased]` section of `CHANGELOG.md`.

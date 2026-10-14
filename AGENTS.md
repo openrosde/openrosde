@@ -566,7 +566,6 @@ Agent rules:
   `dev` is the protected integration branch, where agents work and from which the Coarobo UR5e bench runs its demos.
 - Short-lived branches are named `<type>/<slug>` after the Conventional Commit type (e.g., `feat/atr-open-house-demo`, `fix/registry-anonymous-pull`), branch from the latest `dev`, and merge back into `dev` through an MR.
 - `dev` merges into `main` through an MR when the maintainers decide that a release is due.
-- Where `CONTRIBUTING.md` still describes a single trunk on `main` or other labels, this section is the current one.
 - Ask the maintainer before every `git add`, commit, merge, rebase, reset, push, or branch deletion, and show the diff first.
 - Never stash, reset, restore, check out over, or clean work that someone else left in a working tree.
 - End every commit an agent writes with a `Co-authored-by: <agent and model> <noreply address>` trailer after a blank line, as [GitHub documents it](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/creating-a-commit-with-multiple-authors), while the maintainer stays the author.
