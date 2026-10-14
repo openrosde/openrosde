@@ -87,7 +87,7 @@ Release procedure (per release):
 
 1. On a release branch (`release/vX.Y.Z`) from `dev`, update `CHANGELOG.md`: rename `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD` and add a new empty `[Unreleased]` section, then merge it into `dev`.
 2. Open an MR from `dev` to `main` titled `chore(release): vX.Y.Z`, get it reviewed, and merge it, which makes the CI publish the images as `main`.
-3. Tag the merge commit:
+3. Tag the merge commit, which makes the CI publish the images of the release as `vX.Y.Z`, retagged from the `main` images whose sources are identical:
 
    ```shell
    git checkout main && git pull
