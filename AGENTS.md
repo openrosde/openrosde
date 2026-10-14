@@ -125,6 +125,7 @@ Record a change of a topic name, a message type, a port, or the launch file that
   - `robot-platforms/`: Platform-specific documentation (`turtlebot3.md`, `ur5e.md`, `fetch.md`, `sciurus17.md`, `cobotta.md`, `hsr.md`).
 - `tmux/`: Pane files of the `tmux` sessions: `openrosde.panes` for the core and `<platform>.panes` for each platform.
 - `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`, `hsr.config`).
+- `tests/`: Test suites of the scripts (`tests/suites/`), which `tests/run.bash` runs in a Debian container on scratch copies of the repository, with every outside command stubbed.
 - `gitlab-ci/`: GitLab CI/CD pipeline: the parent `gitlab-ci.yml`, the shared jobs of the child pipeline (`openrosde-pipeline.yml`), and the scripts that generate it (`generate-ci-pipeline.bash`), build or reuse an image (`build-ci-image.bash`), test the Catkin workspaces (`test-catkin-workspaces.bash`), and publish the images (`publish-ci-images.bash`).
 
 ## Agent Persona
@@ -533,6 +534,7 @@ Then update `<platform>` in the files that still list the platforms:
 - Verify Docker images build successfully with `bash ./BUILD-DOCKER-IMAGE.bash`.
 - Verify Catkin workspaces build inside the container with `openrosde-reset-catkin-workspaces`.
 - Check for hardcoded paths: `grep -rn '/root/OpenRoSDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .`
+- Run the test suites of the scripts with `bash ./tests/run.bash`, which needs Docker on the Ubuntu development machine, or runs directly inside a Debian container with `tmux` installed, and add a suite to `tests/suites/` for every change of the loader or the entry scripts.
 
 ## Real Robots
 

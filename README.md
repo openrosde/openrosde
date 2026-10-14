@@ -240,6 +240,7 @@ tmux/
   <platform>.panes                       # Panes of each platform in its 'tmux' session.
 patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git).
+tests/                                   # Test suites of the scripts, run by 'tests/run.bash'.
 gitlab-ci/                               # GitLab CI/CD pipeline and its scripts.
 ```
 
