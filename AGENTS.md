@@ -125,7 +125,6 @@ Record a change of a topic name, a message type, a port, or the launch file that
 - `tmux/`: Pane files of the `tmux` sessions: `openrosde.panes` for the core and `<platform>.panes` for each platform.
 - `terminator/`: Per-platform Terminator layout configuration (`turtlebot3.config`, `ur5e.config`, `fetch.config`, `sciurus17.config`, `cobotta.config`, `hsr.config`).
 - `gitlab-ci/`: GitLab CI/CD pipeline: the parent `gitlab-ci.yml`, the shared jobs of the child pipeline (`openrosde-pipeline.yml`), and the scripts that generate it (`generate-ci-pipeline.bash`), build or reuse an image (`build-ci-image.bash`), test the Catkin workspaces (`test-catkin-workspaces.bash`), and publish the images (`publish-ci-images.bash`).
-- `tests/`: Test suites of the scripts and configuration files, which `tests/run.bash` runs in a Debian container (`check-terminator-parity.bash`).
 
 ## Agent Persona
 
@@ -203,7 +202,6 @@ Each line of a pane file reads `<layouts> <window> <launch-file> [<arg:=value> .
 The windows are `robot` (bringup, RViz, MoveIt, and the secondary launches of the platform), `extra` (further launches of the platform), the windows of the extensions and the setup, `tools` (FlexBE app, rqt suite, ROS TCP Endpoint, `rosbridge`), `user` (user overlay starter and a container shell), and `host`.
 The session turns the mouse on and titles the terminal `OpenRoSDE (<session>)`, which `maximize-app-window.bash` matches like the Terminator title.
 Until Terminator is retired, keep `tmux/<platform>.panes` in step with `terminator/<platform>.config`, since the platform pane files were generated from the Terminator layouts.
-`tests/check-terminator-parity.bash` checks that every layout of a Terminator config runs the same launch files and arguments as the panes of that layout.
 
 ### Terminator Layouts
 
@@ -530,7 +528,6 @@ Then update `<platform>` in the files that still list the platforms:
 
 - Verify Docker images build successfully with `bash ./BUILD-DOCKER-IMAGE.bash`.
 - Verify Catkin workspaces build inside the container with `openrosde-reset-catkin-workspaces`.
-- Run the test suites of `tests/` in a Debian container with `bash ./tests/run.bash`, or one of them with `bash ./tests/run.bash <test-suite>`.
 - Check for hardcoded paths: `grep -rn '/root/OpenRoSDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .`
 
 ## Real Robots
