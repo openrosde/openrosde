@@ -36,7 +36,7 @@ default:
   # GitLab names the service 'docker' after its image, which 'DOCKER_HOST' reaches.
   services:
     - docker:29.8.1-dind
-  # The tag selects the runner: 'privileged-docker' for the runner of the office, or the tag of an instance runner of GitLab.com, set when the pipeline runs.
+  # The tag selects the runner: 'privileged-docker' for a self-managed runner, or the tag of an instance runner of GitLab.com, set when the pipeline runs.
   tags:
     - $OPENROSDE_CI_RUNNER_TAG
   interruptible: true
