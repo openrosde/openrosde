@@ -51,6 +51,29 @@ function openrosde-test-print-expected-session () {
   done | awk -F'|' '{ if (!($1 in panes)) { order[++count] = $1 } panes[$1] = panes[$1] $0 "\n" } END { for (i = 1; i <= count; i++) printf "%s", panes[order[i]] }'
 }
 
+# Stop the 'tmux' server of the suite, and wait up to five seconds until the server and the commands of its panes have exited, since 'tmux kill-server' returns before they do and they would still write into the scratch copy while it is removed.
+# 'command -p' runs the real 'sleep' rather than its stub.
+function openrosde-test-stop-tmux-server () {
+  local OPENROSDE_TEST_TMUX_PIDS OPENROSDE_TEST_TMUX_PID OPENROSDE_TEST_WAIT_COUNT OPENROSDE_TEST_RUNNING_PIDS
+  OPENROSDE_TEST_TMUX_PIDS="$(tmux list-sessions -F '#{pid}' 2>/dev/null; tmux list-panes -a -F '#{pane_pid}' 2>/dev/null)"
+  tmux kill-server > /dev/null 2>&1
+  OPENROSDE_TEST_WAIT_COUNT=0
+  while [ "${OPENROSDE_TEST_WAIT_COUNT}" -lt 50 ]; do
+    OPENROSDE_TEST_RUNNING_PIDS=""
+    for OPENROSDE_TEST_TMUX_PID in ${OPENROSDE_TEST_TMUX_PIDS}; do
+      if kill -0 "${OPENROSDE_TEST_TMUX_PID}" 2>/dev/null; then
+        OPENROSDE_TEST_RUNNING_PIDS="${OPENROSDE_TEST_RUNNING_PIDS} ${OPENROSDE_TEST_TMUX_PID}"
+      fi
+    done
+    if [ -z "${OPENROSDE_TEST_RUNNING_PIDS}" ]; then
+      return 0
+    fi
+    command -p sleep 0.1
+    OPENROSDE_TEST_WAIT_COUNT=$((OPENROSDE_TEST_WAIT_COUNT + 1))
+  done
+  echo "Warning: The 'tmux' server or its panes still run after five seconds:${OPENROSDE_TEST_RUNNING_PIDS}."
+}
+
 ################################################################################
 
 # Check the sessions of the six platforms of the core in both layouts.
@@ -99,7 +122,7 @@ openrosde-test-run bash ./RUN-TMUX-SESSION.bash test lab-demo
 openrosde-test-check "opens the windows of the platform, the extension, the setup, then the core, in the layout of the setup" \
   "$(openrosde-test-print-expected-session lab-demo extensions/openrosde-platform-foo/tmux/foo.panes extensions/my-lab-tools/tmux/my-lab-tools.panes extensions/my-lab/tmux/my-lab-demo.panes tmux/openrosde.panes)" \
   "$(openrosde-test-print-session openrosde-foo-test)"
-tmux kill-server > /dev/null 2>&1
+openrosde-test-stop-tmux-server
 
 ################################################################################
 

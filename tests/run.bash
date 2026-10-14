@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script runs the test suites of the OpenRoSDE scripts in 'tests/suites/', each on scratch copies of the repository with every outside command stubbed, so that no test builds an image, starts a container, or reaches a robot.
-# On a machine with Docker, it runs them in a Debian container with 'tmux', built once as the local image 'openrosde-tests:local', with the repository mounted read-only.
+# On a machine with Docker, it runs them in a Debian container with 'tmux', built once as the local image 'openrosde-tests:local', with the repository mounted read-only and no network, so that a suite changes nothing outside the container.
 # Inside a container that has no Docker, such as a Debian job of the CI with 'tmux' installed, it runs them directly.
 #
 # Usage: bash ./tests/run.bash [suite ...]
@@ -23,7 +23,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends tmux \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 EOF
-  docker run --rm \
+  docker run --rm --network none \
     --env OPENROSDE_TEST_IN_CONTAINER=true \
     --volume "${OPENROSDE_ROOT_DIR}:/src:ro" \
     openrosde-tests:local \
