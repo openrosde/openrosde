@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The `default-gazebo` `tmux` sessions of `fetch`, `sciurus17`, `cobotta`, `hsr`, and `ur5e` open the MoveIt pane that their Terminator layouts run as Number 6, so the CI now also resolves `sciurus17_moveit_default_gazebo.launch`, `cobotta_moveit_default_gazebo.launch`, and `ur5e_moveit_default_gazebo.launch` (#38).
 - `build-catkin-workspaces.bash` ends with a failure status when a workspace fails to build, which `reset-catkin-workspaces.bash` passes on, so the CI and `openrosde-reset-catkin-workspaces` no longer report success over a broken package (#30).
 - `SWITCH-ROBOT-PLATFORM.bash` no longer offers the user overlay template `user` as a platform (#38).
 - `openrosde_launch:ros_tcp_endpoint_default.launch` runs the Unity ROS TCP Endpoint through `ros_tcp_endpoint_server.py`, which adds the `__remove_subscriber`, `__remove_publisher`, `__remove_ros_service`, and `__remove_unity_service` system commands missing from the ROS 1 endpoint `0.7.0`, so Coarobo Sightline no longer loses its connection for two seconds when it drops its last subscription on a topic, as when a sensor layer is turned off or an alignment starts.
