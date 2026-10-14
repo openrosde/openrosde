@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `tests/suites/test-terminator-parity.bash` checks that every layout of a Terminator config of the core runs the same launch files and arguments as the `tmux` panes of that layout, and that every config holds a layout named after its platform (#38).
 - Parts: an extension of a company holds the units of several robots in `parts/<part>/`, each with the layout of the core, whose templates are listed like those of an extension, whose patches `scripts/update-git-submodules.bash` applies, and which `OPENROSDE_ROBOT_EXTENSIONS` activates by name, with an error when no folder or several folders hold that name (#38).
 - `tests/run.bash` runs the test suites of the loader and the entry scripts in a Debian container with no network, on scratch copies of the repository with every outside command stubbed (#38).
 - Extensions: a platform, a device, or other packages cloned from a repository of their own into `extensions/`, public or private, whose files `scripts/load-extension-paths.bash` finds by name on the host and inside the container, with `OPENROSDE_ROBOT_EXTENSIONS` naming the active ones and `docs/extensions.md` as the guide (#38).
