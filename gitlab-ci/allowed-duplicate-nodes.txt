@@ -1,3 +1,7 @@
 # Nodes that two panes of one layout of the core or of a platform of the core may both start on purpose, which 'gitlab-ci/check-launch-files.bash' reads.
-# Each line reads '<layout> <node-name>', where '<layout>' is a layout such as 'default-gazebo', or '*' for every layout, and '<node-name>' the full name of the node, such as '/rviz'.
+# Each line reads '<layout> <node-name> [<launch-file> ...]', where '<layout>' is a layout such as 'default-gazebo', or '*' for every layout, and '<node-name>' the full name of the node, such as '/rviz'.
+# A line that names launch files, as written in the panes, allows the node only when every pane that starts it runs one of them, such as two panes that a session runs one at a time.
 # An extension keeps its own list in 'ci/allowed-duplicate-nodes.txt', which applies while it is active.
+
+# The TurtleBot3 navigates on a saved map or builds a map with SLAM, one at a time, and both start the robot state publisher.
+default-gazebo /robot_state_publisher turtlebot3_navigation_default_gazebo.launch turtlebot3_mapping_default.launch

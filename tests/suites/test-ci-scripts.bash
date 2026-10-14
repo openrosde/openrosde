@@ -159,6 +159,13 @@ openrosde-test-run ${OPENROSDE_TEST_CHECK_LAUNCH} rover
 openrosde-test-check "allows a node in every layout with '*'" \
   "status 0" \
   "status ${OPENROSDE_TEST_EXIT_CODE}"
+openrosde-test-write-file "${OPENROSDE_TEST_ROVER_DIR}/ci/allowed-duplicate-nodes.txt" \
+  "default-gazebo /robot_state_publisher rover_bringup_default_gazebo.launch" \
+  "default-realworld /robot_state_publisher rover_bringup_default_realworld.launch rover_rviz_default.launch"
+openrosde-test-run ${OPENROSDE_TEST_CHECK_LAUNCH} rover
+openrosde-test-check "allows a node only when every pane that starts it runs a launch file that the allowlist names" \
+  "$(printf '%s\n' "status 1" "Allowed the node '/robot_state_publisher' in several panes of the layout 'default-realworld'." "  - '/robot_state_publisher' in the layout 'default-gazebo', by:")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | grep -E "^Allowed|^  - ")"
 rm -rf "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_ROVER_DIR}/ci"
 printf '%s\n' "/rviz" "/maximize_rviz" > "${OPENROSDE_TEST_NODES_DIR}/rover_rviz_default.launch"
 

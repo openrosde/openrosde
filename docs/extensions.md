@@ -245,10 +245,11 @@ repositories:
 - The panes that name no package run the launch package of the platform, `openrosde_<platform>_launch`, unless `scripts/<setup or platform>/initialize-bash-shell.bash` sets another `OPENROSDE_LAUNCH_PACKAGE`, as it does in a shell of the container.
 
 Two panes of one layout that start a node of the same name shut each other down, so the check names both.
-An extension that does this on purpose lists the node in `ci/allowed-duplicate-nodes.txt`, one `<layout> <node-name>` per line, where `<layout>` is `*` for every layout:
+An extension that does this on purpose lists the node in `ci/allowed-duplicate-nodes.txt`, one `<layout> <node-name> [<launch-file> ...]` per line, where `<layout>` is `*` for every layout.
+A line that names launch files, as written in the panes, allows the node only when every pane that starts it runs one of them, such as two panes that a session runs one at a time:
 
 ```
-default-gazebo /robot_state_publisher
+default-gazebo /robot_state_publisher foo_navigation_default_gazebo.launch foo_mapping_default.launch
 ```
 
 A check in `ci/` never moves a robot: `gitlab-ci/check-no-motion.bash` fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`.
