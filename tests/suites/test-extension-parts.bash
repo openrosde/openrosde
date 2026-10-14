@@ -122,8 +122,19 @@ openrosde-test-check "switches to the setup of a part" \
 openrosde-test-check "warns about a clone whose origin differs from the URL of the '.repos' file" \
   "$(printf '%s\n' \
     "Warning: 'extensions/openrosde-device-gripper/' is cloned from 'https://gitlab.example.com/old-group/openrosde-device-gripper.git' rather than from 'https://gitlab.example.com/acme/openrosde-device-gripper.git', which '${OPENROSDE_TEST_BENCH_DIR}/env/acme-ur5e-lab.repos' lists, so 'vcs import' leaves it as it is." \
-    "Point it to the URL of the file with: git -C './${OPENROSDE_TEST_GRIPPER_DIR}' remote set-url origin 'https://gitlab.example.com/acme/openrosde-device-gripper.git'")" \
-  "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep -E '^(Warning: .extensions/openrosde-device-gripper|Point it to)' | sed "s#${OPENROSDE_TEST_ROOT_DIR}#.#g")"
+    "If the clone should follow the file, point it there, over SSH instead if you clone over SSH, with: git -C './${OPENROSDE_TEST_GRIPPER_DIR}' remote set-url origin 'https://gitlab.example.com/acme/openrosde-device-gripper.git'")" \
+  "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep -E '^(Warning: .extensions/openrosde-device-gripper|If the clone should follow)' | sed "s#${OPENROSDE_TEST_ROOT_DIR}#.#g")"
+
+# Check that a clone of the same repository over SSH, on another port, or without the '.git' suffix raises no warning.
+OPENROSDE_TEST_ORIGIN_WARNINGS=""
+for OPENROSDE_TEST_ORIGIN_URL in "git@gitlab.example.com:acme/openrosde-device-gripper.git" "ssh://git@gitlab.example.com:2222/acme/openrosde-device-gripper" "https://gitlab.example.com/acme/openrosde-device-gripper"; do
+  echo "${OPENROSDE_TEST_ORIGIN_URL}" > "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_GRIPPER_DIR}/.git/test-origin-url"
+  openrosde-test-run bash ./SWITCH-ROBOT-SETUP.bash acme-ur5e-lab
+  OPENROSDE_TEST_ORIGIN_WARNINGS="${OPENROSDE_TEST_ORIGIN_WARNINGS}$(echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Warning:')"
+done
+openrosde-test-check "takes a clone over SSH or without '.git' as a clone of the URL of the '.repos' file" \
+  "" \
+  "${OPENROSDE_TEST_ORIGIN_WARNINGS}"
 
 ################################################################################
 

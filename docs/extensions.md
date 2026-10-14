@@ -131,7 +131,8 @@ repositories:
 The versions of this example only show the format, so pin each repository at a tag or a branch that it publishes.
 `bash ./SWITCH-ROBOT-SETUP.bash <setup>` clones the repositories that are missing from `extensions/`, at the versions the file pins, leaves the ones already cloned as they are, then copies the template to `.env.custom`.
 Run `vcs import --input <setup>.repos extensions` to bring the cloned ones to the pinned versions as well.
-The switch warns about a clone whose `origin` is not the URL that the file lists, which `vcs import` would leave as it is, and prints the `git remote set-url` command that fixes it.
+The switch warns about a clone whose `origin` points to another repository than the URL that the file lists, which `vcs import` would leave as it is, and prints a `git remote set-url` command that would point it there.
+A clone over SSH of a repository that the file lists over HTTPS, or the reverse, is the same repository and raises no warning.
 It fails, and leaves the setup unchanged, when the platform of the setup or a name of its `OPENROSDE_ROBOT_EXTENSIONS` is still missing once the repositories are cloned.
 
 The folder that holds the setup is always active, after the extensions of `OPENROSDE_ROBOT_EXTENSIONS`, so its workspace builds last, before the user workspace.
