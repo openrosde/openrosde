@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This suite checks the scripts of the CI in 'gitlab-ci/', with every call to Docker and to ROS stubbed, so that no check builds an image, starts a container, or starts a node.
-# It covers the child pipeline that the generator prints for platforms and setups of the core and of extensions, the launch check of a setup, the check that no script moves a robot, the refusals of the clone of the extensions, the source hash of an image, the tags that may be published, and the test of a setup.
+# It covers the child pipeline that the generator prints for platforms and setups of the core and of extensions, the launch check of a setup, the check that no script moves a robot, the refusals of the clone of the extensions, the source hash of an image, the tags that may be published, and the test of a setup, with its guard of '.env.custom' and the images it reads.
 # It uses the extension 'acme-robots', whose part 'acme-rover' holds the platform 'rover' and whose part 'acme-lab' holds the setup 'acme-rover-lab', and the device 'openrosde-device-bar' with a Docker layer.
 #
 # Usage: bash ./tests/run.bash test-ci-scripts
@@ -292,8 +292,30 @@ openrosde-test-check "publishes 'dev', 'main', and a release, and refuses any ot
 
 ################################################################################
 
+# Check that the test of a setup refuses outside the CI to replace the '.env.custom' of a developer, here the template of 'ur5e', before calling Docker.
+export OPENROSDE_CI_IMAGE_REGISTRY="${OPENROSDE_TEST_REGISTRY}" OPENROSDE_CI_IMAGE_TAG=pipeline-7
+cp "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" "${OPENROSDE_TEST_WORK_DIR}/env.custom.before"
+openrosde-test-run env -u CI bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
+openrosde-test-check "refuses outside the CI to replace an existing '.env.custom', and leaves it as it was" \
+  "$(printf '%s\n' "status 1" "same settings" "0 Docker calls" "Error: This script replaces '.env.custom' with the settings of the setup 'ur5e', so outside the CI it runs only in a checkout without '.env.custom': move it aside first, such as with 'mv .env.custom .env.custom.bak', and back afterwards.")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; cmp -s "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" "${OPENROSDE_TEST_WORK_DIR}/env.custom.before" && echo "same settings"; echo "$(openrosde-test-print-calls | grep -c '^docker ') Docker calls"; echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Error')"
+export CI=true
+
+# Check the images that the test of a setup reads: none without a tag or a given image, a given image, and a published tag.
+openrosde-test-run env -u OPENROSDE_CI_IMAGE_TAG bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
+openrosde-test-check "fails before calling Docker when no image is given and no tag names the default one" \
+  "$(printf '%s\n' "status 1" "0 Docker calls" "Error: No image was given, and 'OPENROSDE_CI_IMAGE_REGISTRY' and 'OPENROSDE_CI_IMAGE_TAG', which name the default one, are not both set.")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "$(openrosde-test-print-calls | grep -c '^docker ') Docker calls"; echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Error')"
+openrosde-test-run env -u OPENROSDE_CI_IMAGE_TAG bash ./gitlab-ci/test-catkin-workspaces.bash ur5e registry.example.com/acme/other/ur5e-devel:v3.0.0
+openrosde-test-check "tests in the image given, with no tag set" \
+  "$(printf '%s\n' "status 0" "registry.example.com/acme/other/ur5e-devel:v3.0.0 sleep infinity")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; openrosde-test-print-calls | grep '^docker create ' | grep -o '[^ ]* sleep infinity$')"
+OPENROSDE_CI_IMAGE_TAG=v3.0.0 openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
+openrosde-test-check "reads the image of the platform with the tag of 'OPENROSDE_CI_IMAGE_TAG', such as a release, rather than with the ID of the pipeline" \
+  "$(printf '%s\n' "status 0" "${OPENROSDE_TEST_REGISTRY}/ur5e-devel:v3.0.0 sleep infinity")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; openrosde-test-print-calls | grep '^docker create ' | grep -o '[^ ]* sleep infinity$')"
+
 # Check the test of a setup, whose calls of Docker the stub logs.
-export OPENROSDE_CI_IMAGE_REGISTRY="${OPENROSDE_TEST_REGISTRY}"
 openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
 openrosde-test-check "selects the template of the setup, builds in the image of its platform, cuts the network, then runs the checks" \
   "$(printf '%s\n' "status 0" "same template" \

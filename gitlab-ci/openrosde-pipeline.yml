@@ -30,8 +30,10 @@ variables:
   DOCKER_TLS_VERIFY: "1"
   DOCKER_CERT_PATH: "/certs/client"
   GIT_SUBMODULE_STRATEGY: none
-  # Registry where the test jobs read the base and platform images of the pipeline: the registry of this project, unless a project that includes these jobs, such as an extension, sets another one, such as 'registry.gitlab.com/coarobo/sde'.
+  # Registry and tag where the test jobs read the base and platform images: those that this pipeline pushes.
+  # A pipeline of another project that runs the test script on the published images sets both, such as 'registry.gitlab.com/coarobo/sde' and 'dev' or a release 'v3.0.0', since only a pipeline of OpenRoSDE pushes 'pipeline-<id>'.
   OPENROSDE_CI_IMAGE_REGISTRY: $CI_REGISTRY_IMAGE
+  OPENROSDE_CI_IMAGE_TAG: pipeline-$CI_PIPELINE_ID
 
 default:
   image: docker:29.8.1-cli

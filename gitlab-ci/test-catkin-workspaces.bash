@@ -7,18 +7,32 @@
 # The repository goes into the container through 'docker cp', rather than a bind mount, since the Docker-in-Docker daemon cannot see the files of the job on every runner.
 # The workspaces build with the network, which the FlexBE app needs to download its runtime, and the container is then disconnected from every network before any check runs, so that no check can reach a robot.
 # On failure, the Catkin logs of every workspace of the setup are copied to 'ci-logs/' for the artifacts of the job.
+# Outside the CI, where 'CI' is not 'true', it refuses to run in a checkout that holds '.env.custom', which it would replace, so that the setup a developer selected is never lost.
 #
 # Usage: bash ./gitlab-ci/test-catkin-workspaces.bash <robot-setup> [<image>]
 #
 # <robot-setup>: The setup to test, such as 'ur5e' or 'acme-ur5e-lab', or 'openrosde' for the core alone.
 # [<image>]:     The image to test in, below the Docker layers of the setup.
-#                Default value is the image of the platform of the setup in this pipeline, '${OPENROSDE_CI_IMAGE_REGISTRY}/<platform>-devel:pipeline-${CI_PIPELINE_ID}', or the base image for 'openrosde'.
+#                Default value is the image of the platform of the setup, '${OPENROSDE_CI_IMAGE_REGISTRY}/<platform>-devel:${OPENROSDE_CI_IMAGE_TAG}', or the base image for 'openrosde'.
+#                'gitlab-ci/openrosde-pipeline.yml' sets both variables to the images of the pipeline, and a pipeline of another project sets them to published images, such as 'registry.gitlab.com/coarobo/sde' and 'v3.0.0'.
 
 ################################################################################
 
 # Name the container that builds the workspaces and its root directory.
 OPENROSDE_CI_CONTAINER_NAME="openrosde-ci-$1"
 OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE
+
+# Refuse to replace the '.env.custom' of a developer outside the CI.
+if [ "${CI}" != "true" ] && [ -f .env.custom ]; then
+  echo "Error: This script replaces '.env.custom' with the settings of the setup '$1', so outside the CI it runs only in a checkout without '.env.custom': move it aside first, such as with 'mv .env.custom .env.custom.bak', and back afterwards."
+  exit 1
+fi
+
+# Check that the image to test in can be named, given or else from the registry and the tag of the images to read.
+if [ -z "$2" ] && { [ -z "${OPENROSDE_CI_IMAGE_REGISTRY}" ] || [ -z "${OPENROSDE_CI_IMAGE_TAG}" ]; }; then
+  echo "Error: No image was given, and 'OPENROSDE_CI_IMAGE_REGISTRY' and 'OPENROSDE_CI_IMAGE_TAG', which name the default one, are not both set."
+  exit 1
+fi
 
 ################################################################################
 
@@ -48,7 +62,7 @@ echo "OPENROSDE_QUIET=true" >> .env.custom
 if [ "$1" = "openrosde" ]; then
   source ./scripts/load-openrosde-settings.bash "${PWD}"
   OPENROSDE_EXTENSION_DOCKERFILES=()
-  OPENROSDE_CI_DEFAULT_IMAGE="${OPENROSDE_CI_IMAGE_REGISTRY}/openrosde-base:pipeline-${CI_PIPELINE_ID}"
+  OPENROSDE_CI_DEFAULT_IMAGE="${OPENROSDE_CI_IMAGE_REGISTRY}/openrosde-base:${OPENROSDE_CI_IMAGE_TAG}"
   echo "Testing the core alone, with no platform and no extension."
 else
   source ./scripts/load-openrosde-env.bash ci
@@ -68,7 +82,7 @@ else
     echo "Error: The setup '$1' lists extensions that no single folder holds:${OPENROSDE_CI_MISSING_EXTENSIONS}."
     exit 1
   fi
-  OPENROSDE_CI_DEFAULT_IMAGE="${OPENROSDE_CI_IMAGE_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:pipeline-${CI_PIPELINE_ID}"
+  OPENROSDE_CI_DEFAULT_IMAGE="${OPENROSDE_CI_IMAGE_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_CI_IMAGE_TAG}"
   echo "Testing the setup '$1' of the platform '${OPENROSDE_ROBOT_PLATFORM}' with the extensions '${OPENROSDE_ROBOT_EXTENSIONS}'."
 fi
 

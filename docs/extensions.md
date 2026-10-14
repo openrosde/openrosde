@@ -272,7 +272,10 @@ test-with-openrosde-job:
 - The name of the project must be the name that `gitlab-ci/extensions.repos` lists, and a pipeline of a fork cannot trigger one of OpenRoSDE.
 
 A private extension runs the same scripts in a pipeline of its own, in a private project, with OpenRoSDE checked out at the version it pins, since OpenRoSDE never clones a private repository.
-It reads the public base and platform images by setting `OPENROSDE_CI_IMAGE_REGISTRY` to `registry.gitlab.com/coarobo/sde`, and keeps its own images in its own registry.
+It reads the public base and platform images by setting `OPENROSDE_CI_IMAGE_REGISTRY` to `registry.gitlab.com/coarobo/sde` and `OPENROSDE_CI_IMAGE_TAG` to the tag of that version, `dev` or a release such as `v3.0.0`, and keeps its own images in its own registry.
+Both are needed, since the default tag, `pipeline-<id>` with the ID of the running pipeline, names only the images that a pipeline of OpenRoSDE pushes for itself.
+It may instead pass the image to `gitlab-ci/test-catkin-workspaces.bash` as its second argument, such as `registry.gitlab.com/coarobo/sde/ur5e-devel:v3.0.0`.
+Outside the CI, the script refuses to replace an existing `.env.custom`, so move it aside before running the script by hand.
 
 ## ⚙️ Configuration
 
