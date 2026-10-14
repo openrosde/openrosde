@@ -181,31 +181,14 @@ fi
 
 # Set platform-specific configuration.
 
-case "${SDE_ROBOT_PLATFORM}" in
-  turtlebot3)
-    # Select the TurtleBot3 model name.
-    # https://emanual.robotis.com/docs/en/platform/turtlebot3/quick-start/#set-turtlebot3-model-name-1
-    export TURTLEBOT3_MODEL=waffle_pi
-    SDE_LAUNCH_PACKAGE=sde_turtlebot3_launch
-    ;;
-  ur5e)
-    SDE_LAUNCH_PACKAGE=sde_ur5e_launch
-    ;;
-  fetch)
-    SDE_LAUNCH_PACKAGE=sde_fetch_launch
-    ;;
-  sciurus17)
-    SDE_LAUNCH_PACKAGE=sde_sciurus17_launch
-    ;;
-  cobotta)
-    SDE_LAUNCH_PACKAGE=sde_cobotta_launch
-    ;;
-  hsr)
-    SDE_LAUNCH_PACKAGE=sde_hsr_launch
-    ;;
-esac
-
+# Name the launch package of the platform, which every platform calls 'sde_<platform>_launch'.
+SDE_LAUNCH_PACKAGE=sde_${SDE_ROBOT_PLATFORM}_launch
 export SDE_LAUNCH_PACKAGE
+
+# Source the shell configuration of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash', if the platform has one.
+if [ -f ${SDE_CONTAINER_ROOT_DIR}/scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash ]; then
+  source ${SDE_CONTAINER_ROOT_DIR}/scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash
+fi
 
 ################################################################################
 

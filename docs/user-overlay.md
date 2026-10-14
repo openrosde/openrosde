@@ -111,11 +111,7 @@ The user workspace is automatically:
           - SDE_USER_MY_VAR=${SDE_USER_MY_VAR}
     ```
 
-4. Export it from [scripts/load-sde-env.bash](../scripts/load-sde-env.bash) so Docker Compose can interpolate it:
-
-    ```bash
-    export SDE_USER_MY_VAR
-    ```
+[scripts/load-sde-env.bash](../scripts/load-sde-env.bash) exports every `SDE_*` variable, so Docker Compose interpolates it with no further step.
 
 ## 🆚 User Overlay vs. New Platform
 
@@ -123,7 +119,7 @@ The user workspace is automatically:
 | --- | --- | --- |
 | Use case | Project-specific or personal customization | Upstream contribution adding support for a new robot |
 | Where it lives | Local fork/branch, not pushed to `coarobo/sde` | Merge request to `coarobo/sde` `main` |
-| Files touched | This page only | The 8-step list in [CONTRIBUTING.md](../CONTRIBUTING.md#adding-a-new-robot-platform) |
+| Files touched | This page only | The step-by-step list in [CONTRIBUTING.md](../CONTRIBUTING.md#adding-a-new-robot-platform) |
 | CI/CD | None (built locally) | Full GitLab CI matrix |
 | Image registry | Local-only (`user-devel:latest`) | Pushed to `registry.gitlab.com/coarobo/sde/<platform>-devel` |
 

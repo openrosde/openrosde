@@ -112,7 +112,7 @@ Record a change of a topic name, a message type, a port, or the launch file that
   - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
   - `hsr_catkin_ws/`: HSR workspace (`sde_hsr_launch/`, `sde_hsr_behaviors/`).
   - `user_catkin_ws/`: User overlay workspace (`sde_user_launch/`, `sde_user_behaviors/`). Platform-agnostic, apart from the Coarobo demo work (FastSAM and the Coarobo Viewport streams of the UR5e) that waits there for its extraction.
-- `scripts/`: Shared shell scripts (`load-sde-env.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`).
+- `scripts/`: Shared shell scripts (`load-sde-env.bash`, `list-robot-platforms.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each platform in `scripts/<platform>/`.
 - `patches/`: Patches of the Git submodules, mirroring the submodule paths.
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`) plus `user.env` (user overlay reference template).
 - `docs/`: Documentation.
@@ -144,7 +144,7 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 
 - `.env`: Default configuration (committed to Git). Do not add fallback defaults (`:-`) in scripts; all defaults live here.
 - `.env.custom`: User overrides (Git-ignored, created from a platform template in `env/`).
-- `scripts/load-sde-env.bash`: Shared loader sourced by all top-level `*.bash` scripts. Resolves `SDE_ROOT_DIR`, loads `.env`/`.env.custom`, exports variables for `docker-compose.yaml` interpolation.
+- `scripts/load-sde-env.bash`: Shared loader sourced by all top-level `*.bash` scripts. Resolves `SDE_ROOT_DIR`, loads `.env`/`.env.custom`, and exports every `SDE_*` variable for Docker Compose interpolation and for the platform scripts.
 
 ### Platform Switching
 
@@ -181,7 +181,7 @@ Components:
 - `env/user.env`: reference template documenting `SDE_USER_*` variables. Not auto-loaded; users add overrides to `.env.custom` instead.
 
 `SDE_USER_*` defaults live in the top-level `.env` and in every per-platform `env/*.env` template (so platform switching does not erase the user-overlay defaults).
-`scripts/load-sde-env.bash` exports each `SDE_USER_*` variable so it can be interpolated by `docker-compose-user.yaml`.
+`scripts/load-sde-env.bash` exports every `SDE_*` variable, the `SDE_USER_*` ones included, so it can be interpolated by `docker-compose-user.yaml`.
 The user overlay reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${SDE_ROBOT_PLATFORM}.config`, and Number 12 (`terminal25`) of every platform layout is pre-wired to the user-overlay starter (`sde_user_launch:user_example_default.launch`).
 The remaining spare panes (Numbers 8-11) are free shells reserved for additional user-overlay launches.
 
@@ -463,26 +463,24 @@ Current patches:
 ## Adding a New Platform
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full step-by-step guide.
-The extension system of the [OpenRoSDE Split](#openrosde-split) replaces the hand-written platform lists below with discovery by name, and this section changes with it.
+The platforms are found by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `SDE_ROBOT_PLATFORM=<platform>`, and the rest of the extension system of the [OpenRoSDE Split](#openrosde-split) (#38) changes this section again.
 When adding a platform named `<platform>`, create these files:
 
-- `env/<platform>.env`: environment template.
+- `env/<platform>.env`: environment template, which declares `SDE_ROBOT_PLATFORM=<platform>`.
 - `docker/<platform>-devel/Dockerfile`: platform Docker image.
 - `docker/docker-compose-<platform>.yaml`: Docker Compose overlay.
 - `ros/<platform>_catkin_ws/src/sde_<platform>_launch/`: ROS launch package (5 launch files, `package.xml`, `CMakeLists.txt`, `README.md`, `.gitignore`).
 - `ros/<platform>_catkin_ws/src/sde_<platform>_behaviors/`: FlexBE behaviors package (two sub-packages: `sde_<platform>_flexbe_behaviors/` and `sde_<platform>_flexbe_states/`, plus `README.md` and `.gitignore`).
 - `terminator/<platform>.config`: Terminator layouts.
 - `docs/robot-platforms/<platform>.md`: platform documentation.
+- `scripts/<platform>/initialize-bash-shell.bash` (optional): shell configuration sourced inside the container by `docker/sde-base/scripts/initialize-bash-shell.bash`.
+- `scripts/<platform>/bringup-ros-robot.bash` (optional): robot bringup run by `BRINGUP-ROS-ROBOT.bash` with the ROS master host name.
+- `scripts/<platform>/restart-chrony-service.bash` (optional): robot Chrony restart run by `RESTART-CHRONY-SERVICE.bash`.
 
-And update `<platform>` in every platform-aware file:
+The platform scripts run with every `SDE_*` variable exported, and the launch package is always `sde_<platform>_launch`.
+Then update `<platform>` in the files that still list the platforms:
 
-- `.env` and all `env/*.env`: platform list comment.
-- `BUILD-DOCKER-IMAGE.bash`: platform loop.
-- `gitlab-ci/PUSH-DOCKER-IMAGE.bash`: platform loop.
-- `gitlab-ci/gitlab-ci.yml`: CI matrix.
-- `docker/sde-base/scripts/initialize-bash-shell.bash`: `<platform>)` case for `SDE_LAUNCH_PACKAGE`.
-- `BRINGUP-ROS-ROBOT.bash`: `<platform>)` case.
-- `RESTART-CHRONY-SERVICE.bash`: `<platform>)` case.
+- `gitlab-ci/gitlab-ci.yml`: CI matrix, until the CI runs again (#37) and generates it.
 - `README.md`: platform table, Mermaid diagram, directory structure, docs table.
 - `AGENTS.md`: platform lists, directory structure, submodule list, patch list.
 

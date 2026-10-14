@@ -2,6 +2,7 @@
 
 # This script resyncs the host and robot clocks via Chrony.
 # Docker containers use the host clock, so their time is accurate if the host clock is.
+# The robot side lives in the Chrony script of the active platform, 'scripts/<platform>/restart-chrony-service.bash', if the platform has one.
 #
 # Usage: bash ./RESTART-CHRONY-SERVICE.bash [docker-project]
 #
@@ -30,57 +31,10 @@ echo "Chrony service restarted on the host machine."
 
 ################################################################################
 
-# Platform-specific robot Chrony restart commands.
-case "${SDE_ROBOT_PLATFORM}" in
-  turtlebot3)
-    echo "TurtleBot3 Chrony restart is not yet configured."
-    ;;
-  ur5e)
-    echo "UR5e Chrony restart is not yet configured."
-    ;;
-  fetch)
-    SDE_ROBOT_USER="fetch"
-    SDE_ROBOT_PASSWORD="robotics"
-
-    echo "Connecting to the robot machine at ${SDE_ROBOT_USER}@${SDE_ROBOT_HOSTNAME} via SSH (password required: ${SDE_ROBOT_PASSWORD})..."
-
-    ssh -t -l ${SDE_ROBOT_USER} ${SDE_ROBOT_HOSTNAME} 'bash -l -c "
-echo \"Restarting the Chrony service on the robot machine (password required: '${SDE_ROBOT_PASSWORD}')...\";
-sudo service chrony restart;
-echo \"Waiting for 5 seconds to ensure the Chrony service restarts...\";
-sleep 5;
-echo \"Checking Chrony service status...\";
-sudo systemctl status --no-pager chrony;
-chronyc sources;
-"'
-
-    echo "Chrony service restarted on the robot machine."
-    ;;
-  sciurus17)
-    SDE_ROBOT_USER="sciurus"
-    SDE_ROBOT_PASSWORD="sciurus"
-
-    echo "Connecting to the robot machine at ${SDE_ROBOT_USER}@${SDE_ROBOT_HOSTNAME} via SSH (password required: ${SDE_ROBOT_PASSWORD})..."
-
-    ssh -t -l ${SDE_ROBOT_USER} ${SDE_ROBOT_HOSTNAME} 'bash -l -c "
-echo \"Restarting the Chrony service on the robot machine (password required: '${SDE_ROBOT_PASSWORD}')...\";
-sudo service chrony restart;
-echo \"Waiting for 5 seconds to ensure the Chrony service restarts...\";
-sleep 5;
-echo \"Checking Chrony service status...\";
-sudo systemctl status --no-pager chrony;
-chronyc sources;
-"'
-
-    echo "Chrony service restarted on the robot machine."
-    ;;
-  cobotta)
-    echo "COBOTTA Chrony restart is not applicable. The COBOTTA connects over USB and has no integrated PC."
-    ;;
-  hsr)
-    echo "HSR Chrony restart is not yet configured."
-    ;;
-  *)
-    echo "Unknown platform '${SDE_ROBOT_PLATFORM}'. No robot Chrony restart commands available."
-    ;;
-esac
+# Run the Chrony script of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/restart-chrony-service.bash', if the platform has one.
+SDE_CHRONY_SCRIPT_PATH="${SDE_ROOT_DIR}/scripts/${SDE_ROBOT_PLATFORM}/restart-chrony-service.bash"
+if [ -f "${SDE_CHRONY_SCRIPT_PATH}" ]; then
+  bash "${SDE_CHRONY_SCRIPT_PATH}"
+else
+  echo "No robot Chrony restart is configured for the '${SDE_ROBOT_PLATFORM}' platform."
+fi

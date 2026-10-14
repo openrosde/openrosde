@@ -121,7 +121,7 @@ Include the platform name, host OS, and the output of the failing command.
 
 The SDE is designed to make adding a new platform straightforward.
 All platform-specific behavior is controlled by the `SDE_ROBOT_PLATFORM` variable.
-Adding a new platform named `<platform>` (e.g., `myrobot`) requires creating a small set of files and adding `<platform>` to a fixed list of platform-aware locations.
+Adding a new platform named `<platform>` (e.g., `myrobot`) requires creating a small set of files, which the SDE finds by that name, and adding `<platform>` to the few lists that remain.
 
 The steps below use `<platform>` as a placeholder.
 Replace it with your actual platform name (lowercase kebab-case, e.g., `myrobot`).
@@ -139,6 +139,8 @@ Edit the file to set:
 ```shell
 SDE_ROBOT_PLATFORM=<platform>
 ```
+
+This line is how the SDE finds the platform: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares its own name, and `SWITCH-ROBOT-PLATFORM.bash`, `BUILD-DOCKER-IMAGE.bash`, and `gitlab-ci/PUSH-DOCKER-IMAGE.bash` use that list.
 
 Update the `SDE_ROBOT_HOSTNAME` comment and value to match your platform's connectivity (SSH hostname, or empty if USB/local).
 Leave all defaults in this file: do not add `${VAR:-default}` fallback syntax in scripts.
@@ -226,25 +228,31 @@ Required sections:
 - Real Robot Operation
 - Launch Files Reference
 
-### Step 8: Register the Platform in All Platform-Aware Files
+### Step 8: Add the Platform Scripts (if needed)
+
+The core scripts run the optional scripts of a platform from `scripts/<platform>/`, named after the core script that runs them, and print that nothing is configured when a script is missing:
+
+| Script | Run by | Purpose |
+| --- | --- | --- |
+| `scripts/<platform>/initialize-bash-shell.bash` | `docker/sde-base/scripts/initialize-bash-shell.bash`, inside the container | Shell configuration of the platform, such as `TURTLEBOT3_MODEL` in `scripts/turtlebot3/` |
+| `scripts/<platform>/bringup-ros-robot.bash` | `BRINGUP-ROS-ROBOT.bash`, with the ROS master host name | Bringup of the real robot by SSH |
+| `scripts/<platform>/restart-chrony-service.bash` | `RESTART-CHRONY-SERVICE.bash` | Chrony restart on the robot computer |
+
+Each script runs with every `SDE_*` variable that `scripts/load-sde-env.bash` exports.
+The launch package of the platform is always `sde_<platform>_launch`, so it needs no registration.
+
+### Step 9: Register the Platform in the Remaining Lists
 
 Add `<platform>` to every location in the table below.
 Search for an existing platform name (e.g., `cobotta`) to find the exact lines to update:
 
 | File | What to add |
 | --- | --- |
-| `.env` | Add `<platform>` to the `# Platform to use:` comment |
-| `env/turtlebot3.env`, `env/ur5e.env`, `env/fetch.env`, `env/sciurus17.env`, `env/cobotta.env`, `env/hsr.env` | Same comment update |
-| `BUILD-DOCKER-IMAGE.bash` | Add `<platform>` to the `for SDE_PLATFORM in ...` loop |
-| `gitlab-ci/PUSH-DOCKER-IMAGE.bash` | Add `<platform>` to the `for SDE_PLATFORM in ...` loop |
 | `gitlab-ci/gitlab-ci.yml` | Add `<platform>` to the `SDE_ROBOT_PLATFORM:` matrix list |
-| `docker/sde-base/scripts/initialize-bash-shell.bash` | Add `<platform>)` case setting `SDE_LAUNCH_PACKAGE=sde_<platform>_launch` |
-| `BRINGUP-ROS-ROBOT.bash` | Add `<platform>)` case (SSH bringup command, or a "not applicable" message) |
-| `RESTART-CHRONY-SERVICE.bash` | Add `<platform>)` case (Chrony restart command, or a "not applicable" message) |
 | `README.md` | Update the platform table, Mermaid diagram, directory structure, and docs table |
 | `AGENTS.md` | Update all platform lists, directory structure, submodule list, and patch list |
 
-### Step 9: Test
+### Step 10: Test
 
 ```shell
 # 1. Rebuild the Docker images:
@@ -268,7 +276,7 @@ roslaunch sde_<platform>_launch <platform>_rviz_default.launch
 grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .
 ```
 
-### Step 10: Submit a Merge Request
+### Step 11: Submit a Merge Request
 
 1. Commit your changes on a branch named `add-<platform>-support`.
 2. Push the branch and open a merge request targeting `main`.
