@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script builds the Docker layers of the active extensions locally, each on top of the previous one, from a parent image up to the parent of the user overlay.
-# Each layer is built from the folder of its extension, so that its 'COPY' instructions read from there, and is tagged 'openrosde-local/<setup>/<name>-devel:latest', which no 'docker push' can publish.
+# Each layer is built from the folder of its extension, so that its 'COPY' instructions read from there, and is tagged 'openrosde-local/<setup>/<name>-devel:latest' in lowercase, which no 'docker push' can publish.
 # It is sourced by 'BUILD-DOCKER-IMAGE.bash' on the platform image, and can be sourced the same way by a CI job, after 'scripts/load-openrosde-env.bash', whose 'OPENROSDE_EXTENSION_DOCKERFILES' and 'OPENROSDE_LOCAL_IMAGE_PREFIX' it reads.
 # Its status is that of the build, so the caller stops when a layer fails to build, rather than building the user overlay on an older layer.
 #
@@ -21,7 +21,7 @@ function openrosde-build-extension-layers () {
   fi
   for OPENROSDE_EXTENSION_DOCKERFILE in "${OPENROSDE_EXTENSION_DOCKERFILES[@]}"; do
     OPENROSDE_EXTENSION_ROOT_DIR="$(dirname "$(dirname "$(dirname "${OPENROSDE_EXTENSION_DOCKERFILE}")")")"
-    OPENROSDE_EXTENSION_IMAGE_TAG="${OPENROSDE_LOCAL_IMAGE_PREFIX}/$(basename "$(dirname "${OPENROSDE_EXTENSION_DOCKERFILE}")"):latest"
+    OPENROSDE_EXTENSION_IMAGE_TAG="${OPENROSDE_LOCAL_IMAGE_PREFIX}/$(basename "$(dirname "${OPENROSDE_EXTENSION_DOCKERFILE}")" | tr '[:upper:]' '[:lower:]'):latest"
     echo "Building ${OPENROSDE_EXTENSION_IMAGE_TAG} on top of ${OPENROSDE_PARENT_IMAGE_TAG}..."
     if ! docker build \
       --build-arg OPENROSDE_PARENT_IMAGE=${OPENROSDE_PARENT_IMAGE_TAG} \

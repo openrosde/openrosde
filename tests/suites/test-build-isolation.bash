@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This suite checks how the images are pulled and built, and what the entry scripts print.
-# It covers the images that 'OPENROSDE_DOCKER_BUILD_FALLBACK' lets 'BUILD-DOCKER-IMAGE.bash' build when a pull fails, the tag that 'auto' derives from the checkout, the values that the loader never prints, and the version of the core that a setup pins.
+# It covers the images that 'OPENROSDE_DOCKER_BUILD_FALLBACK' lets 'BUILD-DOCKER-IMAGE.bash' build when a pull fails, the tag that 'auto' derives from the checkout, the local names of a setup, the values that the loader never prints, and the version of the core that a setup pins.
 #
 # Usage: bash ./tests/run.bash test-build-isolation
 
@@ -69,12 +69,31 @@ OPENROSDE_TEST_TAG_REPORT=""
 for OPENROSDE_TEST_CHECKOUT in "main:" "dev:" "feat/foo:v3.1.0" "HEAD:v3.1.0" "HEAD:v3.1.0-rc.1" "HEAD:v3.1" "HEAD:"; do
   OPENROSDE_TEST_TAG_REPORT="${OPENROSDE_TEST_TAG_REPORT}${OPENROSDE_TEST_CHECKOUT} $(OPENROSDE_TEST_GIT_BRANCH="${OPENROSDE_TEST_CHECKOUT%%:*}" OPENROSDE_TEST_GIT_TAG="${OPENROSDE_TEST_CHECKOUT#*:}" openrosde-test-print-path image-tag)"$'\n'
 done
-openrosde-test-check "derives 'main', 'dev', or the release of a detached checkout of exactly 'vX.Y.Z'" \
-  "$(printf '%s\n' "main: main" "dev: dev" "feat/foo:v3.1.0 dev" "HEAD:v3.1.0 v3.1.0" "HEAD:v3.1.0-rc.1 main" "HEAD:v3.1 main" "HEAD: main")" \
+openrosde-test-check "derives 'main' on 'main' and on any detached checkout, even of a release, whose images the registry does not hold, and 'dev' elsewhere" \
+  "$(printf '%s\n' "main: main" "dev: dev" "feat/foo:v3.1.0 dev" "HEAD:v3.1.0 main" "HEAD:v3.1.0-rc.1 main" "HEAD:v3.1 main" "HEAD: main")" \
   "${OPENROSDE_TEST_TAG_REPORT%$'\n'}"
-openrosde-test-check "builds the user overlay on the platform image of the release on a detached checkout of its tag" \
-  "user-parent: registry.gitlab.com/coarobo/sde/ur5e-devel:v3.1.0" \
+openrosde-test-check "builds the user overlay on the 'main' platform image on a detached checkout of a release" \
+  "user-parent: registry.gitlab.com/coarobo/sde/ur5e-devel:main" \
   "$(OPENROSDE_TEST_GIT_BRANCH=HEAD OPENROSDE_TEST_GIT_TAG=v3.1.0 openrosde-test-print-paths | grep '^user-parent:')"
+
+################################################################################
+
+# Check the local names of a setup whose name holds uppercase letters, which a Docker repository name refuses, with a layer named after it, and of a setup that Docker refuses even in lowercase.
+openrosde-test-create-extension my-lab
+openrosde-test-write-setup-template extensions/my-lab My-Lab-UR5e-Bench ur5e ""
+openrosde-test-write-file extensions/my-lab/docker/My-Lab-UR5e-Bench-devel/Dockerfile "ARG OPENROSDE_PARENT_IMAGE" 'FROM ${OPENROSDE_PARENT_IMAGE}'
+openrosde-test-select-template extensions/my-lab/env/My-Lab-UR5e-Bench.env
+openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash local
+openrosde-test-check "lowercases the setup and its layer in the local names, with no error" \
+  "$(printf '%s\n' "user-parent: openrosde-local/my-lab-ur5e-bench/my-lab-ur5e-bench-devel:latest" "local-prefix: openrosde-local/my-lab-ur5e-bench" "-t openrosde-local/my-lab-ur5e-bench/my-lab-ur5e-bench-devel:latest" "errors 0")" \
+  "$(openrosde-test-print-paths | grep -E '^(user-parent|local-prefix):'; openrosde-test-print-calls | grep '^docker build ' | grep -o ' -t [^ ]*' | cut -c2-; echo "errors $(echo "${OPENROSDE_TEST_OUTPUT}" | grep -c '^Error:')")"
+openrosde-test-write-setup-template extensions/my-lab my-lab.-ur5e ur5e ""
+openrosde-test-select-template extensions/my-lab/env/my-lab.-ur5e.env
+openrosde-test-run bash ./RUN-DOCKER-CONTAINER.bash test --no-exec
+openrosde-test-check "reports a setup whose name Docker refuses even in lowercase" \
+  "Error: Setup 'my-lab.-ur5e' cannot name its local Docker images, since Docker takes letters and digits separated by one '.', one or two '_', or dashes." \
+  "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Error:')"
+rm -rf "${OPENROSDE_TEST_ROOT_DIR}/extensions/my-lab"
 
 ################################################################################
 

@@ -107,10 +107,10 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
 > [!NOTE]
 > The script `BUILD-DOCKER-IMAGE.bash` first tries to download the image from the [container registry](https://gitlab.com/coarobo/SDE/container_registry) of the project.
 > If, for whatever reason, the image cannot be downloaded, the script will build it locally.
-> Set `OPENROSDE_DOCKER_BUILD_FALLBACK=false` in `.env.custom` to stop with an error instead, as a CI job should.
 > The latter process is slow and can take up to 1 hour.
 > In both cases, avoid using a Wi-Fi connection to greatly accelerate the process.
 > Note that future local builds will reuse cached data whenever possible.
+> Set `OPENROSDE_DOCKER_BUILD_FALLBACK=false` in `.env.custom` to stop with an error rather than build the image locally when its download fails, as a CI job should.
 
 ## 🚀 Step 4: Run the Docker Container
 

@@ -34,17 +34,10 @@ OPENROSDE_DOCKER_CONTAINER="openrosde-${OPENROSDE_ROBOT_PLATFORM}-${OPENROSDE_DO
 
 ################################################################################
 
-# Derive the tag of the base and platform images from the branch when 'OPENROSDE_DOCKER_IMAGE_TAG' is 'auto': 'main' on the 'main' branch, the release 'vX.Y.Z' on a detached 'HEAD' that sits exactly on that release tag, 'main' on any other detached 'HEAD', and 'dev' everywhere else.
+# Derive the tag of the base and platform images from the branch when 'OPENROSDE_DOCKER_IMAGE_TAG' is 'auto': 'main' on the 'main' branch and on a release tag, which checks out a detached 'HEAD', and 'dev' everywhere else.
 if [ "${OPENROSDE_DOCKER_IMAGE_TAG}" = "auto" ]; then
   OPENROSDE_GIT_BRANCH_NAME="$(git -C "${OPENROSDE_ROOT_DIR}" rev-parse --abbrev-ref HEAD 2>/dev/null)"
-  if [ "${OPENROSDE_GIT_BRANCH_NAME}" = "HEAD" ]; then
-    OPENROSDE_GIT_RELEASE_TAG="$(git -C "${OPENROSDE_ROOT_DIR}" describe --tags --exact-match --match 'v[0-9]*' HEAD 2>/dev/null)"
-    if [[ "${OPENROSDE_GIT_RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-      OPENROSDE_DOCKER_IMAGE_TAG="${OPENROSDE_GIT_RELEASE_TAG}"
-    else
-      OPENROSDE_DOCKER_IMAGE_TAG=main
-    fi
-  elif [ "${OPENROSDE_GIT_BRANCH_NAME}" = "main" ]; then
+  if [ "${OPENROSDE_GIT_BRANCH_NAME}" = "main" ] || [ "${OPENROSDE_GIT_BRANCH_NAME}" = "HEAD" ]; then
     OPENROSDE_DOCKER_IMAGE_TAG=main
   else
     OPENROSDE_DOCKER_IMAGE_TAG=dev
@@ -70,7 +63,11 @@ openrosde-derive-platform-dockerfile "${OPENROSDE_ROBOT_PLATFORM}"
 
 # Name the images that only this machine builds, the Docker layers of the extensions and the user overlay, under 'openrosde-local/<setup>/', apart from the registry of the base and platform images.
 # Their names hold no registry host, so a 'docker push' sends them to Docker Hub, where no repository of three components can exist, and fails, while two setups that share a layer never overwrite each other's image.
-OPENROSDE_LOCAL_IMAGE_PREFIX="openrosde-local/${OPENROSDE_ROBOT_SETUP}"
+# A Docker repository name is lowercase, so the names of the setup and of its layers are lowercased there, and a setup name that Docker still refuses is reported.
+OPENROSDE_LOCAL_IMAGE_PREFIX="openrosde-local/$(echo "${OPENROSDE_ROBOT_SETUP}" | tr '[:upper:]' '[:lower:]')"
+if ! [[ "${OPENROSDE_LOCAL_IMAGE_PREFIX#openrosde-local/}" =~ ^[a-z0-9]+((\.|_|__|-+)[a-z0-9]+)*$ ]]; then
+  echo "Error: Setup '${OPENROSDE_ROBOT_SETUP}' cannot name its local Docker images, since Docker takes letters and digits separated by one '.', one or two '_', or dashes." >&2
+fi
 
 # List the Docker layers of the active extensions: every 'docker/<name>-devel/Dockerfile' of an active folder other than the core, unless '<name>' is a platform.
 # They stack between the platform image and the user overlay, in the order of the active folders, and are always built locally, like the user overlay.
@@ -89,7 +86,7 @@ unset OPENROSDE_EXTENSION_ROOT_DIR OPENROSDE_EXTENSION_DOCKERFILE OPENROSDE_EXTE
 # Derive the parent image of the user overlay: the last Docker layer of the extensions, or else the platform image.
 OPENROSDE_USER_PARENT_IMAGE="${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_TAG}"
 if [ "${#OPENROSDE_EXTENSION_DOCKERFILES[@]}" -gt 0 ]; then
-  OPENROSDE_USER_PARENT_IMAGE="${OPENROSDE_LOCAL_IMAGE_PREFIX}/$(basename "$(dirname "${OPENROSDE_EXTENSION_DOCKERFILES[${#OPENROSDE_EXTENSION_DOCKERFILES[@]}-1]}")"):latest"
+  OPENROSDE_USER_PARENT_IMAGE="${OPENROSDE_LOCAL_IMAGE_PREFIX}/$(basename "$(dirname "${OPENROSDE_EXTENSION_DOCKERFILES[${#OPENROSDE_EXTENSION_DOCKERFILES[@]}-1]}")" | tr '[:upper:]' '[:lower:]'):latest"
 fi
 
 # Export every 'OPENROSDE_*' variable, so that the Docker Compose files of the core, of the platform, and of the user overlay can interpolate it, and the platform scripts in 'scripts/<platform>/' can read it.

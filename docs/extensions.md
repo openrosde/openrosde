@@ -112,6 +112,8 @@ OPENROSDE_ROBOT_EXTENSIONS="openrosde-device-onrobot openrosde-device-realsense"
 OpenRoSDE finds platforms and setups by reading the lines `OPENROSDE_ROBOT_PLATFORM=<platform>` and `OPENROSDE_ROBOT_SETUP=<setup>` of each template as they are, without running it.
 Write each of them alone on its line, with no quotes, no spaces, and no trailing comment, while `OPENROSDE_ROBOT_EXTENSIONS` takes quotes around several names.
 `scripts/list-robot-platforms.bash` and `scripts/list-robot-setups.bash` name every template that breaks this rule with an error, and warn when two templates declare the same name, in which case OpenRoSDE uses the first one in the order of the core, then of every extension followed by its parts.
+Name a setup in lowercase letters and digits separated by dashes, as `my-lab-ur5e-bench` is, since the name of the setup also names its local Docker images, `openrosde-local/<setup>/`, where Docker takes no uppercase letter.
+OpenRoSDE lowercases the names of the setup and of its layers in those images, and `scripts/load-openrosde-env.bash` prints an error for a setup name that Docker refuses even so.
 
 The template of every platform is its default setup, named after the platform, so `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` and `bash ./SWITCH-ROBOT-SETUP.bash <platform>` do the same.
 
@@ -144,6 +146,7 @@ OPENROSDE_CORE_VERSION=v3.0.0
 
 `bash ./SWITCH-ROBOT-SETUP.bash <setup>` then warns when OpenRoSDE is checked out at another version, neither a tag of the checked out commit nor the checked out branch, and prints the `git checkout` command of the pinned version.
 The switch still succeeds, since the setup may well run on another version.
+A checkout of a release tag still pulls the `main` images, since the registry holds only the `main` and `dev` images, so build the images of that release locally with `bash ./BUILD-DOCKER-IMAGE.bash local` when the setup needs them.
 
 The folder that holds the setup is always active, after the extensions of `OPENROSDE_ROBOT_EXTENSIONS`, so its workspace builds last, before the user workspace.
 A file named after the setup takes precedence over the file named after its platform, such as `scripts/<setup>/bringup-ros-robot.bash` over `scripts/<platform>/bringup-ros-robot.bash`, `terminator/<setup>.config` over `terminator/<platform>.config`, or `tmux/<setup>.panes` over `tmux/<platform>.panes`, whose panes it replaces.
