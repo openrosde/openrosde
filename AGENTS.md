@@ -201,7 +201,7 @@ The remaining spare panes (Numbers 8-11) are free shells reserved for additional
 ### Tmux Sessions
 
 `RUN-TMUX-SESSION.bash [docker-project] [session-layout]` runs the terminals in a `tmux` session named `openrosde-<platform>-<docker-project>`, or attaches to it if it already runs.
-The session gathers the pane files of the setup (`tmux/<setup>.panes`), or else of the platform (`tmux/<platform>.panes`), of the active extensions and the setup (every other `tmux/*.panes` of their folders not named after a platform or a setup), then of the core (`tmux/openrosde.panes`), and opens a window on the first pane of each window name.
+The session gathers the pane files of the setup (`tmux/<setup>.panes`), or else of the platform (`tmux/<platform>.panes`), of the active extensions and the setup (every other `tmux/*.panes` of their folders, apart from those named after a platform or a setup that is not active), then of the core (`tmux/openrosde.panes`), and opens a window on the first pane of each window name.
 The pane file of a setup replaces that of its platform, as its Terminator layout does, and a device ships no pane file, since its panes belong to each setup.
 Each line of a pane file reads `<layouts> <window> <launch-file> [<arg:=value> ...]`, where `<layouts>` is `*` or a comma-separated list of layouts (`default-gazebo`, `default-realworld`, or a layout of a setup), and the words `shell` and `host` open a shell in the container or on the host.
 The windows are `robot` (bringup, RViz, MoveIt, and the secondary launches of the platform), `extra` (further launches of the platform), the windows of the extensions and the setup, `tools` (FlexBE app, rqt suite, ROS TCP Endpoint, `rosbridge`), `user` (user overlay starter and a container shell), and `host`.

@@ -6,6 +6,7 @@
 # An environment template 'env/<name>.env' is looked up in the core first, then in every cloned extension followed by its parts, in alphabetical order.
 # A file named after the setup comes from the folder of the setup, and a file named after the platform from the folder of the platform, then from the core, so a clone that is not active never supplies one.
 # The Catkin workspaces, the Docker Compose overlays, and the 'tmux' panes only come from the core, the platform, the extensions listed in 'OPENROSDE_ROBOT_EXTENSIONS', and the setup.
+# Of those folders, an overlay or a pane file named after a platform or a setup is only taken while that platform or setup is active, and the panes of the setup replace the own panes of the platform.
 #
 # Usage: source ./scripts/load-extension-paths.bash <openrosde-root-dir>
 #
@@ -134,14 +135,13 @@ function openrosde-find-setup-file () {
 }
 
 # Tell whether an active root directory other than the core contributes a file named '<name>', such as 'tmux/<name>.panes' or 'docker/docker-compose-<name>.yaml'.
-# A file named after a platform or a setup that a template declares is only taken when it is named after the active setup and lies in the root directory of the setup, since the root directory of the platform, then the core, supply the files of the active platform.
+# A file named after a platform or a setup that a template declares is only taken while that platform or setup is active, from any active root directory.
 # Every other file is taken, since one part is one unit.
 function openrosde-select-extension-file () {
-  if [ -n "$2" ] && [[ "${OPENROSDE_DECLARED_PLATFORM_NAMES}${OPENROSDE_DECLARED_SETUP_NAMES}" == *" $2 "* ]]; then
-    [ "$2" = "${OPENROSDE_ROBOT_SETUP}" ] && [ "$1" = "${OPENROSDE_ROBOT_SETUP_ROOT_DIR}" ]
-    return
+  if [ -z "$1" ] || [ "$1" = "${OPENROSDE_ROBOT_PLATFORM}" ] || [ "$1" = "${OPENROSDE_ROBOT_SETUP}" ]; then
+    return 0
   fi
-  return 0
+  [[ "${OPENROSDE_DECLARED_PLATFORM_NAMES}${OPENROSDE_DECLARED_SETUP_NAMES}" != *" $1 "* ]]
 }
 
 ################################################################################
@@ -219,7 +219,7 @@ for OPENROSDE_EXTENSION_ROOT_DIR in "${OPENROSDE_ACTIVE_ROOT_DIRS[@]:1}"; do
     OPENROSDE_EXTENSION_FILE_NAME="${OPENROSDE_EXTENSION_COMPOSE_FILE##*/docker-compose}"
     OPENROSDE_EXTENSION_FILE_NAME="${OPENROSDE_EXTENSION_FILE_NAME%.yaml}"
     OPENROSDE_EXTENSION_FILE_NAME="${OPENROSDE_EXTENSION_FILE_NAME#-}"
-    if [ -f "${OPENROSDE_EXTENSION_COMPOSE_FILE}" ] && [ "${OPENROSDE_EXTENSION_COMPOSE_FILE}" != "${OPENROSDE_PLATFORM_COMPOSE_FILE}" ] && openrosde-select-extension-file "${OPENROSDE_EXTENSION_ROOT_DIR}" "${OPENROSDE_EXTENSION_FILE_NAME}"; then
+    if [ -f "${OPENROSDE_EXTENSION_COMPOSE_FILE}" ] && [ "${OPENROSDE_EXTENSION_COMPOSE_FILE}" != "${OPENROSDE_PLATFORM_COMPOSE_FILE}" ] && openrosde-select-extension-file "${OPENROSDE_EXTENSION_FILE_NAME}"; then
       OPENROSDE_COMPOSE_OVERLAY_FILES+=("${OPENROSDE_EXTENSION_COMPOSE_FILE}")
     fi
   done
@@ -228,6 +228,7 @@ done
 # List the pane files of the 'tmux' session in the order their windows appear:
 # 1. The panes of the setup, 'tmux/<setup>.panes', which replace those of the platform, 'tmux/<platform>.panes', as 'openrosde-find-setup-file' looks them up.
 # 2. Every other pane file of the platform root directory (if it is an extension or a part), of the active extensions and parts in their order, then of the setup, unless 'openrosde-select-extension-file' leaves it out.
+#    The own pane file of the platform, 'tmux/<platform>.panes' of its root directory, is left out too, since it either came first or was replaced by the panes of the setup.
 # 3. The panes of the core, 'tmux/openrosde.panes'.
 OPENROSDE_TMUX_PANES_FILES=()
 OPENROSDE_SETUP_PANES_FILE="$(openrosde-find-setup-file "tmux/%s.panes")"
@@ -238,7 +239,7 @@ for OPENROSDE_EXTENSION_ROOT_DIR in "${OPENROSDE_ACTIVE_ROOT_DIRS[@]:1}"; do
   for OPENROSDE_EXTENSION_PANES_FILE in "${OPENROSDE_EXTENSION_ROOT_DIR}"/tmux/*.panes; do
     OPENROSDE_EXTENSION_FILE_NAME="${OPENROSDE_EXTENSION_PANES_FILE##*/}"
     OPENROSDE_EXTENSION_FILE_NAME="${OPENROSDE_EXTENSION_FILE_NAME%.panes}"
-    if [ -f "${OPENROSDE_EXTENSION_PANES_FILE}" ] && [ "${OPENROSDE_EXTENSION_PANES_FILE}" != "${OPENROSDE_SETUP_PANES_FILE}" ] && openrosde-select-extension-file "${OPENROSDE_EXTENSION_ROOT_DIR}" "${OPENROSDE_EXTENSION_FILE_NAME}"; then
+    if [ -f "${OPENROSDE_EXTENSION_PANES_FILE}" ] && [ "${OPENROSDE_EXTENSION_PANES_FILE}" != "${OPENROSDE_SETUP_PANES_FILE}" ] && [ "${OPENROSDE_EXTENSION_PANES_FILE}" != "${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}/tmux/${OPENROSDE_ROBOT_PLATFORM}.panes" ] && openrosde-select-extension-file "${OPENROSDE_EXTENSION_FILE_NAME}"; then
       OPENROSDE_TMUX_PANES_FILES+=("${OPENROSDE_EXTENSION_PANES_FILE}")
     fi
   done

@@ -38,11 +38,12 @@ openrosde-test-write-file "${OPENROSDE_TEST_BENCH_DIR}/scripts/acme-ur5e-lab/bri
 openrosde-test-write-file "${OPENROSDE_TEST_BENCH_DIR}/terminator/acme-ur5e-lab.config" "[layouts]"
 openrosde-test-write-file "${OPENROSDE_TEST_BENCH_DIR}/patches/ros/acme_bench_catkin_ws/src/acme_driver/0001-fix-acme-driver.patch" "--- a/README" "+++ b/README"
 
-# Create the part 'acme-binding' with packages, a layer, an overlay, and panes.
+# Create the part 'acme-binding' with packages, a layer, an overlay, panes, and panes for the UR5e.
 mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_BINDING_DIR}/ros/acme_binding_catkin_ws/src"
 openrosde-test-write-file "${OPENROSDE_TEST_BINDING_DIR}/docker/acme-binding-devel/Dockerfile" "ARG OPENROSDE_PARENT_IMAGE" 'FROM ${OPENROSDE_PARENT_IMAGE}'
 openrosde-test-write-file "${OPENROSDE_TEST_BINDING_DIR}/docker/docker-compose-acme-binding.yaml" "services: {}"
 openrosde-test-write-file "${OPENROSDE_TEST_BINDING_DIR}/tmux/acme-binding.panes" "*  binding  acme_binding_launch:bridge.launch"
+openrosde-test-write-file "${OPENROSDE_TEST_BINDING_DIR}/tmux/ur5e.panes" "*  binding  acme_binding_launch:ur5e_bridge.launch"
 
 # Create the part 'client-robot' with the private platform 'crobot', its setup 'client-crobot-sim', two workspaces, and a layer.
 openrosde-test-write-platform-template "${OPENROSDE_TEST_ROBOT_DIR}" crobot
@@ -57,10 +58,11 @@ openrosde-test-write-file "${OPENROSDE_TEST_ROBOT_DIR}/tmux/client-crobot-sim.pa
 openrosde-test-write-file "${OPENROSDE_TEST_ROBOT_DIR}/scripts/crobot/bringup-ros-robot.bash" 'ssh crobot "roslaunch crobot_bringup robot.launch"'
 openrosde-test-write-file "${OPENROSDE_TEST_ROBOT_DIR}/terminator/crobot.config" "[layouts]"
 
-# Create the device, cloned from another URL than the one the setup lists, with a workspace and no pane file.
+# Create the device, cloned from another URL than the one the setup lists, with a workspace, an overlay for the UR5e, and no pane file.
 openrosde-test-create-extension openrosde-device-gripper
 echo "https://gitlab.example.com/old-group/openrosde-device-gripper.git" > "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_GRIPPER_DIR}/.git/test-origin-url"
 mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_GRIPPER_DIR}/ros/gripper_catkin_ws/src"
+openrosde-test-write-file "${OPENROSDE_TEST_GRIPPER_DIR}/docker/docker-compose-ur5e.yaml" "services: {}"
 
 # Create the inactive clone, sorted before 'acme', with files named after the platforms and the setups.
 openrosde-test-create-extension aaa-stale-clone
@@ -126,16 +128,17 @@ openrosde-test-check "warns about a clone whose origin differs from the URL of t
 ################################################################################
 
 # Check the setup 'acme-ur5e-lab', which runs the UR5e of the core with the device and the part 'acme-binding'.
+# Their files named after the active platform come after those of the platform, while the panes of the setup replace those of the platform.
 openrosde-test-check-setup acme-ur5e-lab \
   "$(printf '%s\n' "platform-root: ." "setup: acme-ur5e-lab" "setup-root: ./${OPENROSDE_TEST_BENCH_DIR}" "active: . ./${OPENROSDE_TEST_GRIPPER_DIR} ./${OPENROSDE_TEST_BINDING_DIR} ./${OPENROSDE_TEST_BENCH_DIR}")" \
   "./ros/openrosde_catkin_ws ./ros/ur5e_catkin_ws ./${OPENROSDE_TEST_GRIPPER_DIR}/ros/gripper_catkin_ws ./${OPENROSDE_TEST_BINDING_DIR}/ros/acme_binding_catkin_ws ./${OPENROSDE_TEST_BENCH_DIR}/ros/acme_bench_catkin_ws ./ros/user_catkin_ws" \
   "./${OPENROSDE_TEST_BINDING_DIR}/docker/acme-binding-devel/Dockerfile ./${OPENROSDE_TEST_BENCH_DIR}/docker/acme-ur5e-lab-devel/Dockerfile" \
-  "./docker/docker-compose-ur5e.yaml ./${OPENROSDE_TEST_BINDING_DIR}/docker/docker-compose-acme-binding.yaml ./${OPENROSDE_TEST_BENCH_DIR}/docker/docker-compose-acme-ur5e-lab.yaml" \
-  "./${OPENROSDE_TEST_BENCH_DIR}/tmux/acme-ur5e-lab.panes ./${OPENROSDE_TEST_BINDING_DIR}/tmux/acme-binding.panes ./tmux/openrosde.panes" \
+  "./docker/docker-compose-ur5e.yaml ./${OPENROSDE_TEST_GRIPPER_DIR}/docker/docker-compose-ur5e.yaml ./${OPENROSDE_TEST_BINDING_DIR}/docker/docker-compose-acme-binding.yaml ./${OPENROSDE_TEST_BENCH_DIR}/docker/docker-compose-acme-ur5e-lab.yaml" \
+  "./${OPENROSDE_TEST_BENCH_DIR}/tmux/acme-ur5e-lab.panes ./${OPENROSDE_TEST_BINDING_DIR}/tmux/acme-binding.panes ./${OPENROSDE_TEST_BINDING_DIR}/tmux/ur5e.panes ./tmux/openrosde.panes" \
   "$(openrosde-test-print-setup-files "./${OPENROSDE_TEST_BENCH_DIR}/scripts/acme-ur5e-lab/bringup-ros-robot.bash" "" "" "./${OPENROSDE_TEST_BENCH_DIR}/terminator/acme-ur5e-lab.config" "./${OPENROSDE_TEST_BENCH_DIR}/tmux/acme-ur5e-lab.panes")"
 openrosde-test-run bash ./RUN-DOCKER-CONTAINER.bash test --no-exec
 openrosde-test-check "runs the container of 'acme-ur5e-lab' with the overlays of its folders" \
-  "docker compose -p test -f ./docker/docker-compose.yaml -f ./docker/docker-compose-ur5e.yaml -f ./${OPENROSDE_TEST_BINDING_DIR}/docker/docker-compose-acme-binding.yaml -f ./${OPENROSDE_TEST_BENCH_DIR}/docker/docker-compose-acme-ur5e-lab.yaml -f ./docker/docker-compose-user.yaml up -d openrosde" \
+  "docker compose -p test -f ./docker/docker-compose.yaml -f ./docker/docker-compose-ur5e.yaml -f ./${OPENROSDE_TEST_GRIPPER_DIR}/docker/docker-compose-ur5e.yaml -f ./${OPENROSDE_TEST_BINDING_DIR}/docker/docker-compose-acme-binding.yaml -f ./${OPENROSDE_TEST_BENCH_DIR}/docker/docker-compose-acme-ur5e-lab.yaml -f ./docker/docker-compose-user.yaml up -d openrosde" \
   "$(openrosde-test-print-calls | grep '^docker compose')"
 openrosde-test-run bash ./RESTART-CHRONY-SERVICE.bash test
 openrosde-test-check "runs no Chrony script of the inactive clone for 'acme-ur5e-lab'" \
@@ -177,6 +180,13 @@ openrosde-test-check-setup ur5e \
   "./docker/docker-compose-ur5e.yaml" \
   "./tmux/ur5e.panes ./tmux/openrosde.panes" \
   "$(openrosde-test-print-setup-files "" "" "" ./terminator/ur5e.config ./tmux/ur5e.panes)"
+
+# Check that the device, once listed in the '.env.custom' of the platform 'turtlebot3', leaves out its overlay for the UR5e, which is not active.
+openrosde-test-select-template env/turtlebot3.env
+echo 'OPENROSDE_ROBOT_EXTENSIONS="openrosde-device-gripper"' >> "${OPENROSDE_TEST_ROOT_DIR}/.env.custom"
+openrosde-test-check "leaves out the overlay of an active device named after a platform that is not active" \
+  "$(printf '%s\n' "./docker/docker-compose-turtlebot3.yaml" "./tmux/turtlebot3.panes ./tmux/openrosde.panes")" \
+  "$(openrosde-test-print-path overlays; openrosde-test-print-path panes)"
 
 # Check that the inactive clone supplied nothing to any of the five setups.
 openrosde-test-check "takes nothing from the inactive clone" "" "${OPENROSDE_TEST_STALE_LINES}"

@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The panes of a setup, `tmux/<setup>.panes`, replace those of its platform, as its Terminator layout does, and an active extension no longer adds a Docker Compose overlay or a pane file named after another platform or setup (#38).
+- The panes of a setup, `tmux/<setup>.panes`, replace those of its platform, as its Terminator layout does, and an active extension no longer adds a Docker Compose overlay or a pane file named after a platform or a setup that is not active (#38).
 - `SWITCH-ROBOT-SETUP.bash` fails, and leaves the setup unchanged, when its platform or an extension it lists is still missing after `vcs import`, and warns about a clone whose `origin` is not the URL of the `.repos` file, with the `git remote set-url` command that fixes it (#38).
 - `scripts/list-robot-platforms.bash` and `scripts/list-robot-setups.bash` warn when two templates declare the same name, and name with an error a template whose `OPENROSDE_ROBOT_PLATFORM=` or `OPENROSDE_ROBOT_SETUP=` line is quoted or carries a comment, which OpenRoSDE never reads (#38).
 - The pipeline of `dev` or `main` after a merge reuses the images that the pipeline of the merged branch built, which it finds from the message of the merge commit, rather than building them again (#37).
