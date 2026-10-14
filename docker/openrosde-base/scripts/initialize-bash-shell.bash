@@ -7,14 +7,8 @@
 
 ################################################################################
 
-# Load the default environment variables from the '.env' file:
-source ${OPENROSDE_CONTAINER_ROOT_DIR}/.env
-
-# Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
-source ${OPENROSDE_CONTAINER_ROOT_DIR}/scripts/load-env-custom.bash ${OPENROSDE_CONTAINER_ROOT_DIR}
-
-# Resolve where the files of the platform and of the extensions live, and list their Catkin workspaces in order.
-source ${OPENROSDE_CONTAINER_ROOT_DIR}/scripts/load-extension-paths.bash ${OPENROSDE_CONTAINER_ROOT_DIR}
+# Load the settings, '.env' then '.env.custom', and resolve where the files of the platform, the setup, and the extensions live, with every variable exported, as the CI does.
+source ${OPENROSDE_CONTAINER_ROOT_DIR}/scripts/load-openrosde-settings.bash ${OPENROSDE_CONTAINER_ROOT_DIR}
 
 ################################################################################
 

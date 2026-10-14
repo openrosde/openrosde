@@ -157,6 +157,7 @@ OpenRoSDE supports multiple robot platforms through a single codebase controlled
 - `.env`: Default configuration (committed to Git). Do not add fallback defaults (`:-`) in scripts; all defaults live here.
 - `.env.custom`: User overrides (Git-ignored, created from a platform template in `env/`).
 - `scripts/load-openrosde-env.bash`: Shared loader sourced by all top-level `*.bash` scripts. Resolves `OPENROSDE_ROOT_DIR`, loads `.env`/`.env.custom`, and exports every `OPENROSDE_*` variable for Docker Compose interpolation and for the platform scripts.
+- `scripts/load-openrosde-settings.bash`: Shared loader of the shell of the container and of the CI scripts that run in it. Loads `.env`/`.env.custom` and the paths of the extensions with every variable exported, so a script that the shell runs reads the same setup.
   It prints every `OPENROSDE_*` variable unless `OPENROSDE_QUIET=true`, and never prints the value of one whose name holds `PASSWORD`, `TOKEN`, or `SECRET`, so name every credential that way.
 
 ### Platform Switching

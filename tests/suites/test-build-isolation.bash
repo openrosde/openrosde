@@ -146,7 +146,8 @@ openrosde-test-check "warns about nothing when the setup pins the checked out br
 ################################################################################
 
 # Check the version of the image that the shell of the container prints, with its commit held by the repository of the platform or not, as for a platform outside the core.
-# The shell reads '.env' of the copy, which names the TurtleBot3 and the root '/root/OpenRoSDE', where the stubbed 'git' answers all the same.
+# The shell reads the settings of the copy, with the TurtleBot3 selected, where the stubbed 'git' answers all the same.
+openrosde-test-select-template env/turtlebot3.env
 for OPENROSDE_TEST_COMMIT_MISSING in false true; do
   OPENROSDE_TEST_GIT_COMMIT_MISSING="${OPENROSDE_TEST_COMMIT_MISSING}" openrosde-test-run bash -c 'export OPENROSDE_CONTAINER_ROOT_DIR="${PWD}" OPENROSDE_DOCKER_IMAGE_VERSION=def5678; source ./docker/openrosde-base/scripts/initialize-bash-shell.bash'
   OPENROSDE_TEST_SHELL_REPORT="${OPENROSDE_TEST_SHELL_REPORT}missing ${OPENROSDE_TEST_COMMIT_MISSING}: $(echo "${OPENROSDE_TEST_OUTPUT}" | grep -E '^(Container version|Newer image available):' | tr '\n' '|')"$'\n'
@@ -154,6 +155,13 @@ done
 openrosde-test-check "compares the image with the latest Dockerfile only when the repository of the platform holds its commit" \
   "$(printf '%s\n' "missing false: Container version: turtlebot3-devel:def5678 from Mon Oct 12 09:00:00 2026 +0900|Newer image available: turtlebot3-devel:abc1234 from abc1234|" "missing true: Container version: turtlebot3-devel:def5678|")" \
   "${OPENROSDE_TEST_SHELL_REPORT%$'\n'}"
+
+# Check that the shell of the container exports the settings to the scripts it runs, as the CI does, but keeps the functions of the loader to itself.
+openrosde-test-select-template env/ur5e.env
+openrosde-test-run bash -c 'export OPENROSDE_CONTAINER_ROOT_DIR="${PWD}" OPENROSDE_DOCKER_IMAGE_VERSION=def5678; source ./docker/openrosde-base/scripts/initialize-bash-shell.bash > /dev/null 2>&1; bash -c "echo \"settings: \${OPENROSDE_ROBOT_PLATFORM} \${OPENROSDE_ROBOT_SETUP} \${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}\""; echo "exported functions: $(env | grep -c "^BASH_FUNC_openrosde")"; echo "own functions: $(type -t openrosde-find-setup-file)"'
+openrosde-test-check "exports the settings of the setup from the shell of the container, and no function of the loader" \
+  "$(printf '%s\n' "settings: ur5e ur5e ${OPENROSDE_TEST_ROOT_DIR}" "exported functions: 0" "own functions: function")" \
+  "${OPENROSDE_TEST_OUTPUT}"
 
 ################################################################################
 
