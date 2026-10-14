@@ -89,6 +89,7 @@ repositories:
     version: v1.2.0
 ```
 
+The versions of this example only show the format, so pin each repository at a tag or a branch that it publishes.
 `bash ./SWITCH-ROBOT-SETUP.bash <setup>` clones the repositories that are missing from `extensions/`, at the versions the file pins, leaves the ones already cloned as they are, then copies the template to `.env.custom`.
 Run `vcs import --input <setup>.repos extensions` to bring the cloned ones to the pinned versions as well.
 
