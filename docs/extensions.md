@@ -81,14 +81,15 @@ Beside the template, `env/<setup>.repos` lists where to clone the repositories t
 repositories:
   openrosde-device-onrobot:
     type: git
-    url: https://github.com/openrosde/openrosde-device-onrobot.git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-device-onrobot.git
     version: v1.0.0
   openrosde-device-realsense:
     type: git
-    url: https://github.com/openrosde/openrosde-device-realsense.git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-device-realsense.git
     version: v1.2.0
 ```
 
+The versions of this example only show the format, so pin each repository at a tag or a branch that it publishes.
 `bash ./SWITCH-ROBOT-SETUP.bash <setup>` clones the repositories that are missing from `extensions/`, at the versions the file pins, leaves the ones already cloned as they are, then copies the template to `.env.custom`.
 Run `vcs import --input <setup>.repos extensions` to bring the cloned ones to the pinned versions as well.
 

@@ -4,6 +4,7 @@
 
 default-gazebo     robot  hsr_bringup_default_gazebo.launch
 default-gazebo     robot  hsr_rviz_default.launch
+default-gazebo     robot  hsr_moveit_default.launch
 default-gazebo     robot  hsr_navigation_default_gazebo.launch
 
 default-realworld  robot  hsr_rviz_default.launch

@@ -4,6 +4,7 @@
 
 default-gazebo     robot  cobotta_bringup_default_gazebo.launch
 default-gazebo     robot  cobotta_rviz_default.launch
+default-gazebo     robot  cobotta_moveit_default_gazebo.launch
 
 default-realworld  robot  cobotta_bringup_default_realworld.launch
 default-realworld  robot  cobotta_rviz_default.launch

@@ -4,6 +4,7 @@
 
 default-gazebo     robot  ur5e_bringup_default_gazebo.launch
 default-gazebo     robot  ur5e_rviz_default.launch
+default-gazebo     robot  ur5e_moveit_default_gazebo.launch
 default-gazebo     robot  onrobot_rg_control_default_gazebo.launch
 default-gazebo     robot  ur5e_teleop_default_gazebo.launch input_source:=spacemouse
 
