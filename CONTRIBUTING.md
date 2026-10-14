@@ -140,9 +140,11 @@ Edit the file to set:
 
 ```shell
 SDE_ROBOT_PLATFORM=<platform>
+SDE_ROBOT_SETUP=<platform>
 ```
 
-This line is how the SDE finds the platform: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares its own name, and `SWITCH-ROBOT-PLATFORM.bash`, `BUILD-DOCKER-IMAGE.bash`, and `gitlab-ci/PUSH-DOCKER-IMAGE.bash` use that list.
+The template of a platform is its default setup, so it declares its own name as the setup too.
+The first line is how the SDE finds the platform: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares its own name, and `SWITCH-ROBOT-PLATFORM.bash`, `BUILD-DOCKER-IMAGE.bash`, and `gitlab-ci/PUSH-DOCKER-IMAGE.bash` use that list.
 
 Update the `SDE_ROBOT_HOSTNAME` comment and value to match your platform's connectivity (SSH hostname, or empty if USB/local).
 Leave all defaults in this file: do not add `${VAR:-default}` fallback syntax in scripts.

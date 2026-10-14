@@ -112,7 +112,7 @@ Record a change of a topic name, a message type, a port, or the launch file that
   - `cobotta_catkin_ws/`: COBOTTA workspace (`sde_cobotta_launch/`, `sde_cobotta_behaviors/`).
   - `hsr_catkin_ws/`: HSR workspace (`sde_hsr_launch/`, `sde_hsr_behaviors/`).
   - `user_catkin_ws/`: User overlay workspace (`sde_user_launch/`, `sde_user_behaviors/`). Platform-agnostic, apart from the Coarobo demo work (FastSAM and the Coarobo Viewport streams of the UR5e) that waits there for its extraction.
-- `scripts/`: Shared shell scripts (`load-sde-env.bash`, `load-extension-paths.bash`, `list-robot-platforms.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each platform in `scripts/<platform>/`.
+- `scripts/`: Shared shell scripts (`load-sde-env.bash`, `load-extension-paths.bash`, `list-robot-platforms.bash`, `list-robot-setups.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each setup or platform in `scripts/<setup or platform>/`.
 - `patches/`: Patches of the Git submodules, mirroring the submodule paths.
 - `env/`: Per-platform environment templates (`turtlebot3.env`, `ur5e.env`, `fetch.env`, `sciurus17.env`, `cobotta.env`, `hsr.env`) plus `user.env` (user overlay reference template).
 - `extensions/`: Extensions, each a Git repository cloned into `extensions/<extension>/` and ignored by the Git of the core, apart from `README.md`.
@@ -152,7 +152,10 @@ The SDE supports multiple robot platforms through a single codebase controlled b
 
 ### Platform Switching
 
-Switching platforms requires only running `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
+Switching platforms requires only running `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`), which switches to the default setup of the platform.
+A setup is a template `env/<setup>.env` that declares `SDE_ROBOT_SETUP=<setup>` with its platform and extensions, in the core or in an extension, and `bash ./SWITCH-ROBOT-SETUP.bash <setup>` clones the repositories of its `env/<setup>.repos` with `vcstool` before copying it to `.env.custom` (see `docs/extensions.md`).
+The template of every platform is its default setup and declares `SDE_ROBOT_SETUP=<platform>`.
+`scripts/load-extension-paths.bash` falls back to the platform as the setup when the template of `SDE_ROBOT_SETUP` does not run the active platform, so a `.env.custom` written before setups existed keeps its platform files.
 `RUN-DOCKER-CONTAINER.bash` automatically detects containers from a different platform under the same Docker project and runs `docker compose down` to cleanly remove them before starting the new platform's container.
 
 ### Docker Compose Service Targeting
@@ -215,6 +218,7 @@ Number: 15 (`terminal29`) is standardized across all platforms and both environm
 
 All custom environment variables use the `SDE_` prefix. Examples:
 - `SDE_ROBOT_PLATFORM`: Target robot platform (`turtlebot3`, `ur5e`, `fetch`).
+- `SDE_ROBOT_SETUP`: Active setup, named after its template `env/<setup>.env` (the platform name for a default setup).
 - `SDE_ROBOT_EXTENSIONS`: Folder names of the active extensions in `extensions/`, separated by spaces.
 - `SDE_DOCKER_REGISTRY`: Registry of the base and platform images (`registry.gitlab.com/coarobo/sde` by default).
 - `SDE_CONTAINER_ROOT_DIR`: SDE root path inside the Docker container.
@@ -474,7 +478,7 @@ The platforms are found by name: `scripts/list-robot-platforms.bash` lists every
 A new platform goes either into the core or into an extension repository of its own with the same layout, cloned into `extensions/` (see `docs/extensions.md`), where it needs no registration at all.
 When adding a platform named `<platform>`, create these files:
 
-- `env/<platform>.env`: environment template, which declares `SDE_ROBOT_PLATFORM=<platform>`.
+- `env/<platform>.env`: environment template, which declares `SDE_ROBOT_PLATFORM=<platform>` and `SDE_ROBOT_SETUP=<platform>`, since it is the default setup of the platform.
 - `docker/<platform>-devel/Dockerfile`: platform Docker image.
 - `docker/docker-compose-<platform>.yaml`: Docker Compose overlay.
 - `ros/<platform>_catkin_ws/src/sde_<platform>_launch/`: ROS launch package (5 launch files, `package.xml`, `CMakeLists.txt`, `README.md`, `.gitignore`).
@@ -500,6 +504,7 @@ Then update `<platform>` in the files that still list the platforms:
   - `bash ./BUILD-DOCKER-IMAGE.bash gitlab-ci`: builds all platforms from scratch without cache (CI/CD).
 - Build Catkin workspaces (inside container): `sde-reset-catkin-workspaces` or `sde-build-catkin-workspaces`.
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
+- Switch setup: `bash ./SWITCH-ROBOT-SETUP.bash <setup>` (clones the repositories of `env/<setup>.repos` with `vcstool`, then selects the setup).
 - Run Docker container: `bash ./RUN-DOCKER-CONTAINER.bash`.
 - Run Terminator layout: `bash ./RUN-TERMINATOR-TERMINAL.bash`.
 - Restart Chrony service: `bash ./RESTART-CHRONY-SERVICE.bash` (resyncs host and robot clocks via Chrony).

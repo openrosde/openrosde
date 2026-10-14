@@ -3,7 +3,7 @@
 # This script connects by SSH to the robot and executes the commands to:
 # 1. Kill all existing ROS processes inside the robot.
 # 2. Execute the launch files that bring up the robot.
-# The commands live in the bringup script of the active platform, 'scripts/<platform>/bringup-ros-robot.bash', if the platform has one.
+# The commands live in the bringup script of the active setup or platform, 'scripts/<setup>/bringup-ros-robot.bash' or 'scripts/<platform>/bringup-ros-robot.bash', if it has one.
 #
 # Usage: bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]
 #
@@ -26,8 +26,8 @@ source ./scripts/load-sde-env.bash "$2"
 
 ################################################################################
 
-# Run the bringup script of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/bringup-ros-robot.bash' in the core or in an extension, if the platform has one.
-SDE_BRINGUP_SCRIPT_PATH="$(sde-find-extension-file "scripts/${SDE_ROBOT_PLATFORM}/bringup-ros-robot.bash")"
+# Run the bringup script of the setup, or else of the platform, in the core or in an extension, if either has one.
+SDE_BRINGUP_SCRIPT_PATH="$(sde-find-setup-file "scripts/%s/bringup-ros-robot.bash")"
 if [ -n "${SDE_BRINGUP_SCRIPT_PATH}" ]; then
   bash "${SDE_BRINGUP_SCRIPT_PATH}" "$1"
 else

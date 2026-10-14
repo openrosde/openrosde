@@ -185,8 +185,8 @@ fi
 SDE_LAUNCH_PACKAGE=sde_${SDE_ROBOT_PLATFORM}_launch
 export SDE_LAUNCH_PACKAGE
 
-# Source the shell configuration of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash' in the core or in an extension, if the platform has one.
-SDE_SHELL_SCRIPT_PATH="$(sde-find-extension-file "scripts/${SDE_ROBOT_PLATFORM}/initialize-bash-shell.bash")"
+# Source the shell configuration of the setup, or else of the platform, 'scripts/<setup or platform>/initialize-bash-shell.bash' in the core or in an extension, if either has one.
+SDE_SHELL_SCRIPT_PATH="$(sde-find-setup-file "scripts/%s/initialize-bash-shell.bash")"
 if [ -n "${SDE_SHELL_SCRIPT_PATH}" ]; then
   source ${SDE_SHELL_SCRIPT_PATH}
 fi

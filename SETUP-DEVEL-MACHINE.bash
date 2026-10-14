@@ -104,6 +104,13 @@ if [ -e /usr/bin/gnome-terminal.wrapper ]; then
 fi
 
 ################################################################################
+
+# Install 'vcstool', which clones the repositories that a setup lists in its '.repos' file into 'extensions/'.
+# https://github.com/dirk-thomas/vcstool
+sudo apt-get update && sudo apt-get install -y \
+  vcstool
+
+################################################################################
 # Local user environment setup (no 'sudo' required).
 ################################################################################
 

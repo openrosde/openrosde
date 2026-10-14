@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This script switches the active robot platform by copying the corresponding environment template from 'env/' to '.env.custom'.
-# The template lives in 'env/' of the core or of an extension cloned into 'extensions/'.
+# This script switches the active robot platform by switching to its default setup, its own environment template 'env/<platform>.env'.
+# The template lives in 'env/' of the core or of an extension cloned into 'extensions/', and 'SWITCH-ROBOT-SETUP.bash' copies it to '.env.custom'.
 #
 # Usage: bash ./SWITCH-ROBOT-PLATFORM.bash <robot-platform>
 #
@@ -12,9 +12,6 @@
 
 # Resolve the repository root directory relative to this script.
 SDE_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Resolve where the files named after a platform live, in the core or in 'extensions/'.
-source "${SDE_ROOT_DIR}/scripts/load-extension-paths.bash" "${SDE_ROOT_DIR}"
 
 # List the available platforms, found by name.
 SDE_AVAILABLE_PLATFORM_NAMES="$(bash "${SDE_ROOT_DIR}/scripts/list-robot-platforms.bash")"
@@ -45,11 +42,5 @@ fi
 
 ################################################################################
 
-# Copy the platform template to '.env.custom'.
-cp "$(sde-find-extension-file "env/$1.env")" "${SDE_ROOT_DIR}/.env.custom"
-echo "Switched to '$1' platform."
-
-################################################################################
-
-# Update Git submodules and apply patches to ensure the workspace is in sync.
-bash "${SDE_ROOT_DIR}/scripts/update-git-submodules.bash"
+# Switch to the default setup of the platform, its own template, named after it.
+bash "${SDE_ROOT_DIR}/SWITCH-ROBOT-SETUP.bash" "$1"
