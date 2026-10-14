@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# This script prints the child pipeline of OpenRoSDE in YAML: the shared jobs of 'gitlab-ci/openrosde-pipeline.yml', then one image job and one test job per platform.
-# The platforms are found by name, as 'scripts/list-robot-platforms.bash' lists them, so adding a platform changes nothing here.
+# This script prints the child pipeline of OpenRoSDE in YAML: the shared jobs of 'gitlab-ci/openrosde-pipeline.yml', one image job per platform, one test job per setup, and the test job of the core alone.
+# The platforms and the setups are found by name, in the core and in the extensions that 'gitlab-ci/clone-extensions.bash' cloned, as 'scripts/list-robot-platforms.bash' and 'scripts/list-robot-setups.bash' list them, so adding one changes nothing here.
+# The image job of a platform builds it from the folder that holds it, the core, an extension, or a part, and the test job of a setup needs the image job of its platform.
+# When 'OPENROSDE_CI_EXTENSION_OVERRIDE' names an extension to test at another version, the pipeline tests only the setups that activate that extension, with the extensions of 'OPENROSDE_CI_EXTRA_EXTENSIONS' added to those they list, and builds only their platforms.
 #
 # Usage: bash ./gitlab-ci/generate-ci-pipeline.bash > <child-pipeline-file>
 
@@ -10,8 +12,56 @@
 # Resolve the repository root directory relative to this script.
 OPENROSDE_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# List the platforms, found by name.
+# List the platforms and the setups, found by name.
 OPENROSDE_CI_PLATFORM_NAMES="$(bash "${OPENROSDE_ROOT_DIR}/scripts/list-robot-platforms.bash")"
+OPENROSDE_CI_SETUP_NAMES="$(bash "${OPENROSDE_ROOT_DIR}/scripts/list-robot-setups.bash")"
+
+# Name the folder of the extension to test at another version, if any.
+OPENROSDE_CI_OVERRIDE_DIR=""
+if [ -n "${OPENROSDE_CI_EXTENSION_OVERRIDE}" ]; then
+  OPENROSDE_CI_OVERRIDE_DIR="${OPENROSDE_ROOT_DIR}/extensions/${OPENROSDE_CI_EXTENSION_OVERRIDE%%=*}"
+fi
+
+# Print the platform of a setup, the folder that holds the platform, and the active folders of the setup, one per line, as the loader resolves them with the extensions of 'OPENROSDE_CI_EXTRA_EXTENSIONS' added.
+function openrosde-ci-describe-setup () {
+  (
+    source "${OPENROSDE_ROOT_DIR}/.env"
+    source "${OPENROSDE_ROOT_DIR}/scripts/load-extension-paths.bash" "${OPENROSDE_ROOT_DIR}"
+    source "$(openrosde-find-extension-file "env/$1.env")"
+    OPENROSDE_ROBOT_EXTENSIONS="${OPENROSDE_ROBOT_EXTENSIONS} ${OPENROSDE_CI_EXTRA_EXTENSIONS}"
+    source "${OPENROSDE_ROOT_DIR}/scripts/load-extension-paths.bash" "${OPENROSDE_ROOT_DIR}"
+    echo "${OPENROSDE_ROBOT_PLATFORM}"
+    echo "${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}"
+    printf '%s\n' "${OPENROSDE_ACTIVE_ROOT_DIRS[@]}"
+  )
+}
+
+################################################################################
+
+# Keep every setup, or only those that activate the extension of the override, and the platforms they run.
+OPENROSDE_CI_TESTED_SETUPS=""
+OPENROSDE_CI_TESTED_PLATFORMS=""
+for OPENROSDE_CI_SETUP_NAME in ${OPENROSDE_CI_SETUP_NAMES}; do
+  OPENROSDE_CI_SETUP_DESCRIPTION="$(openrosde-ci-describe-setup "${OPENROSDE_CI_SETUP_NAME}")"
+  OPENROSDE_CI_SETUP_PLATFORM="$(echo "${OPENROSDE_CI_SETUP_DESCRIPTION}" | sed -n 1p)"
+  if ! printf '%s\n' ${OPENROSDE_CI_PLATFORM_NAMES} | grep -qxF -e "${OPENROSDE_CI_SETUP_PLATFORM}"; then
+    echo "Error: The setup '${OPENROSDE_CI_SETUP_NAME}' runs the platform '${OPENROSDE_CI_SETUP_PLATFORM}', which neither the core nor a cloned extension declares." >&2
+    exit 1
+  fi
+  if [ -n "${OPENROSDE_CI_OVERRIDE_DIR}" ] && ! echo "${OPENROSDE_CI_SETUP_DESCRIPTION}" | sed 1,2d | grep -q -x -F -e "${OPENROSDE_CI_OVERRIDE_DIR}" && ! echo "${OPENROSDE_CI_SETUP_DESCRIPTION}" | sed 1,2d | grep -q -F -e "${OPENROSDE_CI_OVERRIDE_DIR}/"; then
+    continue
+  fi
+  OPENROSDE_CI_TESTED_SETUPS="${OPENROSDE_CI_TESTED_SETUPS}${OPENROSDE_CI_SETUP_NAME} ${OPENROSDE_CI_SETUP_PLATFORM}"$'\n'
+done
+if [ -n "${OPENROSDE_CI_OVERRIDE_DIR}" ]; then
+  if [ -z "${OPENROSDE_CI_TESTED_SETUPS}" ]; then
+    echo "Error: No setup activates the extension '${OPENROSDE_CI_EXTENSION_OVERRIDE%%=*}' of 'OPENROSDE_CI_EXTENSION_OVERRIDE', so nothing would test it: name it in 'OPENROSDE_CI_EXTRA_EXTENSIONS' to add it to every setup." >&2
+    exit 1
+  fi
+  OPENROSDE_CI_TESTED_PLATFORMS="$(printf '%s' "${OPENROSDE_CI_TESTED_SETUPS}" | awk '{ print $2 }' | sort -u)"
+else
+  OPENROSDE_CI_TESTED_PLATFORMS="${OPENROSDE_CI_PLATFORM_NAMES}"
+fi
 
 ################################################################################
 
@@ -21,31 +71,61 @@ echo ""
 echo "include:"
 echo "  - local: gitlab-ci/openrosde-pipeline.yml"
 
-# Print the image job and the test job of every platform.
-for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_CI_PLATFORM_NAMES}; do
+# Print the image job of every platform, built from the folder that holds it, given from the repository root.
+source "${OPENROSDE_ROOT_DIR}/scripts/load-extension-paths.bash" "${OPENROSDE_ROOT_DIR}"
+for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_CI_TESTED_PLATFORMS}; do
+  OPENROSDE_CI_PLATFORM_ROOT_DIR="$(openrosde-find-platform-root-dir "${OPENROSDE_PLATFORM_NAME}")"
+  OPENROSDE_CI_PLATFORM_ROOT_DIR="${OPENROSDE_CI_PLATFORM_ROOT_DIR#${OPENROSDE_ROOT_DIR}}"
+  OPENROSDE_CI_PLATFORM_ROOT_DIR="${OPENROSDE_CI_PLATFORM_ROOT_DIR#/}"
+  if [ -z "${OPENROSDE_CI_PLATFORM_ROOT_DIR}" ]; then
+    OPENROSDE_CI_PLATFORM_ROOT_DIR="."
+  fi
   echo ""
   echo "build-${OPENROSDE_PLATFORM_NAME}-image-job:"
   echo "  extends: .build-platform-image"
   echo "  variables:"
   echo "    OPENROSDE_ROBOT_PLATFORM: ${OPENROSDE_PLATFORM_NAME}"
-  echo ""
-  echo "test-${OPENROSDE_PLATFORM_NAME}-workspaces-job:"
-  echo "  extends: .test-catkin-workspaces"
-  echo "  needs:"
-  echo "    - build-${OPENROSDE_PLATFORM_NAME}-image-job"
-  echo "  variables:"
-  echo "    OPENROSDE_ROBOT_PLATFORM: ${OPENROSDE_PLATFORM_NAME}"
+  echo "    OPENROSDE_CI_PLATFORM_ROOT_DIR: ${OPENROSDE_CI_PLATFORM_ROOT_DIR}"
 done
 
-# Print the publish job, which waits for every image and every test.
+# Print the test job of every setup, which needs the image of its platform.
+while read -r OPENROSDE_CI_SETUP_NAME OPENROSDE_CI_SETUP_PLATFORM; do
+  if [ -z "${OPENROSDE_CI_SETUP_NAME}" ]; then
+    continue
+  fi
+  echo ""
+  echo "test-${OPENROSDE_CI_SETUP_NAME}-workspaces-job:"
+  echo "  extends: .test-setup"
+  echo "  needs:"
+  echo "    - build-${OPENROSDE_CI_SETUP_PLATFORM}-image-job"
+  echo "  variables:"
+  echo "    OPENROSDE_CI_ROBOT_SETUP: ${OPENROSDE_CI_SETUP_NAME}"
+done <<< "${OPENROSDE_CI_TESTED_SETUPS}"
+
+# Print the test job of the core alone, with no platform, in the base image, unless the pipeline tests one extension.
+if [ -z "${OPENROSDE_CI_OVERRIDE_DIR}" ]; then
+  echo ""
+  echo "test-core-workspaces-job:"
+  echo "  extends: .test-setup"
+  echo "  needs:"
+  echo "    - build-base-image-job"
+  echo "  variables:"
+  echo "    OPENROSDE_CI_ROBOT_SETUP: openrosde"
+fi
+
+# Print the publish job, which waits for every image, every test, and the check of the scripts.
 echo ""
 echo "publish-images-job:"
 echo "  extends: .publish-images"
 echo "  needs:"
 echo "    - build-base-image-job"
-for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_CI_PLATFORM_NAMES}; do
+echo "    - check-scripts-job"
+if [ -z "${OPENROSDE_CI_OVERRIDE_DIR}" ]; then
+  echo "    - test-core-workspaces-job"
+fi
+for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_CI_TESTED_PLATFORMS}; do
   echo "    - build-${OPENROSDE_PLATFORM_NAME}-image-job"
-  echo "    - test-${OPENROSDE_PLATFORM_NAME}-workspaces-job"
 done
+printf '%s' "${OPENROSDE_CI_TESTED_SETUPS}" | awk '{ print "    - test-" $1 "-workspaces-job" }'
 echo "  variables:"
-echo "    OPENROSDE_CI_PLATFORM_IMAGES: \"$(for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_CI_PLATFORM_NAMES}; do printf '%s-devel ' "${OPENROSDE_PLATFORM_NAME}"; done | sed 's/ $//')\""
+echo "    OPENROSDE_CI_PLATFORM_IMAGES: \"$(for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_CI_TESTED_PLATFORMS}; do printf '%s-devel ' "${OPENROSDE_PLATFORM_NAME}"; done | sed 's/ $//')\""

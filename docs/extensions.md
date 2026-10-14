@@ -42,6 +42,9 @@ extensions/<extension>/
   tmux/<name>.panes                      # Panes of the 'tmux' session, in windows of their own.
   terminator/<platform>.config           # Terminator layouts of the platform, until 'tmux' replaces them (platforms only).
   patches/                               # Patches of the Git submodules of this extension.
+  ci/check-in-container.bash             # Checks that the CI runs in the container of every setup that activates the extension (optional).
+  ci/allowed-duplicate-nodes.txt         # Nodes that two panes of one layout may both start on purpose (optional).
+  ci/allowed-simulation-launches.txt     # Launch files of simulations that the scripts of 'ci/' may start (optional).
   docs/                                  # Documentation of the extension.
 ```
 
@@ -146,7 +149,8 @@ OPENROSDE_CORE_VERSION=v3.0.0
 
 `bash ./SWITCH-ROBOT-SETUP.bash <setup>` then warns when OpenRoSDE is checked out at another version, neither a tag of the checked out commit nor the checked out branch, and prints the `git checkout` command of the pinned version.
 The switch still succeeds, since the setup may well run on another version.
-A checkout of a release tag still pulls the `main` images, since the registry holds only the `main` and `dev` images, so build the images of that release locally with `bash ./BUILD-DOCKER-IMAGE.bash local` when the setup needs them.
+A checkout of a release tag still pulls the `main` images by default.
+The CI publishes the images of a release under its tag, such as `v3.0.0`, from the release pipeline on, so set `OPENROSDE_DOCKER_IMAGE_TAG` to that tag in `.env.custom` to pull them, or build the images of an older release locally with `bash ./BUILD-DOCKER-IMAGE.bash local`.
 
 The folder that holds the setup is always active, after the extensions of `OPENROSDE_ROBOT_EXTENSIONS`, so its workspace builds last, before the user workspace.
 A file named after the setup takes precedence over the file named after its platform, such as `scripts/<setup>/bringup-ros-robot.bash` over `scripts/<platform>/bringup-ros-robot.bash`, `terminator/<setup>.config` over `terminator/<platform>.config`, or `tmux/<setup>.panes` over `tmux/<platform>.panes`, whose panes it replaces.
@@ -183,7 +187,7 @@ openrosde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel 
 - Each layer is tagged `openrosde-local/<setup>/<name>-devel:latest`, and the user overlay `openrosde-local/<setup>/user-devel:latest`, rather than with the name of the registry.
   A name without a registry host points to Docker Hub, where a repository has a namespace and a name without `/`, so no repository of three components can exist there, and a `docker push` of a private layer fails with `push access denied` rather than publishing it.
   Two setups that share a device also never overwrite the layer of each other.
-- A CI job builds the layers of a setup with the same script in its Docker-in-Docker daemon, on top of the platform image that it pulls, and pushes none of them, while the CI of OpenRoSDE itself builds no layer yet, since layers belong to a setup.
+- A CI job builds the layers of a setup with the same script in its Docker-in-Docker daemon, on top of the platform image that it pulls, and pushes none of them, as the CI of OpenRoSDE does for every setup it tests.
 
 ## 🚀 Using an Extension
 
@@ -220,6 +224,54 @@ openrosde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel 
     bash ./RUN-DOCKER-CONTAINER.bash
     openrosde-reset-catkin-workspaces
     ```
+
+## 🧪 Testing an Extension
+
+The CI of OpenRoSDE tests every setup it finds, in the core and in the public extensions that `gitlab-ci/extensions.repos` pins, in the format of `vcstool`:
+
+```yaml
+repositories:
+  openrosde-platform-foo:
+    type: git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-foo.git
+    version: v1.0.0
+```
+
+- The generate job and every other job clone these repositories with `gitlab-ci/clone-extensions.bash`, anonymously over HTTPS, and never with a token of the job, so a pipeline of OpenRoSDE, which anyone can read, never reaches a private repository.
+- The image job of a platform builds its image from the folder that holds it, and reuses an image whose folders hash the same, each folder hashed in the Git repository that holds it.
+- The test job of a setup selects the setup as `bash ./SWITCH-ROBOT-SETUP.bash <setup>` does, builds its Docker layers and its Catkin workspaces in the image of its platform, then disconnects the container from every network before any check runs.
+- It then checks that every launch entry point of the panes of the setup resolves with `roslaunch --files`, and that no two panes of one layout start a node of the same name with `roslaunch --nodes`, both of which start no node, and fails when neither the setup nor its platform has a pane file.
+- It then runs `ci/check-in-container.bash` of every active extension that holds one, with the setup as its argument, in the container where the workspaces of the setup are built and sourced.
+- The panes that name no package run the launch package of the platform, `openrosde_<platform>_launch`, unless `scripts/<setup or platform>/initialize-bash-shell.bash` sets another `OPENROSDE_LAUNCH_PACKAGE`, as it does in a shell of the container.
+
+Two panes of one layout that start a node of the same name shut each other down, so the check names both.
+An extension that does this on purpose lists the node in `ci/allowed-duplicate-nodes.txt`, one `<layout> <node-name>` per line, where `<layout>` is `*` for every layout:
+
+```
+default-gazebo /robot_state_publisher
+```
+
+A check in `ci/` never moves a robot: `gitlab-ci/check-no-motion.bash` fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`.
+It lets a script of `ci/` start only the launch files of simulations that `ci/allowed-simulation-launches.txt` names, one file name per line, such as `foo_bringup_default_gazebo.launch`.
+
+A public extension tests one of its branches against the core with a job that triggers a pipeline of OpenRoSDE on `dev`, once `gitlab-ci/extensions.repos` lists it:
+
+```yaml
+test-with-openrosde-job:
+  trigger:
+    project: coarobo/SDE
+    branch: dev
+    strategy: depend
+  variables:
+    OPENROSDE_CI_EXTENSION_OVERRIDE: ${CI_PROJECT_NAME}=${CI_COMMIT_REF_NAME}@${CI_COMMIT_SHA}
+```
+
+- That pipeline checks out the commit in place of the pinned version, then tests only the setups that activate the extension, with their platforms, and never publishes its images.
+- A device that no setup of OpenRoSDE lists yet also sets `OPENROSDE_CI_EXTRA_EXTENSIONS: ${CI_PROJECT_NAME}`, which adds it to every setup.
+- The name of the project must be the name that `gitlab-ci/extensions.repos` lists, and a pipeline of a fork cannot trigger one of OpenRoSDE.
+
+A private extension runs the same scripts in a pipeline of its own, in a private project, with OpenRoSDE checked out at the version it pins, since OpenRoSDE never clones a private repository.
+It reads the public base and platform images by setting `OPENROSDE_CI_IMAGE_REGISTRY` to `registry.gitlab.com/coarobo/sde`, and keeps its own images in its own registry.
 
 ## ⚙️ Configuration
 

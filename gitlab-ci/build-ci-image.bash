@@ -4,12 +4,14 @@
 # An image is identical when its label 'com.coarobo.openrosde.source-hash' matches the hash of the folders it is built from, so an unchanged image is retagged on the registry without being built or downloaded.
 # Every job hands its image to the next ones through the registry only, so the pipeline runs the same on a self-managed runner and on the instance runners of GitLab.com.
 #
-# Usage: bash ./gitlab-ci/build-ci-image.bash <image-name> <dockerfile> <source-dirs> [<build-arg>=<value> ...]
+# Usage: bash ./gitlab-ci/build-ci-image.bash <image-name> <build-context> <dockerfile> <source-dirs> [<build-arg>=<value> ...]
 #
-# <image-name>:  Name of the image under '${CI_REGISTRY_IMAGE}', such as 'openrosde-base' or 'ur5e-devel'.
-# <dockerfile>:  Path of the Dockerfile, relative to the repository root, which is the build context.
-# <source-dirs>: Comma-separated folders whose content defines the image, such as 'docker/openrosde-base,docker/ur5e-devel'.
-# <build-arg>:   Build arguments passed to 'docker buildx build'.
+# <image-name>:    Name of the image under '${CI_REGISTRY_IMAGE}', such as 'openrosde-base' or 'ur5e-devel'.
+# <build-context>: Folder the image is built from, relative to the repository root: '.' for the core, or the folder of the extension or the part that holds a platform, such as 'extensions/openrosde-platform-ur5e'.
+# <dockerfile>:    Path of the Dockerfile, relative to the build context.
+# <source-dirs>:   Comma-separated folders whose content defines the image, relative to the repository root, such as 'docker/openrosde-base,docker/ur5e-devel'.
+#                  Each folder is hashed in the Git repository that holds it, the core or a clone in 'extensions/', and the script fails when one is missing or not committed.
+# <build-arg>:     Build arguments passed to 'docker buildx build'.
 
 ################################################################################
 
@@ -41,8 +43,23 @@ OPENROSDE_CI_MERGED_BRANCH="$(echo "${CI_COMMIT_MESSAGE}" | sed -n "1s/^Merge br
 if [ -n "${OPENROSDE_CI_MERGED_BRANCH}" ]; then
   OPENROSDE_CI_MERGED_TAG="$(openrosde-ci-branch-tag "${OPENROSDE_CI_MERGED_BRANCH}")"
 fi
-OPENROSDE_CI_SOURCE_HASH="$(for OPENROSDE_CI_SOURCE_DIR in ${3//,/ }; do git rev-parse "HEAD:${OPENROSDE_CI_SOURCE_DIR}"; done | sha256sum | cut -c1-40)"
-echo "Image '$1' from '$3' has the source hash '${OPENROSDE_CI_SOURCE_HASH}'."
+
+# Hash the tree of every source folder at the commit checked out in the Git repository that holds it, the core or a clone in 'extensions/', from its path in that repository.
+# A folder of the core gives the same tree, and so the same hash, as when the core was the only repository.
+# Fail when a folder is missing or not committed, since its hash would otherwise be a constant and an outdated image would be reused for ever.
+OPENROSDE_CI_SOURCE_TREES=""
+for OPENROSDE_CI_SOURCE_DIR in ${4//,/ }; do
+  OPENROSDE_CI_SOURCE_REPOSITORY="$(git -C "${OPENROSDE_CI_SOURCE_DIR}" rev-parse --show-toplevel)" \
+    && OPENROSDE_CI_SOURCE_PREFIX="$(git -C "${OPENROSDE_CI_SOURCE_DIR}" rev-parse --show-prefix)" \
+    && OPENROSDE_CI_SOURCE_TREE="$(git -C "${OPENROSDE_CI_SOURCE_REPOSITORY}" rev-parse --verify --quiet "HEAD:${OPENROSDE_CI_SOURCE_PREFIX%/}")"
+  if [ "$?" -ne 0 ] || [ -z "${OPENROSDE_CI_SOURCE_TREE}" ]; then
+    echo "Error: The source folder '${OPENROSDE_CI_SOURCE_DIR}' of image '$1' is missing or not committed in a Git repository, so it has no hash."
+    exit 1
+  fi
+  OPENROSDE_CI_SOURCE_TREES="${OPENROSDE_CI_SOURCE_TREES}${OPENROSDE_CI_SOURCE_TREE}"$'\n'
+done
+OPENROSDE_CI_SOURCE_HASH="$(printf '%s' "${OPENROSDE_CI_SOURCE_TREES}" | sha256sum | cut -c1-40)"
+echo "Image '$1' from '$4' has the source hash '${OPENROSDE_CI_SOURCE_HASH}'."
 
 ################################################################################
 
@@ -62,14 +79,14 @@ done
 
 ################################################################################
 
-# Collect the build arguments, and embed the commit hash of the Dockerfile for the version check of 'initialize-bash-shell.bash'.
-OPENROSDE_CI_BUILD_ARGS=(--build-arg "OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=$(git log -n 1 --pretty=format:%h -- "$2")")
-for OPENROSDE_CI_BUILD_ARG in "${@:4}"; do
+# Collect the build arguments, and embed the commit hash of the Dockerfile, read in the repository that holds it, for the version check of 'initialize-bash-shell.bash'.
+OPENROSDE_CI_BUILD_ARGS=(--build-arg "OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=$(git -C "$2" log -n 1 --pretty=format:%h -- "$3")")
+for OPENROSDE_CI_BUILD_ARG in "${@:5}"; do
   OPENROSDE_CI_BUILD_ARGS+=(--build-arg "${OPENROSDE_CI_BUILD_ARG}")
 done
 
-# Build the image with the layers of the 'dev' and 'main' images as cache, which their inline cache makes usable, then push it with the tag of the pipeline.
-echo "Building '${OPENROSDE_CI_IMAGE_NAME}:${OPENROSDE_CI_PIPELINE_TAG}'..."
+# Build the image from its build context with the layers of the 'dev' and 'main' images as cache, which their inline cache makes usable, then push it with the tag of the pipeline.
+echo "Building '${OPENROSDE_CI_IMAGE_NAME}:${OPENROSDE_CI_PIPELINE_TAG}' from '$2'..."
 docker buildx build \
   "${OPENROSDE_CI_BUILD_ARGS[@]}" \
   --cache-from "${OPENROSDE_CI_IMAGE_NAME}:dev" \
@@ -78,8 +95,8 @@ docker buildx build \
   --label "com.coarobo.openrosde.source-hash=${OPENROSDE_CI_SOURCE_HASH}" \
   --label "org.opencontainers.image.revision=${CI_COMMIT_SHA}" \
   --label "org.opencontainers.image.source=${CI_PROJECT_URL}" \
-  --file "$2" \
+  --file "$2/$3" \
   --tag "${OPENROSDE_CI_IMAGE_NAME}:${OPENROSDE_CI_PIPELINE_TAG}" \
   ${OPENROSDE_CI_BRANCH_TAG:+--tag "${OPENROSDE_CI_IMAGE_NAME}:${OPENROSDE_CI_BRANCH_TAG}"} \
   --push \
-  .
+  "$2"

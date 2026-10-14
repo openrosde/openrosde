@@ -1,0 +1,3 @@
+# Nodes that two panes of one layout of the core or of a platform of the core may both start on purpose, which 'gitlab-ci/check-launch-files.bash' reads.
+# Each line reads '<layout> <node-name>', where '<layout>' is a layout such as 'default-gazebo', or '*' for every layout, and '<node-name>' the full name of the node, such as '/rviz'.
+# An extension keeps its own list in 'ci/allowed-duplicate-nodes.txt', which applies while it is active.
