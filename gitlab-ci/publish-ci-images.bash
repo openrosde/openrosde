@@ -6,7 +6,7 @@
 # Usage: bash ./gitlab-ci/publish-ci-images.bash <tag> <image-name> [<image-name> ...]
 #
 # <tag>:        Tag to publish, 'dev' or 'main'.
-# <image-name>: Names of the images under '${CI_REGISTRY_IMAGE}', such as 'sde-base' and 'ur5e-devel'.
+# <image-name>: Names of the images under '${CI_REGISTRY_IMAGE}', such as 'openrosde-base' and 'ur5e-devel'.
 
 ################################################################################
 
@@ -19,9 +19,9 @@ fi
 ################################################################################
 
 # Retag every image of the pipeline.
-for SDE_CI_IMAGE_NAME in "${@:2}"; do
-  echo "Publishing '${CI_REGISTRY_IMAGE}/${SDE_CI_IMAGE_NAME}:$1'..."
+for OPENROSDE_CI_IMAGE_NAME in "${@:2}"; do
+  echo "Publishing '${CI_REGISTRY_IMAGE}/${OPENROSDE_CI_IMAGE_NAME}:$1'..."
   docker buildx imagetools create \
-    --tag "${CI_REGISTRY_IMAGE}/${SDE_CI_IMAGE_NAME}:$1" \
-    "${CI_REGISTRY_IMAGE}/${SDE_CI_IMAGE_NAME}:pipeline-${CI_PIPELINE_ID}" || exit 1
+    --tag "${CI_REGISTRY_IMAGE}/${OPENROSDE_CI_IMAGE_NAME}:$1" \
+    "${CI_REGISTRY_IMAGE}/${OPENROSDE_CI_IMAGE_NAME}:pipeline-${CI_PIPELINE_ID}" || exit 1
 done

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/realsenseai/realsense-ros -->
+  <!-- Upstream default: $(find realsense2_camera)/launch/rs_camera.launch -->
+
+  <!-- Enable pointcloud filter on both cameras. -->
+  <arg name="filters" default="pointcloud" />
+
+  <!-- Stream profiles of both cameras, '-1' keeping the default profile of each camera as upstream does. -->
+  <!-- Lower values cut the USB, CPU, and network load, e.g. 'color_width:=640 color_height:=480 color_fps:=15'. -->
+  <arg name="color_width"  default="-1" />
+  <arg name="color_height" default="-1" />
+  <arg name="color_fps"    default="-1" />
+  <arg name="depth_width"  default="-1" />
+  <arg name="depth_height" default="-1" />
+  <arg name="depth_fps"    default="-1" />
+
+  <!-- Also publish the depth aligned to the color image on '/<camera>/aligned_depth_to_color/image_raw', 'false' upstream. -->
+  <arg name="align_depth" default="false" />
+
+  <!-- Wrist-mounted RealSense D435 camera. -->
+  <!-- 'wrist_camera_ns' must match the URDF frame prefix ('wrist_camera_*_optical_frame'). -->
+  <!-- The serial number defaults to the 'OPENROSDE_UR5E_WRIST_CAMERA_SERIAL_NO' environment variable. -->
+  <!-- An empty serial number means the driver will connect to any available camera. -->
+  <arg name="wrist_camera_serial_no" default="$(optenv OPENROSDE_UR5E_WRIST_CAMERA_SERIAL_NO '')" />
+  <arg name="wrist_camera_ns"        default="wrist_camera" />
+
+  <!-- External RealSense D435i camera (optional). -->
+  <!-- 'external_camera_ns' must match the URDF frame prefix ('external_camera_*_optical_frame'). -->
+  <!-- The serial number defaults to the 'OPENROSDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO' environment variable. -->
+  <!-- An empty serial number means the driver will connect to any available camera. -->
+  <!-- Set 'OPENROSDE_UR5E_ENABLE_EXTERNAL_CAMERA' to 'false' in '.env.custom' to skip the external camera at bringup. -->
+  <!-- '$(eval ... or ...)' treats an empty string the same as unset, so a missing variable defaults to 'true'. -->
+  <arg name="enable_external_camera"    default="$(eval optenv('OPENROSDE_UR5E_ENABLE_EXTERNAL_CAMERA', 'true') or 'true')" />
+  <arg name="external_camera_serial_no" default="$(optenv OPENROSDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO '')" />
+  <arg name="external_camera_ns"        default="external_camera" />
+
+  <!-- TF publishing from the driver is left at the upstream default. -->
+  <!-- 'robot_state_publisher' already provides the static camera-to-'base_link' transform from the URDF. -->
+
+  <!-- Wrist-mounted camera. -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="serial_no" value="$(arg wrist_camera_serial_no)" />
+    <arg name="camera"    value="$(arg wrist_camera_ns)" />
+    <arg name="filters"   value="$(arg filters)" />
+    <arg name="color_width"  value="$(arg color_width)" />
+    <arg name="color_height" value="$(arg color_height)" />
+    <arg name="color_fps"    value="$(arg color_fps)" />
+    <arg name="depth_width"  value="$(arg depth_width)" />
+    <arg name="depth_height" value="$(arg depth_height)" />
+    <arg name="depth_fps"    value="$(arg depth_fps)" />
+    <arg name="align_depth"  value="$(arg align_depth)" />
+  </include>
+
+  <!-- External camera (started only when 'enable_external_camera' is true). -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(arg enable_external_camera)">
+    <arg name="serial_no" value="$(arg external_camera_serial_no)" />
+    <arg name="camera"    value="$(arg external_camera_ns)" />
+    <arg name="filters"   value="$(arg filters)" />
+    <arg name="color_width"  value="$(arg color_width)" />
+    <arg name="color_height" value="$(arg color_height)" />
+    <arg name="color_fps"    value="$(arg color_fps)" />
+    <arg name="depth_width"  value="$(arg depth_width)" />
+    <arg name="depth_height" value="$(arg depth_height)" />
+    <arg name="depth_fps"    value="$(arg depth_fps)" />
+    <arg name="align_depth"  value="$(arg align_depth)" />
+  </include>
+
+</launch>

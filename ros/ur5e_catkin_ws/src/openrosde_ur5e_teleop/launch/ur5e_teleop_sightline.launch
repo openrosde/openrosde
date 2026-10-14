@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- OpenRoSDE-specific launch: starts the extra ROS nodes needed for Coarobo Sightline teleoperation. -->
+  <!-- Coarobo Sightline is an OpenXR application (for example on the Meta Quest 3) that publishes end effector twist commands to MoveIt Servo directly, so no input bridge is started here. -->
+  <!-- This launch adds the OnRobot RG-2 gripper action interface that Coarobo Sightline drives. -->
+  <!-- It also relays the wrist camera streams at a reduced rate and density, because the full resolution streams saturate the ROS TCP Endpoint connection and make the teleoperation commands stutter. -->
+
+  <!-- Gripper action interface consumed by the Coarobo Sightline application. -->
+  <arg name="action_name" default="/gripper_controller/gripper_action" />
+  <!-- OnRobot RG service that actually drives the gripper. -->
+  <arg name="gripper_service_name" default="/onrobot_rg/set_command" />
+  <arg name="gripper_open_command" default="o" />
+  <arg name="gripper_close_command" default="c" />
+  <!-- A commanded position at or above this threshold opens the gripper, below it closes. -->
+  <arg name="open_position_threshold" default="0.05" />
+
+  <!-- Wrist camera point cloud relay consumed by the Coarobo Sightline application. -->
+  <arg name="cloud_input_topic" default="/wrist_camera/depth/color/points" />
+  <arg name="cloud_throttled_topic" default="/wrist_camera/depth/color/points_throttled" />
+  <arg name="cloud_output_topic" default="/wrist_camera/depth/color/points_downsampled" />
+  <!-- Cloud rate in Hz after throttling. -->
+  <arg name="cloud_rate" default="5.0" />
+  <!-- Voxel edge length in meters for the downsampling grid. -->
+  <arg name="cloud_voxel_leaf_size" default="0.02" />
+  <!-- Points beyond this camera depth in meters are dropped. -->
+  <arg name="cloud_range_limit" default="3.0" />
+
+  <!-- Wrist camera compressed image relay consumed by the Coarobo Sightline application. -->
+  <arg name="image_input_topic" default="/wrist_camera/color/image_raw/compressed" />
+  <arg name="image_output_topic" default="/wrist_camera/color/image_raw/compressed_throttled" />
+  <!-- Image rate in Hz after throttling. -->
+  <arg name="image_rate" default="10.0" />
+
+  <node pkg="openrosde_ur5e_teleop" type="ur5e_onrobot_rg_control_gripper_action.py" name="ur5e_onrobot_rg_control_gripper_action" output="screen">
+    <param name="action_name" value="$(arg action_name)" />
+    <param name="gripper_service_name" value="$(arg gripper_service_name)" />
+    <param name="gripper_open_command" value="$(arg gripper_open_command)" />
+    <param name="gripper_close_command" value="$(arg gripper_close_command)" />
+    <param name="open_position_threshold" value="$(arg open_position_threshold)" />
+  </node>
+
+  <!-- The cloud is throttled first so the voxel grid only processes messages that will actually be delivered. -->
+  <node pkg="topic_tools" type="throttle" name="wrist_camera_cloud_throttle" output="screen"
+        args="messages $(arg cloud_input_topic) $(arg cloud_rate) $(arg cloud_throttled_topic)" />
+
+  <node pkg="nodelet" type="nodelet" name="wrist_camera_cloud_nodelet_manager" args="manager" output="screen" />
+
+  <!-- The voxel grid keeps the packed rgb data, so the downsampled cloud stays colored. -->
+  <node pkg="nodelet" type="nodelet" name="wrist_camera_cloud_voxel_grid"
+        args="load pcl/VoxelGrid wrist_camera_cloud_nodelet_manager" output="screen">
+    <remap from="~input" to="$(arg cloud_throttled_topic)" />
+    <remap from="~output" to="$(arg cloud_output_topic)" />
+    <param name="leaf_size" value="$(arg cloud_voxel_leaf_size)" />
+    <param name="filter_field_name" value="z" />
+    <param name="filter_limit_min" value="0.0" />
+    <param name="filter_limit_max" value="$(arg cloud_range_limit)" />
+  </node>
+
+  <node pkg="topic_tools" type="throttle" name="wrist_camera_image_throttle" output="screen"
+        args="messages $(arg image_input_topic) $(arg image_rate) $(arg image_output_topic)" />
+
+</launch>

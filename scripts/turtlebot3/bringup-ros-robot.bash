@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script brings up the TurtleBot3 robot by SSH, as 'BRINGUP-ROS-ROBOT.bash' calls it when 'turtlebot3' is the active platform.
-# It runs with every 'SDE_*' variable exported by 'scripts/load-sde-env.bash'.
+# It runs with every 'OPENROSDE_*' variable exported by 'scripts/load-openrosde-env.bash'.
 #
 # Usage: bash ./scripts/turtlebot3/bringup-ros-robot.bash <rosmaster-hostname>
 #

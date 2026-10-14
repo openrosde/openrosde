@@ -2,13 +2,13 @@
 
 ################################################################################
 
-# WSL 2 GPU overlay for the SDE.
+# WSL 2 GPU overlay for OpenRoSDE.
 # Enables GPU-accelerated rendering via the WSLg D3D12 Mesa driver.
 
 ################################################################################
 
 services:
-  sde:
+  openrosde:
     environment:
       # Enable GPU-accelerated OpenGL rendering via the WSLg D3D12 Mesa driver.
       - LD_LIBRARY_PATH=/usr/lib/wsl/lib

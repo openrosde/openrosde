@@ -2,13 +2,13 @@
 
 ################################################################################
 
-# Nvidia GPU overlay for the SDE.
+# Nvidia GPU overlay for OpenRoSDE.
 # Enables GPU acceleration via the Nvidia Container Toolkit.
 
 ################################################################################
 
 services:
-  sde:
+  openrosde:
     deploy:
       resources:
         reservations:

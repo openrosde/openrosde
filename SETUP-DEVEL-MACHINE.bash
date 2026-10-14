@@ -112,7 +112,7 @@ sudo apt-get update && sudo apt-get install -y \
 
 ################################################################################
 
-# Install 'tmux', which 'RUN-TMUX-SESSION.bash' runs the terminals of the SDE in.
+# Install 'tmux', which 'RUN-TMUX-SESSION.bash' runs the terminals of OpenRoSDE in.
 # https://github.com/tmux/tmux/wiki
 sudo apt-get update && sudo apt-get install -y \
   tmux

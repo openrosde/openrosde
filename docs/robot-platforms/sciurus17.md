@@ -1,6 +1,6 @@
 # Sciurus17
 
-Platform-specific documentation for the [RT Sciurus17](https://rt-net.jp/products/sciurus17/) within the SDE.
+Platform-specific documentation for the [RT Sciurus17](https://rt-net.jp/products/sciurus17/) within OpenRoSDE.
 
 ## 🔗 External Resources
 
@@ -41,7 +41,7 @@ The RT Sciurus17 robot uses mDNS host names for network discovery.
 To connect to the real robot, update the ROS master hostname in `.env.custom`:
 
 ```shell
-SDE_ROS_MASTER_HOSTNAME=sciurus-host.local
+OPENROSDE_ROS_MASTER_HOSTNAME=sciurus-host.local
 ```
 
 ## 🚀 Gazebo Simulation
@@ -55,9 +55,9 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-gazebo
 Or start the launch files manually in the Docker container:
 
 ```shell
-roslaunch sde_sciurus17_launch sciurus17_bringup_default_gazebo.launch
-roslaunch sde_sciurus17_launch sciurus17_moveit_default_gazebo.launch
-roslaunch sde_sciurus17_launch sciurus17_rviz_default.launch
+roslaunch openrosde_sciurus17_launch sciurus17_bringup_default_gazebo.launch
+roslaunch openrosde_sciurus17_launch sciurus17_moveit_default_gazebo.launch
+roslaunch openrosde_sciurus17_launch sciurus17_rviz_default.launch
 ```
 
 ## 🕐 Clock Synchronization
@@ -71,7 +71,7 @@ bash ./RESTART-CHRONY-SERVICE.bash
 
 > [!NOTE]
 > The script connects to the robot via SSH using the default credentials (`sciurus` / `sciurus`).
-> The robot hostname is resolved from `SDE_ROBOT_HOSTNAME` in `env/sciurus17.env` (default: `sciurus-host.local`).
+> The robot hostname is resolved from `OPENROSDE_ROBOT_HOSTNAME` in `env/sciurus17.env` (default: `sciurus-host.local`).
 
 ## 🤖 Real Robot Operation
 
@@ -88,13 +88,13 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-realworld
 Or start the launch files manually in the Docker container:
 
 ```shell
-roslaunch sde_sciurus17_launch sciurus17_moveit_default_realworld.launch
-roslaunch sde_sciurus17_launch sciurus17_rviz_default.launch
+roslaunch openrosde_sciurus17_launch sciurus17_moveit_default_realworld.launch
+roslaunch openrosde_sciurus17_launch sciurus17_rviz_default.launch
 ```
 
 ## 📋 Launch Files Reference
 
-The following launch files are available for the RT Sciurus17 platform (package: `sde_sciurus17_launch`):
+The following launch files are available for the RT Sciurus17 platform (package: `openrosde_sciurus17_launch`):
 
 | Launch File | Description |
 | --- | --- |
@@ -105,12 +105,12 @@ The following launch files are available for the RT Sciurus17 platform (package:
 
 ## 🧪 FlexBE Behavior
 
-The `sde_sciurus17_flexbe_behaviors` package provides an example behavior that alternates the right and left arms between their `r_arm_init_pose` and `l_arm_init_pose` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+The `openrosde_sciurus17_flexbe_behaviors` package provides an example behavior that alternates the right and left arms between their `r_arm_init_pose` and `l_arm_init_pose` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
 
 To start the FlexBE behavior engine and app:
 
 ```shell
-roslaunch sde_launch flexbe_app_default.launch
+roslaunch openrosde_launch flexbe_app_default.launch
 ```
 
 Load the `Sciurus17 Example Behavior` behavior in the FlexBE App and press **Start**.

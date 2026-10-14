@@ -2,13 +2,13 @@
 
 ################################################################################
 
-# Denso COBOTTA platform overlay for the SDE.
+# Denso COBOTTA platform overlay for OpenRoSDE.
 # Passes COBOTTA-specific environment variables to the container.
 
 ################################################################################
 
 services:
-  sde:
+  openrosde:
     environment:
       # No platform-specific environment variables for the Denso COBOTTA at this time.
-      - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+      - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}

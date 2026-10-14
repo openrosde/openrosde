@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/hsr-project/tmc_wrs_binary -->
+  <!-- OpenRoSDE-specific: spawns the HSR in the WRS 2020 Gazebo world. -->
+  <!-- 'use_oss_stacks=true' switches 'omni_base_controller' to the public -->
+  <!-- 'velocity_controllers/JointTrajectoryController'. -->
+  <!-- 'use_laser_odom=false' uses wheel odometry from 'offset_diff_drive_controller'. -->
+  <!-- MoveIt and navigation are started separately via their own launch files. -->
+
+  <arg name="paused"       default="false" />
+  <arg name="fast_physics" default="false" />
+  <arg name="gui"          default="true" />
+  <arg name="world_name"   default="$(find tmc_wrs_gazebo_worlds)/worlds/wrs2020.world" />
+  <arg name="robot_pos"    default="-x -2.1 -y 1.2 -z 0 -Y -1.57" />
+
+  <!-- Spawn the HSR in the WRS 2020 Gazebo world with open-source controllers. -->
+  <include file="$(find hsrb_gazebo_bringup)/launch/hsrb_empty_world.launch">
+    <arg name="gui"              value="$(arg gui)" />
+    <arg name="paused"           value="$(arg paused)" />
+    <arg name="fast_physics"     value="$(arg fast_physics)" />
+    <arg name="world_name"       value="$(arg world_name)" />
+    <arg name="robot_pos"        value="$(arg robot_pos)" />
+    <arg name="use_oss_stacks"   value="true" />
+    <arg name="use_laser_odom"   value="false" />
+  </include>
+
+  <!-- Relay wheel odometry to the '/hsrb/odom' topic expected by the nav stack. -->
+  <node pkg="topic_tools" type="relay" name="odom_relay"
+        args="/hsrb/wheel_odom /hsrb/odom" />
+
+  <!-- Pre-load the SRDF on the parameter server so RViz's MotionPlanning plugin and FlexBE behaviors using 'SrdfStateToMoveit' can find '/robot_description_semantic' before MoveIt is started. -->
+  <param name="robot_description_semantic"
+         textfile="$(find hsrb_moveit_config)/config/hsrb.srdf" />
+
+  <!-- Spawn WRS 2020 competition objects into the world. -->
+  <node pkg="tmc_wrs_gazebo_worlds" type="spawn_objects" name="spawn_objects"
+        args="--seed 1" output="screen" />
+
+  <!-- Maximize the Gazebo window after it opens. -->
+  <node if="$(arg gui)" name="maximize_gazebo" pkg="openrosde_launch"
+        type="maximize-app-window.bash" args="Gazebo" />
+
+</launch>
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/ROBOTIS-GIT/turtlebot3 -->
+  <!-- Upstream default: $(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch -->
+
+  <!-- Start navigation on the TurtleBot3 robot. -->
+
+  <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">
+    <arg name="map_file" value="$(find openrosde_turtlebot3_launch)/config/maps/gazebo/turtlebot3_world/map.yaml" />
+    <arg name="open_rviz" value="false" />
+    <arg name="move_forward_only" value="false" />
+  </include>
+
+</launch>

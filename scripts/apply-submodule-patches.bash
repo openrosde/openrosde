@@ -15,39 +15,39 @@
 ################################################################################
 
 # Resolve the root directory of the repository and its patches.
-SDE_REPOSITORY_ROOT_DIR="$1"
-SDE_PATCHES_DIR="${SDE_REPOSITORY_ROOT_DIR}/patches"
+OPENROSDE_REPOSITORY_ROOT_DIR="$1"
+OPENROSDE_PATCHES_DIR="${OPENROSDE_REPOSITORY_ROOT_DIR}/patches"
 
 # Skip the repository if it has no patches.
-if [ ! -d "${SDE_PATCHES_DIR}" ]; then
+if [ ! -d "${OPENROSDE_PATCHES_DIR}" ]; then
   exit 0
 fi
 
 ################################################################################
 
 # Apply all patch files found in the 'patches/' directory tree.
-find "${SDE_PATCHES_DIR}" -name '*.patch' -type f | sort | while read SDE_PATCH_FILE; do
+find "${OPENROSDE_PATCHES_DIR}" -name '*.patch' -type f | sort | while read OPENROSDE_PATCH_FILE; do
   # Derive the submodule path from the patch file's parent directory relative to 'patches/'.
-  SDE_SUBMODULE_PATH=$(dirname "${SDE_PATCH_FILE#${SDE_PATCHES_DIR}/}")
-  SDE_PATCH_BASENAME=$(basename "${SDE_PATCH_FILE}")
+  OPENROSDE_SUBMODULE_PATH=$(dirname "${OPENROSDE_PATCH_FILE#${OPENROSDE_PATCHES_DIR}/}")
+  OPENROSDE_PATCH_BASENAME=$(basename "${OPENROSDE_PATCH_FILE}")
 
   # Verify that the submodule directory exists.
-  if [ ! -d "${SDE_REPOSITORY_ROOT_DIR}/${SDE_SUBMODULE_PATH}" ]; then
-    echo "Warning: Submodule directory '${SDE_SUBMODULE_PATH}' not found, skipping '${SDE_PATCH_BASENAME}'."
+  if [ ! -d "${OPENROSDE_REPOSITORY_ROOT_DIR}/${OPENROSDE_SUBMODULE_PATH}" ]; then
+    echo "Warning: Submodule directory '${OPENROSDE_SUBMODULE_PATH}' not found, skipping '${OPENROSDE_PATCH_BASENAME}'."
     continue
   fi
 
   # Apply the patch (skip if already applied).
-  echo "Applying patch '${SDE_PATCH_BASENAME}' to '${SDE_SUBMODULE_PATH}'..."
-  if git -C "${SDE_REPOSITORY_ROOT_DIR}/${SDE_SUBMODULE_PATH}" apply --check "${SDE_PATCH_FILE}" 2>/dev/null; then
-    git -C "${SDE_REPOSITORY_ROOT_DIR}/${SDE_SUBMODULE_PATH}" apply "${SDE_PATCH_FILE}"
-    echo "Successfully applied '${SDE_PATCH_BASENAME}'."
+  echo "Applying patch '${OPENROSDE_PATCH_BASENAME}' to '${OPENROSDE_SUBMODULE_PATH}'..."
+  if git -C "${OPENROSDE_REPOSITORY_ROOT_DIR}/${OPENROSDE_SUBMODULE_PATH}" apply --check "${OPENROSDE_PATCH_FILE}" 2>/dev/null; then
+    git -C "${OPENROSDE_REPOSITORY_ROOT_DIR}/${OPENROSDE_SUBMODULE_PATH}" apply "${OPENROSDE_PATCH_FILE}"
+    echo "Successfully applied '${OPENROSDE_PATCH_BASENAME}'."
   else
-    echo "Patch '${SDE_PATCH_BASENAME}' already applied or conflicts detected, skipping."
+    echo "Patch '${OPENROSDE_PATCH_BASENAME}' already applied or conflicts detected, skipping."
   fi
 
   # Mark all files touched by this patch as 'skip-worktree' so that patched files do not appear as tracked changes in VS Code or 'git status' output.
-  git -C "${SDE_REPOSITORY_ROOT_DIR}/${SDE_SUBMODULE_PATH}" apply --numstat "${SDE_PATCH_FILE}" 2>/dev/null \
+  git -C "${OPENROSDE_REPOSITORY_ROOT_DIR}/${OPENROSDE_SUBMODULE_PATH}" apply --numstat "${OPENROSDE_PATCH_FILE}" 2>/dev/null \
     | awk '{print $3}' \
-    | xargs git -C "${SDE_REPOSITORY_ROOT_DIR}/${SDE_SUBMODULE_PATH}" update-index --skip-worktree 2>/dev/null
+    | xargs git -C "${OPENROSDE_REPOSITORY_ROOT_DIR}/${OPENROSDE_SUBMODULE_PATH}" update-index --skip-worktree 2>/dev/null
 done

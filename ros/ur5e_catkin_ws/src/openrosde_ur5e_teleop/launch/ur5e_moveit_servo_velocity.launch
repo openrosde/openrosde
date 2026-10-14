@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/moveit/moveit/tree/master/moveit_ros/moveit_servo -->
+  <!-- OpenRoSDE-specific launch: starts the 'moveit_servo' server in velocity streaming mode. -->
+
+  <arg name="planning_frame" default="base_link" />
+  <arg name="ee_frame_name" default="flange" />
+  <arg name="robot_link_command_frame" default="flange" />
+  <arg name="command_out_topic" default="/joint_group_vel_controller/command" />
+  <arg name="command_out_type" default="std_msgs/Float64MultiArray" />
+  <arg name="publish_joint_positions" default="false" />
+  <arg name="publish_joint_velocities" default="true" />
+  <arg name="servo_config_file" default="$(find openrosde_ur5e_teleop)/config/ur5e_moveit_servo_velocity.yaml" />
+  <arg name="switch_controllers" default="false" />
+  <arg name="switch_service_name" default="/controller_manager/switch_controller" />
+  <arg name="controllers_to_start" default="" />
+  <arg name="controllers_to_stop" default="" />
+  <arg name="wait_for_switch_service_timeout" default="20.0" />
+
+  <node pkg="openrosde_ur5e_teleop"
+    type="ur5e_controller_manager_switch.py"
+    name="ur5e_controller_manager_switch"
+    output="screen"
+    if="$(arg switch_controllers)">
+    <param name="switch_service_name" value="$(arg switch_service_name)" />
+    <param name="controllers_to_start" value="$(arg controllers_to_start)" />
+    <param name="controllers_to_stop" value="$(arg controllers_to_stop)" />
+    <param name="wait_for_service_timeout" value="$(arg wait_for_switch_service_timeout)" />
+  </node>
+
+  <node pkg="moveit_servo"
+    type="servo_server"
+    name="servo_server"
+    output="screen">
+    <rosparam command="load" file="$(arg servo_config_file)" />
+    <param name="planning_frame" value="$(arg planning_frame)" />
+    <param name="ee_frame_name" value="$(arg ee_frame_name)" />
+    <param name="robot_link_command_frame" value="$(arg robot_link_command_frame)" />
+    <param name="command_out_topic" value="$(arg command_out_topic)" />
+    <param name="command_out_type" value="$(arg command_out_type)" />
+    <param name="publish_joint_positions" value="$(arg publish_joint_positions)" />
+    <param name="publish_joint_velocities" value="$(arg publish_joint_velocities)" />
+  </node>
+
+</launch>

@@ -1,6 +1,6 @@
-# Contributing to the SDE
+# Contributing to OpenRoSDE
 
-Thank you for your interest in contributing to the Software Development Environment (SDE)!
+Thank you for your interest in contributing to OpenRoSDE!
 This guide describes how to contribute to the project, with a focus on the most common contribution: **adding support for a new robot platform**.
 
 [[_TOC_]]
@@ -67,7 +67,7 @@ These rules apply to all GitLab issue, milestone, and merge request titles and d
 
 ### Milestones
 
-- Name milestones as long-lived thematic epics with a verb-first descriptive title (e.g., `Port the SDE to ROS 2 on Ubuntu 26.04 LTS`), not after individual release versions.
+- Name milestones as long-lived thematic epics with a verb-first descriptive title (e.g., `Port OpenRoSDE to ROS 2 on Ubuntu 26.04 LTS`), not after individual release versions.
 - A release belongs to the epic milestone that contains its work. Link the release and its merge requests to that epic.
 - Keep epic milestones open until the epic itself is complete. Do not close an epic when one of its releases is published.
 
@@ -119,13 +119,13 @@ Include the platform name, host OS, and the output of the failing command.
 
 > [!NOTE]
 > If you only need to add your own ROS packages, system dependencies, environment variables, or Terminator panes, **do not add a new platform**.
-> Use the [User Overlay](docs/user-overlay.md) (Layer 3) instead. It lives in [docker/user-devel/Dockerfile](docker/user-devel/Dockerfile), [ros/user_catkin_ws/](ros/user_catkin_ws/), and [docker/docker-compose-user.yaml](docker/docker-compose-user.yaml), and works on top of any selected `SDE_ROBOT_PLATFORM` without any of the steps below.
+> Use the [User Overlay](docs/user-overlay.md) (Layer 3) instead. It lives in [docker/user-devel/Dockerfile](docker/user-devel/Dockerfile), [ros/user_catkin_ws/](ros/user_catkin_ws/), and [docker/docker-compose-user.yaml](docker/docker-compose-user.yaml), and works on top of any selected `OPENROSDE_ROBOT_PLATFORM` without any of the steps below.
 
-The SDE is designed to make adding a new platform straightforward.
+OpenRoSDE is designed to make adding a new platform straightforward.
 A platform can live in the core or in an extension repository of its own, cloned into `extensions/`, with the same files in the same places (see [docs/extensions.md](docs/extensions.md)).
 An extension platform needs no change of the core at all, so it suits a robot that is private, or that the maintainers do not merge upstream.
-All platform-specific behavior is controlled by the `SDE_ROBOT_PLATFORM` variable.
-Adding a new platform named `<platform>` (e.g., `myrobot`) requires creating a small set of files, which the SDE finds by that name, and adding `<platform>` to the few lists that remain.
+All platform-specific behavior is controlled by the `OPENROSDE_ROBOT_PLATFORM` variable.
+Adding a new platform named `<platform>` (e.g., `myrobot`) requires creating a small set of files, which OpenRoSDE finds by that name, and adding `<platform>` to the few lists that remain.
 
 The steps below use `<platform>` as a placeholder.
 Replace it with your actual platform name (lowercase kebab-case, e.g., `myrobot`).
@@ -141,14 +141,14 @@ cp env/cobotta.env env/<platform>.env
 Edit the file to set:
 
 ```shell
-SDE_ROBOT_PLATFORM=<platform>
-SDE_ROBOT_SETUP=<platform>
+OPENROSDE_ROBOT_PLATFORM=<platform>
+OPENROSDE_ROBOT_SETUP=<platform>
 ```
 
 The template of a platform is its default setup, so it declares its own name as the setup too.
-The first line is how the SDE finds the platform: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares its own name, and `SWITCH-ROBOT-PLATFORM.bash` and the CI pipeline use that list.
+The first line is how OpenRoSDE finds the platform: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares its own name, and `SWITCH-ROBOT-PLATFORM.bash` and the CI pipeline use that list.
 
-Update the `SDE_ROBOT_HOSTNAME` comment and value to match your platform's connectivity (SSH hostname, or empty if USB/local).
+Update the `OPENROSDE_ROBOT_HOSTNAME` comment and value to match your platform's connectivity (SSH hostname, or empty if USB/local).
 Leave all defaults in this file: do not add `${VAR:-default}` fallback syntax in scripts.
 
 ### Step 2: Create the Docker Image
@@ -162,10 +162,10 @@ mkdir docker/<platform>-devel
 Use any existing platform Dockerfile as a template (e.g., `docker/cobotta-devel/Dockerfile`).
 Follow the Dockerfile code style from [`AGENTS.md`](AGENTS.md#dockerfiles):
 
-- Start from the `sde-base` image via `ARG SDE_BASE_IMAGE`.
+- Start from the `openrosde-base` image via `ARG OPENROSDE_BASE_IMAGE`.
 - Install platform-specific ROS packages with `apt-get install`.
-- Set `SDE_ROBOT_PLATFORM` via `ARG`/`ENV`.
-- Pass `SDE_DOCKERFILE_COMMIT_SHORT_SHA` via `ARG`/`ENV SDE_DOCKER_IMAGE_VERSION`.
+- Set `OPENROSDE_ROBOT_PLATFORM` via `ARG`/`ENV`.
+- Pass `OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA` via `ARG`/`ENV OPENROSDE_DOCKER_IMAGE_VERSION`.
 
 ### Step 3: Create the Docker Compose Overlay
 
@@ -177,15 +177,15 @@ If no extra environment variables are needed beyond what `docker-compose.yaml` a
 Create the platform Catkin workspace and launch package skeleton:
 
 ```shell
-mkdir -p ros/<platform>_catkin_ws/src/sde_<platform>_launch/launch
-touch ros/<platform>_catkin_ws/src/sde_<platform>_launch/.gitignore
+mkdir -p ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/launch
+touch ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/.gitignore
 ```
 
 Create the following files following the conventions in [`AGENTS.md`](AGENTS.md#ros-packages):
 
-- `ros/<platform>_catkin_ws/src/sde_<platform>_launch/package.xml`: use format 2, MIT license.
-- `ros/<platform>_catkin_ws/src/sde_<platform>_launch/CMakeLists.txt`: minimal launch-only template.
-- `ros/<platform>_catkin_ws/src/sde_<platform>_launch/README.md`: package README.
+- `ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/package.xml`: use format 2, MIT license.
+- `ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/CMakeLists.txt`: minimal launch-only template.
+- `ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/README.md`: package README.
 
 Create launch files following the naming convention `<component>_<variant>_<environment>.launch`:
 
@@ -221,14 +221,14 @@ default-gazebo     robot  <platform>_rviz_default.launch
 default-realworld  robot  <platform>_bringup_default_realworld.launch
 ```
 
-The core adds its own windows (`tools`, `user`, `host`) from `tmux/sde.panes`.
+The core adds its own windows (`tools`, `user`, `host`) from `tmux/openrosde.panes`.
 Until `tmux` replaces Terminator, also create the matching Terminator layout, `terminator/<platform>.config`, by copying the closest existing config:
 
 ```shell
 cp terminator/cobotta.config terminator/<platform>.config
 ```
 
-Update the layout name pattern to `sde-<platform>-term-11-<variant>-<environment>` and update the `roslaunch` commands in each terminal pane.
+Update the layout name pattern to `openrosde-<platform>-term-11-<variant>-<environment>` and update the `roslaunch` commands in each terminal pane.
 
 ### Step 7: Create the Platform Documentation
 
@@ -249,12 +249,12 @@ The core scripts run the optional scripts of a platform from `scripts/<platform>
 
 | Script | Run by | Purpose |
 | --- | --- | --- |
-| `scripts/<platform>/initialize-bash-shell.bash` | `docker/sde-base/scripts/initialize-bash-shell.bash`, inside the container | Shell configuration of the platform, such as `TURTLEBOT3_MODEL` in `scripts/turtlebot3/` |
+| `scripts/<platform>/initialize-bash-shell.bash` | `docker/openrosde-base/scripts/initialize-bash-shell.bash`, inside the container | Shell configuration of the platform, such as `TURTLEBOT3_MODEL` in `scripts/turtlebot3/` |
 | `scripts/<platform>/bringup-ros-robot.bash` | `BRINGUP-ROS-ROBOT.bash`, with the ROS master host name | Bringup of the real robot by SSH |
 | `scripts/<platform>/restart-chrony-service.bash` | `RESTART-CHRONY-SERVICE.bash` | Chrony restart on the robot computer |
 
-Each script runs with every `SDE_*` variable that `scripts/load-sde-env.bash` exports.
-The launch package of the platform is always `sde_<platform>_launch`, so it needs no registration.
+Each script runs with every `OPENROSDE_*` variable that `scripts/load-openrosde-env.bash` exports.
+The launch package of the platform is always `openrosde_<platform>_launch`, so it needs no registration.
 
 ### Step 9: Add the Platform to the Documentation
 
@@ -280,15 +280,15 @@ bash ./SWITCH-ROBOT-PLATFORM.bash <platform>
 bash ./RUN-DOCKER-CONTAINER.bash
 
 # 4. Build the Catkin workspaces inside the container:
-sde-reset-catkin-workspaces
+openrosde-reset-catkin-workspaces
 
 # 5. Launch Gazebo simulation (in three terminals inside the container):
-roslaunch sde_<platform>_launch <platform>_bringup_default_gazebo.launch
-roslaunch sde_<platform>_launch <platform>_moveit_default_gazebo.launch
-roslaunch sde_<platform>_launch <platform>_rviz_default.launch
+roslaunch openrosde_<platform>_launch <platform>_bringup_default_gazebo.launch
+roslaunch openrosde_<platform>_launch <platform>_moveit_default_gazebo.launch
+roslaunch openrosde_<platform>_launch <platform>_rviz_default.launch
 
 # 6. Check for hardcoded paths:
-grep -rn '/root/SDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .
+grep -rn '/root/OpenRoSDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .
 ```
 
 ### Step 11: Submit a Merge Request

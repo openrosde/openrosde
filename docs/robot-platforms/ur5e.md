@@ -1,6 +1,6 @@
 # Universal Robots UR5e
 
-Platform-specific documentation for the [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) within the SDE.
+Platform-specific documentation for the [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) within OpenRoSDE.
 
 ## 🔗 External Resources
 
@@ -40,8 +40,8 @@ bash ./SWITCH-ROBOT-PLATFORM.bash ur5e
 Camera serial numbers are setup-dependent and must be configured in `.env.custom`:
 
 ```shell
-SDE_UR5E_WRIST_CAMERA_SERIAL_NO=<your-wrist-camera-serial>
-SDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO=<your-external-camera-serial>
+OPENROSDE_UR5E_WRIST_CAMERA_SERIAL_NO=<your-wrist-camera-serial>
+OPENROSDE_UR5E_EXTERNAL_CAMERA_SERIAL_NO=<your-external-camera-serial>
 ```
 
 Run `rs-enumerate-devices` inside the container to find the serial numbers of connected cameras.
@@ -49,46 +49,46 @@ Run `rs-enumerate-devices` inside the container to find the serial numbers of co
 If the external camera is not available in your setup, disable it in `.env.custom`:
 
 ```shell
-SDE_UR5E_ENABLE_EXTERNAL_CAMERA=false
+OPENROSDE_UR5E_ENABLE_EXTERNAL_CAMERA=false
 ```
 
 The external camera pose (position in meters and orientation in radians, expressed in the `world` frame which is co-located with the robot `base_link`) is also setup-dependent and can be overridden in `.env.custom`.
 The defaults below match the Coarobo setup measured on 2026-10-07: the camera stands 0.35 m along `+y` and 0.10 m along `-x` from the robot base, 0.10 m up, level with the ground, and turned 45 degrees from the `-x` axis toward `-y` (yaw of -135 degrees):
 
 ```shell
-SDE_UR5E_EXTERNAL_CAMERA_X=-0.10
-SDE_UR5E_EXTERNAL_CAMERA_Y=0.35
-SDE_UR5E_EXTERNAL_CAMERA_Z=0.10
-SDE_UR5E_EXTERNAL_CAMERA_ROLL=0
-SDE_UR5E_EXTERNAL_CAMERA_PITCH=0
-SDE_UR5E_EXTERNAL_CAMERA_YAW=-2.35619
+OPENROSDE_UR5E_EXTERNAL_CAMERA_X=-0.10
+OPENROSDE_UR5E_EXTERNAL_CAMERA_Y=0.35
+OPENROSDE_UR5E_EXTERNAL_CAMERA_Z=0.10
+OPENROSDE_UR5E_EXTERNAL_CAMERA_ROLL=0
+OPENROSDE_UR5E_EXTERNAL_CAMERA_PITCH=0
+OPENROSDE_UR5E_EXTERNAL_CAMERA_YAW=-2.35619
 ```
 
 These values are baked into the URDF at bringup time, so any change requires restarting the bringup launch file.
 Individual values can also be overridden for one launch, for example:
 
 ```shell
-SDE_UR5E_EXTERNAL_CAMERA_Y=-0.30 roslaunch sde_ur5e_launch ur5e_bringup_default_realworld.launch
+OPENROSDE_UR5E_EXTERNAL_CAMERA_Y=-0.30 roslaunch openrosde_ur5e_launch ur5e_bringup_default_realworld.launch
 ```
 
 > [!NOTE]
 > The Universal Robots UR5e does not broadcast a host name on the network, so it cannot be operated using mDNS host names.
 > Static IP addresses must be used instead (see [Network Configuration](#network-configuration)).
-> For this reason, `SDE_ROBOT_HOSTNAME` should be left empty.
+> For this reason, `OPENROSDE_ROBOT_HOSTNAME` should be left empty.
 
 ## 🌐 Network Configuration
 
 All devices are connected to the same local network using fixed IP addresses.
 Although host names would be preferred for convenience, the Universal Robots UR5e and the OnRobot Compute Box do not broadcast any host name, so defaulting to fixed IPs is necessary.
 
-| Device | SDE Default IP | Factory Default IP |
+| Device | OpenRoSDE Default IP | Factory Default IP |
 | --- | --- | --- |
 | Universal Robots UR5e | `192.168.1.200` | `192.168.1.10` |
 | OnRobot Compute Box | `192.168.1.201` | `192.168.1.1` |
 | Ubuntu development machine | `192.168.1.202` | n/a |
 
 > [!NOTE]
-> The SDE Default IPs are the addresses pre-configured in the `.env` and launch files.
+> The OpenRoSDE Default IPs are the addresses pre-configured in the `.env` and launch files.
 > They can be changed by the user in `.env.custom` or in the launch file arguments.
 
 > [!NOTE]
@@ -145,7 +145,7 @@ In this mode, the teach pendant must be set to **Local** mode and the `external_
 - On the Ubuntu development machine, run `ur5e_bringup_default_realworld.launch` with headless mode disabled:
 
     ```shell
-    roslaunch sde_ur5e_launch ur5e_bringup_default_realworld.launch headless_mode:=false
+    roslaunch openrosde_ur5e_launch ur5e_bringup_default_realworld.launch headless_mode:=false
     ```
 
 - Press the "Play" button on the teach pendant.
@@ -162,7 +162,7 @@ This is the default mode used by the launch files.
 - On the Ubuntu development machine, run the bringup launch file:
 
     ```shell
-    roslaunch sde_ur5e_launch ur5e_bringup_default_realworld.launch
+    roslaunch openrosde_ur5e_launch ur5e_bringup_default_realworld.launch
     ```
 
   The driver will automatically load and start the `external_control` program on the robot.
@@ -177,8 +177,8 @@ This is the default mode used by the launch files.
 After bringing up the driver (in either mode), launch MoveIt and RViz:
 
 ```shell
-roslaunch sde_ur5e_launch ur5e_moveit_default_realworld.launch
-roslaunch sde_ur5e_launch ur5e_rviz_default.launch
+roslaunch openrosde_ur5e_launch ur5e_moveit_default_realworld.launch
+roslaunch openrosde_ur5e_launch ur5e_rviz_default.launch
 ```
 
 You should be able to plan and execute motions from RViz.
@@ -212,19 +212,19 @@ The serial numbers are setup-dependent and must be set in `.env.custom` (see [Pl
 To start both cameras with point cloud generation:
 
 ```shell
-roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch
+roslaunch openrosde_ur5e_launch realsense_camera_default_realworld.launch
 ```
 
 If the external camera is not connected, disable it by setting the corresponding environment variable in `.env.custom`:
 
 ```shell
-SDE_UR5E_ENABLE_EXTERNAL_CAMERA=false
+OPENROSDE_UR5E_ENABLE_EXTERNAL_CAMERA=false
 ```
 
 Alternatively, override the value at launch time:
 
 ```shell
-roslaunch sde_ur5e_launch realsense_camera_default_realworld.launch enable_external_camera:=false
+roslaunch openrosde_ur5e_launch realsense_camera_default_realworld.launch enable_external_camera:=false
 ```
 
 The external camera displays in RViz are disabled by default and can be re-enabled manually once the camera is running.
@@ -234,7 +234,7 @@ The external camera displays in RViz are disabled by default and can be re-enabl
 To start the OnRobot RG2 gripper controller via Modbus TCP:
 
 ```shell
-roslaunch sde_ur5e_launch onrobot_rg_control_default_realworld.launch
+roslaunch openrosde_ur5e_launch onrobot_rg_control_default_realworld.launch
 ```
 
 The gripper can be controlled via the ROS service `/onrobot_rg/set_command`.
@@ -250,8 +250,8 @@ The UR5e can be teleoperated from a Meta Quest 3 headset running the [Coarobo Si
 - Start the teleop stack with `input_source:=sightline`, which starts MoveIt Servo with the end effector frame set to `onrobot_rg2_base_link` and relays the wrist camera streams for the headset.
 - Start it with `input_source:=spacemouse_viewport_sightline` to run Sightline next to the 3Dconnexion SpaceMouse and Coarobo Viewport, each input driving MoveIt Servo only while it is in use.
 - The UR5e Terminator layouts preload the teleop terminal with `input_source:=spacemouse_viewport_sightline` in the `default-realworld` layout and `input_source:=spacemouse` in the `default-gazebo` layout.
-- To teleoperate with Sightline alone, press `c` in the teleop terminal and run `roslaunch sde_ur5e_launch ur5e_teleop_default_realworld.launch input_source:=sightline`.
-- The headset connects through the ROS TCP Endpoint terminal (`sde_launch:ros_tcp_endpoint_default.launch`) on port `10000`.
+- To teleoperate with Sightline alone, press `c` in the teleop terminal and run `roslaunch openrosde_ur5e_launch ur5e_teleop_default_realworld.launch input_source:=sightline`.
+- The headset connects through the ROS TCP Endpoint terminal (`openrosde_launch:ros_tcp_endpoint_default.launch`) on port `10000`.
 - The relayed camera topics are the point cloud on `/wrist_camera/depth/color/points_downsampled` (5 Hz, 2 cm voxel grid) and the compressed image on `/wrist_camera/color/image_raw/compressed_throttled` (10 Hz).
 
 ## 🚨 Emergency Button
@@ -268,7 +268,7 @@ If you have pressed the emergency button, you have to initialize the robot again
 
 ## 📋 Launch Files Reference
 
-The following launch files are available for the Universal Robots UR5e platform (package: `sde_ur5e_launch`):
+The following launch files are available for the Universal Robots UR5e platform (package: `openrosde_ur5e_launch`):
 
 | Launch File | Description |
 | --- | --- |
@@ -285,12 +285,12 @@ The following launch files are available for the Universal Robots UR5e platform 
 
 ## 🧪 FlexBE Behavior
 
-The `sde_ur5e_flexbe_behaviors` package provides an example behavior that loops the arm between the `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
+The `openrosde_ur5e_flexbe_behaviors` package provides an example behavior that loops the arm between the `home` and `up` SRDF named states using `SrdfStateToMoveit` and `WaitState`.
 
 To start the FlexBE behavior engine and app:
 
 ```shell
-roslaunch sde_launch flexbe_app_default.launch
+roslaunch openrosde_launch flexbe_app_default.launch
 ```
 
 Load the `UR5e Example Behavior` behavior in the FlexBE App and press **Start**.

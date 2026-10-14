@@ -8,18 +8,18 @@
 	url = https://github.com/roboticsgroup/roboticsgroup_upatras_gazebo_plugins.git
 	branch = master
 	ignore = dirty
-[submodule "ros/sde_catkin_ws/src/flexbe_behavior_engine"]
-	path = ros/sde_catkin_ws/src/flexbe_behavior_engine
+[submodule "ros/openrosde_catkin_ws/src/flexbe_behavior_engine"]
+	path = ros/openrosde_catkin_ws/src/flexbe_behavior_engine
 	url = https://github.com/FlexBE/flexbe_behavior_engine.git
 	branch = noetic
 	ignore = dirty
-[submodule "ros/sde_catkin_ws/src/flexbe_app"]
-	path = ros/sde_catkin_ws/src/flexbe_app
+[submodule "ros/openrosde_catkin_ws/src/flexbe_app"]
+	path = ros/openrosde_catkin_ws/src/flexbe_app
 	url = https://github.com/FlexBE/flexbe_app.git
 	branch = noetic
 	ignore = dirty
-[submodule "ros/sde_catkin_ws/src/flexbe_generic_states"]
-	path = ros/sde_catkin_ws/src/flexbe_generic_states
+[submodule "ros/openrosde_catkin_ws/src/flexbe_generic_states"]
+	path = ros/openrosde_catkin_ws/src/flexbe_generic_states
 	url = https://github.com/FlexBE/generic_flexbe_states.git
 	branch = master
 	ignore = dirty
@@ -43,8 +43,8 @@
 	url = https://github.com/DENSORobot/denso_cobotta_ros.git
 	branch = melodic-devel
 	ignore = dirty
-[submodule "ros/sde_catkin_ws/src/ros_tcp_endpoint"]
-	path = ros/sde_catkin_ws/src/ros_tcp_endpoint
+[submodule "ros/openrosde_catkin_ws/src/ros_tcp_endpoint"]
+	path = ros/openrosde_catkin_ws/src/ros_tcp_endpoint
 	url = https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
 	branch = main
 	ignore = dirty

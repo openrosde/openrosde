@@ -1,0 +1,25 @@
+<package format="2">
+  <name>openrosde_sciurus17_flexbe_states</name>
+  <version>1.0.0</version>
+  <description>
+    The 'openrosde_sciurus17_flexbe_states' package provides custom FlexBE states for the RT Sciurus17 platform.
+  </description>
+  <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">https://coarobo.com/</url>
+  <url type="repository">https://gitlab.com/coarobo/SDE</url>
+  <url type="bugtracker">https://gitlab.com/coarobo/SDE/-/issues</url>
+  <author email="lotfi@coarobo.com">Lotfi El Hafi</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>flexbe_core</exec_depend>
+
+  <export>
+    <flexbe_states />
+  </export>
+
+</package>

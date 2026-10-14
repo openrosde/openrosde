@@ -1,6 +1,6 @@
 # HSR
 
-Platform-specific documentation for the [Toyota HSR (Human Support Robot)](https://www.toyota-global.com/innovation/partner_robot/family_2.html) within the SDE.
+Platform-specific documentation for the [Toyota HSR (Human Support Robot)](https://www.toyota-global.com/innovation/partner_robot/family_2.html) within OpenRoSDE.
 
 ## 🔗 External Resources
 
@@ -10,12 +10,12 @@ Platform-specific documentation for the [Toyota HSR (Human Support Robot)](https
 
 ## ⚠️ Hybrid Distribution Model
 
-The HSR platform image in the SDE is built as a **multi-stage Docker image** that combines two BSD 3-Clause Clear Licensed sources both publicly distributed by Toyota Motor Corporation:
+The HSR platform image in OpenRoSDE is built as a **multi-stage Docker image** that combines two BSD 3-Clause Clear Licensed sources both publicly distributed by Toyota Motor Corporation:
 
 - **Stage 1 (`hsr_binary`):** `ghcr.io/hsr-project/tmc_wrs_binary:noetic-latest`, the WRS competition binary image that ships the full HSR ROS Noetic stack (URDF, SRDF, MoveIt configuration, navigation stack, controllers, all `tmc_*` and `hsrb_*` packages, and the WRS competition worlds).
-- **Stage 2 (main):** the SDE base image (`sde-base`), which provides CUDA, ROS Noetic desktop-full, Terminator, FlexBE, `wmctrl`, and the SDE helper scripts.
+- **Stage 2 (main):** the OpenRoSDE base image (`openrosde-base`), which provides CUDA, ROS Noetic desktop-full, Terminator, FlexBE, `wmctrl`, and the OpenRoSDE helper scripts.
 
-The build COPY-merges the additional `/opt/ros/noetic/` entries (HSR-specific packages built with `--cmake-args -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic`) from the binary image into the SDE base without clobbering any existing files. Sourcing `/opt/ros/noetic/setup.bash` is sufficient — no separate workspace overlay is needed.
+The build COPY-merges the additional `/opt/ros/noetic/` entries (HSR-specific packages built with `--cmake-args -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic`) from the binary image into the OpenRoSDE base without clobbering any existing files. Sourcing `/opt/ros/noetic/setup.bash` is sufficient — no separate workspace overlay is needed.
 
 This approach was chosen because:
 
@@ -60,7 +60,7 @@ The Toyota HSR robot uses mDNS host names for network discovery.
 To connect to the real robot, update the ROS master hostname in `.env.custom`:
 
 ```shell
-SDE_ROS_MASTER_HOSTNAME=hsrb.local
+OPENROSDE_ROS_MASTER_HOSTNAME=hsrb.local
 ```
 
 ## 🚀 Gazebo Simulation
@@ -74,8 +74,8 @@ bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] default-gazebo
 Or start the launch files manually in the Docker container:
 
 ```shell
-roslaunch sde_hsr_launch hsr_bringup_default_gazebo.launch
-roslaunch sde_hsr_launch hsr_rviz_default.launch
+roslaunch openrosde_hsr_launch hsr_bringup_default_gazebo.launch
+roslaunch openrosde_hsr_launch hsr_rviz_default.launch
 ```
 
 > [!NOTE]
@@ -94,39 +94,39 @@ The real HSR driver is hosted on the private `git.hsr.io` GitLab and requires a 
 
 ## 📋 Launch Files Reference
 
-The following launch files are available for the Toyota HSR platform (package: `sde_hsr_launch`):
+The following launch files are available for the Toyota HSR platform (package: `openrosde_hsr_launch`):
 
 | Launch File | Description |
 | --- | --- |
 | `hsr_bringup_default_gazebo.launch` | Spawns the HSR in the WRS 2020 Gazebo world with open-source controllers. |
-| `hsr_rviz_default.launch` | RViz with the SDE-owned `config/rviz/hsr_rviz_default.rviz` layout. |
+| `hsr_rviz_default.launch` | RViz with the OpenRoSDE-owned `config/rviz/hsr_rviz_default.rviz` layout. |
 | `hsr_moveit_default.launch` | MoveIt `move_group` for arm motion planning. |
 | `hsr_navigation_default_gazebo.launch` | Navigation stack (AMCL + `move_base`) with the WRS 2020 pre-built map. |
 
 ## 🧪 FlexBE Behavior
 
-The `sde_hsr_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints in the WRS 2020 apartment world using `MoveBaseState` and `WaitState`.
+The `openrosde_hsr_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints in the WRS 2020 apartment world using `MoveBaseState` and `WaitState`.
 
 To start the FlexBE behavior engine and app:
 
 ```shell
-roslaunch sde_launch flexbe_app_default.launch
+roslaunch openrosde_launch flexbe_app_default.launch
 ```
 
 Load the `HSR Example Behavior` behavior in the FlexBE App and press **Start**.
 
 ## 📜 Third-Party Software and Licensing
 
-The SDE itself is distributed under the [MIT License](../../LICENSE).
+OpenRoSDE itself is distributed under the [MIT License](../../LICENSE).
 The HSR platform image bundles third-party software whose licenses apply to the resulting Docker image:
 
 | Component | Source | License |
 | --- | --- | --- |
 | `tmc_wrs_binary` (HSR ROS Noetic stack: URDF, SRDF, MoveIt, navigation, controllers, all `hsrb_*` and `tmc_*` packages, WRS apartment world) | [`ghcr.io/hsr-project/tmc_wrs_binary`](https://github.com/hsr-project/tmc_wrs_docker) | [BSD 3-Clause Clear](https://spdx.org/licenses/BSD-3-Clause-Clear.html) (Toyota Motor Corporation) |
 | `tmc_wrs_docker` reference (build recipes and helpers) | [hsr-project/tmc_wrs_docker](https://github.com/hsr-project/tmc_wrs_docker) | [BSD 3-Clause Clear](https://spdx.org/licenses/BSD-3-Clause-Clear.html) (Toyota Motor Corporation) |
-| `sde_hsr_launch`, `sde_hsr_behaviors` (this repository) | [coarobo/SDE](https://gitlab.com/coarobo/SDE) | [MIT](../../LICENSE) (Coarobo GK) |
+| `openrosde_hsr_launch`, `openrosde_hsr_behaviors` (this repository) | [coarobo/SDE](https://gitlab.com/coarobo/SDE) | [MIT](../../LICENSE) (Coarobo GK) |
 
 > [!IMPORTANT]
 > The corresponding ROS Noetic source code for the HSR stack is hosted on the private [`git.hsr.io`](https://git.hsr.io/) GitLab and is intentionally not vendored in this repository.
 > Access requires a Toyota HSR Community account.
-> The publicly distributed binary image is the only practical way to obtain a functional HSR Noetic simulator and is sufficient for the SDE workflow.
+> The publicly distributed binary image is the only practical way to obtain a functional HSR Noetic simulator and is sufficient for the OpenRoSDE workflow.

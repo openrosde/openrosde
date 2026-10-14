@@ -2,19 +2,19 @@
 
 [[_TOC_]]
 
-The **user overlay** is Layer 3 of the SDE image stack:
+The **user overlay** is Layer 3 of the OpenRoSDE image stack:
 
-- **Layer 1** — `sde-base`: shared Ubuntu 20.04 / ROS Noetic / Gazebo / FlexBE toolchain, built once and shared by all platforms.
-- **Layer 2** — `<platform>-devel`: robot-specific packages for the platform selected by `SDE_ROBOT_PLATFORM`, pulled from the registry.
+- **Layer 1** — `openrosde-base`: shared Ubuntu 20.04 / ROS Noetic / Gazebo / FlexBE toolchain, built once and shared by all platforms.
+- **Layer 2** — `<platform>-devel`: robot-specific packages for the platform selected by `OPENROSDE_ROBOT_PLATFORM`, pulled from the registry.
 - **Layer 3** — `user-devel`: your customization layer, always built locally on top of Layer 2.
 
 ```
-sde-base (L1)  ->  <platform>-devel (L2)  ->  user-devel (L3, this layer)
+openrosde-base (L1)  ->  <platform>-devel (L2)  ->  user-devel (L3, this layer)
 ```
 
-It lets you add your own ROS packages, system dependencies, environment variables, and Terminator panes without forking the SDE or touching any platform files.
+It lets you add your own ROS packages, system dependencies, environment variables, and Terminator panes without forking OpenRoSDE or touching any platform files.
 
-The user overlay is platform-agnostic: the same overlay rebuilds on top of whichever `SDE_ROBOT_PLATFORM` you currently have selected.
+The user overlay is platform-agnostic: the same overlay rebuilds on top of whichever `OPENROSDE_ROBOT_PLATFORM` you currently have selected.
 
 ## 🗂️ File Map
 
@@ -23,8 +23,8 @@ The user overlay is platform-agnostic: the same overlay rebuilds on top of which
 | [docker/user-devel/Dockerfile](../docker/user-devel/Dockerfile) | User Docker layer. Add your `apt-get` / `pip3` dependencies here. |
 | [docker/docker-compose-user.yaml](../docker/docker-compose-user.yaml) | User Docker Compose overlay. Add extra `environment:` and `volumes:` here. |
 | [ros/user_catkin_ws/](../ros/user_catkin_ws/) | User Catkin workspace. Drop your packages under `src/`. |
-| [ros/user_catkin_ws/src/sde_user_launch/](../ros/user_catkin_ws/src/sde_user_launch/) | Starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for your assets. |
-| [ros/user_catkin_ws/src/sde_user_behaviors/](../ros/user_catkin_ws/src/sde_user_behaviors/) | Starter FlexBE behaviors package with `User Example Behavior`. |
+| [ros/user_catkin_ws/src/openrosde_user_launch/](../ros/user_catkin_ws/src/openrosde_user_launch/) | Starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for your assets. |
+| [ros/user_catkin_ws/src/openrosde_user_behaviors/](../ros/user_catkin_ws/src/openrosde_user_behaviors/) | Starter FlexBE behaviors package with `User Example Behavior`. |
 | [env/user.env](../env/user.env) | User overlay environment template (reference only). |
 
 ## 🚀 Quick Start
@@ -39,14 +39,14 @@ bash ./RUN-DOCKER-CONTAINER.bash
 Inside the container, build all three workspaces:
 
 ```shell
-sde-reset-catkin-workspaces
+openrosde-reset-catkin-workspaces
 ```
 
 Then check that the user package is discoverable:
 
 ```shell
-rospack find sde_user_launch
-roslaunch sde_user_launch user_example_default.launch
+rospack find openrosde_user_launch
+roslaunch openrosde_user_launch user_example_default.launch
 ```
 
 To run your user-overlay launches alongside the full platform stack, use the standard platform Terminator layout:
@@ -55,7 +55,7 @@ To run your user-overlay launches alongside the full platform stack, use the sta
 bash ./RUN-TERMINATOR-TERMINAL.bash
 ```
 
-Number 13 (`terminal26`) of every platform layout is pre-wired to `sde_user_launch:user_example_default.launch`, so the starter launch runs automatically.
+Number 13 (`terminal26`) of every platform layout is pre-wired to `openrosde_user_launch:user_example_default.launch`, so the starter launch runs automatically.
 The other spare panes (Numbers 8-12) are free shells where you can run any additional user-overlay command.
 To replace the pre-wired entry, edit your platform's `terminator/<platform>.config` and update the `command =` line under `[[[terminal26]]]`.
 
@@ -67,7 +67,7 @@ In the FlexBE App, load and execute `User Example Behavior` to confirm the FlexB
 2. Inside the container, rebuild the user workspace:
 
     ```shell
-    sde-build-catkin-workspaces
+    openrosde-build-catkin-workspaces
     ```
 
 3. Source the new package and run it:
@@ -79,9 +79,9 @@ In the FlexBE App, load and execute `User Example Behavior` to confirm the FlexB
 
 The user workspace is automatically:
 
-- Sourced at container startup ([source-catkin-workspaces.bash](../docker/sde-base/scripts/source-catkin-workspaces.bash)).
-- Rebuilt by `sde-reset-catkin-workspaces` ([reset-catkin-workspaces.bash](../docker/sde-base/scripts/reset-catkin-workspaces.bash)).
-- Added to `ROS_PACKAGE_PATH` ([initialize-bash-shell.bash](../docker/sde-base/scripts/initialize-bash-shell.bash)).
+- Sourced at container startup ([source-catkin-workspaces.bash](../docker/openrosde-base/scripts/source-catkin-workspaces.bash)).
+- Rebuilt by `openrosde-reset-catkin-workspaces` ([reset-catkin-workspaces.bash](../docker/openrosde-base/scripts/reset-catkin-workspaces.bash)).
+- Added to `ROS_PACKAGE_PATH` ([initialize-bash-shell.bash](../docker/openrosde-base/scripts/initialize-bash-shell.bash)).
 
 ## ➕ Adding a System Dependency
 
@@ -100,18 +100,18 @@ The user workspace is automatically:
 
 ## ➕ Adding an Environment Variable
 
-1. Add a default in [.env](../.env) under the `User overlay configuration` section (example: `SDE_USER_MY_VAR=default-value`).
+1. Add a default in [.env](../.env) under the `User overlay configuration` section (example: `OPENROSDE_USER_MY_VAR=default-value`).
 2. Override it in `.env.custom` if needed.
 3. Expose it to the container by editing [docker/docker-compose-user.yaml](../docker/docker-compose-user.yaml):
 
     ```yaml
     services:
-      sde:
+      openrosde:
         environment:
-          - SDE_USER_MY_VAR=${SDE_USER_MY_VAR}
+          - OPENROSDE_USER_MY_VAR=${OPENROSDE_USER_MY_VAR}
     ```
 
-[scripts/load-sde-env.bash](../scripts/load-sde-env.bash) exports every `SDE_*` variable, so Docker Compose interpolates it with no further step.
+[scripts/load-openrosde-env.bash](../scripts/load-openrosde-env.bash) exports every `OPENROSDE_*` variable, so Docker Compose interpolates it with no further step.
 
 ## 🆚 User Overlay vs. New Platform
 

@@ -2,64 +2,64 @@
 
 ################################################################################
 
-# Base Docker Compose file for the SDE.
+# Base Docker Compose file for OpenRoSDE.
 # Defines three services:
-#   - 'sde-base'     : Build-only shared base image.
-#   - 'sde-platform' : Build-only platform-specific image (inherits from 'sde-base').
-#   - 'sde'          : Runtime user overlay container (inherits from 'sde-platform').
+#   - 'openrosde-base'     : Build-only shared base image.
+#   - 'openrosde-platform' : Build-only platform-specific image (inherits from 'openrosde-base').
+#   - 'openrosde'          : Runtime user overlay container (inherits from 'openrosde-platform').
 
 ################################################################################
 
 services:
-  sde-base:
-    image: ${SDE_DOCKER_REGISTRY}/sde-base:${SDE_DOCKER_IMAGE_TAG}
+  openrosde-base:
+    image: ${OPENROSDE_DOCKER_REGISTRY}/openrosde-base:${OPENROSDE_DOCKER_IMAGE_TAG}
     build:
       context: ../
-      dockerfile: ./docker/sde-base/Dockerfile
+      dockerfile: ./docker/openrosde-base/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
-        - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
+        - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
+        - OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}
 
-  sde-platform:
-    image: ${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:${SDE_DOCKER_IMAGE_TAG}
+  openrosde-platform:
+    image: ${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_TAG}
     build:
       context: ../
-      # The Dockerfile of the platform lives in the core or in an extension, as 'scripts/load-sde-env.bash' resolves it.
-      dockerfile: ./${SDE_ROBOT_PLATFORM_DOCKERFILE}
+      # The Dockerfile of the platform lives in the core or in an extension, as 'scripts/load-openrosde-env.bash' resolves it.
+      dockerfile: ./${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE}
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
-        - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
-        - SDE_BASE_IMAGE=${SDE_DOCKER_REGISTRY}/sde-base:${SDE_DOCKER_IMAGE_TAG}
+        - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
+        - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
+        - OPENROSDE_BASE_IMAGE=${OPENROSDE_DOCKER_REGISTRY}/openrosde-base:${OPENROSDE_DOCKER_IMAGE_TAG}
 
-  sde:
-    hostname: sde-${SDE_ROBOT_PLATFORM}
-    container_name: sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1
+  openrosde:
+    hostname: openrosde-${OPENROSDE_ROBOT_PLATFORM}
+    container_name: openrosde-${OPENROSDE_ROBOT_PLATFORM}-${OPENROSDE_DOCKER_PROJECT}-1
     privileged: true
     environment:
       # Pass current user and group IDs.
-      - SDE_USER_ID=${SDE_USER_ID}
-      - SDE_GROUP_ID=${SDE_GROUP_ID}
+      - OPENROSDE_USER_ID=${OPENROSDE_USER_ID}
+      - OPENROSDE_GROUP_ID=${OPENROSDE_GROUP_ID}
       # Display X Server GUIs.
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
       # Configure the PulseAudio interface.
       - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
       # Pass the platform identifier to the container.
-      - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
-      # Pass the SDE root directory path.
-      - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
-    image: ${SDE_DOCKER_REGISTRY}/user-devel:latest
+      - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
+      # Pass the OpenRoSDE root directory path.
+      - OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}
+    image: ${OPENROSDE_DOCKER_REGISTRY}/user-devel:latest
     build:
       context: ../
       dockerfile: ./docker/user-devel/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}
-        - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
-        # The parent of the user overlay is the last Docker layer of the active extensions, or else the platform image, as 'scripts/load-sde-env.bash' derives it.
-        - SDE_PLATFORM_IMAGE=${SDE_USER_PARENT_IMAGE}
+        - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}
+        - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
+        # The parent of the user overlay is the last Docker layer of the active extensions, or else the platform image, as 'scripts/load-openrosde-env.bash' derives it.
+        - OPENROSDE_PLATFORM_IMAGE=${OPENROSDE_USER_PARENT_IMAGE}
     volumes:
       # Map repository root for convenient access.
-      - ../:${SDE_CONTAINER_ROOT_DIR}/
+      - ../:${OPENROSDE_CONTAINER_ROOT_DIR}/
       # Grant display access to X Server.
       - /tmp/.X11-unix:/tmp/.X11-unix
       # Grant audio access to PulseAudio.
@@ -69,4 +69,4 @@ services:
     network_mode: host
     ipc: host
     pid: host
-    command: ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/initialize-docker-container.bash
+    command: ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/initialize-docker-container.bash

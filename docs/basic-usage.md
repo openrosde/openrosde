@@ -1,21 +1,21 @@
 # Getting Started
 
-Follow this step-by-step guide to perform the initial setup of the SDE on an [Ubuntu](https://www.ubuntu.com/) development machine.
+Follow this step-by-step guide to perform the initial setup of OpenRoSDE on an [Ubuntu](https://www.ubuntu.com/) development machine.
 
 > [!NOTE]
-> The whole SDE is containerized/virtualized using [Docker](https://www.docker.com/).
+> The whole OpenRoSDE is containerized/virtualized using [Docker](https://www.docker.com/).
 > This ensures that all the contributors work in the exact same software environment.
 
 > [!NOTE]
-> The SDE robot, simulator, visualization, and behavior interfaces are primarily implemented with [ROS](http://www.ros.org/), [Gazebo](http://gazebosim.org/), [Rviz](https://github.com/ros-visualization/rviz), and [FlexBE](http://flexbe.github.io/).
+> The OpenRoSDE robot, simulator, visualization, and behavior interfaces are primarily implemented with [ROS](http://www.ros.org/), [Gazebo](http://gazebosim.org/), [Rviz](https://github.com/ros-visualization/rviz), and [FlexBE](http://flexbe.github.io/).
 
 > [!NOTE]
-> The SDE primarily targets Nvidia GPU-equipped Ubuntu development machines and the Nvidia [CUDA](https://developer.nvidia.com/cuda-toolkit) platform.
-> Although the SDE can be run on other GPU platforms such as Intel integrated graphics, some 3D acceleration issues may arise.
+> OpenRoSDE primarily targets Nvidia GPU-equipped Ubuntu development machines and the Nvidia [CUDA](https://developer.nvidia.com/cuda-toolkit) platform.
+> Although OpenRoSDE can be run on other GPU platforms such as Intel integrated graphics, some 3D acceleration issues may arise.
 > For example, the [FlexBE App](https://github.com/FlexBE/flexbe_app) may appear partially broken due to [OpenGL](https://www.opengl.org/) errors.
 
 > [!NOTE]
-> The SDE also supports [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) on Windows 11 with GPU-accelerated rendering via the [WSLg](https://github.com/microsoft/wslg) D3D12 Mesa driver.
+> OpenRoSDE also supports [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) on Windows 11 with GPU-accelerated rendering via the [WSLg](https://github.com/microsoft/wslg) D3D12 Mesa driver.
 > Performance will be lower than on a native Ubuntu installation due to the OpenGL-to-D3D12 translation layer, but 3D tools such as Gazebo, RViz, and FlexBE are usable.
 > The GPU acceleration is automatically enabled when `RUN-DOCKER-CONTAINER.bash` detects the WSL 2 GPU device (`/dev/dxg`).
 > Virtual machines (other than WSL 2) are only partially supported: 3D accelerated tools will crash at runtime unless the same virtual machine drivers are installed in both the Docker container and the virtual machine.
@@ -47,7 +47,7 @@ Set up the environment of the Ubuntu development machine with the following inst
     sudo apt-get update && sudo apt-get install -y git
     ```
 
-2. Clone the SDE repository:
+2. Clone the OpenRoSDE repository:
 
     ```shell
     git clone https://gitlab.com/coarobo/SDE.git && cd SDE/
@@ -71,7 +71,7 @@ Set up the environment of the Ubuntu development machine with the following inst
 > [!NOTE]
 > The `SETUP-DEVEL-MACHINE.bash` script is divided into two parts: system-wide installations (with `sudo`) and local user environment setup (without `sudo`).
 > The system-wide part makes changes that require a reboot or re-login to take effect.
-> However, if your system already has the necessary tools installed (Docker, Nvidia Container Toolkit, Terminator), you can skip the script and manually run `bash ./scripts/update-git-submodules.bash` from the SDE root directory to initialize the Git submodules and apply patches.
+> However, if your system already has the necessary tools installed (Docker, Nvidia Container Toolkit, Terminator), you can skip the script and manually run `bash ./scripts/update-git-submodules.bash` from the OpenRoSDE root directory to initialize the Git submodules and apply patches.
 
 > [!NOTE]
 > You do not need to reboot if your local user has already been added to the `docker` group.
@@ -101,7 +101,7 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
     bash ./BUILD-DOCKER-IMAGE.bash #[docker-project]
     ```
 
-    This script builds the shared base image (`sde-base`) and the platform-specific image (`${SDE_ROBOT_PLATFORM}-devel`) following the instructions found in `docker/`.
+    This script builds the shared base image (`openrosde-base`) and the platform-specific image (`${OPENROSDE_ROBOT_PLATFORM}-devel`) following the instructions found in `docker/`.
     Enter your GitLab developer credentials if prompted.
 
 > [!NOTE]
@@ -128,13 +128,13 @@ Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu 
 2. Configure the freshly built Docker container by executing the following Bash function inside it:
 
     ```shell
-    sde-initialize-new-container
+    openrosde-initialize-new-container
     ```
 
     This function calls several scripts to download the required datasets and build the ROS environment (= Catkin workspace) inside the Docker container.
-    It will remove any existing Catkin workspace and build a new one inside `${SDE_CONTAINER_ROOT_DIR}/ros/`.
+    It will remove any existing Catkin workspace and build a new one inside `${OPENROSDE_CONTAINER_ROOT_DIR}/ros/`.
     It will also automatically source the newly built ROS environment.
-3. From there, you have everything ready to start using the SDE to develop new features.
+3. From there, you have everything ready to start using OpenRoSDE to develop new features.
 4. Use `Ctrl+d` to exit the container at any time.
 
 > [!NOTE]
@@ -143,13 +143,13 @@ Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu 
 > If neither is detected, most 3D accelerated tools, including the Gazebo simulator, will be extremely slow to run.
 
 > [!NOTE]
-> The script `RUN-DOCKER-CONTAINER.bash` will try to resolve the robot host name defined in `SDE_ROBOT_HOSTNAME` and add its IP address to `/etc/hosts`.
+> The script `RUN-DOCKER-CONTAINER.bash` will try to resolve the robot host name defined in `OPENROSDE_ROBOT_HOSTNAME` and add its IP address to `/etc/hosts`.
 > Note that you can ignore the errors if you do not plan to use a physical robot at that time.
 
 > [!NOTE]
 > Be careful if you need to modify `docker-compose.yaml`, `docker-compose-nvidia.yaml`, or `docker-compose-wsl.yaml` as the container will be recreated from scratch the next time you run `RUN-DOCKER-CONTAINER.bash`.
 
 > [!NOTE]
-> Note that the Bash function `sde-initialize-new-container` should be used only once after instantiating a new container from the Docker image.
+> Note that the Bash function `openrosde-initialize-new-container` should be used only once after instantiating a new container from the Docker image.
 
 For advanced features and Docker configuration details, refer to the [Advanced Usage](advanced-usage.md) guide.

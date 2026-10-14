@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="Sciurus17 Example Behavior">
+
+	<executable package_path="openrosde_sciurus17_flexbe_behaviors.sciurus17_example_behavior_sm" class="Sciurus17ExampleBehaviorSM" />
+	<tagstring>demo</tagstring>
+	<author>Lotfi El Hafi</author>
+	<date>Wed Apr 22 2026</date>
+<description>Example of a FlexBE behavior that implements a looping dual-arm dance for a Sciurus17 robot. The arms alternate between the 'r_arm_init_pose' and 'l_arm_init_pose' configurations, with a configurable wait time between moves.</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="numeric" name="wait_time" default="1.0" label="wait_time" hint="Sets the wait_time between arm moves (seconds)">
+			<min value="0.0" />
+			<max value="10.0" />
+		</param>
+
+	</params>
+
+
+</behavior>

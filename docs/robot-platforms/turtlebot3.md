@@ -1,6 +1,6 @@
 # TurtleBot3 (Waffle Pi)
 
-Platform-specific documentation for the Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) within the SDE.
+Platform-specific documentation for the Robotis [TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) within OpenRoSDE.
 
 ## 🔗 External Resources
 
@@ -183,7 +183,7 @@ bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> #[docker-project]
 Alternatively, you can use the Gazebo simulator to test without a physical robot:
 
 ```shell
-roslaunch sde_turtlebot3_launch turtlebot3_bringup_default_gazebo.launch
+roslaunch openrosde_turtlebot3_launch turtlebot3_bringup_default_gazebo.launch
 ```
 
 ### 🧭 Navigation
@@ -191,7 +191,7 @@ roslaunch sde_turtlebot3_launch turtlebot3_bringup_default_gazebo.launch
 To start the navigation stack:
 
 ```shell
-roslaunch sde_turtlebot3_launch turtlebot3_navigation_default_gazebo.launch
+roslaunch openrosde_turtlebot3_launch turtlebot3_navigation_default_gazebo.launch
 ```
 
 ### 🗺️ Mapping
@@ -199,7 +199,7 @@ roslaunch sde_turtlebot3_launch turtlebot3_navigation_default_gazebo.launch
 To start SLAM mapping:
 
 ```shell
-roslaunch sde_turtlebot3_launch turtlebot3_mapping_default.launch
+roslaunch openrosde_turtlebot3_launch turtlebot3_mapping_default.launch
 ```
 
 ### 📊 RViz Visualization
@@ -207,12 +207,12 @@ roslaunch sde_turtlebot3_launch turtlebot3_mapping_default.launch
 To start RViz with the TurtleBot3 configuration:
 
 ```shell
-roslaunch sde_turtlebot3_launch turtlebot3_rviz_default_gazebo.launch
+roslaunch openrosde_turtlebot3_launch turtlebot3_rviz_default_gazebo.launch
 ```
 
 ## 📋 Launch Files Reference
 
-The following launch files are available for the Robotis TurtleBot3 platform (package: `sde_turtlebot3_launch`):
+The following launch files are available for the Robotis TurtleBot3 platform (package: `openrosde_turtlebot3_launch`):
 
 | Launch File | Description |
 | --- | --- |
@@ -222,7 +222,7 @@ The following launch files are available for the Robotis TurtleBot3 platform (pa
 | `turtlebot3_rviz_default_gazebo.launch` | RViz visualization (Gazebo) |
 | `turtlebot3_rviz_default_realworld.launch` | RViz visualization (real robot) |
 
-The following shared launch files are available across all platforms (package: `sde_launch`):
+The following shared launch files are available across all platforms (package: `openrosde_launch`):
 
 | Launch File | Description |
 | --- | --- |
@@ -230,12 +230,12 @@ The following shared launch files are available across all platforms (package: `
 
 ## 🧪 FlexBE Behavior
 
-The `sde_turtlebot3_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints using `MoveBaseState` and `WaitState`.
+The `openrosde_turtlebot3_flexbe_behaviors` package provides an example behavior that loops navigation between two waypoints using `MoveBaseState` and `WaitState`.
 
 To start the FlexBE behavior engine and app:
 
 ```shell
-roslaunch sde_launch flexbe_app_default.launch
+roslaunch openrosde_launch flexbe_app_default.launch
 ```
 
 Load the `TurtleBot3 Example Behavior` behavior in the FlexBE App and press **Start**.

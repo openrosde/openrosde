@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/ros-industrial/universal_robot -->
+  <!-- Upstream default: $(find ur5e_moveit_config)/launch/moveit_planning_execution.launch -->
+
+  <!-- Resolve the SRDF in the package that 'OPENROSDE_UR5E_DESCRIPTION_PACKAGE' names, which defaults to 'openrosde_ur5e_launch'. -->
+  <arg name="description_package" default="$(eval optenv('OPENROSDE_UR5E_DESCRIPTION_PACKAGE', '') or 'openrosde_ur5e_launch')" />
+  <arg name="semantic_description_file" default="$(eval find(arg('description_package')) + '/config/ur5e/ur5e_realworld.srdf')" />
+
+  <!-- MoveIt 'move_group' arguments. -->
+  <arg name="debug" default="false" />
+  <arg name="info" default="$(arg debug)" />
+  <arg unless="$(arg debug)" name="launch_prefix" value="" />
+  <arg if="$(arg debug)" name="launch_prefix"
+    value="gdb -x $(find ur5e_moveit_config)/launch/gdb_settings.gdb --ex run --args" />
+  <arg unless="$(arg info)" name="command_args" value="" />
+  <arg if="$(arg info)" name="command_args" value="--debug" />
+
+  <arg name="pipeline" default="ompl" />
+  <arg name="allow_trajectory_execution" default="true" />
+  <arg name="fake_execution" default="false" />
+  <arg name="max_safe_path_cost" default="1" />
+  <arg name="jiggle_fraction" default="0.05" />
+  <arg name="publish_monitored_planning_scene" default="true" />
+  <arg name="capabilities" default="" />
+  <arg name="disable_capabilities" default="" />
+
+  <!-- Remap MoveIt trajectory execution to the UR5e robot driver controller. -->
+  <remap from="/follow_joint_trajectory"
+    to="/scaled_pos_joint_traj_controller/follow_joint_trajectory" />
+
+  <!-- Load the SRDF, joint limits, and kinematics config. -->
+  <param name="robot_description_semantic" textfile="$(arg semantic_description_file)" />
+
+  <group ns="robot_description_planning">
+    <rosparam command="load" file="$(find openrosde_ur5e_teleop)/config/ur5e_joint_limits.yaml" />
+  </group>
+
+  <group ns="robot_description_kinematics">
+    <rosparam command="load" file="$(find ur5e_moveit_config)/config/kinematics.yaml" />
+  </group>
+
+  <!-- Configure and start 'move_group'. -->
+  <include ns="move_group" file="$(find ur5e_moveit_config)/launch/planning_pipeline.launch.xml">
+    <arg name="pipeline" value="$(arg pipeline)" />
+  </include>
+
+  <include ns="move_group" file="$(find ur5e_moveit_config)/launch/trajectory_execution.launch.xml" if="$(arg allow_trajectory_execution)">
+    <arg name="moveit_manage_controllers" value="true" />
+    <arg name="moveit_controller_manager" value="ur5e" unless="$(arg fake_execution)" />
+    <arg name="moveit_controller_manager" value="fake" if="$(arg fake_execution)" />
+  </include>
+
+  <include ns="move_group" file="$(find ur5e_moveit_config)/launch/sensor_manager.launch.xml" if="$(arg allow_trajectory_execution)">
+    <arg name="moveit_sensor_manager" value="ur5e" />
+  </include>
+
+  <node name="move_group" launch-prefix="$(arg launch_prefix)" pkg="moveit_ros_move_group" type="move_group" respawn="false" output="screen" args="$(arg command_args)">
+    <env name="DISPLAY" value="$(optenv DISPLAY :0)" />
+    <param name="allow_trajectory_execution" value="$(arg allow_trajectory_execution)" />
+    <param name="max_safe_path_cost" value="$(arg max_safe_path_cost)" />
+    <param name="jiggle_fraction" value="$(arg jiggle_fraction)" />
+    <param name="capabilities" value="$(arg capabilities)" />
+    <param name="disable_capabilities" value="$(arg disable_capabilities)" />
+    <param name="planning_scene_monitor/publish_planning_scene" value="$(arg publish_monitored_planning_scene)" />
+    <param name="planning_scene_monitor/publish_geometry_updates" value="$(arg publish_monitored_planning_scene)" />
+    <param name="planning_scene_monitor/publish_state_updates" value="$(arg publish_monitored_planning_scene)" />
+    <param name="planning_scene_monitor/publish_transforms_updates" value="$(arg publish_monitored_planning_scene)" />
+  </node>
+
+</launch>

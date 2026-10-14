@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/rt-net/sciurus17_ros -->
+  <!-- Upstream default: $(find sciurus17_moveit_config)/launch/moveit.rviz -->
+
+  <arg name="rviz_file" default="$(find openrosde_sciurus17_launch)/config/rviz/sciurus17_rviz_default.rviz" />
+
+  <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(arg rviz_file)" />
+
+  <!-- Maximize the RViz window after it opens. -->
+  <node name="maximize_rviz" pkg="openrosde_launch" type="maximize-app-window.bash" args="RViz" />
+
+</launch>

@@ -2,35 +2,38 @@
 
 [[_TOC_]]
 
-An **extension** is a Git repository cloned into `extensions/<extension>/` that adds a robot platform, a device, or any other package to the SDE without forking it.
-Extensions are how the SDE becomes OpenRoSDE, a platform-agnostic core with everything specific to a robot or a product around it, as the [OpenRoSDE Split](../AGENTS.md#openrosde-split) describes.
+An **extension** is a Git repository cloned into `extensions/<extension>/` that adds a robot platform, a device, or any other package to OpenRoSDE without forking it.
+Extensions keep OpenRoSDE a platform-agnostic core, with everything specific to a robot or a product around it, as the [OpenRoSDE Split](../AGENTS.md#openrosde-split) describes.
 
 A private extension, cloned from a private repository of a company or a lab, works exactly as a public one.
-The SDE never needs to know where an extension comes from.
+OpenRoSDE never needs to know where an extension comes from.
 
 ## 🧩 Kinds of Extensions
 
-The SDE treats every extension the same way, and only what an extension holds gives it its role.
+OpenRoSDE treats every extension the same way, and only what an extension holds gives it its role.
 
-| Kind | What it holds | Example name |
-| --- | --- | --- |
-| Platform | One robot as sold, with its public drivers: `env/<platform>.env`, `docker/<platform>-devel/`, `ros/<platform>_catkin_ws/` | `openrosde-platform-ur5e` |
-| Device | One piece of hardware anyone can buy, such as a gripper, a camera, or an input device, which names no robot | `openrosde-device-realsense` |
-| Extension | Anything else added beside a platform, such as a product binding or packages of a project | `coarobo-extension-sightline` |
-| Setup | One installation of a robot: the platform, devices, and extensions it pins, the description that mounts the devices, the calibration, addresses, serial numbers, layouts, and runbook of that installation alone | `coarobo-setup-ur5e-office` |
+| Kind | What it holds | Named after | Example name |
+| --- | --- | --- | --- |
+| Platform | One robot as sold, with its public drivers: `env/<platform>.env`, `docker/<platform>-devel/`, `ros/<platform>_catkin_ws/` | The robot, lowercase, without its maker | `openrosde-platform-ur5e` |
+| Device | One upstream driver of hardware anyone can buy, such as a gripper, a camera, or an input device, with every model that driver supports, and naming no robot | The driver | `openrosde-device-realsense` |
+| Extension | Anything else added beside a platform, such as the bindings of a product, the packages of a lab, or the setups of a company | Its owner or its purpose | `my-lab-packages` |
 
-The setup of a company and the setup of its client take the same shape, and both are usually private, while platforms and devices anyone can buy are usually public.
+A device covers a family rather than one model, since one driver usually supports a whole product line: `openrosde-device-onrobot` covers the OnRobot RG and VG grippers, and `openrosde-device-spacenav` every 3Dconnexion device that `spacenavd` supports.
+
+A **setup** is one installation of a robot: the platform, devices, and extensions it pins, the description that mounts the devices, and the calibration, addresses, serial numbers, layouts, and runbook of that installation alone.
+A setup is a template that any extension holds rather than a repository of its own, so one private extension of a company or a lab can hold its packages and the setups of all its robots.
+A setup is named `<owner>-<platform>-<place>`, such as `my-lab-ur5e-bench`, so that the setups of the core, of a company, and of its clients never share a name, and platforms and devices anyone can buy are usually public, while setups are usually private.
 
 ## 📁 Layout
 
-An extension shares the layout of the core, so that the SDE finds its files with the same rules:
+An extension shares the layout of the core, so that OpenRoSDE finds its files with the same rules:
 
 ```
 extensions/<extension>/
-  env/<platform>.env                     # Platform template, the default setup, which declares 'SDE_ROBOT_PLATFORM=<platform>' and 'SDE_ROBOT_SETUP=<platform>' (platforms only).
-  env/<setup>.env                        # Setup template, which declares 'SDE_ROBOT_SETUP=<setup>', its platform, and its extensions (setups only).
-  env/<setup>.repos                      # Repositories of the setup for 'vcstool' (setups only).
-  docker/<platform>-devel/Dockerfile     # Platform image, built on 'sde-base' (platforms only).
+  env/<platform>.env                     # Platform template, the default setup, which declares 'OPENROSDE_ROBOT_PLATFORM=<platform>' and 'OPENROSDE_ROBOT_SETUP=<platform>' (platforms only).
+  env/<setup>.env                        # Setup template, which declares 'OPENROSDE_ROBOT_SETUP=<setup>', its platform, and its extensions (optional).
+  env/<setup>.repos                      # Repositories of the setup for 'vcstool' (optional).
+  docker/<platform>-devel/Dockerfile     # Platform image, built on 'openrosde-base' (platforms only).
   docker/<name>-devel/Dockerfile         # Docker layer of a device or an extension, built on the image below it (optional).
   docker/docker-compose-<name>.yaml      # Docker Compose overlay: environment variables, volumes, devices.
   ros/<name>_catkin_ws/src/              # One or more Catkin workspaces.
@@ -44,12 +47,12 @@ extensions/<extension>/
 > [!TIP]
 > Give the extension a `.gitignore` for the `build/`, `devel/`, `logs/`, and `.catkin_tools/` folders of its Catkin workspaces, since the `.gitignore` of the core does not reach into another repository.
 
-## 🔎 How the SDE Finds Files
+## 🔎 How OpenRoSDE Finds Files
 
 - A file named after a setup or a platform, such as `env/<platform>.env`, `docker/<platform>-devel/Dockerfile`, `terminator/<platform>.config`, or `scripts/<platform>/bringup-ros-robot.bash`, is looked up in the core first, then in every cloned extension in alphabetical order.
 - `bash ./SWITCH-ROBOT-PLATFORM.bash` lists the platforms of the core and of every cloned extension, so a platform extension needs no registration.
-- The extensions listed in `SDE_ROBOT_EXTENSIONS` are the active ones, and the extensions that hold the active platform and the active setup are always active.
-- The Catkin workspaces are built and sourced in this order: `ros/sde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `SDE_ROBOT_EXTENSIONS`, the workspaces of the setup, then `ros/user_catkin_ws` of the core.
+- The extensions listed in `OPENROSDE_ROBOT_EXTENSIONS` are the active ones, and the extensions that hold the active platform and the active setup are always active.
+- The Catkin workspaces are built and sourced in this order: `ros/openrosde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `OPENROSDE_ROBOT_EXTENSIONS`, the workspaces of the setup, then `ros/user_catkin_ws` of the core.
 - `RUN-DOCKER-CONTAINER.bash` adds every `docker/docker-compose*.yaml` of the active extensions after the overlay of the platform.
 - `RUN-TMUX-SESSION.bash` opens the panes of the platform, then those of every `tmux/*.panes` of the active extensions and the setup, then those of the core, and a setup can declare a layout of its own, such as `lab-demo`, for its demo.
 - `BUILD-DOCKER-IMAGE.bash` builds every `docker/<name>-devel/Dockerfile` of the active extensions whose `<name>` is not a platform, each on top of the previous one, between the platform image and the user overlay, as the next section shows.
@@ -65,9 +68,9 @@ extensions/<extension>/
 A setup is an environment template `env/<setup>.env` that declares its own name, its platform, and its extensions:
 
 ```shell
-SDE_ROBOT_PLATFORM=ur5e
-SDE_ROBOT_SETUP=my-lab-ur5e
-SDE_ROBOT_EXTENSIONS="openrosde-device-onrobot-rg openrosde-device-realsense"
+OPENROSDE_ROBOT_PLATFORM=ur5e
+OPENROSDE_ROBOT_SETUP=my-lab-ur5e-bench
+OPENROSDE_ROBOT_EXTENSIONS="openrosde-device-onrobot openrosde-device-realsense"
 ```
 
 The template of every platform is its default setup, named after the platform, so `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` and `bash ./SWITCH-ROBOT-SETUP.bash <platform>` do the same.
@@ -76,24 +79,24 @@ Beside the template, `env/<setup>.repos` lists where to clone the repositories t
 
 ```yaml
 repositories:
-  openrosde-device-onrobot-rg:
+  openrosde-device-onrobot:
     type: git
-    url: https://github.com/<organization>/openrosde-device-onrobot-rg.git
+    url: https://github.com/openrosde/openrosde-device-onrobot.git
     version: v1.0.0
   openrosde-device-realsense:
     type: git
-    url: https://github.com/<organization>/openrosde-device-realsense.git
+    url: https://github.com/openrosde/openrosde-device-realsense.git
     version: v1.2.0
 ```
 
 `bash ./SWITCH-ROBOT-SETUP.bash <setup>` clones the repositories that are missing from `extensions/`, at the versions the file pins, leaves the ones already cloned as they are, then copies the template to `.env.custom`.
 Run `vcs import --input <setup>.repos extensions` to bring the cloned ones to the pinned versions as well.
 
-The folder that holds the setup is always active, after the extensions of `SDE_ROBOT_EXTENSIONS`, so its workspace builds last, before the user workspace.
+The folder that holds the setup is always active, after the extensions of `OPENROSDE_ROBOT_EXTENSIONS`, so its workspace builds last, before the user workspace.
 A file named after the setup takes precedence over the file named after its platform, such as `scripts/<setup>/bringup-ros-robot.bash` over `scripts/<platform>/bringup-ros-robot.bash`, or `terminator/<setup>.config` over `terminator/<platform>.config`.
 
 > [!NOTE]
-> A `.env.custom` written before setups existed declares no setup, so the SDE uses its platform as the setup and keeps its platform files.
+> A `.env.custom` written before setups existed declares no setup, so OpenRoSDE uses its platform as the setup and keeps its platform files.
 
 ## 🐳 Docker Layers
 
@@ -101,8 +104,8 @@ A device or an extension that needs system packages, such as the driver of a cam
 
 ```dockerfile
 # Inherit from the image below this layer, given by 'BUILD-DOCKER-IMAGE.bash'.
-ARG SDE_PARENT_IMAGE
-FROM ${SDE_PARENT_IMAGE}
+ARG OPENROSDE_PARENT_IMAGE
+FROM ${OPENROSDE_PARENT_IMAGE}
 
 # Install the system dependencies of the extension.
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -110,18 +113,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Embed the commit hash of this Dockerfile for traceability.
-ARG SDE_DOCKERFILE_COMMIT_SHORT_SHA
+ARG OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA
 ```
 
 The layers stack in the order of the active folders, so the image of a setup reads from the bottom up:
 
 ```
-sde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel  ->  <setup>-devel  ->  user-devel
+openrosde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel  ->  <setup>-devel  ->  user-devel
 ```
 
 - Each layer is built from the folder of its extension, so its `COPY` instructions read from there.
 - The layers are always built locally by `BUILD-DOCKER-IMAGE.bash`, in both its default and `local` modes, and never pushed, like the user overlay, so the layers of a private extension never leave the machine.
-- The CI of the SDE builds no layer, since layers belong to a setup.
+- The CI of OpenRoSDE builds no layer, since layers belong to a setup.
 
 ## 🚀 Using an Extension
 
@@ -145,10 +148,10 @@ sde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel  ->  <
     bash ./SWITCH-ROBOT-PLATFORM.bash <platform>
     ```
 
-3. For any other extension, add its folder name to `SDE_ROBOT_EXTENSIONS` in `.env.custom`, separated by spaces, in the order its workspaces build:
+3. For any other extension, add its folder name to `OPENROSDE_ROBOT_EXTENSIONS` in `.env.custom`, separated by spaces, in the order its workspaces build:
 
     ```shell
-    SDE_ROBOT_EXTENSIONS="openrosde-device-realsense my-lab-packages"
+    OPENROSDE_ROBOT_EXTENSIONS="openrosde-device-realsense my-lab-packages"
     ```
 
 4. Build the images and the workspaces as usual:
@@ -156,20 +159,20 @@ sde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel  ->  <
     ```shell
     bash ./BUILD-DOCKER-IMAGE.bash
     bash ./RUN-DOCKER-CONTAINER.bash
-    sde-reset-catkin-workspaces
+    openrosde-reset-catkin-workspaces
     ```
 
 ## ⚙️ Configuration
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `SDE_ROBOT_SETUP` | The platform | Active setup, named after its template `env/<setup>.env` |
-| `SDE_ROBOT_EXTENSIONS` | Empty | Folder names of the active extensions in `extensions/`, separated by spaces, in the order their workspaces build |
-| `SDE_DOCKER_REGISTRY` | `registry.gitlab.com/coarobo/sde` | Registry where the base and platform images are pulled from and pushed to |
+| `OPENROSDE_ROBOT_SETUP` | The platform | Active setup, named after its template `env/<setup>.env` |
+| `OPENROSDE_ROBOT_EXTENSIONS` | Empty | Folder names of the active extensions in `extensions/`, separated by spaces, in the order their workspaces build |
+| `OPENROSDE_DOCKER_REGISTRY` | `registry.gitlab.com/coarobo/sde` | Registry where the base and platform images are pulled from and pushed to |
 
 A platform image that the registry does not hold, such as the image of a private platform, is built locally by `BUILD-DOCKER-IMAGE.bash`, which falls back to a build when the pull fails.
-Set `SDE_DOCKER_REGISTRY` in `.env.custom` to use a registry of your own.
+Set `OPENROSDE_DOCKER_REGISTRY` in `.env.custom` to use a registry of your own.
 
 ## 🛣️ What Comes Next
 
-Terminator leaves the SDE once the `tmux` sessions have run on a real robot, which closes [#38](https://gitlab.com/coarobo/SDE/-/issues/38).
+Terminator leaves OpenRoSDE once the `tmux` sessions have run on a real robot, which closes [#38](https://gitlab.com/coarobo/SDE/-/issues/38).

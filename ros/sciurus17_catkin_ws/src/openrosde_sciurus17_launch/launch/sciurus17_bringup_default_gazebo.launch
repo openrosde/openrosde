@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/rt-net/sciurus17_ros -->
+
+  <!-- Gazebo simulation configurations -->
+  <arg name="paused" default="true" />
+  <arg name="use_sim_time" default="true" />
+  <arg name="gui" default="true" />
+  <arg name="headless" default="false" />
+  <arg name="debug" default="false" />
+  <arg name="use_effort_right_arm" default="false" />
+  <arg name="use_effort_left_wrist" default="false" />
+
+  <!-- Start simulation joint controllers -->
+  <include file="$(find sciurus17_control)/launch/sciurus17_fake_control.launch">
+    <arg name="use_effort_right_arm" value="$(arg use_effort_right_arm)" />
+    <arg name="use_effort_left_wrist" value="$(arg use_effort_left_wrist)" />
+  </include>
+
+  <!-- Start Gazebo with the table world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find sciurus17_gazebo)/worlds/table.world" />
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)" />
+    <arg name="use_sim_time" value="$(arg use_sim_time)" />
+    <arg name="headless" value="$(arg headless)" />
+  </include>
+
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description"
+    command="$(find xacro)/xacro --inorder '$(find sciurus17_description)/urdf/sciurus17.urdf.xacro' use_gazebo_simulation:=true" />
+
+  <!-- Spawn the robot model in Gazebo -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model sciurus17 -param robot_description -z 1.02" />
+
+  <!-- Initialize the robot to its default pose -->
+  <node name="initpose_sciurus17" pkg="sciurus17_gazebo" type="initpose_sciurus17.py" />
+
+  <!-- Load the SRDF so FlexBE can load behaviors before 'move_group' starts. -->
+  <!-- 'SrdfStateToMoveit' reads '/robot_description_semantic' in '__init__' (at behavior load time). -->
+  <param name="robot_description_semantic"
+    textfile="$(find sciurus17_moveit_config)/config/sciurus17.srdf" />
+
+  <!-- Maximize the Gazebo window after it opens. -->
+  <node name="maximize_gazebo" pkg="openrosde_launch" type="maximize-app-window.bash" args="Gazebo" />
+
+</launch>

@@ -2,13 +2,13 @@
 
 ################################################################################
 
-# Toyota HSR platform overlay for the SDE.
+# Toyota HSR platform overlay for OpenRoSDE.
 # Passes HSR-specific environment variables to the container.
 
 ################################################################################
 
 services:
-  sde:
+  openrosde:
     environment:
       # No platform-specific environment variables for HSR at this time.
-      - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+      - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}

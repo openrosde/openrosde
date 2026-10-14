@@ -11,9 +11,9 @@
 ################################################################################
 
 # Name the image of the platform in this pipeline and the container that builds the workspaces.
-SDE_CI_IMAGE_NAME="${CI_REGISTRY_IMAGE}/$1-devel:pipeline-${CI_PIPELINE_ID}"
-SDE_CI_CONTAINER_NAME="sde-ci-$1"
-SDE_CONTAINER_ROOT_DIR=/root/SDE
+OPENROSDE_CI_IMAGE_NAME="${CI_REGISTRY_IMAGE}/$1-devel:pipeline-${CI_PIPELINE_ID}"
+OPENROSDE_CI_CONTAINER_NAME="openrosde-ci-$1"
+OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE
 
 ################################################################################
 
@@ -24,22 +24,22 @@ bash ./scripts/apply-submodule-patches.bash "${PWD}"
 
 # Create the container, copy the repository into it, then reset and build the workspaces, and check the launch entry points.
 docker create \
-  --name "${SDE_CI_CONTAINER_NAME}" \
-  --env "SDE_ROBOT_PLATFORM=$1" \
-  --env "SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}" \
-  "${SDE_CI_IMAGE_NAME}" \
-  bash -c "bash ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspaces.bash && bash ${SDE_CONTAINER_ROOT_DIR}/gitlab-ci/check-launch-files.bash $1" || exit 1
-docker cp "${PWD}/." "${SDE_CI_CONTAINER_NAME}:${SDE_CONTAINER_ROOT_DIR}/" || exit 1
-docker start --attach "${SDE_CI_CONTAINER_NAME}"
-SDE_CI_EXIT_CODE=$?
+  --name "${OPENROSDE_CI_CONTAINER_NAME}" \
+  --env "OPENROSDE_ROBOT_PLATFORM=$1" \
+  --env "OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}" \
+  "${OPENROSDE_CI_IMAGE_NAME}" \
+  bash -c "bash ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/reset-catkin-workspaces.bash && bash ${OPENROSDE_CONTAINER_ROOT_DIR}/gitlab-ci/check-launch-files.bash $1" || exit 1
+docker cp "${PWD}/." "${OPENROSDE_CI_CONTAINER_NAME}:${OPENROSDE_CONTAINER_ROOT_DIR}/" || exit 1
+docker start --attach "${OPENROSDE_CI_CONTAINER_NAME}"
+OPENROSDE_CI_EXIT_CODE=$?
 
 ################################################################################
 
 # Keep the Catkin logs of every workspace when the build fails.
-if [ "${SDE_CI_EXIT_CODE}" -ne 0 ]; then
-  for SDE_CI_CATKIN_WS in ros/*_catkin_ws; do
-    mkdir -p "ci-logs/${SDE_CI_CATKIN_WS}"
-    docker cp "${SDE_CI_CONTAINER_NAME}:${SDE_CONTAINER_ROOT_DIR}/${SDE_CI_CATKIN_WS}/logs" "ci-logs/${SDE_CI_CATKIN_WS}/" > /dev/null 2>&1
+if [ "${OPENROSDE_CI_EXIT_CODE}" -ne 0 ]; then
+  for OPENROSDE_CI_CATKIN_WS in ros/*_catkin_ws; do
+    mkdir -p "ci-logs/${OPENROSDE_CI_CATKIN_WS}"
+    docker cp "${OPENROSDE_CI_CONTAINER_NAME}:${OPENROSDE_CONTAINER_ROOT_DIR}/${OPENROSDE_CI_CATKIN_WS}/logs" "ci-logs/${OPENROSDE_CI_CATKIN_WS}/" > /dev/null 2>&1
   done
 fi
-exit ${SDE_CI_EXIT_CODE}
+exit ${OPENROSDE_CI_EXIT_CODE}
