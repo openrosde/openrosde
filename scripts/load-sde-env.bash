@@ -36,6 +36,16 @@ SDE_DOCKER_CONTAINER="sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1"
 
 ################################################################################
 
+# Derive the tag of the base and platform images from the branch when 'SDE_DOCKER_IMAGE_TAG' is 'auto': 'main' on the 'main' branch and on a release tag, which checks out a detached 'HEAD', and 'dev' everywhere else.
+if [ "${SDE_DOCKER_IMAGE_TAG}" = "auto" ]; then
+  SDE_GIT_BRANCH_NAME="$(git -C "${SDE_ROOT_DIR}" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+  if [ "${SDE_GIT_BRANCH_NAME}" = "main" ] || [ "${SDE_GIT_BRANCH_NAME}" = "HEAD" ]; then
+    SDE_DOCKER_IMAGE_TAG=main
+  else
+    SDE_DOCKER_IMAGE_TAG=dev
+  fi
+fi
+
 # Derive the user and group IDs and the Dockerfiles and commit hashes that 'docker-compose.yaml' passes to the images.
 SDE_USER_ID="$(id -u)"
 SDE_GROUP_ID="$(id -g)"
@@ -71,7 +81,7 @@ done
 unset SDE_EXTENSION_ROOT_DIR SDE_EXTENSION_DOCKERFILE SDE_EXTENSION_IMAGE_NAME
 
 # Derive the parent image of the user overlay: the last Docker layer of the extensions, or else the platform image.
-SDE_USER_PARENT_IMAGE="${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:latest"
+SDE_USER_PARENT_IMAGE="${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:${SDE_DOCKER_IMAGE_TAG}"
 if [ "${#SDE_EXTENSION_DOCKERFILES[@]}" -gt 0 ]; then
   SDE_USER_PARENT_IMAGE="${SDE_DOCKER_REGISTRY}/$(basename "$(dirname "${SDE_EXTENSION_DOCKERFILES[${#SDE_EXTENSION_DOCKERFILES[@]}-1]}")"):latest"
 fi

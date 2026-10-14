@@ -121,7 +121,7 @@ sde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel  ->  <
 
 - Each layer is built from the folder of its extension, so its `COPY` instructions read from there.
 - The layers are always built locally by `BUILD-DOCKER-IMAGE.bash`, in both its default and `local` modes, and never pushed, like the user overlay, so the layers of a private extension never leave the machine.
-- The CI build of all platforms (`gitlab-ci` mode) builds no layer, since layers belong to a setup.
+- The CI of the SDE builds no layer, since layers belong to a setup.
 
 ## 🚀 Using an Extension
 

@@ -6,7 +6,7 @@
 # Inherit from the platform-specific SDE image which provides the platform tools, or from the last Docker layer of the active extensions on top of it.
 # The 'SDE_ROBOT_PLATFORM' and 'SDE_PLATFORM_IMAGE' build arguments are injected from the SDE environment.
 ARG SDE_ROBOT_PLATFORM
-ARG SDE_PLATFORM_IMAGE=registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest
+ARG SDE_PLATFORM_IMAGE=registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:main
 FROM ${SDE_PLATFORM_IMAGE}
 
 ################################################################################

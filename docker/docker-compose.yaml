@@ -12,7 +12,7 @@
 
 services:
   sde-base:
-    image: ${SDE_DOCKER_REGISTRY}/sde-base:latest
+    image: ${SDE_DOCKER_REGISTRY}/sde-base:${SDE_DOCKER_IMAGE_TAG}
     build:
       context: ../
       dockerfile: ./docker/sde-base/Dockerfile
@@ -21,7 +21,7 @@ services:
         - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
 
   sde-platform:
-    image: ${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:latest
+    image: ${SDE_DOCKER_REGISTRY}/${SDE_ROBOT_PLATFORM}-devel:${SDE_DOCKER_IMAGE_TAG}
     build:
       context: ../
       # The Dockerfile of the platform lives in the core or in an extension, as 'scripts/load-sde-env.bash' resolves it.
@@ -29,7 +29,7 @@ services:
       args:
         - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
         - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
-        - SDE_BASE_IMAGE=${SDE_DOCKER_REGISTRY}/sde-base:latest
+        - SDE_BASE_IMAGE=${SDE_DOCKER_REGISTRY}/sde-base:${SDE_DOCKER_IMAGE_TAG}
 
   sde:
     hostname: sde-${SDE_ROBOT_PLATFORM}

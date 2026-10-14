@@ -135,6 +135,7 @@ Key configuration variables:
 | `SDE_ROBOT_SETUP` | Active setup, named after its template (see [Extensions](extensions.md)) | `turtlebot3` |
 | `SDE_ROBOT_EXTENSIONS` | Active extensions in `extensions/`, separated by spaces (see [Extensions](extensions.md)) | *(empty)* |
 | `SDE_DOCKER_REGISTRY` | Registry of the base and platform images | `registry.gitlab.com/coarobo/sde` |
+| `SDE_DOCKER_IMAGE_TAG` | Tag of the base and platform images, `main` or `dev` (`auto` derives it from the branch) | `auto` |
 | `SDE_ROS_MASTER_HOSTNAME` | ROS master host name or IP | `localhost` |
 | `SDE_ROS_CLIENT_IP` | Ubuntu development machine IP (optional) | *(empty)* |
 | `SDE_ROBOT_HOSTNAME` | Robot mDNS host name for auto-discovery | `turtlebot3.local` |
