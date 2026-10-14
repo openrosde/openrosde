@@ -237,6 +237,16 @@ openrosde-test-run bash ./gitlab-ci/clone-extensions.bash gitlab-ci/extensions.r
 openrosde-test-check "clones nothing when the file lists no repository" \
   "$(printf '%s\n' "status 0" "No extension to clone: 'gitlab-ci/extensions.repos' lists no repository.")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}")"
+sed 's/^ /   /' "${OPENROSDE_TEST_REPOS_FILE}" > "${OPENROSDE_TEST_WORK_DIR}/indented.repos"
+openrosde-test-run bash ./gitlab-ci/clone-extensions.bash "${OPENROSDE_TEST_WORK_DIR}/indented.repos"
+openrosde-test-check "refuses a file indented by four spaces, rather than reading no name from it and cloning nothing" \
+  "$(printf '%s\n' "status 1" "Error: '${OPENROSDE_TEST_WORK_DIR}/indented.repos' holds lines that this script does not read, which wants each name indented by two spaces under 'repositories:', and its 'type', 'url', and 'version' by four:" "  -     openrosde-platform-foo:")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | head -n 2)"
+grep -v 'url:' "${OPENROSDE_TEST_REPOS_FILE}" > "${OPENROSDE_TEST_WORK_DIR}/no-url.repos"
+openrosde-test-run bash ./gitlab-ci/clone-extensions.bash "${OPENROSDE_TEST_WORK_DIR}/no-url.repos"
+openrosde-test-check "refuses a name without a URL" \
+  "$(printf '%s\n' "status 1" "Error: '${OPENROSDE_TEST_WORK_DIR}/no-url.repos' lists 1 names but 0 URLs, rather than one 'url' per name.")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}")"
 OPENROSDE_CI_EXTENSION_OVERRIDE="acme-robots=main@${OPENROSDE_TEST_COMMIT}" openrosde-test-run bash ./gitlab-ci/clone-extensions.bash "${OPENROSDE_TEST_REPOS_FILE}"
 openrosde-test-check "refuses an override of an extension that the file does not list" \
   "$(printf '%s\n' "status 1" "Error: 'OPENROSDE_CI_EXTENSION_OVERRIDE' names the extension 'acme-robots', which '${OPENROSDE_TEST_REPOS_FILE}' does not list, and only a listed extension can be tested at another version.")" \

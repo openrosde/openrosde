@@ -8,7 +8,7 @@
 #
 # Usage: bash ./gitlab-ci/clone-extensions.bash <repos-file>
 #
-# <repos-file>: File of 'vcstool' that lists the extensions, such as 'gitlab-ci/extensions.repos', each with an anonymous HTTPS 'url' and a 'version' pinned to a tag or a commit.
+# <repos-file>: File of 'vcstool' that lists the extensions, such as 'gitlab-ci/extensions.repos', each with an anonymous HTTPS 'url' and a 'version' pinned to a tag or a commit, in the layout of that file, which the script checks.
 
 ################################################################################
 
@@ -21,7 +21,21 @@ if [ ! -f "$1" ]; then
   exit 1
 fi
 
-# List the names of the repositories, the keys indented by two spaces under 'repositories:', each cloned into 'extensions/<name>/'.
+# Refuse a file in any other layout than 'repositories:', each name indented by two spaces, and its 'type', 'url', and 'version' by four, with one 'url' per name, from which this script would read no name or no URL, and so test nothing.
+OPENROSDE_CI_UNREAD_LINES="$(grep -v -E -e '^[[:space:]]*(#|$)' -e '^repositories:[[:space:]]*(\{\}[[:space:]]*)?$' -e '^  [A-Za-z0-9_.-]+:[[:space:]]*$' -e '^    (type|url|version):[[:space:]]*[^[:space:]]+[[:space:]]*$' "$1")"
+if [ -n "${OPENROSDE_CI_UNREAD_LINES}" ]; then
+  echo "Error: '$1' holds lines that this script does not read, which wants each name indented by two spaces under 'repositories:', and its 'type', 'url', and 'version' by four:"
+  echo "${OPENROSDE_CI_UNREAD_LINES}" | sed 's/^/  - /'
+  exit 1
+fi
+OPENROSDE_CI_LISTED_NAME_COUNT="$(grep -c -E '^  [A-Za-z0-9_.-]+:[[:space:]]*$' "$1")"
+OPENROSDE_CI_LISTED_URL_COUNT="$(grep -c -E '^    url:' "$1")"
+if [ "${OPENROSDE_CI_LISTED_NAME_COUNT}" != "${OPENROSDE_CI_LISTED_URL_COUNT}" ]; then
+  echo "Error: '$1' lists ${OPENROSDE_CI_LISTED_NAME_COUNT} names but ${OPENROSDE_CI_LISTED_URL_COUNT} URLs, rather than one 'url' per name."
+  exit 1
+fi
+
+# List the names of the repositories, each cloned into 'extensions/<name>/'.
 OPENROSDE_CI_EXTENSION_NAMES="$(sed -n 's/^  \([A-Za-z0-9_.-]*\):[[:space:]]*$/\1/p' "$1")"
 
 ################################################################################

@@ -237,6 +237,9 @@ repositories:
     version: v1.0.0
 ```
 
+Keep that layout, with each name indented by two spaces and its keys by four, since `gitlab-ci/clone-extensions.bash` refuses any other rather than testing nothing.
+Update a `version` by hand, and never write the file with `vcs export` of the whole `extensions/` folder, which would add every clone of the checkout, private ones included.
+
 - The generate job and every other job clone these repositories with `gitlab-ci/clone-extensions.bash`, anonymously over HTTPS, and never with a token of the job, so a pipeline of OpenRoSDE, which anyone can read, never reaches a private repository.
 - The image job of a platform builds its image from the folder that holds it, and reuses an image whose folders hash the same, each folder hashed in the Git repository that holds it.
 - The test job of a setup selects the setup as `bash ./SWITCH-ROBOT-SETUP.bash <setup>` does, builds its Docker layers and its Catkin workspaces in the image of its platform, then disconnects the container from every network before any check runs.
