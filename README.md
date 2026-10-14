@@ -241,6 +241,7 @@ tmux/
 patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git).
 gitlab-ci/                               # GitLab CI/CD pipeline and its scripts.
+tests/                                   # Test suites, run in a Debian container by 'tests/run.bash'.
 ```
 
 ## 📖 Documentation
