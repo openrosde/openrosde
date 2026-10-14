@@ -15,6 +15,10 @@
 # User-specific environment overrides (created from a platform template in 'env/'):
 .env.custom
 
+# Extensions cloned into 'extensions/', each a Git repository of its own:
+extensions/*
+!extensions/README.md
+
 # 'catkin build' auto-generated files (for all platforms):
 ros/*_catkin_ws/CMakeLists.txt
 ros/*_catkin_ws/.catkin_tools/

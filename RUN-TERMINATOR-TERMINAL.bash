@@ -35,7 +35,8 @@ SDE_TERMINATOR_LAYOUT="11-${SDE_TERMINATOR_LAYOUT_ARG}"
 ################################################################################
 
 # Run Terminator with the selected configuration file and layout after injecting the required environment variables.
-sed "s/\${SDE_DOCKER_PROJECT}/${SDE_DOCKER_PROJECT}/g" ./terminator/${SDE_ROBOT_PLATFORM}.config > ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp
+# The configuration file of the platform lives in the core or in the extension that holds the platform, and its injected copy always goes to './terminator/' of the core.
+sed "s/\${SDE_DOCKER_PROJECT}/${SDE_DOCKER_PROJECT}/g" "$(sde-find-extension-file "terminator/${SDE_ROBOT_PLATFORM}.config")" > ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp
 terminator --maximise --config ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp --layout sde-${SDE_ROBOT_PLATFORM}-term-${SDE_TERMINATOR_LAYOUT}
 rm ./terminator/${SDE_ROBOT_PLATFORM}.config.tmp
 sleep 1

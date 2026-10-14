@@ -40,7 +40,7 @@ if [[ "${SDE_DOCKER_PROJECT}" == "gitlab-ci" ]]; then
   docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-base --no-cache
   for SDE_PLATFORM in $(bash ./scripts/list-robot-platforms.bash); do
     export SDE_ROBOT_PLATFORM=${SDE_PLATFORM}
-    export SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${SDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile)"
+    sde-derive-platform-dockerfile "${SDE_ROBOT_PLATFORM}"
     echo "Building ${SDE_ROBOT_PLATFORM}-devel image..."
     docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build sde-platform --no-cache
     echo "Building user-devel image on top of ${SDE_ROBOT_PLATFORM}-devel..."

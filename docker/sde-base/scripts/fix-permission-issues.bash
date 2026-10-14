@@ -6,9 +6,10 @@
 
 ################################################################################
 
-# Define the Catkin workspace paths.
-SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
-SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
+# List the Catkin workspaces of the core, the platform, and the active extensions.
+source ${SDE_CONTAINER_ROOT_DIR}/scripts/load-extension-paths.bash ${SDE_CONTAINER_ROOT_DIR}
 
 # Find files and directories owned by 'root' in the 'src/' directories of the Catkin workspaces and change ownership to current user and group IDs.
-find ${SDE_SHARED_CATKIN_WS}/src/ ${SDE_ROBOT_PLATFORM_CATKIN_WS}/src/ -user root -print -exec chown ${SDE_USER_ID}:${SDE_GROUP_ID} {} \;
+for SDE_CATKIN_WS in "${SDE_CATKIN_WORKSPACE_DIRS[@]}"; do
+  find ${SDE_CATKIN_WS}/src/ -user root -print -exec chown ${SDE_USER_ID}:${SDE_GROUP_ID} {} \;
+done

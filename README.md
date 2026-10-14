@@ -170,6 +170,7 @@ RESTART-CHRONY-SERVICE.bash              # Host and robot clock sync script.
 SWITCH-ROBOT-PLATFORM.bash               # Platform switching script.
 scripts/
   load-sde-env.bash                      # Shared environment loader.
+  load-extension-paths.bash              # Resolves the files of the platform and the extensions.
   list-robot-platforms.bash              # Lists the platforms found by name.
   <platform>/                            # Optional platform scripts (shell, bringup, Chrony).
 docker/
@@ -212,6 +213,8 @@ ros/
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md
+  user-overlay.md
+  extensions.md
   robot-platforms/
     turtlebot3.md
     ur5e.md
@@ -227,6 +230,7 @@ terminator/
   cobotta.config                         # COBOTTA Terminator layout.
   hsr.config                             # HSR Terminator layout.
 patches/                                 # Submodule patch files.
+extensions/                              # Extensions cloned from their own repositories (ignored by Git).
 gitlab-ci/                               # GitLab CI/CD scripts.
 ```
 
@@ -243,6 +247,7 @@ gitlab-ci/                               # GitLab CI/CD scripts.
 | [Robot Platforms / COBOTTA](docs/robot-platforms/cobotta.md) | Denso COBOTTA robot configuration, installation, and operation |
 | [Robot Platforms / HSR](docs/robot-platforms/hsr.md) | Toyota HSR (Human Support Robot) simulation-only configuration, installation, and operation |
 | [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking the SDE |
+| [Extensions](docs/extensions.md) | Add a platform, a device, or other packages from a repository of their own, public or private, cloned into `extensions/` |
 
 ## 📄 Related Publications
 

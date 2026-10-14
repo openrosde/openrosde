@@ -26,9 +26,9 @@ source ./scripts/load-sde-env.bash "$2"
 
 ################################################################################
 
-# Run the bringup script of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/bringup-ros-robot.bash', if the platform has one.
-SDE_BRINGUP_SCRIPT_PATH="${SDE_ROOT_DIR}/scripts/${SDE_ROBOT_PLATFORM}/bringup-ros-robot.bash"
-if [ -f "${SDE_BRINGUP_SCRIPT_PATH}" ]; then
+# Run the bringup script of the platform, 'scripts/${SDE_ROBOT_PLATFORM}/bringup-ros-robot.bash' in the core or in an extension, if the platform has one.
+SDE_BRINGUP_SCRIPT_PATH="$(sde-find-extension-file "scripts/${SDE_ROBOT_PLATFORM}/bringup-ros-robot.bash")"
+if [ -n "${SDE_BRINGUP_SCRIPT_PATH}" ]; then
   bash "${SDE_BRINGUP_SCRIPT_PATH}" "$1"
 else
   echo "No robot bringup is configured for the '${SDE_ROBOT_PLATFORM}' platform. Please start the robot manually."

@@ -1,35 +1,26 @@
 #!/bin/bash
 
-# This script builds and sources the shared, platform-specific, and user Catkin workspaces on top of the system ROS environment.
+# This script builds and sources the Catkin workspaces on top of the system ROS environment, in the order 'scripts/load-extension-paths.bash' lists them.
+# The order is the shared workspace, the platform workspace, the workspaces of the active extensions, then the user workspace.
 #
 # Usage: bash build-catkin-workspaces.bash
 
 ################################################################################
 
-# Derive the shared, platform-specific, and user catkin workspace paths.
-SDE_SHARED_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/sde_catkin_ws"
-SDE_ROBOT_PLATFORM_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/${SDE_ROBOT_PLATFORM}_catkin_ws"
-SDE_USER_CATKIN_WS="${SDE_CONTAINER_ROOT_DIR}/ros/user_catkin_ws"
+# List the Catkin workspaces of the core, the platform, and the active extensions, in order.
+source ${SDE_CONTAINER_ROOT_DIR}/scripts/load-extension-paths.bash ${SDE_CONTAINER_ROOT_DIR}
 
 # Source the ROS distribution environment.
 source /opt/ros/noetic/setup.bash
 
-# Build the shared Catkin workspace.
-cd ${SDE_SHARED_CATKIN_WS} && catkin build
-
-# Source the shared Catkin workspace.
-source ${SDE_SHARED_CATKIN_WS}/devel/setup.bash
-
-# Build the platform-specific Catkin workspace.
-cd ${SDE_ROBOT_PLATFORM_CATKIN_WS} && catkin build
-
-# Source the platform-specific Catkin workspace.
-source ${SDE_ROBOT_PLATFORM_CATKIN_WS}/devel/setup.bash
-
-# Build the user Catkin workspace (overlay) if it exists.
-if [ -d ${SDE_USER_CATKIN_WS}/src ]; then
-  cd ${SDE_USER_CATKIN_WS} && catkin build
-fi
+# Build each Catkin workspace, then source it, so that the next workspace extends it.
+for SDE_CATKIN_WS in "${SDE_CATKIN_WORKSPACE_DIRS[@]}"; do
+  echo "Building the Catkin workspace '${SDE_CATKIN_WS}'."
+  cd ${SDE_CATKIN_WS} && catkin build
+  if [ -f ${SDE_CATKIN_WS}/devel/setup.bash ]; then
+    source ${SDE_CATKIN_WS}/devel/setup.bash
+  fi
+done
 
 # Source all Catkin workspaces.
 source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/source-catkin-workspaces.bash

@@ -34,10 +34,21 @@ fi
 # Build the list of Docker Compose files.
 SDE_COMPOSE_FILES="-f ./docker/docker-compose.yaml"
 
-# Add platform-specific overlay if available.
-if [ -f "./docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml" ]; then
-  SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ./docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml"
+# Add platform-specific overlay if available, from the core or from the extension that holds the platform.
+SDE_PLATFORM_COMPOSE_FILE="$(sde-find-extension-file "docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml")"
+if [ -n "${SDE_PLATFORM_COMPOSE_FILE}" ]; then
+  SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ${SDE_PLATFORM_COMPOSE_FILE}"
 fi
+
+# Add every other overlay of the platform root directory (if it is an extension) and of the active extensions, in their order.
+# Relative paths in an overlay are resolved against './docker/' of the core, as Docker Compose resolves them against the first file.
+for SDE_EXTENSION_ROOT_DIR in "${SDE_ACTIVE_ROOT_DIRS[@]:1}"; do
+  for SDE_EXTENSION_COMPOSE_FILE in "${SDE_EXTENSION_ROOT_DIR}"/docker/docker-compose*.yaml; do
+    if [ -f "${SDE_EXTENSION_COMPOSE_FILE}" ] && [ "${SDE_EXTENSION_COMPOSE_FILE}" != "${SDE_PLATFORM_COMPOSE_FILE}" ]; then
+      SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ${SDE_EXTENSION_COMPOSE_FILE}"
+    fi
+  done
+done
 
 # Add the user overlay (always present, ships with the SDE).
 SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ./docker/docker-compose-user.yaml"
