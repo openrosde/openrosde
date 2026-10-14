@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # This script runs the test suites of the OpenRoSDE scripts in 'tests/suites/', each on scratch copies of the repository with every outside command stubbed, so that no test builds an image, starts a container, or reaches a robot.
-# On a machine with Docker, it runs them in a Debian container with 'tmux', built once as the local image 'openrosde-tests:local', with the repository mounted read-only and no network, so that a suite changes nothing outside the container.
-# Inside a container that has no Docker, such as a Debian job of the CI with 'tmux' installed, it runs them directly.
+# On a machine with Docker, it runs them in a Debian container with 'tmux' and 'git', built once as the local image 'openrosde-tests:local', with the repository mounted read-only and no network, so that a suite changes nothing outside the container.
+# Inside a container that has no Docker, such as a Debian job of the CI with 'tmux' and 'git' installed, it runs them directly.
 #
 # Usage: bash ./tests/run.bash [suite ...]
 #
@@ -20,7 +20,7 @@ OPENROSDE_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if [ "${OPENROSDE_TEST_IN_CONTAINER}" != "true" ] && command -v docker > /dev/null 2>&1; then
   docker build --quiet --tag openrosde-tests:local - > /dev/null <<'EOF' || exit 1
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends tmux \
+RUN apt-get update && apt-get install -y --no-install-recommends tmux git \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 EOF
   docker run --rm --network none \

@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The CI tests every setup it finds, in the core and in the public extensions that `gitlab-ci/extensions.repos` pins and `gitlab-ci/clone-extensions.bash` clones anonymously, with one test job per setup that builds its Docker layers and its Catkin workspaces in the image of its platform, and a test job of the core alone in the base image (#38).
+- `gitlab-ci/clone-extensions.bash` refuses a file of extensions in another layout than its own, rather than reading no name from it and testing nothing (#38).
+- A public extension tests one of its branches against the core by triggering a pipeline with `OPENROSDE_CI_EXTENSION_OVERRIDE=<name>=<branch>@<commit>`, which tests only the setups that activate it and never publishes, and `OPENROSDE_CI_EXTRA_EXTENSIONS` adds extensions to every setup that the CI tests (#38).
+- `gitlab-ci/check-launch-files.bash` fails when two panes of one layout start a node of the same name, which `roslaunch --nodes` lists without starting it, unless `gitlab-ci/allowed-duplicate-nodes.txt` or `ci/allowed-duplicate-nodes.txt` of an active extension allows it, for some panes or for any, as the core does for the mapping and navigation panes of the TurtleBot3, which a session runs one at a time (#38).
+- `check-scripts-job` runs `gitlab-ci/check-no-motion.bash`, which fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, in the scripts that the CI runs, apart from the simulations that an allowlist names, even after a path, and with no option read from a trailing comment, and every test job needs it (#38).
+- The CI runs `ci/check-in-container.bash` of every active extension in the container of the setup, after disconnecting it from every network (#38).
+- Tag pipelines publish the images of a release as `vX.Y.Z`, which a setup can pull with `OPENROSDE_DOCKER_IMAGE_TAG` (#38).
+- `scripts/load-openrosde-settings.bash` loads `.env`, `.env.custom`, and the paths of the extensions with every variable exported, for the shell of the container and for the CI scripts that run in it (#38).
 - `OPENROSDE_DOCKER_BUILD_FALLBACK` sets which images `BUILD-DOCKER-IMAGE.bash` builds locally when their pull fails: `true` for the base and platform images as before, `platform` for the platform image alone, such as a private platform, or `false` for neither, so that a CI job fails rather than building the base image for hours (#38).
 - `scripts/build-extension-layers.bash` builds the Docker layers of the active extensions on the parent image it is given, for `BUILD-DOCKER-IMAGE.bash` and for a CI job alike (#38).
 - A setup template may pin the version of the core it was tested with, `OPENROSDE_CORE_VERSION`, as a release tag or a branch, and `SWITCH-ROBOT-SETUP.bash` warns, with the `git checkout` command, when the core is checked out at another version (#38).
@@ -36,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `gitlab-ci/build-ci-image.bash` takes the build context of the image, builds a platform from the folder that holds it, and hashes each source folder in the Git repository that holds it, which gives the folders of the core the same hash as before (#38).
+- The images publish only from a protected branch or tag, under its own name, in a pipeline that a push or a person on the web started, so a merge request, a schedule, a pipeline of another project, or a pipeline that tests an extension at another version never publishes `dev` (#38).
+- `gitlab-ci/test-catkin-workspaces.bash` and `gitlab-ci/check-launch-files.bash` take a setup in place of a platform, and the test job reads its images from `OPENROSDE_CI_IMAGE_REGISTRY` with the tag `OPENROSDE_CI_IMAGE_TAG`, the images of the pipeline by default, which a pipeline of another project sets to published images, such as `registry.gitlab.com/coarobo/sde` and `v3.0.0` (#38).
+- `gitlab-ci/test-catkin-workspaces.bash` refuses outside the CI to replace an existing `.env.custom`, which holds the setup that a developer selected (#38).
+- The shell of the container loads its settings with `scripts/load-openrosde-settings.bash`, so every script it runs, such as `reset-catkin-workspaces.bash`, reads the same platform, setup, and extensions, and the base image is built again (#38).
 - The Docker layers of the extensions and the user overlay are tagged `openrosde-local/<setup>/<name>-devel:latest` and `openrosde-local/<setup>/user-devel:latest`, with the setup in lowercase, in place of the name of the registry, so two setups that share a device no longer overwrite each other's layer, and the next `bash ./BUILD-DOCKER-IMAGE.bash` builds them under their new names, after which `docker image rm` can remove the old `registry.gitlab.com/coarobo/sde/user-devel:latest` (#38).
 - `scripts/load-openrosde-env.bash` reads the platforms that the templates declare rather than running `scripts/list-robot-platforms.bash`, whose warnings every entry script printed (#38).
 - The panes of a setup, `tmux/<setup>.panes`, replace those of its platform, as its Terminator layout does, and an active extension no longer adds a Docker Compose overlay or a pane file named after a platform or a setup that is not active (#38).
@@ -69,6 +82,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `gitlab-ci/check-launch-files.bash` checks the pane files that `RUN-TMUX-SESSION.bash` opens for the setup, and fails when neither the setup nor its platform has one, rather than checking the panes of the core alone and passing, as it did for a platform held by an extension (#38).
+- `gitlab-ci/check-launch-files.bash` takes the launch package of the panes that name none from `OPENROSDE_LAUNCH_PACKAGE`, which the shell configuration of a setup or a platform may change, as the shell of the container does (#38).
+- `gitlab-ci/build-ci-image.bash` fails when a source folder is missing or not committed, rather than hashing it as a constant and reusing an outdated image for ever (#38).
 - The shell of the container no longer announces a newer image, nor prints a Git error, when the repository of the platform does not hold the commit embedded in the image, as for a platform outside the core (#38).
 - The image of a platform held by an extension or a part builds from the folder of that platform, as the Docker layers do, so the `COPY` instructions of its Dockerfile read from there rather than from the core (#38).
 - A clone that is not active no longer supplies the Docker Compose overlay, the panes, the scripts, or the Terminator layout of the active platform or setup, since a file named after the setup now comes from the folder of the setup, and a file named after the platform from the folder of the platform, then the core (#38).

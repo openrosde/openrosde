@@ -1,0 +1,15 @@
+# Public extensions that the CI of OpenRoSDE clones into 'extensions/' with 'gitlab-ci/clone-extensions.bash' and tests with the core, in the format of 'vcstool'.
+# Each entry reads as below, with an anonymous HTTPS URL and a version pinned to a tag or a commit, so that every pipeline of the core is reproducible:
+#
+#   repositories:
+#     openrosde-platform-<name>:
+#       type: git
+#       url: https://gitlab.com/coarobo/openrosde/openrosde-platform-<name>.git
+#       version: v1.0.0
+#
+# Keep this layout, with each name indented by two spaces and its keys by four, since 'gitlab-ci/clone-extensions.bash' refuses any other.
+# A platform is added here in the same merge request that removes it from the core.
+# Update the 'version' of an entry by hand, to a tag or a commit that a pipeline tested, such as the one that 'git -C extensions/<name> rev-parse HEAD' prints.
+# Never write this file with 'vcs export' of the whole 'extensions/' folder, which lists every clone of the checkout, private ones included, and would publish their names and URLs.
+
+repositories: {}

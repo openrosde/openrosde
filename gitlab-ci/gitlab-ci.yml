@@ -2,21 +2,24 @@
 # https://docs.gitlab.com/ci/yaml/
 # https://docs.gitlab.com/ci/pipelines/downstream_pipelines/#dynamic-child-pipelines
 
-# This parent pipeline generates the child pipeline of OpenRoSDE, with one image job and one test job per platform found by name, then runs it.
-# The child pipeline builds or reuses the base and platform images, builds the Catkin workspaces of every platform inside its image, and publishes the images as 'dev' or 'main' from those branches.
+# This parent pipeline clones the public extensions of 'gitlab-ci/extensions.repos', generates the child pipeline of OpenRoSDE, with one image job per platform and one test job per setup found by name, then runs it.
+# The child pipeline builds or reuses the base and platform images, builds the Catkin workspaces of every setup inside the image of its platform, and publishes the images as 'dev' or 'main' from those branches, or as 'vX.Y.Z' from a release tag.
 # Every job hands its results through the registry, and every artifact expires, so the pipeline runs the same on a self-managed runner and on the instance runners of GitLab.com.
 
 ################################################################################
 
-# Run one pipeline per change: for a merge request, or for a branch without an open merge request.
+# Run one pipeline per change: for a merge request, for a branch without an open merge request, or for a tag, such as a release.
+# Also run the pipeline that the pipeline of an extension triggers, even on a branch with an open merge request, such as 'dev' during a release.
 # https://docs.gitlab.com/ci/yaml/workflow/#switch-between-branch-pipelines-and-merge-request-pipelines
 
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
     - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG
 
 ################################################################################
 
@@ -55,7 +58,7 @@ stages:
 
 ################################################################################
 
-# Generate the child pipeline, which lives for a day as an artifact.
+# Clone the extensions, then generate the child pipeline, which lives for a day as an artifact.
 
 generate-pipeline-job:
   stage: generate-stage
@@ -66,6 +69,7 @@ generate-pipeline-job:
   rules: *openrosde-image-changes-rules
   script:
     - apk add --no-cache bash > /dev/null
+    - bash ./gitlab-ci/clone-extensions.bash gitlab-ci/extensions.repos
     - bash ./gitlab-ci/generate-ci-pipeline.bash > openrosde-pipeline-generated.yml
     - cat openrosde-pipeline-generated.yml
   artifacts:
@@ -75,7 +79,9 @@ generate-pipeline-job:
 
 ################################################################################
 
-# Run the child pipeline, which passes the branch to publish, if any, the target branch of a merge request, if any, and the tag of the runner.
+# Run the child pipeline, which passes the branch or the tag to publish, if any, the source of this pipeline, the target branch of a merge request, if any, and the tag of the runner.
+# The variables that started this pipeline reach the child pipeline too, such as 'OPENROSDE_CI_EXTENSION_OVERRIDE' and 'OPENROSDE_CI_EXTRA_EXTENSIONS' from the pipeline of an extension that triggers this one.
+# https://docs.gitlab.com/ci/yaml/#triggerforward
 
 run-pipeline-job:
   stage: run-stage
@@ -85,6 +91,9 @@ run-pipeline-job:
       - artifact: openrosde-pipeline-generated.yml
         job: generate-pipeline-job
     strategy: depend
+    forward:
+      pipeline_variables: true
   variables:
-    OPENROSDE_CI_PUBLISH_TAG: $CI_COMMIT_BRANCH
+    OPENROSDE_CI_PUBLISH_TAG: $CI_COMMIT_BRANCH$CI_COMMIT_TAG
+    OPENROSDE_CI_UPSTREAM_SOURCE: $CI_PIPELINE_SOURCE
     OPENROSDE_CI_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME

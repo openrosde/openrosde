@@ -2,8 +2,8 @@
 # https://docs.gitlab.com/ci/yaml/
 # https://docs.gitlab.com/ci/docker/using_docker_build/
 
-# This file holds the jobs of the child pipeline of OpenRoSDE that every platform shares.
-# 'generate-ci-pipeline.bash' includes it, then adds one image job and one test job per platform, which OpenRoSDE finds by name.
+# This file holds the jobs of the child pipeline of OpenRoSDE that every platform and every setup share.
+# 'generate-ci-pipeline.bash' includes it, then adds one image job per platform, one test job per setup, and the test job of the core alone, which OpenRoSDE finds by name in the core and in the extensions of 'gitlab-ci/extensions.repos'.
 # The jobs hand their images to each other through the registry only, so the pipeline needs nothing kept on the runner and runs the same on a self-managed runner and on the instance runners of GitLab.com.
 
 ################################################################################
@@ -30,6 +30,10 @@ variables:
   DOCKER_TLS_VERIFY: "1"
   DOCKER_CERT_PATH: "/certs/client"
   GIT_SUBMODULE_STRATEGY: none
+  # Registry and tag where the test jobs read the base and platform images: those that this pipeline pushes.
+  # A pipeline of another project that runs the test script on the published images sets both, such as 'registry.gitlab.com/coarobo/sde' and 'dev' or a release 'v3.0.0', since only a pipeline of OpenRoSDE pushes 'pipeline-<id>'.
+  OPENROSDE_CI_IMAGE_REGISTRY: $CI_REGISTRY_IMAGE
+  OPENROSDE_CI_IMAGE_TAG: pipeline-$CI_PIPELINE_ID
 
 default:
   image: docker:29.8.1-cli
@@ -47,6 +51,8 @@ default:
     - for OPENROSDE_CI_WAIT_SECOND in $(seq 1 60); do docker info > /dev/null 2>&1 && break; sleep 1; done
     # Log in to the registry with the token of the job, which works on every runner.
     - echo "${CI_REGISTRY_PASSWORD}" | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+    # Clone the extensions that the generate job cloned, at the same versions.
+    - bash ./gitlab-ci/clone-extensions.bash gitlab-ci/extensions.repos
 
 ################################################################################
 
@@ -67,11 +73,11 @@ build-base-image-job:
   timeout: 4h
   rules: *openrosde-every-pipeline
   script:
-    - bash ./gitlab-ci/build-ci-image.bash openrosde-base docker/openrosde-base/Dockerfile docker/openrosde-base OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE
+    - bash ./gitlab-ci/build-ci-image.bash openrosde-base . docker/openrosde-base/Dockerfile docker/openrosde-base OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE
 
 ################################################################################
 
-# Build or reuse the image of a platform on top of the base image of this pipeline.
+# Build or reuse the image of a platform on top of the base image of this pipeline, from the folder that holds the platform, 'OPENROSDE_CI_PLATFORM_ROOT_DIR', the core '.' or a folder in 'extensions/'.
 
 .build-platform-image:
   stage: platform-stage
@@ -83,23 +89,26 @@ build-base-image-job:
     - >-
       bash ./gitlab-ci/build-ci-image.bash
       "${OPENROSDE_ROBOT_PLATFORM}-devel"
+      "${OPENROSDE_CI_PLATFORM_ROOT_DIR}"
       "docker/${OPENROSDE_ROBOT_PLATFORM}-devel/Dockerfile"
-      "docker/openrosde-base,docker/${OPENROSDE_ROBOT_PLATFORM}-devel"
+      "docker/openrosde-base,${OPENROSDE_CI_PLATFORM_ROOT_DIR}/docker/${OPENROSDE_ROBOT_PLATFORM}-devel"
       "OPENROSDE_BASE_IMAGE=${CI_REGISTRY_IMAGE}/openrosde-base:pipeline-${CI_PIPELINE_ID}"
       "OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}"
 
 ################################################################################
 
-# Build the Catkin workspaces of a platform inside its image, and keep the Catkin logs for a week when the build fails.
+# Test a setup, 'OPENROSDE_CI_ROBOT_SETUP', or the core alone with 'openrosde': build its Docker layers and its Catkin workspaces inside the image of its platform, check its launch entry points, and run the checks of its extensions.
+# Every test job needs 'check-scripts-job' besides the image of its platform, so that no check of an extension runs before the check that it cannot move a robot passes.
+# Keep the Catkin logs for a week when the test fails.
 
-.test-catkin-workspaces:
+.test-setup:
   stage: test-stage
   timeout: 2h
   rules: *openrosde-every-pipeline
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   script:
-    - bash ./gitlab-ci/test-catkin-workspaces.bash "${OPENROSDE_ROBOT_PLATFORM}"
+    - bash ./gitlab-ci/test-catkin-workspaces.bash "${OPENROSDE_CI_ROBOT_SETUP}"
   artifacts:
     when: on_failure
     paths:
@@ -108,12 +117,37 @@ build-base-image-job:
 
 ################################################################################
 
-# Publish the images of the pipeline as 'dev' or 'main', only from those branches, once every test has passed.
+# Check that no script that the CI runs, in 'gitlab-ci/' of the core or in 'ci/' of an extension, can move a robot, before any test job runs one.
+# The check reads files only, so it runs without Docker-in-Docker, at once.
+
+check-scripts-job:
+  stage: test-stage
+  timeout: 10m
+  rules: *openrosde-every-pipeline
+  needs: []
+  services: []
+  before_script:
+    - apk add --no-cache bash > /dev/null
+    - bash ./gitlab-ci/clone-extensions.bash gitlab-ci/extensions.repos
+  script:
+    - bash ./gitlab-ci/check-no-motion.bash gitlab-ci extensions/*/ci extensions/*/parts/*/ci
+
+################################################################################
+
+# Publish the images of the pipeline as 'dev' or 'main' from those branches, or as 'vX.Y.Z' from a release tag, once every test has passed.
+# Never publish from a pipeline that tests an extension at another version, whose images hold an unmerged commit of that extension.
+# Publish only from a protected branch or tag, under its own name, in a pipeline that a push or a person on the web started, never from a merge request, a schedule, or a pipeline of another project.
 
 .publish-images:
   stage: publish-stage
   interruptible: false
   rules:
-    - if: $OPENROSDE_CI_PUBLISH_TAG == "dev" || $OPENROSDE_CI_PUBLISH_TAG == "main"
+    - if: $OPENROSDE_CI_EXTENSION_OVERRIDE
+      when: never
+    - if: $CI_COMMIT_REF_PROTECTED != "true"
+      when: never
+    - if: $OPENROSDE_CI_UPSTREAM_SOURCE != "push" && $OPENROSDE_CI_UPSTREAM_SOURCE != "web"
+      when: never
+    - if: $OPENROSDE_CI_PUBLISH_TAG == $CI_COMMIT_REF_NAME && ($OPENROSDE_CI_PUBLISH_TAG == "dev" || $OPENROSDE_CI_PUBLISH_TAG == "main" || $OPENROSDE_CI_PUBLISH_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/)
   script:
     - bash ./gitlab-ci/publish-ci-images.bash "${OPENROSDE_CI_PUBLISH_TAG}" openrosde-base ${OPENROSDE_CI_PLATFORM_IMAGES}
