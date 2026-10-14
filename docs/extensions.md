@@ -3,7 +3,7 @@
 [[_TOC_]]
 
 An **extension** is a Git repository cloned into `extensions/<extension>/` that adds a robot platform, a device, or any other package to OpenRoSDE without forking it.
-Extensions are how the SDE becomes OpenRoSDE, a platform-agnostic core with everything specific to a robot or a product around it, as the [OpenRoSDE Split](../AGENTS.md#openrosde-split) describes.
+Extensions keep OpenRoSDE a platform-agnostic core, with everything specific to a robot or a product around it, as the [OpenRoSDE Split](../AGENTS.md#openrosde-split) describes.
 
 A private extension, cloned from a private repository of a company or a lab, works exactly as a public one.
 OpenRoSDE never needs to know where an extension comes from.
@@ -12,14 +12,17 @@ OpenRoSDE never needs to know where an extension comes from.
 
 OpenRoSDE treats every extension the same way, and only what an extension holds gives it its role.
 
-| Kind | What it holds | Example name |
-| --- | --- | --- |
-| Platform | One robot as sold, with its public drivers: `env/<platform>.env`, `docker/<platform>-devel/`, `ros/<platform>_catkin_ws/` | `openrosde-platform-ur5e` |
-| Device | One piece of hardware anyone can buy, such as a gripper, a camera, or an input device, which names no robot | `openrosde-device-realsense` |
-| Extension | Anything else added beside a platform, such as a product binding or packages of a project | `coarobo-extension-sightline` |
-| Setup | One installation of a robot: the platform, devices, and extensions it pins, the description that mounts the devices, the calibration, addresses, serial numbers, layouts, and runbook of that installation alone | `coarobo-setup-ur5e-office` |
+| Kind | What it holds | Named after | Example name |
+| --- | --- | --- | --- |
+| Platform | One robot as sold, with its public drivers: `env/<platform>.env`, `docker/<platform>-devel/`, `ros/<platform>_catkin_ws/` | The robot, lowercase, without its maker | `openrosde-platform-ur5e` |
+| Device | One upstream driver of hardware anyone can buy, such as a gripper, a camera, or an input device, with every model that driver supports, and naming no robot | The driver | `openrosde-device-realsense` |
+| Extension | Anything else added beside a platform, such as the bindings of a product, the packages of a lab, or the setups of a company | Its owner or its purpose | `my-lab-packages` |
 
-The setup of a company and the setup of its client take the same shape, and both are usually private, while platforms and devices anyone can buy are usually public.
+A device covers a family rather than one model, since one driver usually supports a whole product line: `openrosde-device-onrobot` covers the OnRobot RG and VG grippers, and `openrosde-device-spacenav` every 3Dconnexion device that `spacenavd` supports.
+
+A **setup** is one installation of a robot: the platform, devices, and extensions it pins, the description that mounts the devices, and the calibration, addresses, serial numbers, layouts, and runbook of that installation alone.
+A setup is a template that any extension holds rather than a repository of its own, so one private extension of a company or a lab can hold its packages and the setups of all its robots.
+A setup is named `<owner>-<platform>-<place>`, such as `my-lab-ur5e-bench`, so that the setups of the core, of a company, and of its clients never share a name, and platforms and devices anyone can buy are usually public, while setups are usually private.
 
 ## 📁 Layout
 
@@ -28,8 +31,8 @@ An extension shares the layout of the core, so that OpenRoSDE finds its files wi
 ```
 extensions/<extension>/
   env/<platform>.env                     # Platform template, the default setup, which declares 'OPENROSDE_ROBOT_PLATFORM=<platform>' and 'OPENROSDE_ROBOT_SETUP=<platform>' (platforms only).
-  env/<setup>.env                        # Setup template, which declares 'OPENROSDE_ROBOT_SETUP=<setup>', its platform, and its extensions (setups only).
-  env/<setup>.repos                      # Repositories of the setup for 'vcstool' (setups only).
+  env/<setup>.env                        # Setup template, which declares 'OPENROSDE_ROBOT_SETUP=<setup>', its platform, and its extensions (optional).
+  env/<setup>.repos                      # Repositories of the setup for 'vcstool' (optional).
   docker/<platform>-devel/Dockerfile     # Platform image, built on 'openrosde-base' (platforms only).
   docker/<name>-devel/Dockerfile         # Docker layer of a device or an extension, built on the image below it (optional).
   docker/docker-compose-<name>.yaml      # Docker Compose overlay: environment variables, volumes, devices.
@@ -66,8 +69,8 @@ A setup is an environment template `env/<setup>.env` that declares its own name,
 
 ```shell
 OPENROSDE_ROBOT_PLATFORM=ur5e
-OPENROSDE_ROBOT_SETUP=my-lab-ur5e
-OPENROSDE_ROBOT_EXTENSIONS="openrosde-device-onrobot-rg openrosde-device-realsense"
+OPENROSDE_ROBOT_SETUP=my-lab-ur5e-bench
+OPENROSDE_ROBOT_EXTENSIONS="openrosde-device-onrobot openrosde-device-realsense"
 ```
 
 The template of every platform is its default setup, named after the platform, so `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` and `bash ./SWITCH-ROBOT-SETUP.bash <platform>` do the same.
@@ -76,13 +79,13 @@ Beside the template, `env/<setup>.repos` lists where to clone the repositories t
 
 ```yaml
 repositories:
-  openrosde-device-onrobot-rg:
+  openrosde-device-onrobot:
     type: git
-    url: https://github.com/<organization>/openrosde-device-onrobot-rg.git
+    url: https://github.com/openrosde/openrosde-device-onrobot.git
     version: v1.0.0
   openrosde-device-realsense:
     type: git
-    url: https://github.com/<organization>/openrosde-device-realsense.git
+    url: https://github.com/openrosde/openrosde-device-realsense.git
     version: v1.2.0
 ```
 
