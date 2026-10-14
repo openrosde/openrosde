@@ -6,23 +6,13 @@
   <!-- Accepts 'kinematics_params' so the robot calibration YAML is passed through to xacro. -->
   <arg name="kinematics_params" />
 
-  <!-- External RealSense D435i camera position arguments. -->
-  <!-- These default to the 'SDE_UR5E_EXTERNAL_CAMERA_*' environment variables. -->
-  <arg name="external_camera_x"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_X -0.10)" />
-  <arg name="external_camera_y"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_Y 0.35)" />
-  <arg name="external_camera_z"     default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_Z 0.10)" />
-  <arg name="external_camera_roll"  default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_ROLL 0)" />
-  <arg name="external_camera_pitch" default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_PITCH 0)" />
-  <arg name="external_camera_yaw"   default="$(optenv SDE_UR5E_EXTERNAL_CAMERA_YAW -2.35619)" />
+  <!-- Resolve the robot description in the package that 'SDE_UR5E_DESCRIPTION_PACKAGE' names, which defaults to 'sde_ur5e_launch'. -->
+  <!-- A setup replaces it with its own package, which holds 'urdf/ur5e_<environment>.xacro', 'config/ur5e/ur5e_<environment>.srdf', and 'config/ur5e/ur5e_calibration.yaml'. -->
+  <arg name="description_package" default="$(eval optenv('SDE_UR5E_DESCRIPTION_PACKAGE', '') or 'sde_ur5e_launch')" />
+  <arg name="description_file" default="$(eval find(arg('description_package')) + '/urdf/ur5e_realworld.xacro')" />
 
   <param name="robot_description"
-    command="$(find xacro)/xacro '$(find sde_ur5e_launch)/urdf/ur5e_realworld.xacro'
-      kinematics_params:=$(arg kinematics_params)
-      external_camera_x:=$(arg external_camera_x)
-      external_camera_y:=$(arg external_camera_y)
-      external_camera_z:=$(arg external_camera_z)
-      external_camera_roll:=$(arg external_camera_roll)
-      external_camera_pitch:=$(arg external_camera_pitch)
-      external_camera_yaw:=$(arg external_camera_yaw)" />
+    command="$(find xacro)/xacro '$(arg description_file)'
+      kinematics_params:=$(arg kinematics_params)" />
 
 </launch>

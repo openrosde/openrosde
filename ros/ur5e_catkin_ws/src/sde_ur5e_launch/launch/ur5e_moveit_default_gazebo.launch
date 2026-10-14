@@ -5,6 +5,10 @@
   <!-- https://github.com/ros-industrial/universal_robot -->
   <!-- Upstream default: $(find ur5e_moveit_config)/launch/moveit_planning_execution.launch -->
 
+  <!-- Resolve the SRDF in the package that 'SDE_UR5E_DESCRIPTION_PACKAGE' names, which defaults to 'sde_ur5e_launch'. -->
+  <arg name="description_package" default="$(eval optenv('SDE_UR5E_DESCRIPTION_PACKAGE', '') or 'sde_ur5e_launch')" />
+  <arg name="semantic_description_file" default="$(eval find(arg('description_package')) + '/config/ur5e/ur5e_gazebo.srdf')" />
+
   <!-- MoveIt 'move_group' arguments. -->
   <arg name="debug" default="false" />
   <arg name="info" default="$(arg debug)" />
@@ -28,7 +32,7 @@
     to="/eff_joint_traj_controller/follow_joint_trajectory" />
 
   <!-- Load the SRDF, joint limits, and kinematics config. -->
-  <param name="robot_description_semantic" textfile="$(find sde_ur5e_launch)/config/ur5e/ur5e_gazebo.srdf" />
+  <param name="robot_description_semantic" textfile="$(arg semantic_description_file)" />
 
   <group ns="robot_description_planning">
     <rosparam command="load" file="$(find sde_ur5e_teleop)/config/ur5e_joint_limits.yaml" />

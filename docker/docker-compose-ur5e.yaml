@@ -10,6 +10,8 @@
 services:
   sde:
     environment:
+      # ROS package that holds the robot description, the SRDF, and the calibration of the UR5e.
+      - SDE_UR5E_DESCRIPTION_PACKAGE=${SDE_UR5E_DESCRIPTION_PACKAGE}
       # IP address of the Universal Robots UR5e Teach Pendant.
       - SDE_UR5E_TEACH_PENDANT_IP=${SDE_UR5E_TEACH_PENDANT_IP}
       # IP address of the OnRobot Compute Box (gripper controller).

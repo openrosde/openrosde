@@ -115,6 +115,21 @@ roslaunch sde_launch flexbe_app_default.launch
 
 Load the `UR5e Example Behavior` behavior in the FlexBE App and press **Start**.
 
+## Robot Description
+
+The bringup and MoveIt launch files load the robot description, the SRDF, and the calibration of the robot from the ROS package that `SDE_UR5E_DESCRIPTION_PACKAGE` names, which defaults to `sde_ur5e_launch`.
+A setup with another gripper, other cameras, or another robot replaces it with its own package, which holds the same files under the same names:
+
+| File | Content |
+| --- | --- |
+| `urdf/ur5e_gazebo.xacro` | Robot description of the simulated robot |
+| `urdf/ur5e_realworld.xacro` | Robot description of the real robot |
+| `config/ur5e/ur5e_gazebo.srdf` | MoveIt semantic description of the simulated robot |
+| `config/ur5e/ur5e_realworld.srdf` | MoveIt semantic description of the real robot |
+| `config/ur5e/ur5e_calibration.yaml` | Kinematics calibration extracted from the real robot with `ur_calibration` |
+
+The launch arguments `description_file`, `semantic_description_file`, and `kinematics_config` still override each file for one launch.
+
 ## Generate a URDF File from a Xacro File
 
 The robot description xacro files in `urdf/` can be expanded into a flat URDF for inspection or for tools (such as the URDF viewport) that do not run xacro themselves:

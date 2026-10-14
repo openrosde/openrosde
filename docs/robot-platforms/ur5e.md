@@ -65,10 +65,10 @@ SDE_UR5E_EXTERNAL_CAMERA_YAW=-2.35619
 ```
 
 These values are baked into the URDF at bringup time, so any change requires restarting the bringup launch file.
-Individual values can also be overridden at launch time, for example:
+Individual values can also be overridden for one launch, for example:
 
 ```shell
-roslaunch sde_ur5e_launch ur5e_bringup_default_realworld.launch external_camera_y:=-0.30
+SDE_UR5E_EXTERNAL_CAMERA_Y=-0.30 roslaunch sde_ur5e_launch ur5e_bringup_default_realworld.launch
 ```
 
 > [!NOTE]
