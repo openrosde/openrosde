@@ -81,11 +81,11 @@ Beside the template, `env/<setup>.repos` lists where to clone the repositories t
 repositories:
   openrosde-device-onrobot:
     type: git
-    url: https://github.com/openrosde/openrosde-device-onrobot.git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-device-onrobot.git
     version: v1.0.0
   openrosde-device-realsense:
     type: git
-    url: https://github.com/openrosde/openrosde-device-realsense.git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-device-realsense.git
     version: v1.2.0
 ```
 
