@@ -210,6 +210,7 @@ Each line of a pane file reads `<layouts> <window> <launch-file> [<arg:=value> .
 The windows are `robot` (bringup, RViz, MoveIt, and the secondary launches of the platform), `extra` (further launches of the platform), the windows of the extensions and the setup, `tools` (FlexBE app, rqt suite, ROS TCP Endpoint, `rosbridge`), `user` (user overlay starter and a container shell), and `host`.
 The session turns the mouse on and titles the terminal `OpenRoSDE (<session>)`, which `maximize-app-window.bash` matches like the Terminator title.
 Until Terminator is retired, keep `tmux/<platform>.panes` in step with `terminator/<platform>.config`, since the platform pane files were generated from the Terminator layouts.
+`tests/suites/test-terminator-parity.bash` checks that every layout of a Terminator config of the core runs the same launch files and arguments as the panes of that layout.
 
 ### Terminator Layouts
 
