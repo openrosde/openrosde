@@ -23,14 +23,20 @@ if [ "${CI_COMMIT_REF_SLUG}" = "dev" ] || [ "${CI_COMMIT_REF_SLUG}" = "main" ]; 
 else
   SDE_CI_BRANCH_TAG="branch-${CI_COMMIT_REF_SLUG}"
 fi
+
+# Name the tag of the target branch of a merge request, which 'SDE_CI_TARGET_BRANCH' gives, slugged as GitLab slugs a branch, so that a branch stacked on another starts from its images.
+SDE_CI_TARGET_TAG=""
+if [ -n "${SDE_CI_TARGET_BRANCH}" ] && [ "${SDE_CI_TARGET_BRANCH}" != "dev" ] && [ "${SDE_CI_TARGET_BRANCH}" != "main" ]; then
+  SDE_CI_TARGET_TAG="branch-$(echo "${SDE_CI_TARGET_BRANCH}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-63 | sed -e 's/^-*//' -e 's/-*$//')"
+fi
 SDE_CI_SOURCE_HASH="$(for SDE_CI_SOURCE_DIR in ${3//,/ }; do git rev-parse "HEAD:${SDE_CI_SOURCE_DIR}"; done | sha256sum | cut -c1-40)"
 echo "Image '$1' from '$3' has the source hash '${SDE_CI_SOURCE_HASH}'."
 
 ################################################################################
 
-# Reuse the image of the current branch, then of 'dev', then of 'main', if its source hash matches.
+# Reuse the image of the current branch, then of the target branch of the merge request, then of 'dev', then of 'main', if its source hash matches.
 # 'docker buildx imagetools' reads only the manifest and the configuration from the registry, and retags on the registry itself.
-for SDE_CI_CANDIDATE_TAG in ${SDE_CI_BRANCH_TAG} dev main; do
+for SDE_CI_CANDIDATE_TAG in ${SDE_CI_BRANCH_TAG} ${SDE_CI_TARGET_TAG} dev main; do
   SDE_CI_CANDIDATE_HASH="$(docker buildx imagetools inspect "${SDE_CI_IMAGE_NAME}:${SDE_CI_CANDIDATE_TAG}" --format '{{ index .Image.Config.Labels "com.coarobo.sde.source-hash" }}' 2>/dev/null)"
   if [ "${SDE_CI_CANDIDATE_HASH}" = "${SDE_CI_SOURCE_HASH}" ]; then
     echo "Reusing '${SDE_CI_IMAGE_NAME}:${SDE_CI_CANDIDATE_TAG}', whose sources are identical."

@@ -51,6 +51,7 @@ stages:
         - patches/**/*
         - ros/**/*
         - scripts/**/*
+        - tmux/**/*
 
 ################################################################################
 
@@ -74,7 +75,7 @@ generate-pipeline-job:
 
 ################################################################################
 
-# Run the child pipeline, which passes the branch to publish, if any, and the tag of the runner.
+# Run the child pipeline, which passes the branch to publish, if any, the target branch of a merge request, if any, and the tag of the runner.
 
 run-pipeline-job:
   stage: run-stage
@@ -86,3 +87,4 @@ run-pipeline-job:
     strategy: depend
   variables:
     SDE_CI_PUBLISH_TAG: $CI_COMMIT_BRANCH
+    SDE_CI_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME

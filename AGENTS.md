@@ -543,6 +543,7 @@ Then update `<platform>` in the files that still list the platforms:
 - Jobs hand their images to each other through the registry only, with Docker-in-Docker over TLS, so nothing is kept on the runner between jobs.
 - An image carries the label `com.coarobo.sde.source-hash`, the hash of the folders it is built from, and a job retags an identical `dev` or `main` image on the registry instead of building it again.
 - Every pipeline pushes its images as `pipeline-<id>`, and the pipelines of `dev` and `main` publish them as `dev` and `main`, the only tags the cleanup policy of the registry keeps.
+- The test job of a platform builds its Catkin workspaces in its image, then checks with `gitlab-ci/check-launch-files.bash` that every launch entry point of its `tmux/<platform>.panes` and of `tmux/sde.panes` resolves with `roslaunch --files`, which starts no node.
 - Every artifact expires, the Catkin logs of a failed test after a week and the generated child pipeline after a day.
 - Docker images are pushed to `SDE_DOCKER_REGISTRY`, `registry.gitlab.com/coarobo/sde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
 - Image traceability: each image embeds `SDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash, and the labels `org.opencontainers.image.revision` and `org.opencontainers.image.source`.
