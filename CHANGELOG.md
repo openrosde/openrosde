@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Parts: an extension of a company holds the units of several robots in `parts/<part>/`, each with the layout of the core, whose templates are listed like those of an extension, whose patches `scripts/update-git-submodules.bash` applies, and which `OPENROSDE_ROBOT_EXTENSIONS` activates by name, with an error when no folder or several folders hold that name (#38).
+- `tests/run.bash` runs the test suites of the loader and the entry scripts in a Debian container with no network, on scratch copies of the repository with every outside command stubbed (#38).
 - Extensions: a platform, a device, or other packages cloned from a repository of their own into `extensions/`, public or private, whose files `scripts/load-extension-paths.bash` finds by name on the host and inside the container, with `OPENROSDE_ROBOT_EXTENSIONS` naming the active ones and `docs/extensions.md` as the guide (#38).
 - Setups: a template `env/<setup>.env` that declares `OPENROSDE_ROBOT_SETUP=<setup>` with its platform and extensions, in the core or in an extension, which `SWITCH-ROBOT-SETUP.bash` selects after cloning the repositories of its `env/<setup>.repos` with `vcstool`, and whose own files and scripts take precedence over those of the platform (#38).
 - `SETUP-DEVEL-MACHINE.bash` installs `vcstool` (#38).
@@ -29,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The panes of a setup, `tmux/<setup>.panes`, replace those of its platform, as its Terminator layout does, and an active extension no longer adds a Docker Compose overlay or a pane file named after a platform or a setup that is not active (#38).
+- `SWITCH-ROBOT-SETUP.bash` fails, and leaves the setup unchanged, when its platform or an extension it lists is still missing after `vcs import`, and warns about a clone whose `origin` points to another repository than the `.repos` file, over HTTPS and SSH alike, with a `git remote set-url` command that would point it there (#38).
+- `scripts/list-robot-platforms.bash` and `scripts/list-robot-setups.bash` warn when two templates declare the same name, and name with an error a template whose `OPENROSDE_ROBOT_PLATFORM=` or `OPENROSDE_ROBOT_SETUP=` line is quoted or carries a comment, which OpenRoSDE never reads (#38).
 - The pipeline of `dev` or `main` after a merge reuses the images that the pipeline of the merged branch built, which it finds from the message of the merge commit, rather than building them again (#37).
 - **Breaking:** the SDE becomes OpenRoSDE in every name: `OPENROSDE_*` variables in place of `SDE_*`, `openrosde_*` ROS packages in `ros/openrosde_catkin_ws/` in place of `sde_*`, the `openrosde-base` image, the `openrosde` Docker Compose service and container, `openrosde-*` shell functions, the `OpenRoSDE (<session>)` terminal title, and `/root/OpenRoSDE` inside the container, so every image and container is built again, packages of the user overlay that depend on a renamed package take its new name, and a `.env.custom` with the old names keeps working with a warning that says how to rename them.
 - `SWITCH-ROBOT-PLATFORM.bash` switches to the default setup of the platform, its own template, which now declares `OPENROSDE_ROBOT_SETUP=<platform>`, and a `.env.custom` written earlier keeps its platform files (#38).
@@ -57,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A clone that is not active no longer supplies the Docker Compose overlay, the panes, the scripts, or the Terminator layout of the active platform or setup, since a file named after the setup now comes from the folder of the setup, and a file named after the platform from the folder of the platform, then the core (#38).
 - `build-catkin-workspaces.bash` ends with a failure status when a workspace fails to build, which `reset-catkin-workspaces.bash` passes on, so the CI and `openrosde-reset-catkin-workspaces` no longer report success over a broken package (#30).
 - `SWITCH-ROBOT-PLATFORM.bash` no longer offers the user overlay template `user` as a platform (#38).
 - `openrosde_launch:ros_tcp_endpoint_default.launch` runs the Unity ROS TCP Endpoint through `ros_tcp_endpoint_server.py`, which adds the `__remove_subscriber`, `__remove_publisher`, `__remove_ros_service`, and `__remove_unity_service` system commands missing from the ROS 1 endpoint `0.7.0`, so Coarobo Sightline no longer loses its connection for two seconds when it drops its last subscription on a topic, as when a sensor layer is turned off or an alignment starts.

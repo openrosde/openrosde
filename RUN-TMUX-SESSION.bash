@@ -2,6 +2,7 @@
 
 # This script runs multiple terminals in a 'tmux' session, with one window per group of panes that the platform, the active extensions, the setup, and the core declare.
 # Each part declares its panes in 'tmux/<name>.panes', one per line: '<layouts> <window> <launch-file> [<arg:=value> ...]'.
+# The panes of a setup, 'tmux/<setup>.panes', replace those of its platform, 'tmux/<platform>.panes', as its Terminator layout does.
 # '<layouts>' is '*' or a comma-separated list of layouts, the word 'shell' opens a shell inside the Docker container, and the word 'host' opens a shell on the Ubuntu development machine.
 # Every other pane runs 'RUN-DOCKER-CONTAINER.bash' with its launch file, which waits for a key before it launches anything.
 # If the session already runs, the script attaches to it instead of starting a second one.
@@ -54,24 +55,8 @@ wait $!
 
 ################################################################################
 
-# List the pane files in the order their windows appear: the platform, the active extensions and the setup in their order, then the core.
-OPENROSDE_TMUX_PANES_FILES=()
-OPENROSDE_PLATFORM_PANES_FILE="$(openrosde-find-extension-file "tmux/${OPENROSDE_ROBOT_PLATFORM}.panes")"
-if [ -n "${OPENROSDE_PLATFORM_PANES_FILE}" ]; then
-  OPENROSDE_TMUX_PANES_FILES+=("${OPENROSDE_PLATFORM_PANES_FILE}")
-fi
-for OPENROSDE_EXTENSION_ROOT_DIR in "${OPENROSDE_ACTIVE_ROOT_DIRS[@]:1}"; do
-  for OPENROSDE_EXTENSION_PANES_FILE in "${OPENROSDE_EXTENSION_ROOT_DIR}"/tmux/*.panes; do
-    if [ -f "${OPENROSDE_EXTENSION_PANES_FILE}" ] && [ "${OPENROSDE_EXTENSION_PANES_FILE}" != "${OPENROSDE_PLATFORM_PANES_FILE}" ]; then
-      OPENROSDE_TMUX_PANES_FILES+=("${OPENROSDE_EXTENSION_PANES_FILE}")
-    fi
-  done
-done
-OPENROSDE_TMUX_PANES_FILES+=("${OPENROSDE_ROOT_DIR}/tmux/openrosde.panes")
-
-################################################################################
-
 # Create the session with the panes of the selected layout: a window on the first pane of each window name, then a split for every further pane.
+# The pane files come from 'scripts/load-extension-paths.bash', in the order their windows appear: the setup or else the platform, the active extensions and the setup, then the core.
 for OPENROSDE_TMUX_PANES_FILE in "${OPENROSDE_TMUX_PANES_FILES[@]}"; do
   while read -r OPENROSDE_PANE_LAYOUTS OPENROSDE_PANE_WINDOW OPENROSDE_PANE_LAUNCH; do
     # Skip blank lines, comments, and the panes of other layouts.

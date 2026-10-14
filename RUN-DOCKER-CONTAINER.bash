@@ -34,20 +34,10 @@ fi
 # Build the list of Docker Compose files.
 OPENROSDE_COMPOSE_FILES="-f ./docker/docker-compose.yaml"
 
-# Add platform-specific overlay if available, from the core or from the extension that holds the platform.
-OPENROSDE_PLATFORM_COMPOSE_FILE="$(openrosde-find-extension-file "docker/docker-compose-${OPENROSDE_ROBOT_PLATFORM}.yaml")"
-if [ -n "${OPENROSDE_PLATFORM_COMPOSE_FILE}" ]; then
-  OPENROSDE_COMPOSE_FILES="${OPENROSDE_COMPOSE_FILES} -f ${OPENROSDE_PLATFORM_COMPOSE_FILE}"
-fi
-
-# Add every other overlay of the platform root directory (if it is an extension) and of the active extensions, in their order.
+# Add the overlay of the platform, then the overlays of the active extensions and the setup, in the order 'scripts/load-extension-paths.bash' lists them.
 # Relative paths in an overlay are resolved against './docker/' of the core, as Docker Compose resolves them against the first file.
-for OPENROSDE_EXTENSION_ROOT_DIR in "${OPENROSDE_ACTIVE_ROOT_DIRS[@]:1}"; do
-  for OPENROSDE_EXTENSION_COMPOSE_FILE in "${OPENROSDE_EXTENSION_ROOT_DIR}"/docker/docker-compose*.yaml; do
-    if [ -f "${OPENROSDE_EXTENSION_COMPOSE_FILE}" ] && [ "${OPENROSDE_EXTENSION_COMPOSE_FILE}" != "${OPENROSDE_PLATFORM_COMPOSE_FILE}" ]; then
-      OPENROSDE_COMPOSE_FILES="${OPENROSDE_COMPOSE_FILES} -f ${OPENROSDE_EXTENSION_COMPOSE_FILE}"
-    fi
-  done
+for OPENROSDE_COMPOSE_OVERLAY_FILE in "${OPENROSDE_COMPOSE_OVERLAY_FILES[@]}"; do
+  OPENROSDE_COMPOSE_FILES="${OPENROSDE_COMPOSE_FILES} -f ${OPENROSDE_COMPOSE_OVERLAY_FILE}"
 done
 
 # Add the user overlay (always present, ships with OpenRoSDE).
