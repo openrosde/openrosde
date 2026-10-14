@@ -136,6 +136,8 @@ Key configuration variables:
 | `OPENROSDE_ROBOT_EXTENSIONS` | Active extensions in `extensions/`, separated by spaces (see [Extensions](extensions.md)) | *(empty)* |
 | `OPENROSDE_DOCKER_REGISTRY` | Registry of the base and platform images | `registry.gitlab.com/coarobo/sde` |
 | `OPENROSDE_DOCKER_IMAGE_TAG` | Tag of the base and platform images, `main` or `dev` (`auto` derives it from the branch) | `auto` |
+| `OPENROSDE_DOCKER_BUILD_FALLBACK` | Images that `BUILD-DOCKER-IMAGE.bash` builds locally when their pull fails: `true` for the base and platform images, `platform` for the platform image alone, or `false` for neither | `true` |
+| `OPENROSDE_QUIET` | Leaves out the list of every `OPENROSDE_*` variable that the entry scripts print with `true`, whose passwords, tokens, and secrets always print as `<redacted>` | `false` |
 | `OPENROSDE_ROS_MASTER_HOSTNAME` | ROS master host name or IP | `localhost` |
 | `OPENROSDE_ROS_CLIENT_IP` | Ubuntu development machine IP (optional) | *(empty)* |
 | `OPENROSDE_ROBOT_HOSTNAME` | Robot mDNS host name for auto-discovery | `turtlebot3.local` |

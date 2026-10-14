@@ -23,8 +23,9 @@ services:
   openrosde-platform:
     image: ${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_TAG}
     build:
-      context: ../
-      # The Dockerfile of the platform lives in the core or in an extension, as 'scripts/load-openrosde-env.bash' resolves it.
+      # The platform builds from the folder that holds it, the core, an extension, or a part, so that its 'COPY' instructions read from there, as 'scripts/load-extension-paths.bash' resolves it.
+      context: ${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}
+      # The Dockerfile of the platform, relative to that folder, as 'scripts/load-openrosde-env.bash' derives it.
       dockerfile: ./${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE}
       args:
         - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
@@ -48,7 +49,8 @@ services:
       - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
       # Pass the OpenRoSDE root directory path.
       - OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}
-    image: ${OPENROSDE_DOCKER_REGISTRY}/user-devel:latest
+    # The user overlay is built locally only, under 'openrosde-local/<setup>/', which no 'docker push' can publish, as 'scripts/load-openrosde-env.bash' names it.
+    image: ${OPENROSDE_LOCAL_IMAGE_PREFIX}/user-devel:latest
     build:
       context: ../
       dockerfile: ./docker/user-devel/Dockerfile

@@ -176,6 +176,7 @@ SWITCH-ROBOT-SETUP.bash                  # Setup switching script, which clones 
 scripts/
   load-openrosde-env.bash                      # Shared environment loader.
   load-extension-paths.bash              # Resolves the files of the platform and the extensions.
+  build-extension-layers.bash            # Builds the Docker layers of the active extensions.
   list-robot-platforms.bash              # Lists the platforms found by name.
   list-robot-setups.bash                 # Lists the setups found by name.
   <platform>/                            # Optional platform scripts (shell, bringup, Chrony).

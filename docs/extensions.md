@@ -90,7 +90,8 @@ extensions/<extension>/
 - The Catkin workspaces are built and sourced in this order: `ros/openrosde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `OPENROSDE_ROBOT_EXTENSIONS`, the workspaces of the setup, then `ros/user_catkin_ws` of the core.
 - `RUN-DOCKER-CONTAINER.bash` adds the overlay of the platform, then every `docker/docker-compose*.yaml` of the active folders, apart from those named after a platform or a setup that is not active.
 - `RUN-TMUX-SESSION.bash` opens the panes of the setup, or else of the platform, whose own `tmux/<platform>.panes` the panes of the setup replace, then those of every `tmux/*.panes` of the active folders, apart from those named after a platform or a setup that is not active, then those of the core, and a setup can declare a layout of its own, such as `lab-demo`, for its demo.
-- `BUILD-DOCKER-IMAGE.bash` builds every `docker/<name>-devel/Dockerfile` of the active extensions whose `<name>` is not a platform, each on top of the previous one, between the platform image and the user overlay, as the next section shows.
+- `BUILD-DOCKER-IMAGE.bash` builds the image of the platform from the folder that holds the platform, so that the `COPY` instructions of its `docker/<platform>-devel/Dockerfile` read from there, as those of a layer do.
+- `BUILD-DOCKER-IMAGE.bash` builds every `docker/<name>-devel/Dockerfile` of the active extensions whose `<name>` is not a platform, each on top of the previous one, between the platform image and the user overlay, as the section on Docker layers below shows.
 - `bash ./scripts/update-git-submodules.bash` updates the Git submodules of the core and of every cloned extension, and applies the `patches/` of each repository and of each part to its own submodules.
 
 > [!NOTE]
@@ -111,6 +112,8 @@ OPENROSDE_ROBOT_EXTENSIONS="openrosde-device-onrobot openrosde-device-realsense"
 OpenRoSDE finds platforms and setups by reading the lines `OPENROSDE_ROBOT_PLATFORM=<platform>` and `OPENROSDE_ROBOT_SETUP=<setup>` of each template as they are, without running it.
 Write each of them alone on its line, with no quotes, no spaces, and no trailing comment, while `OPENROSDE_ROBOT_EXTENSIONS` takes quotes around several names.
 `scripts/list-robot-platforms.bash` and `scripts/list-robot-setups.bash` name every template that breaks this rule with an error, and warn when two templates declare the same name, in which case OpenRoSDE uses the first one in the order of the core, then of every extension followed by its parts.
+Name a setup in lowercase letters and digits separated by dashes, as `my-lab-ur5e-bench` is, since the name of the setup also names its local Docker images, `openrosde-local/<setup>/`, where Docker takes no uppercase letter.
+OpenRoSDE lowercases the names of the setup and of its layers in those images, and `scripts/load-openrosde-env.bash` prints an error for a setup name that Docker refuses even so.
 
 The template of every platform is its default setup, named after the platform, so `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` and `bash ./SWITCH-ROBOT-SETUP.bash <platform>` do the same.
 
@@ -134,6 +137,16 @@ Run `vcs import --input <setup>.repos extensions` to bring the cloned ones to th
 The switch warns about a clone whose `origin` points to another repository than the URL that the file lists, which `vcs import` would leave as it is, and prints a `git remote set-url` command that would point it there.
 A clone over SSH of a repository that the file lists over HTTPS, or the reverse, is the same repository and raises no warning.
 It fails, and leaves the setup unchanged, when the platform of the setup or a name of its `OPENROSDE_ROBOT_EXTENSIONS` is still missing once the repositories are cloned.
+
+A setup may also pin the version of OpenRoSDE it was tested with, as a release tag or a branch:
+
+```shell
+OPENROSDE_CORE_VERSION=v3.0.0
+```
+
+`bash ./SWITCH-ROBOT-SETUP.bash <setup>` then warns when OpenRoSDE is checked out at another version, neither a tag of the checked out commit nor the checked out branch, and prints the `git checkout` command of the pinned version.
+The switch still succeeds, since the setup may well run on another version.
+A checkout of a release tag still pulls the `main` images, since the registry holds only the `main` and `dev` images, so build the images of that release locally with `bash ./BUILD-DOCKER-IMAGE.bash local` when the setup needs them.
 
 The folder that holds the setup is always active, after the extensions of `OPENROSDE_ROBOT_EXTENSIONS`, so its workspace builds last, before the user workspace.
 A file named after the setup takes precedence over the file named after its platform, such as `scripts/<setup>/bringup-ros-robot.bash` over `scripts/<platform>/bringup-ros-robot.bash`, `terminator/<setup>.config` over `terminator/<platform>.config`, or `tmux/<setup>.panes` over `tmux/<platform>.panes`, whose panes it replaces.
@@ -166,8 +179,11 @@ openrosde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel 
 ```
 
 - Each layer is built from the folder of its extension, so its `COPY` instructions read from there.
-- The layers are always built locally by `BUILD-DOCKER-IMAGE.bash`, in both its default and `local` modes, and never pushed, like the user overlay, so the layers of a private extension never leave the machine.
-- The CI of OpenRoSDE builds no layer, since layers belong to a setup.
+- The layers are always built locally by `scripts/build-extension-layers.bash`, which `BUILD-DOCKER-IMAGE.bash` runs in both its default and `local` modes, and never pushed, like the user overlay, so the layers of a private extension never leave the machine.
+- Each layer is tagged `openrosde-local/<setup>/<name>-devel:latest`, and the user overlay `openrosde-local/<setup>/user-devel:latest`, rather than with the name of the registry.
+  A name without a registry host points to Docker Hub, where a repository has a namespace and a name without `/`, so no repository of three components can exist there, and a `docker push` of a private layer fails with `push access denied` rather than publishing it.
+  Two setups that share a device also never overwrite the layer of each other.
+- A CI job builds the layers of a setup with the same script in its Docker-in-Docker daemon, on top of the platform image that it pulls, and pushes none of them, while the CI of OpenRoSDE itself builds no layer yet, since layers belong to a setup.
 
 ## 🚀 Using an Extension
 
@@ -212,8 +228,12 @@ openrosde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel 
 | `OPENROSDE_ROBOT_SETUP` | The platform | Active setup, named after its template `env/<setup>.env` |
 | `OPENROSDE_ROBOT_EXTENSIONS` | Empty | Folder names of the active extensions in `extensions/` or of their parts, separated by spaces, in the order their workspaces build |
 | `OPENROSDE_DOCKER_REGISTRY` | `registry.gitlab.com/coarobo/sde` | Registry where the base and platform images are pulled from and pushed to |
+| `OPENROSDE_DOCKER_BUILD_FALLBACK` | `true` | Images that `BUILD-DOCKER-IMAGE.bash` builds locally when their pull fails: `true` for the base and platform images, `platform` for the platform image alone, or `false` for neither |
+| `OPENROSDE_QUIET` | `false` | Leaves out the list of every `OPENROSDE_*` variable that the entry scripts print, whose passwords, tokens, and secrets always print as `<redacted>` |
+| `OPENROSDE_CORE_VERSION` | Empty | Version of OpenRoSDE that a setup template pins, as a release tag or a branch, which `SWITCH-ROBOT-SETUP.bash` compares with the checkout |
 
 A platform image that the registry does not hold, such as the image of a private platform, is built locally by `BUILD-DOCKER-IMAGE.bash`, which falls back to a build when the pull fails.
+A CI job sets `OPENROSDE_DOCKER_BUILD_FALLBACK=platform` in `.env.custom` to build a private platform but never the base image, which takes hours, or `false` to fail as soon as a pull fails.
 Set `OPENROSDE_DOCKER_REGISTRY` in `.env.custom` to use a registry of your own.
 
 ## 🛣️ What Comes Next

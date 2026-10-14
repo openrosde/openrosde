@@ -110,6 +110,7 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
 > The latter process is slow and can take up to 1 hour.
 > In both cases, avoid using a Wi-Fi connection to greatly accelerate the process.
 > Note that future local builds will reuse cached data whenever possible.
+> Set `OPENROSDE_DOCKER_BUILD_FALLBACK=false` in `.env.custom` to stop with an error rather than build the image locally when its download fails, as a CI job should.
 
 ## 🚀 Step 4: Run the Docker Container
 
