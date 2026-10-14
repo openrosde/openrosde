@@ -147,6 +147,7 @@ function openrosde-test-print-paths () {
     echo "panes: ${OPENROSDE_TMUX_PANES_FILES[*]}"
     echo "user-parent: ${OPENROSDE_USER_PARENT_IMAGE}"
     echo "platform-dockerfile: ${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE}"
+    echo "local-prefix: ${OPENROSDE_LOCAL_IMAGE_PREFIX}"
     for OPENROSDE_TEST_SETUP_FILE in "scripts/%s/bringup-ros-robot.bash" "scripts/%s/restart-chrony-service.bash" "scripts/%s/initialize-bash-shell.bash" "terminator/%s.config" "tmux/%s.panes"; do
       echo "setup-file ${OPENROSDE_TEST_SETUP_FILE}: $(openrosde-find-setup-file "${OPENROSDE_TEST_SETUP_FILE}")"
     done

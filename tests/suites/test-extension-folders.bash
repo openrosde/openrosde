@@ -67,9 +67,9 @@ openrosde-test-check "activates the core, the platform, and the device, but not 
 openrosde-test-check "builds the workspaces of the core, the platform, the device, then the user" \
   "./ros/openrosde_catkin_ws ./${OPENROSDE_TEST_FOO_DIR}/ros/foo_catkin_ws ./${OPENROSDE_TEST_BAR_DIR}/ros/bar_catkin_ws ./ros/user_catkin_ws" \
   "$(openrosde-test-print-path workspaces)"
-openrosde-test-check "finds the Dockerfile of the platform in the extension" \
-  "${OPENROSDE_TEST_FOO_DIR}/docker/foo-devel/Dockerfile" \
-  "$(openrosde-test-print-path platform-dockerfile)"
+openrosde-test-check "finds the Dockerfile of the platform in the extension, relative to the extension" \
+  "$(printf '%s\n' "platform-root: ./${OPENROSDE_TEST_FOO_DIR}" "platform-dockerfile: docker/foo-devel/Dockerfile")" \
+  "$(openrosde-test-print-paths | grep -E '^(platform-root|platform-dockerfile):')"
 openrosde-test-check "finds the shell script of the platform in the extension" \
   "./${OPENROSDE_TEST_FOO_DIR}/scripts/foo/initialize-bash-shell.bash" \
   "$(openrosde-test-print-path 'setup-file scripts/%s/initialize-bash-shell.bash')"
@@ -91,7 +91,7 @@ openrosde-test-check "opens the Terminator layout of the platform" \
   "$(openrosde-test-print-calls | grep '^terminator ')"
 openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash local
 openrosde-test-check "builds the layer of the device on the platform image, and none for the platform" \
-  "docker build --build-arg OPENROSDE_PARENT_IMAGE=${OPENROSDE_TEST_REGISTRY}/foo-devel:dev --build-arg OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=abc1234 -f ./${OPENROSDE_TEST_BAR_DIR}/docker/bar-devel/Dockerfile -t ${OPENROSDE_TEST_REGISTRY}/bar-devel:latest ./${OPENROSDE_TEST_BAR_DIR}" \
+  "docker build --build-arg OPENROSDE_PARENT_IMAGE=${OPENROSDE_TEST_REGISTRY}/foo-devel:dev --build-arg OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=abc1234 -f ./${OPENROSDE_TEST_BAR_DIR}/docker/bar-devel/Dockerfile -t openrosde-local/foo/bar-devel:latest ./${OPENROSDE_TEST_BAR_DIR}" \
   "$(openrosde-test-print-calls | grep '^docker build')"
 
 # Check the reset of the workspaces, as inside the container.

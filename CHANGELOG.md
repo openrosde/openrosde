@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scripts/build-extension-layers.bash` builds the Docker layers of the active extensions on the parent image it is given, for `BUILD-DOCKER-IMAGE.bash` and for a CI job alike (#38).
 - Parts: an extension of a company holds the units of several robots in `parts/<part>/`, each with the layout of the core, whose templates are listed like those of an extension, whose patches `scripts/update-git-submodules.bash` applies, and which `OPENROSDE_ROBOT_EXTENSIONS` activates by name, with an error when no folder or several folders hold that name (#38).
 - `tests/run.bash` runs the test suites of the loader and the entry scripts in a Debian container with no network, on scratch copies of the repository with every outside command stubbed (#38).
 - Extensions: a platform, a device, or other packages cloned from a repository of their own into `extensions/`, public or private, whose files `scripts/load-extension-paths.bash` finds by name on the host and inside the container, with `OPENROSDE_ROBOT_EXTENSIONS` naming the active ones and `docs/extensions.md` as the guide (#38).
@@ -31,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The Docker layers of the extensions and the user overlay are tagged `openrosde-local/<setup>/<name>-devel:latest` and `openrosde-local/<setup>/user-devel:latest` in place of the name of the registry, so two setups that share a device no longer overwrite each other's layer, and the next `bash ./BUILD-DOCKER-IMAGE.bash` builds them under their new names, after which `docker image rm` can remove the old `registry.gitlab.com/coarobo/sde/user-devel:latest` (#38).
+- `scripts/load-openrosde-env.bash` reads the platforms that the templates declare rather than running `scripts/list-robot-platforms.bash`, whose warnings every entry script printed (#38).
 - The panes of a setup, `tmux/<setup>.panes`, replace those of its platform, as its Terminator layout does, and an active extension no longer adds a Docker Compose overlay or a pane file named after a platform or a setup that is not active (#38).
 - `SWITCH-ROBOT-SETUP.bash` fails, and leaves the setup unchanged, when its platform or an extension it lists is still missing after `vcs import`, and warns about a clone whose `origin` points to another repository than the `.repos` file, over HTTPS and SSH alike, with a `git remote set-url` command that would point it there (#38).
 - `scripts/list-robot-platforms.bash` and `scripts/list-robot-setups.bash` warn when two templates declare the same name, and name with an error a template whose `OPENROSDE_ROBOT_PLATFORM=` or `OPENROSDE_ROBOT_SETUP=` line is quoted or carries a comment, which OpenRoSDE never reads (#38).
@@ -62,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The image of a platform held by an extension or a part builds from the folder of that platform, as the Docker layers do, so the `COPY` instructions of its Dockerfile read from there rather than from the core (#38).
 - A clone that is not active no longer supplies the Docker Compose overlay, the panes, the scripts, or the Terminator layout of the active platform or setup, since a file named after the setup now comes from the folder of the setup, and a file named after the platform from the folder of the platform, then the core (#38).
 - `build-catkin-workspaces.bash` ends with a failure status when a workspace fails to build, which `reset-catkin-workspaces.bash` passes on, so the CI and `openrosde-reset-catkin-workspaces` no longer report success over a broken package (#30).
 - `SWITCH-ROBOT-PLATFORM.bash` no longer offers the user overlay template `user` as a platform (#38).
@@ -73,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- No `docker push` can publish a local Docker layer or the user overlay any more, since their names no longer carry the name of the public registry, where one push of a maintainer logged in to it would have published a private layer (#38).
 - `BUILD-DOCKER-IMAGE.bash` no longer logs in to the GitLab registry with a read-only deploy token written in the script, since the registry of the public project serves its images to anyone, and that token is revoked.
 
 ## [2.12.0] - 2026-07-09

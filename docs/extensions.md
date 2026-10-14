@@ -90,7 +90,8 @@ extensions/<extension>/
 - The Catkin workspaces are built and sourced in this order: `ros/openrosde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `OPENROSDE_ROBOT_EXTENSIONS`, the workspaces of the setup, then `ros/user_catkin_ws` of the core.
 - `RUN-DOCKER-CONTAINER.bash` adds the overlay of the platform, then every `docker/docker-compose*.yaml` of the active folders, apart from those named after a platform or a setup that is not active.
 - `RUN-TMUX-SESSION.bash` opens the panes of the setup, or else of the platform, whose own `tmux/<platform>.panes` the panes of the setup replace, then those of every `tmux/*.panes` of the active folders, apart from those named after a platform or a setup that is not active, then those of the core, and a setup can declare a layout of its own, such as `lab-demo`, for its demo.
-- `BUILD-DOCKER-IMAGE.bash` builds every `docker/<name>-devel/Dockerfile` of the active extensions whose `<name>` is not a platform, each on top of the previous one, between the platform image and the user overlay, as the next section shows.
+- `BUILD-DOCKER-IMAGE.bash` builds the image of the platform from the folder that holds the platform, so that the `COPY` instructions of its `docker/<platform>-devel/Dockerfile` read from there, as those of a layer do.
+- `BUILD-DOCKER-IMAGE.bash` builds every `docker/<name>-devel/Dockerfile` of the active extensions whose `<name>` is not a platform, each on top of the previous one, between the platform image and the user overlay, as the section on Docker layers below shows.
 - `bash ./scripts/update-git-submodules.bash` updates the Git submodules of the core and of every cloned extension, and applies the `patches/` of each repository and of each part to its own submodules.
 
 > [!NOTE]
@@ -166,8 +167,11 @@ openrosde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel 
 ```
 
 - Each layer is built from the folder of its extension, so its `COPY` instructions read from there.
-- The layers are always built locally by `BUILD-DOCKER-IMAGE.bash`, in both its default and `local` modes, and never pushed, like the user overlay, so the layers of a private extension never leave the machine.
-- The CI of OpenRoSDE builds no layer, since layers belong to a setup.
+- The layers are always built locally by `scripts/build-extension-layers.bash`, which `BUILD-DOCKER-IMAGE.bash` runs in both its default and `local` modes, and never pushed, like the user overlay, so the layers of a private extension never leave the machine.
+- Each layer is tagged `openrosde-local/<setup>/<name>-devel:latest`, and the user overlay `openrosde-local/<setup>/user-devel:latest`, rather than with the name of the registry.
+  A name without a registry host points to Docker Hub, where a repository has a namespace and a name without `/`, so no repository of three components can exist there, and a `docker push` of a private layer fails with `push access denied` rather than publishing it.
+  Two setups that share a device also never overwrite the layer of each other.
+- A CI job builds the layers of a setup with the same script in its Docker-in-Docker daemon, on top of the platform image that it pulls, and pushes none of them, while the CI of OpenRoSDE itself builds no layer yet, since layers belong to a setup.
 
 ## 🚀 Using an Extension
 
