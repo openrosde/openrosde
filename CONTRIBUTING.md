@@ -229,6 +229,7 @@ cp terminator/cobotta.config terminator/<platform>.config
 ```
 
 Update the layout name pattern to `openrosde-<platform>-term-11-<variant>-<environment>` and update the `roslaunch` commands in each terminal pane.
+For a platform of the core, `tests/suites/test-terminator-parity.bash` checks that each layout runs the same launch files and arguments as the panes of that layout.
 
 ### Step 7: Create the Platform Documentation
 
@@ -289,6 +290,9 @@ roslaunch openrosde_<platform>_launch <platform>_rviz_default.launch
 
 # 6. Check for hardcoded paths:
 grep -rn '/root/OpenRoSDE' --include='*.bash' --include='*.yaml' --include='*.yml' --include='Dockerfile' .
+
+# 7. Run the test suites on the host, which also check that the 'tmux' panes match the Terminator layouts:
+bash ./tests/run.bash
 ```
 
 ### Step 11: Submit a Merge Request
