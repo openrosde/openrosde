@@ -5,7 +5,7 @@ This file contains instructions for AI coding agents working on this project.
 ## Project Overview
 
 This project is OpenRoSDE, read "Open Robotic SDE", the open-source reference implementation of the Software Development Environment (SDE) for collaborative robotics research (see `README.md` for details).
-It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch, Sciurus17, COBOTTA, HSR) through a shared configuration system, with every platform but the UR5e in a repository of its own, cloned into `extensions/`.
+It provides a containerized, multi-platform development environment based on Docker, ROS, and Gazebo that supports multiple robot platforms (TurtleBot3, UR5e, Fetch, Sciurus17, COBOTTA, HSR) through a shared configuration system, with every platform in a repository of its own, cloned into `extensions/`.
 It is being split into a platform-agnostic core with extensions, as [OpenRoSDE Split](#openrosde-split) describes, so read that section before changing anything.
 
 ### Tool Chain
@@ -38,12 +38,14 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
 - The core keeps the entry scripts, `scripts/`, `gitlab-ci/`, the `openrosde-base` image, the generic Docker Compose files, and `ros/openrosde_catkin_ws/` with FlexBE and `openrosde_launch`.
 - Every file named after a platform (`env/<platform>.env`, `docker/<platform>-devel/`, `docker/docker-compose-<platform>.yaml`, `ros/<platform>_catkin_ws/`, `terminator/<platform>.config`, `docs/robot-platforms/<platform>.md`, and its patches) moves to the repository of that platform, or to a device or a setup where it belongs to one.
 - A platform is one robot as sold, with its public drivers, and each canonical robot moves to an `openrosde-platform-<name>` repository: `turtlebot3`, `fetch`, `sciurus17`, `cobotta`, `hsr`, and the plain Universal Robots UR5e.
-  The first five live in `https://gitlab.com/coarobo/openrosde/openrosde-platform-<name>` since #40, each starting from one import commit that names the commit of this repository it comes from, and the UR5e follows.
+  All six live in `https://gitlab.com/coarobo/openrosde/openrosde-platform-<name>` since #40, each starting from one import commit that names the commit of this repository it comes from.
+  The UR5e there is the plain robot, fixed to `world` with nothing on its flange, whose description package a setup replaces to mount its devices, as `docs/robot-platforms/ur5e.md` of `openrosde-platform-ur5e` describes.
+  The package that `OPENROSDE_UR5E_DESCRIPTION_PACKAGE` names holds `urdf/ur5e_<environment>.xacro`, `config/ur5e/ur5e_<environment>.srdf`, `config/ur5e/ur5e_calibration.yaml`, and `config/rviz/ur5e_rviz_default.rviz`, and its xacro files call the macro `openrosde_ur5e` of `urdf/inc/ur5e_macro.xacro` of `openrosde_ur5e_launch`, so the robot is described once for every setup.
 - A device is one upstream driver of hardware anyone can buy, such as a gripper, a camera, or an input device, with every model that driver supports, which names no robot and moves to a public `openrosde-device-<driver>` repository: first `openrosde-device-onrobot` for the OnRobot RG and VG grippers with the gripper action shim, `openrosde-device-realsense` for the RealSense cameras, and `openrosde-device-spacenav` for the 3Dconnexion SpaceMouse.
 - A setup is one installation of a robot: it pins its platform, devices, and extensions, mounts the devices in the robot description, and holds the calibration, addresses, serial numbers, poses, layouts, and runbook of that installation alone.
   Each platform ships a default setup with the plain robot, and the user selects a setup rather than a platform.
 - A setup is a template that any extension holds, named `<owner>-<platform>-<place>`, so one private extension of a company can hold its packages and the setups of all its robots.
-- The Coarobo UR5e bench becomes the first setup, in the private extension of Coarobo, beside the bindings of Coarobo Sightline and Coarobo Viewport and the FastSAM segmentation, and the setup of a client takes the same shape in a private extension of that client.
+- The Coarobo UR5e bench is the first setup, in the private extension of Coarobo, beside the bindings of Coarobo Sightline and Coarobo Viewport and the FastSAM segmentation, which have all left the core and its user layer, and the setup of a client takes the same shape in a private extension of that client.
 - The Unity ROS TCP Endpoint leaves the core once Coarobo Sightline reaches robots through `rosbridge`, and moves with the Sightline bindings until then.
 - `openrosde_launch:rosbridge_server_default.launch` stays in the core, since any web or Unity client can use it.
 - The user layer stays in the core as the template every extension starts from.
@@ -54,8 +56,7 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
 ### Rules During the Split
 
 - Keep every platform building and running on ROS 1 at every step, since the Coarobo UR5e bench runs its demos from `dev`.
-- Add no new Coarobo setup or product binding to the core or to a canonical platform layer.
-  Until its repository exists, put it in the user layer, or in the UR5e layer for the bench, and add it to the matching extraction issue.
+- Add no Coarobo setup or product binding to the core, to a platform, or to a device, since they live in the private extension of Coarobo.
 - Design every mechanism so that a private setup or extension, cloned from a private repository of a client, works exactly as a public one does.
   Hard-code no Git group, registry, or host, and give the setups and extensions of Coarobo no special case.
 - Keep `LICENSE` and the `<license>` of every `package.xml` of this repository on MIT until the move to GitHub, and change them only as part of that step.
@@ -64,20 +65,18 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
 
 ### Interfaces Used by Coarobo Products
 
-Coarobo Sightline and Coarobo Viewport reach the robot through the interfaces below, started by the files named beside them.
+Coarobo Sightline and Coarobo Viewport reach the robot through the interfaces below, which the core and the public platforms start from the files named beside them.
 The contract is kept in `Docs/robot-interface.md` of `coarobo/coarobo-sightline`, a private repository, and in the maintainers' `Shin-Coarobo OpenRoSDE` note.
 Record a change of a topic name, a message type, a port, or the launch file that starts one of them in both places before making it.
 
 - `/joint_states`, `/tf`, `/tf_static`, and `clock`: the bringup of each platform.
-- `/servo_server/delta_twist_cmds`: MoveIt Servo, started by `openrosde_ur5e_teleop/launch/ur5e_teleop.launch`.
-- `/gripper_controller/gripper_action`: the bench shim `ur5e_onrobot_rg_control_gripper_action.py` over `/onrobot_rg/set_command`.
-- `/wrist_camera/depth/color/points_downsampled` and `/wrist_camera/color/image_raw/compressed_throttled`: `openrosde_ur5e_teleop/launch/ur5e_teleop_sightline.launch`.
-- `/cmd_vel` for Coarobo Viewport: `ur5e_moveit_servo_viewport.py` of `ur5e_teleop_viewport.launch`.
-- The camera streams of Coarobo Viewport: `openrosde_user_launch/launch/viewport_streams_ur5e.launch` and `viewport_demo_ur5e.launch`.
+- `/servo_server/delta_twist_cmds`: MoveIt Servo, started by `openrosde_ur5e_teleop/launch/ur5e_teleop.launch` of `openrosde-platform-ur5e`, which `ur5e_teleop_default_<environment>.launch` includes.
 - `fetch_ee_cmd_vel`, relayed to the Cartesian twist controller of the Fetch: `openrosde_fetch_teleop`, started by `fetch_teleop_default.launch`, both in `openrosde-platform-fetch`.
 - Port `10000` of the Unity ROS TCP Endpoint `0.7.0`: `openrosde_launch:ros_tcp_endpoint_default.launch`.
 - Port `9090` of `rosbridge`: `openrosde_launch:rosbridge_server_default.launch`.
 - The robot model: `robot_description` through `/rosapi/get_param`, and its meshes as GLB files through the service `/file_server/get_file` of the ROS# node `file_server` that `rosbridge_server_default.launch` starts, as [Robot Models](docs/robot-models.md) describes.
+
+The other interfaces of the products, such as the gripper action, the camera relays, and the bridge of `/cmd_vel` of the UR5e bench, are started by the setups that use them, from public devices and the private bindings of Coarobo, and their contract is kept in the same two places.
 
 ### Parallel Work
 
@@ -89,20 +88,17 @@ Record a change of a topic name, a message type, a port, or the launch file that
 
 - `docker/`: Docker images and container scripts.
   - `openrosde-base/`: Shared base image (`Dockerfile`, helper `scripts/`).
-  - `ur5e-devel/`: UR5e platform image.
   - `user-devel/`: User overlay image (Layer 3, runtime container; inherits from `${OPENROSDE_ROBOT_PLATFORM}-devel`, built locally only).
   - `docker-compose.yaml`: Base service definitions (defines `openrosde-base`, `openrosde-platform`, and `openrosde`).
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
-  - `docker-compose-ur5e.yaml`: UR5e platform overlay.
   - `docker-compose-user.yaml`: User overlay (always loaded by `RUN-DOCKER-CONTAINER.bash`).
 - `ros/`: ROS Catkin workspaces.
   - `openrosde_catkin_ws/`: Shared workspace (FlexBE packages, `ros_tcp_endpoint`, `openrosde_launch/`).
-  - `ur5e_catkin_ws/`: UR5e workspace (`openrosde_ur5e_launch/`, `openrosde_ur5e_teleop/`, `openrosde_ur5e_behaviors/`).
-  - `user_catkin_ws/`: User overlay workspace (`openrosde_user_launch/`, `openrosde_user_behaviors/`). Platform-agnostic, apart from the Coarobo demo work (FastSAM and the Coarobo Viewport streams of the UR5e) that waits there for its extraction.
+  - `user_catkin_ws/`: User overlay workspace (`openrosde_user_launch/`, `openrosde_user_behaviors/`). Platform-agnostic.
 - `scripts/`: Shared shell scripts (`load-openrosde-env.bash`, `load-openrosde-settings.bash`, `load-extension-paths.bash`, `build-extension-layers.bash`, `list-robot-platforms.bash`, `list-robot-setups.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each setup or platform in `scripts/<setup or platform>/`.
 - `patches/`: Patches of the Git submodules, mirroring the submodule paths.
-- `env/`: Environment template of the platform of the core (`ur5e.env`) plus `user.env` (user overlay reference template).
+- `env/`: `user.env` (user overlay reference template), while every platform holds its own template in its repository.
 - `extensions/`: Extensions, each a Git repository cloned into `extensions/<extension>/` and ignored by the Git of the core, apart from `README.md`, such as the canonical platforms `openrosde-platform-<platform>/` with the layout of the core.
   An extension of a company may split the units of several robots into parts, `extensions/<extension>/parts/<part>/`, each with the layout of the core and activated by its name.
 - `docs/`: Documentation.
@@ -110,9 +106,8 @@ Record a change of a topic name, a message type, a port, or the launch file that
   - `advanced-usage.md`: Advanced features and configuration.
   - `user-overlay.md`: User overlay (Layer 3) usage and customization.
   - `extensions.md`: Extensions cloned into `extensions/`, and how OpenRoSDE finds their files.
-  - `robot-platforms/`: Documentation of the platform of the core (`ur5e.md`), while every other platform documents itself in `docs/robot-platforms/<platform>.md` of its own repository.
-- `tmux/`: Pane files of the `tmux` sessions: `openrosde.panes` for the core and `<platform>.panes` for each platform.
-- `terminator/`: Terminator layout configuration of the platform of the core (`ur5e.config`), and the injected copies of `RUN-TERMINATOR-TERMINAL.bash`, which creates the folder when a clone lacks it.
+- `tmux/`: Pane files of the `tmux` sessions: `openrosde.panes` for the core, while each platform holds its own `<platform>.panes` in its repository.
+- `terminator/`: The injected copies of `RUN-TERMINATOR-TERMINAL.bash`, which creates the folder when a clone lacks it, while each platform holds its own Terminator layouts in its repository.
 - `tests/`: Test suites of the scripts (`tests/suites/`), which `tests/run.bash` runs in a Debian container on scratch copies of the repository, with every outside command stubbed.
 - `gitlab-ci/`: GitLab CI/CD pipeline: the parent `gitlab-ci.yml`, the shared jobs of the child pipeline (`openrosde-pipeline.yml`), the public extensions it tests (`extensions.repos`), and the scripts that clone them (`clone-extensions.bash`), generate the child pipeline (`generate-ci-pipeline.bash`), build or reuse an image (`build-ci-image.bash`), test a setup (`test-catkin-workspaces.bash`, `check-launch-files.bash`, `run-extension-checks.bash`), check that no script moves a robot (`check-no-motion.bash`), and publish the images (`publish-ci-images.bash`), with the allowlists of those checks (`allowed-duplicate-nodes.txt`, `allowed-simulation-launches.txt`).
 
@@ -203,7 +198,7 @@ Until Terminator is retired, keep `tmux/<platform>.panes` in step with `terminat
 
 ### Terminator Layouts
 
-Terminator configuration files are per-platform in `terminator/` of the folder that holds the platform (e.g., `ur5e.config` of the core, or `terminator/turtlebot3.config` of `openrosde-platform-turtlebot3`).
+Terminator configuration files are per-platform in `terminator/` of the folder that holds the platform (e.g., `terminator/turtlebot3.config` of `openrosde-platform-turtlebot3`), or of the setup, which takes precedence.
 Layout names follow the pattern: `openrosde-<platform>-term-11-<variant>-<environment>`.
 `RUN-TERMINATOR-TERMINAL.bash` accepts a `[terminator-layout]` argument of the form `<variant>-<environment>` (e.g. `default-gazebo`, `default-realworld`), defaulting to `default-gazebo`.
 The script prepends `11-` to build the full layout name passed to `terminator --layout`.
@@ -217,7 +212,7 @@ The bottom-left 4 terminals are standardized across all platforms and both envir
 - `terminal9` (Number: 6): MoveIt (or navigation, depending on platform).
 - `terminal10` (Number: 7): FlexBE app (`openrosde_launch:flexbe_app_default.launch`), on all platforms and in both gazebo and realworld layouts.
 The top-right pair (`terminal13` / `terminal14`, Numbers: 2 / 3) is used for platform-specific secondary launches (e.g., gripper control, teleop, mapping).
-Spare terminals (Numbers: 8-11) are available for additional launches (e.g., `realsense_camera_default_realworld.launch` at Number: 8 and `openrosde_user_launch:viewport_demo_ur5e.launch` at Number: 9 in the UR5e realworld layout).
+Spare terminals (Numbers: 8-11) are available for additional launches (e.g., the cameras of a setup at Number: 8 in the Terminator layouts of that setup).
 Number: 12 (`terminal25`) is standardized across all platforms and both environments for `openrosde_user_launch:user_example_default.launch` (user overlay starter).
 Number: 13 (`terminal26`) is standardized across all platforms and both environments for `openrosde_launch:rqt_suite_default.launch`.
 Number: 14 (`terminal28`) is standardized across all platforms and both environments for `openrosde_launch:ros_tcp_endpoint_default.launch` (Unity ROS TCP Endpoint for Coarobo Sightline).
@@ -360,7 +355,7 @@ A non-blocking `flock` on `/tmp/openrosde_maximize_focus.lock` ensures only one 
 
 ### ROS Packages
 
-ROS packages (e.g., `openrosde_ur5e_teleop` in `ur5e_catkin_ws`) extend the standard launch-only pattern with Python nodes and config files.
+ROS packages (e.g., `openrosde_ur5e_teleop` in `ur5e_catkin_ws` of `openrosde-platform-ur5e`) extend the standard launch-only pattern with Python nodes and config files.
 They follow the same `package.xml` and `README.md` conventions above, and additionally:
 
 - `CMakeLists.txt`: Includes `catkin_install_python` for Python node scripts.
@@ -473,15 +468,15 @@ All submodules use `ignore = dirty` in `.gitmodules`.
 
 Current submodules:
 - Shared (`openrosde_catkin_ws`): `flexbe_behavior_engine`, `flexbe_app`, `flexbe_generic_states`, `ros_tcp_endpoint` (Unity ROS TCP Endpoint, branch `main`, wrapped by `openrosde_launch/scripts/ros_tcp_endpoint_server.py`).
-- UR5e (`ur5e_catkin_ws`): `onrobot`, `roboticsgroup_upatras_gazebo_plugins`.
-- The platforms in repositories of their own declare their submodules in their own `.gitmodules`: `fetch_gazebo` in `openrosde-platform-fetch`, `sciurus17_ros` and `sciurus17_description` in `openrosde-platform-sciurus17`, and `denso_cobotta_ros` in `openrosde-platform-cobotta`, at the commits that this repository pinned.
+- The platforms and devices in repositories of their own declare their submodules in their own `.gitmodules`: `fetch_gazebo` in `openrosde-platform-fetch`, `sciurus17_ros` and `sciurus17_description` in `openrosde-platform-sciurus17`, `denso_cobotta_ros` in `openrosde-platform-cobotta`, and `onrobot` and `roboticsgroup_upatras_gazebo_plugins` in `openrosde-device-onrobot`, at the commits that this repository pinned.
+- UR5e (`openrosde-platform-ur5e`): no submodules, since the plain robot needs only the packages of its image.
 - HSR (`openrosde-platform-hsr`): no submodules, since its image copies the HSR stack of the Toyota binary image `ghcr.io/hsr-project/tmc_wrs_binary:noetic-latest`, as the documentation of that repository describes.
 
 Current patches:
 - `patches/ros/openrosde_catkin_ws/src/flexbe_app/0001-fix-curl-redirect.patch`: Fixes a broken curl redirect in the FlexBE app.
 - `patches/ros/openrosde_catkin_ws/src/flexbe_app/0002-set-window-maximized.patch`: Sets `"initial_state": "maximized"` in the nwjs `package.json` so the FlexBE App window opens maximized.
 - The four patches of `denso_cobotta_ros` and the Cartesian twist patch of `fetch_gazebo` live in `patches/` of `openrosde-platform-cobotta` and `openrosde-platform-fetch`, which `scripts/update-git-submodules.bash` and the CI apply from `extensions/`.
-- `patches/ros/ur5e_catkin_ws/src/onrobot/0001-fix-duplicate-world.patch`: Comments out the `world` link and its joint in `onrobot_rg2.xacro`, which duplicate the `world` link of the UR5e description.
+- The patch of `onrobot` that comments out the `world` link of `onrobot_rg2.xacro` lives in `patches/` of `openrosde-device-onrobot`.
 
 ## Adding a New Platform
 
@@ -583,7 +578,7 @@ Agent rules:
 - End every commit an agent writes with a `Co-authored-by: <agent and model> <noreply address>` trailer after a blank line, as [GitHub documents it](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/creating-a-commit-with-multiple-authors), while the maintainer stays the author.
 - Commit messages and MR titles use Conventional Commits: `type(scope): subject`.
   - Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-  - Scope is the name of a platform that this repository holds only, `ur5e` until it moves too, since the other platforms take their commits in their own repositories. Omit the scope entirely for cross-platform or repository-wide changes.
+  - Omit the scope, since this repository holds no platform, and every platform takes its commits in its own repository.
   - Subject is imperative, lowercase, no trailing period.
 - MR descriptions follow the structure documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#merge-requests). Sections: Summary, Changes, Testing, Related, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
 - Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues and MRs with the labels of the `coarobo` group (`default:bug`, `default:enhancement`, `default:documentation`, `default:discussion`, `default:critical`, `default:suggestion`, `default:support`, `default:confirmed`, `custom:hardware`, `custom:administration`).

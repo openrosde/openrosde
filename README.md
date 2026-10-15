@@ -30,7 +30,7 @@ Each canonical platform lives in a repository of its own, which OpenRoSDE finds 
 | Platform | Robot | Repository | Documentation |
 | --- | --- | --- | --- |
 | `turtlebot3` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) | [docs/robot-platforms/turtlebot3.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/docs/robot-platforms/turtlebot3.md) |
-| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | This repository, until it moves to a repository of its own | [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) |
+| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e) | [docs/robot-platforms/ur5e.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e/-/blob/main/docs/robot-platforms/ur5e.md) |
 | `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch) | [docs/robot-platforms/fetch.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/docs/robot-platforms/fetch.md) |
 | `sciurus17` | [RT Sciurus17](https://rt-net.jp/products/sciurus17/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17) | [docs/robot-platforms/sciurus17.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/docs/robot-platforms/sciurus17.md) |
 | `cobotta` | [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta) | [docs/robot-platforms/cobotta.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/docs/robot-platforms/cobotta.md) |
@@ -149,7 +149,6 @@ For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
 ```
 .env                                     # Default platform configuration.
 env/
-  ur5e.env                               # UR5e platform template.
   user.env                               # User overlay environment template (reference).
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
@@ -169,33 +168,24 @@ scripts/
   <platform>/                            # Optional platform scripts (shell, bringup, Chrony).
 docker/
   docker-compose.yaml                    # Docker service definitions.
-  docker-compose-ur5e.yaml               # UR5e platform overlay.
   docker-compose-user.yaml               # User overlay (always loaded).
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
   openrosde-base/                              # Shared base Docker image.
     Dockerfile
     scripts/                             # Container helper scripts.
-  ur5e-devel/                            # UR5e platform image.
-    Dockerfile
   user-devel/                            # User overlay image (Layer 3, runtime container).
     Dockerfile
 ros/
   openrosde_catkin_ws/                         # Shared Catkin workspace.
-  ur5e_catkin_ws/                        # UR5e Catkin workspace.
   user_catkin_ws/                        # User overlay Catkin workspace (openrosde_user_launch, openrosde_user_behaviors).
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md
   user-overlay.md
   extensions.md
-  robot-platforms/
-    ur5e.md
-terminator/
-  ur5e.config                            # UR5e Terminator layout.
 tmux/
   openrosde.panes                              # Panes of the core in every 'tmux' session.
-  <platform>.panes                       # Panes of each platform in its 'tmux' session.
 patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git), such as 'openrosde-platform-<platform>/'.
 tests/                                   # Test suites of the scripts, run by 'tests/run.bash'.
@@ -209,7 +199,6 @@ gitlab-ci/                               # GitLab CI/CD pipeline and its scripts
 | [Basic Usage](docs/basic-usage.md) | Full setup guide: prerequisites, installation, build, and run |
 | [Advanced Usage](docs/advanced-usage.md) | Bash functions, multiple terminals, Docker configuration, environment variables |
 | [Supported Robot Platforms](#-supported-robot-platforms) | The canonical platforms, each documented in its own repository |
-| [Robot Platforms / UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
 | [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking OpenRoSDE |
 | [Extensions](docs/extensions.md) | Add a platform, a device, or other packages from a repository of their own, public or private, cloned into `extensions/` |
 | [Robot Models](docs/robot-models.md) | Serve the robot model to clients of `rosbridge`: the file service, the GLB files of the meshes, and how to generate them |
@@ -303,9 +292,10 @@ Each platform repository records the licenses of its platform in its `NOTICE`, a
 | `fetch` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/NOTICE) | `fetch_description` in the image `fetch-devel` under CC BY-NC-SA 4.0 |
 | `sciurus17` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/NOTICE) | `sciurus17_description` under the non-commercial license of RT Corporation |
 | `cobotta` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/NOTICE) | `denso_cobotta_ros` and the four patches of the platform under GPL-2.0-or-later |
+| `ur5e` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e/-/blob/main/NOTICE) | The default kinematics of `ur_description` under BSD 3-Clause, and the meshes of some UR models in the image `ur5e-devel` under the terms of Universal Robots A/S |
 | `hsr` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr/-/blob/main/NOTICE) | `tmc_wrs_binary` in the image `hsr-devel` under BSD 3-Clause Clear, and `hsrb_meshes` under CC BY-NC-ND 4.0 |
 | All | [ROS Noetic](https://www.ros.org/), [Gazebo](http://gazebosim.org/), [FlexBE](http://flexbe.github.io/), and platform-specific upstream packages | Per upstream (BSD, Apache 2.0, MIT, etc.) |
 | All | [ROS#](https://github.com/siemens/ros-sharp) `file_server` `2.3.1` (Siemens AG), built from source in the base image with the patches of `docker/openrosde-base/patches/ros-sharp/` | [Apache 2.0](https://github.com/siemens/ros-sharp/blob/2.3.1/LICENSE.md) |
 | All | [`trimesh`](https://github.com/mikedh/trimesh) and [`pycollada`](https://github.com/pycollada/pycollada) in the converter image `openrosde-mesh2glb` | [MIT](https://github.com/mikedh/trimesh/blob/main/LICENSE.md) and [BSD 3-Clause](https://github.com/pycollada/pycollada/blob/master/COPYING) |
 
-See the `NOTICE` and `docs/robot-platforms/<platform>.md` of each platform repository for its licensing details, and [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) for the UR5e.
+See the `NOTICE` and `docs/robot-platforms/<platform>.md` of each platform repository for its licensing details.

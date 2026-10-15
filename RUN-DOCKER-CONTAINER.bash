@@ -11,7 +11,7 @@
 #                   Use '--no-exec' to start the container without entering it.
 # [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch' after the launch file.
 #                   They override a launch file argument without modifying the launch file itself
-#                   (e.g., 'bash ./RUN-DOCKER-CONTAINER.bash myproject ur5e_teleop_default_realworld.launch input_source:=sightline').
+#                   (e.g., 'bash ./RUN-DOCKER-CONTAINER.bash myproject my_robot_launch:my_robot_bringup_default_realworld.launch robot_ip:=192.0.2.10').
 
 ################################################################################
 

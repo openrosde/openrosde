@@ -1,13 +1,3 @@
-[submodule "ros/ur5e_catkin_ws/src/onrobot"]
-	path = ros/ur5e_catkin_ws/src/onrobot
-	url = https://github.com/UOsaka-Harada-Laboratory/onrobot.git
-	branch = main
-	ignore = dirty
-[submodule "ros/ur5e_catkin_ws/src/roboticsgroup_upatras_gazebo_plugins"]
-	path = ros/ur5e_catkin_ws/src/roboticsgroup_upatras_gazebo_plugins
-	url = https://github.com/roboticsgroup/roboticsgroup_upatras_gazebo_plugins.git
-	branch = master
-	ignore = dirty
 [submodule "ros/openrosde_catkin_ws/src/flexbe_behavior_engine"]
 	path = ros/openrosde_catkin_ws/src/flexbe_behavior_engine
 	url = https://github.com/FlexBE/flexbe_behavior_engine.git

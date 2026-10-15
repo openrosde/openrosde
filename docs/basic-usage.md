@@ -82,7 +82,7 @@ Set up the environment of the Ubuntu development machine with the following inst
 
 Select the target robot platform with the following instructions.
 
-1. Clone the repository of the desired platform into `extensions/`, since the core holds no canonical platform but the UR5e:
+1. Clone the repository of the desired platform into `extensions/`, since the core holds no platform:
 
     ```shell
     git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git extensions/openrosde-platform-turtlebot3
@@ -131,7 +131,7 @@ Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu 
 
     This script creates or updates the container following the instructions found in `docker/docker-compose.yaml`.
     The optional `[ros-launch]` argument preloads a ROS launch file in the opened shell.
-    Any `arg:=value` tokens after it are forwarded to `roslaunch` as is, which overrides a launch file argument without modifying the launch file itself (e.g., `ur5e_teleop_default_realworld.launch input_source:=sightline`).
+    Any `arg:=value` tokens after it are forwarded to `roslaunch` as is, which overrides a launch file argument without modifying the launch file itself (e.g., `my_robot_launch:my_robot_bringup_default_realworld.launch robot_ip:=192.0.2.10`).
     It allows the container to share system resources, such as volumes and devices, with the Ubuntu development machine.
 2. Configure the freshly built Docker container by executing the following Bash function inside it:
 
