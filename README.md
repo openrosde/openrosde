@@ -4,7 +4,9 @@ OpenRoSDE, read "Open Robotic SDE", is the open-source reference implementation 
 
 [![Docker](https://img.shields.io/badge/Docker-Containerization-blue?logo=docker&logoColor=white)](https://www.docker.com/)
 [![ROS Noetic](https://img.shields.io/badge/ROS_Noetic-Framework-blue?logo=ros&logoColor=white)](http://wiki.ros.org/noetic)
+[![ROS 2 Lyrical](https://img.shields.io/badge/ROS_2_Lyrical-Framework-blue?logo=ros&logoColor=white)](https://docs.ros.org/en/lyrical/)
 [![Ubuntu 20.04](https://img.shields.io/badge/Ubuntu_20.04-Container_OS-blue?logo=ubuntu&logoColor=white)](https://releases.ubuntu.com/20.04/)
+[![Ubuntu 26.04](https://img.shields.io/badge/Ubuntu_26.04-Container_OS-blue?logo=ubuntu&logoColor=white)](https://releases.ubuntu.com/26.04/)
 [![CUDA 11.2](https://img.shields.io/badge/CUDA_11.2-GPU_Acceleration-blue?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
 [![Gazebo](https://img.shields.io/badge/Gazebo-Simulator-blue)](http://gazebosim.org/)
 [![FlexBE](https://img.shields.io/badge/FlexBE-Behavior_Engine-blue)](http://flexbe.github.io/)
@@ -26,10 +28,12 @@ OpenRoSDE, read "Open Robotic SDE", is the open-source reference implementation 
 ## 🤖 Supported Robot Platforms
 
 Each canonical platform lives in a repository of its own, which OpenRoSDE finds by name once it is cloned into `extensions/`, as the [Quick Start](#-quick-start) shows.
+Every platform runs ROS 1 Noetic, apart from `turtlebot3-ros2`, which runs ROS 2 Lyrical beside it, as the [ROS 2](docs/ros2.md) guide describes.
 
 | Platform | Robot | Repository | Documentation |
 | --- | --- | --- | --- |
 | `turtlebot3` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) | [docs/robot-platforms/turtlebot3.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/docs/robot-platforms/turtlebot3.md) |
+| `turtlebot3-ros2` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) on ROS 2 | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) | [docs/robot-platforms/turtlebot3-ros2.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/docs/robot-platforms/turtlebot3-ros2.md) |
 | `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e) | [docs/robot-platforms/ur5e.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e/-/blob/main/docs/robot-platforms/ur5e.md) |
 | `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch) | [docs/robot-platforms/fetch.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/docs/robot-platforms/fetch.md) |
 | `sciurus17` | [RT Sciurus17](https://rt-net.jp/products/sciurus17/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17) | [docs/robot-platforms/sciurus17.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/docs/robot-platforms/sciurus17.md) |
@@ -87,6 +91,7 @@ flowchart TD
 ```
 
 The Docker image stack has three layers: **Layer 1** (`openrosde-base`) provides the shared ROS/Gazebo/FlexBE toolchain; **Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `OPENROSDE_ROBOT_PLATFORM`, from the repository of the platform cloned into `extensions/`; **Layer 3** (`user-devel`) is the user overlay where you add your own packages and customizations without touching the platform images.
+A platform on ROS 2 builds on **Layer 1** `openrosde-base-ros2` instead, Ubuntu 26.04 with ROS 2 Lyrical, with the colcon workspaces of `ros2/`, as the [ROS 2](docs/ros2.md) guide describes.
 Extensions cloned into `extensions/` can add their own layers between Layers 2 and 3, as the [Extensions](docs/extensions.md) guide explains.
 
 ## 🚀 Quick Start
@@ -150,6 +155,7 @@ For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
 .env                                     # Default platform configuration.
 env/
   user.env                               # User overlay environment template (reference).
+  openrosde-ros2.env                     # Settings of ROS 2, which a platform on ROS 2 repeats in its template.
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
 RUN-DOCKER-CONTAINER.bash                # Docker container run/enter script.
@@ -171,21 +177,28 @@ docker/
   docker-compose-user.yaml               # User overlay (always loaded).
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
-  openrosde-base/                              # Shared base Docker image.
+  openrosde-base/                              # Shared base Docker image of ROS 1.
     Dockerfile
-    scripts/                             # Container helper scripts.
+    scripts/                             # Container helper scripts, shared by both base images.
+  openrosde-base-ros2/                   # Shared base Docker image of ROS 2.
+    Dockerfile
   user-devel/                            # User overlay image (Layer 3, runtime container).
     Dockerfile
 ros/
   openrosde_catkin_ws/                         # Shared Catkin workspace.
   user_catkin_ws/                        # User overlay Catkin workspace (openrosde_user_launch, openrosde_user_behaviors).
+ros2/
+  openrosde_colcon_ws/                   # Shared colcon workspace of ROS 2.
+  user_colcon_ws/                        # User overlay colcon workspace of ROS 2 (openrosde_user_launch).
 docs/                                    # Documentation.
   basic-usage.md
   advanced-usage.md
   user-overlay.md
   extensions.md
+  ros2.md
 tmux/
-  openrosde.panes                              # Panes of the core in every 'tmux' session.
+  openrosde.panes                              # Panes of the core in every 'tmux' session on ROS 1.
+  openrosde-ros2.panes                   # Panes of the core in every 'tmux' session on ROS 2.
 patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git), such as 'openrosde-platform-<platform>/'.
 tests/                                   # Test suites of the scripts, run by 'tests/run.bash'.
@@ -202,6 +215,7 @@ gitlab-ci/                               # GitLab CI/CD pipeline and its scripts
 | [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking OpenRoSDE |
 | [Extensions](docs/extensions.md) | Add a platform, a device, or other packages from a repository of their own, public or private, cloned into `extensions/` |
 | [Robot Models](docs/robot-models.md) | Serve the robot model to clients of `rosbridge`: the file service, the GLB files of the meshes, and how to generate them |
+| [ROS 2](docs/ros2.md) | Run a platform on ROS 2 beside those on ROS 1: the base image, the colcon workspaces, the network, and the checks of the CI |
 
 ## 📄 Related Publications
 

@@ -34,10 +34,11 @@ extensions/<extension>/
   env/<platform>.env                     # Platform template, the default setup, which declares 'OPENROSDE_ROBOT_PLATFORM=<platform>' and 'OPENROSDE_ROBOT_SETUP=<platform>' (platforms only).
   env/<setup>.env                        # Setup template, which declares 'OPENROSDE_ROBOT_SETUP=<setup>', its platform, and its extensions (optional).
   env/<setup>.repos                      # Repositories of the setup for 'vcstool' (optional).
-  docker/<platform>-devel/Dockerfile     # Platform image, built on 'openrosde-base' (platforms only).
+  docker/<platform>-devel/Dockerfile     # Platform image, built on 'openrosde-base', or on 'openrosde-base-ros2' for a platform on ROS 2 (platforms only).
   docker/<name>-devel/Dockerfile         # Docker layer of a device or an extension, built on the image below it (optional).
   docker/docker-compose-<name>.yaml      # Docker Compose overlay: environment variables, volumes, devices.
-  ros/<name>_catkin_ws/src/              # One or more Catkin workspaces.
+  ros/<name>_catkin_ws/src/              # One or more Catkin workspaces, for a platform on ROS 1.
+  ros2/<name>_colcon_ws/src/             # One or more colcon workspaces, for a platform on ROS 2, as 'docs/ros2.md' describes.
   scripts/<platform>/                    # Optional platform scripts (shell, bringup, Chrony), as for the core.
   tmux/<name>.panes                      # Panes of the 'tmux' session, in windows of their own.
   terminator/<platform>.config           # Terminator layouts of the platform, until 'tmux' replaces them (platforms only).
@@ -49,7 +50,7 @@ extensions/<extension>/
 ```
 
 > [!TIP]
-> Give the extension a `.gitignore` for the files that `catkin build` and `catkin_init_workspace` create in its Catkin workspaces, since the `.gitignore` of the core does not reach into another repository.
+> Give the extension a `.gitignore` for the files that `catkin build` and `catkin_init_workspace` create in its Catkin workspaces, and that `colcon build` creates in its colcon workspaces, since the `.gitignore` of the core does not reach into another repository.
 > The `**/` prefix also covers the workspaces of its parts:
 >
 > ```gitignore
@@ -59,6 +60,9 @@ extensions/<extension>/
 > **/ros/*_catkin_ws/devel/
 > **/ros/*_catkin_ws/logs/
 > **/ros/*_catkin_ws/src/CMakeLists.txt
+> **/ros2/*_colcon_ws/build/
+> **/ros2/*_colcon_ws/install/
+> **/ros2/*_colcon_ws/log/
 > ```
 
 ## 🧱 Parts
@@ -91,6 +95,7 @@ extensions/<extension>/
 - `bash ./SWITCH-ROBOT-PLATFORM.bash` lists the platforms of the core, of every cloned extension, and of every part, so a platform extension needs no registration.
 - The extensions and parts listed in `OPENROSDE_ROBOT_EXTENSIONS` are the active ones, and the folders that hold the active platform and the active setup are always active.
 - The Catkin workspaces are built and sourced in this order: `ros/openrosde_catkin_ws` of the core, the workspace of the platform, every other workspace of the active extensions in the order of `OPENROSDE_ROBOT_EXTENSIONS`, the workspaces of the setup, then `ros/user_catkin_ws` of the core.
+- A platform on ROS 2 takes the colcon workspaces of `ros2/` in the same order, from `ros2/openrosde_colcon_ws` to `ros2/user_colcon_ws`, and its sessions open the panes of the core of `tmux/openrosde-ros2.panes`, as [ROS 2](ros2.md) describes.
 - `RUN-DOCKER-CONTAINER.bash` adds the overlay of the platform, then every `docker/docker-compose*.yaml` of the active folders, apart from those named after a platform or a setup that is not active.
 - `RUN-TMUX-SESSION.bash` opens the panes of the setup, or else of the platform, whose own `tmux/<platform>.panes` the panes of the setup replace, then those of every `tmux/*.panes` of the active folders, apart from those named after a platform or a setup that is not active, then those of the core, and a setup can declare a layout of its own, such as `lab-demo`, for its demo.
 - `BUILD-DOCKER-IMAGE.bash` builds the image of the platform from the folder that holds the platform, so that the `COPY` instructions of its `docker/<platform>-devel/Dockerfile` read from there, as those of a layer do.
@@ -269,6 +274,7 @@ Update a `version` by hand, and never write the file with `vcs export` of the wh
 - The image job of a platform builds its image from the folder that holds it, and reuses an image whose folders hash the same, each folder hashed in the Git repository that holds it.
 - The test job of a setup selects the setup as `bash ./SWITCH-ROBOT-SETUP.bash <setup>` does, builds its Docker layers and its Catkin workspaces in the image of its platform, then disconnects the container from every network before any check runs.
 - It then checks that every launch entry point of the panes of the setup resolves with `roslaunch --files`, and that no two panes of one layout start a node of the same name with `roslaunch --nodes`, both of which start no node, and fails when neither the setup nor its platform has a pane file.
+- On ROS 2, it loads every launch entry point with `ros2 launch --show-args`, which starts no node either, and leaves out the node names, which ROS 2 cannot list without starting the nodes.
 - It then runs `ci/check-in-container.bash` of every active extension that holds one, with the setup as its argument, in the container where the workspaces of the setup are built and sourced, once `check-scripts-job` has passed.
 - The panes that name no package run the launch package of the platform, `openrosde_<platform>_launch`, unless `scripts/<setup or platform>/initialize-bash-shell.bash` sets another `OPENROSDE_LAUNCH_PACKAGE`, as it does in a shell of the container.
 
@@ -281,7 +287,8 @@ default-gazebo /robot_state_publisher foo_navigation_default_gazebo.launch foo_m
 ```
 
 A check in `ci/` never moves a robot: `gitlab-ci/check-no-motion.bash` fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, even after a path such as `/opt/ros/noetic/bin/`, and an option in a trailing comment does not count.
-It lets a script of `ci/` start only the launch files of simulations that `ci/allowed-simulation-launches.txt` names, one file name per line, such as `foo_bringup_default_gazebo.launch`, and a `roslaunch` of several launch files only when the list names every one of them.
+On ROS 2, it fails on any `ros2 launch` beyond `--show-args`, `--show-arguments`, `-s`, `--print`, `--print-description`, or `-p`, and on any `ros2 run`, `ros2 topic pub`, `ros2 service call`, `ros2 action send_goal`, `ros2 bag play`, or `ros2 lifecycle set`.
+It lets a script of `ci/` start only the launch files of simulations that `ci/allowed-simulation-launches.txt` names, one file name per line, such as `foo_bringup_default_gazebo.launch` or `foo_bringup_default_gazebo.launch.xml`, and a `roslaunch` or a `ros2 launch` of several launch files only when the list names every one of them.
 
 A public extension tests one of its branches against the core with a job that triggers a pipeline of OpenRoSDE on `dev` from a pipeline of that branch, once `gitlab-ci/extensions.repos` lists it:
 

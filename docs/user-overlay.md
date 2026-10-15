@@ -25,6 +25,7 @@ The user overlay is platform-agnostic: the same overlay rebuilds on top of which
 | [ros/user_catkin_ws/](../ros/user_catkin_ws/) | User Catkin workspace. Drop your packages under `src/`. |
 | [ros/user_catkin_ws/src/openrosde_user_launch/](../ros/user_catkin_ws/src/openrosde_user_launch/) | Starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for your assets. |
 | [ros/user_catkin_ws/src/openrosde_user_behaviors/](../ros/user_catkin_ws/src/openrosde_user_behaviors/) | Starter FlexBE behaviors package with `User Example Behavior`. |
+| [ros2/user_colcon_ws/src/openrosde_user_launch/](../ros2/user_colcon_ws/src/openrosde_user_launch/) | Starter launch package of the platforms on ROS 2, with `user_example_default.launch.xml`, which a colcon workspace builds, as [ROS 2](ros2.md) describes. |
 | [env/user.env](../env/user.env) | User overlay environment template (reference only). |
 
 ## 🚀 Quick Start
