@@ -22,6 +22,18 @@ source "${OPENROSDE_ROOT_DIR}/scripts/load-env-custom.bash" "${OPENROSDE_ROOT_DI
 # Resolve where the files of the platform and of the extensions live, in the core or in 'extensions/'.
 source "${OPENROSDE_ROOT_DIR}/scripts/load-extension-paths.bash" "${OPENROSDE_ROOT_DIR}"
 
+# Stop with a hint when no template declares the selected platform, as in a fresh clone of the core, which holds no platform, since each platform lives in a repository of its own cloned into 'extensions/'.
+# The hint names the repository of a public platform from 'OPENROSDE_PLATFORM_REPOSITORY_URL', where '%s' stands for the platform.
+if [[ "${OPENROSDE_DECLARED_PLATFORM_NAMES}" != *" ${OPENROSDE_ROBOT_PLATFORM} "* ]] || [ -z "${OPENROSDE_ROBOT_PLATFORM}" ]; then
+  printf -v OPENROSDE_PLATFORM_CLONE_URL "${OPENROSDE_PLATFORM_REPOSITORY_URL}" "${OPENROSDE_ROBOT_PLATFORM}"
+  echo "Error: The platform '${OPENROSDE_ROBOT_PLATFORM}' that '.env' or '.env.custom' selects is found neither in the core nor in a repository cloned into 'extensions/'." >&2
+  echo "Each platform lives in a repository of its own, so clone it into 'extensions/' first, such as for a public platform of OpenRoSDE:" >&2
+  echo "  git clone ${OPENROSDE_PLATFORM_CLONE_URL} extensions/$(basename "${OPENROSDE_PLATFORM_CLONE_URL}" .git)" >&2
+  echo "  bash ./SWITCH-ROBOT-PLATFORM.bash ${OPENROSDE_ROBOT_PLATFORM}" >&2
+  echo "'README.md' lists the platforms and their repositories, and 'bash ./SWITCH-ROBOT-PLATFORM.bash' lists those already cloned." >&2
+  exit 1
+fi
+
 ################################################################################
 
 # Set the Docker container name from the [docker-project] argument.
