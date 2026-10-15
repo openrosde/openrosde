@@ -36,4 +36,4 @@ repositories:
   openrosde-platform-ur5e:
     type: git
     url: https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e.git
-    version: 799129ff0c0aebeb213bbd265c83a46086bd5a1c
+    version: 2a409d0f50c2baaa41a60b99e5111b0e718d776f
