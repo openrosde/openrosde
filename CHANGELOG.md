@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `catkin build` takes its parallel jobs from `OPENROSDE_BUILD_JOBS` when it is set, and the CI sets it from the `JOB_CPUS` of a self-managed runner, so a job no longer starts a compiler for every CPU of the machine inside its share (#37).
 - `gitlab-ci/build-ci-image.bash` takes the build context of the image, builds a platform from the folder that holds it, and hashes each source folder in the Git repository that holds it, which gives the folders of the core the same hash as before (#38).
 - The images publish only from a protected branch or tag, under its own name, in a pipeline that a push or a person on the web started, so a merge request, a schedule, a pipeline of another project, or a pipeline that tests an extension at another version never publishes `dev` (#38).
 - `gitlab-ci/test-catkin-workspaces.bash` and `gitlab-ci/check-launch-files.bash` take a setup in place of a platform, and the test job reads its images from `OPENROSDE_CI_IMAGE_REGISTRY` with the tag `OPENROSDE_CI_IMAGE_TAG`, the images of the pipeline by default, which a pipeline of another project sets to published images, such as `registry.gitlab.com/coarobo/sde` and `v3.0.0` (#38).

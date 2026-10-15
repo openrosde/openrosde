@@ -111,6 +111,7 @@ fi
 
 # Create the container with the platform, the setup, and the extensions, and copy the repository into it, with the cloned extensions and '.env.custom'.
 # The container only waits, so that every step below runs in it with 'docker exec'.
+# 'JOB_CPUS', which a self-managed runner may set to the CPUs that a job may use, caps the parallel jobs of 'catkin build' in the container, and is empty on the instance runners of GitLab.com, where 'catkin build' uses every CPU of the virtual machine.
 docker rm --force "${OPENROSDE_CI_CONTAINER_NAME}" > /dev/null 2>&1
 docker create \
   --name "${OPENROSDE_CI_CONTAINER_NAME}" \
@@ -118,6 +119,7 @@ docker create \
   --env "OPENROSDE_ROBOT_SETUP=${OPENROSDE_ROBOT_SETUP}" \
   --env "OPENROSDE_ROBOT_EXTENSIONS=${OPENROSDE_ROBOT_EXTENSIONS}" \
   --env "OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}" \
+  --env "OPENROSDE_BUILD_JOBS=${JOB_CPUS:-}" \
   "${OPENROSDE_CI_TEST_IMAGE}" \
   sleep infinity || exit 1
 docker cp "${PWD}/." "${OPENROSDE_CI_CONTAINER_NAME}:${OPENROSDE_CONTAINER_ROOT_DIR}/" || exit 1

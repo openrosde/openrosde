@@ -100,6 +100,19 @@ openrosde-test-check "initializes the workspaces in order when it resets them" \
   "$(printf '%s\n' "catkin_init_workspace in ./ros/openrosde_catkin_ws/src" "catkin_init_workspace in ./${OPENROSDE_TEST_FOO_DIR}/ros/foo_catkin_ws/src" "catkin_init_workspace in ./${OPENROSDE_TEST_BAR_DIR}/ros/bar_catkin_ws/src" "catkin_init_workspace in ./ros/user_catkin_ws/src")" \
   "$(openrosde-test-print-calls | grep '^catkin_init_workspace ')"
 
+# Check the parallel jobs of 'catkin build': its defaults, the number that '.env.custom' sets in 'OPENROSDE_BUILD_JOBS', and its defaults with a warning for a value that is not a positive number.
+OPENROSDE_TEST_BUILD_JOBS_REPORT="$(openrosde-test-print-calls | grep '^catkin build' | sort | uniq -c)"
+cp "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" "${OPENROSDE_TEST_WORK_DIR}/env.custom.before"
+for OPENROSDE_TEST_BUILD_JOBS in 8 0; do
+  echo "OPENROSDE_BUILD_JOBS=${OPENROSDE_TEST_BUILD_JOBS}" >> "${OPENROSDE_TEST_ROOT_DIR}/.env.custom"
+  openrosde-test-run bash -c 'set -a; source ./.env; source ./.env.custom; set +a; OPENROSDE_CONTAINER_ROOT_DIR="${PWD}" bash ./docker/openrosde-base/scripts/reset-catkin-workspaces.bash'
+  OPENROSDE_TEST_BUILD_JOBS_REPORT="${OPENROSDE_TEST_BUILD_JOBS_REPORT}"$'\n'"$(openrosde-test-print-calls | grep '^catkin build' | sort | uniq -c; echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Warning: .OPENROSDE_BUILD_JOBS')"
+done
+cp "${OPENROSDE_TEST_WORK_DIR}/env.custom.before" "${OPENROSDE_TEST_ROOT_DIR}/.env.custom"
+openrosde-test-check "builds every workspace with the jobs of 'OPENROSDE_BUILD_JOBS' when it is a positive number, and with every CPU otherwise" \
+  "$(printf '%s\n' "      4 catkin build" "      4 catkin build --jobs 8 --parallel-packages 8" "      4 catkin build" "Warning: 'OPENROSDE_BUILD_JOBS' is '0', not a positive number, so 'catkin build' uses every CPU.")" \
+  "${OPENROSDE_TEST_BUILD_JOBS_REPORT}"
+
 # Check the submodules of every clone and the patches of the platform extension.
 openrosde-test-run bash ./scripts/update-git-submodules.bash
 openrosde-test-check "updates the submodules of every clone and applies the patches of each" \
