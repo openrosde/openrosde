@@ -134,6 +134,7 @@ Key configuration variables:
 | `OPENROSDE_CONTAINER_ROOT_DIR` | OpenRoSDE root path inside the container | `/root/OpenRoSDE` |
 | `OPENROSDE_ROBOT_SETUP` | Active setup, named after its template (see [Extensions](extensions.md)) | `turtlebot3` |
 | `OPENROSDE_ROBOT_EXTENSIONS` | Active extensions in `extensions/`, separated by spaces (see [Extensions](extensions.md)) | *(empty)* |
+| `OPENROSDE_PLATFORM_REPOSITORY_URL` | Repository of a public platform, with `%s` for its name, which the entry scripts name when the selected platform is cloned nowhere | `https://gitlab.com/coarobo/openrosde/openrosde-platform-%s.git` |
 | `OPENROSDE_DOCKER_REGISTRY` | Registry of the base and platform images | `registry.gitlab.com/coarobo/sde` |
 | `OPENROSDE_DOCKER_IMAGE_TAG` | Tag of the base and platform images, `main` or `dev` (`auto` derives it from the branch) | `auto` |
 | `OPENROSDE_DOCKER_BUILD_FALLBACK` | Images that `BUILD-DOCKER-IMAGE.bash` builds locally when their pull fails: `true` for the base and platform images, `platform` for the platform image alone, or `false` for neither | `true` |

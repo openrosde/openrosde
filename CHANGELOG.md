@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The entry scripts stop with the commands that clone a platform into `extensions/` when `.env` or `.env.custom` selects a platform that neither the core nor a clone declares, as in a fresh clone of the core, with the repository of a public platform from `OPENROSDE_PLATFORM_REPOSITORY_URL` (#40).
+- The CI reaches the Fetch through `rosbridge` alone in Gazebo, with no network, in the test job of the setup `fetch`: `ci/check-rosbridge.bash` of `openrosde-platform-fetch` checks `/clock`, `/joint_states`, `/tf`, `/tf_static`, and the relay from `fetch_ee_cmd_vel` to `/arm_controller/cartesian_twist/command` with a WebSocket client on port `9090` (#40).
 - `rosbridge_server_default.launch` starts the ROS# file service `/file_server/get_file`, built from source in the base image and patched to serve only meshes, textures, and their GLB files up to 12,000,000 bytes, so that a client of `rosbridge` loads the model of any robot from `robot_description`, as `docs/robot-models.md` describes (#41).
 - The converter image `openrosde-mesh2glb` turns every COLLADA, STL, and OBJ mesh into a GLB beside it, named by appending `.glb`, for the meshes of the images when the user overlay builds and for those of the workspaces with `scripts/generate-mesh-glbs.bash`, which `BUILD-DOCKER-IMAGE.bash` runs, and GLBs are never committed or published (#41).
 - The CI checks that the converter gives the same bytes twice and valid GLBs, and every test job of a setup checks the file service through `rosbridge` with the GLBs of its container (#41).
@@ -47,6 +49,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `gitlab-ci/extensions.repos` pins `openrosde-platform-turtlebot3`, `openrosde-platform-fetch`, `openrosde-platform-sciurus17`, `openrosde-platform-cobotta`, and `openrosde-platform-hsr` at a commit of their `main`, so the CI clones them, reuses the published images of their byte-identical Dockerfiles by source hash, and tests and publishes them under the same names as before (#40).
+- `.env` keeps `turtlebot3` as the default platform, which a fresh clone of the core clones into `extensions/` first, as the Quick Start of `README.md` shows (#40).
+- `RUN-TERMINATOR-TERMINAL.bash` creates `terminator/`, which a clone of the core lacks once no platform of the core has a Terminator layout (#40).
+- The relay of `openrosde_fetch_teleop` starts from `fetch_teleop.launch` itself, with the same node, arguments, and parameters, in place of `fetch_teleop_sightline.launch`, and `fetch_teleop_default.launch`, `fetch_ee_cmd_vel`, and `/arm_controller/cartesian_twist/command` keep their names (#40).
+- The line of `gitlab-ci/allowed-duplicate-nodes.txt` for the TurtleBot3 moves to `ci/allowed-duplicate-nodes.txt` of its platform repository (#40).
+- The test suites of `tests/` write the platforms they need in their scratch copy, and check the canonical platforms that a developer cloned into `extensions/`, including their Terminator layouts against their panes (#40).
 - `catkin build` takes its parallel jobs from `OPENROSDE_BUILD_JOBS` when it is set, and the CI sets it from the `JOB_CPUS` of a self-managed runner, so a job no longer starts a compiler for every CPU of the machine inside its share (#37).
 - `gitlab-ci/build-ci-image.bash` takes the build context of the image, builds a platform from the folder that holds it, and hashes each source folder in the Git repository that holds it, which gives the folders of the core the same hash as before (#38).
 - The images publish only from a protected branch or tag, under its own name, in a pipeline that a push or a person on the web started, so a merge request, a schedule, a pipeline of another project, or a pipeline that tests an extension at another version never publishes `dev` (#38).
@@ -82,6 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **Breaking:** the platforms `turtlebot3`, `fetch`, `sciurus17`, `cobotta`, and `hsr` leave the core for repositories of their own under the Apache License 2.0, `https://gitlab.com/coarobo/openrosde/openrosde-platform-<platform>`, with their templates, Dockerfiles, Docker Compose overlays, Catkin workspaces, Git submodules, patches, panes, Terminator layouts, scripts, and documentation (#40).
+  Migration: on a machine that runs one of them, clone its repository into `extensions/` before pulling the core, such as `git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch.git extensions/openrosde-platform-fetch`, then run `bash ./scripts/update-git-submodules.bash`, and a `.env.custom` that selects the platform keeps working.
 - `gitlab-ci/PUSH-DOCKER-IMAGE.bash`, `gitlab-ci/SETUP-GITLAB-RUNNER.bash`, and the `gitlab-ci` mode of `BUILD-DOCKER-IMAGE.bash`, since the CI publishes the images itself, and the runner is set up with the infrastructure of whoever runs the CI (#37).
 
 ### Fixed
