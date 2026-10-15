@@ -8,7 +8,7 @@ The GLB holds the mesh as RViz places it in the frame of the URDF <visual> or <c
 then turned from the ROS link frame (Z up) into glTF (Y up) by R_x(-90 deg), so glTF (x, y, z) = ROS (x, z, -y).
 COLLADA comes out in meters, while STL and OBJ carry no unit, so their numbers pass through unchanged and the URDF <mesh scale> converts them, as it does for the original file.
 An STL becomes bare positions, with no normals, no material, and no vertex colors, so the client draws flat normals and the URDF <material>.
-COLLADA and MTL colors are written as linear baseColorFactor values, as glTF requires, with their textures embedded.
+COLLADA and MTL colors are written as linear baseColorFactor values, as glTF requires, with their textures embedded, and every color and factor of a material is clamped to [0, 1], as glTF allows no more without an extension.
 COLLADA <lines> primitives (edges) are dropped by the loader of trimesh.
 The asset of the GLB names its generator, a copyright line, and in 'extras' the package, the source URI, the license, and the SHA-256 of the source.
 
@@ -24,7 +24,7 @@ import trimesh
 
 # The generator written into every GLB, which 'generate-mesh-glbs.py' compares to decide whether a GLB is current.
 # Change it whenever the output of this script changes, so that every GLB is regenerated.
-GENERATOR = "OpenRoSDE mesh2glb 1.0.0"
+GENERATOR = "OpenRoSDE mesh2glb 1.1.0"
 
 ROS_TO_GLTF = trimesh.transformations.rotation_matrix(-np.pi / 2.0, [1.0, 0.0, 0.0])
 
@@ -51,6 +51,18 @@ def linearize_base_colors(tree):
         if "baseColorFactor" in pbr:
             r, g, b, a = pbr["baseColorFactor"]
             pbr["baseColorFactor"] = [round(srgb_to_linear(r), 6), round(srgb_to_linear(g), 6), round(srgb_to_linear(b), 6), a]
+
+
+def clamp_material_factors(tree):
+    # glTF keeps every color and factor of a material within [0, 1], while COLLADA allows more, such as an emission of 1.33, which only an extension could carry, so it is clamped.
+    for mat in tree.get("materials", []):
+        pbr = mat.get("pbrMetallicRoughness", {})
+        for owner, key in ((mat, "emissiveFactor"), (pbr, "baseColorFactor")):
+            if key in owner:
+                owner[key] = [min(max(float(c), 0.0), 1.0) for c in owner[key]]
+        for key in ("metallicFactor", "roughnessFactor"):
+            if key in pbr:
+                pbr[key] = min(max(float(pbr[key]), 0.0), 1.0)
 
 
 def strip_stl_attributes(tree):
@@ -103,7 +115,7 @@ def describe_asset(tree, src, package, uri, license_text):
 def convert(src, dst, package="", uri="", license_text=""):
     ext = os.path.splitext(src)[1].lower()
     name = os.path.basename(src)
-    post = [linearize_base_colors]
+    post = [clamp_material_factors, linearize_base_colors]
     include_normals = True
     if ext == ".dae":
         scene = trimesh.load(src, force="scene", process=False)
