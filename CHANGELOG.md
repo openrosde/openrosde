@@ -55,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `gitlab-ci/extensions.repos` pins `openrosde-platform-turtlebot3` at the commit that adds `turtlebot3-ros2`, so the CI builds the image `turtlebot3-ros2-devel` on the base image of ROS 2 and tests the setup `turtlebot3-ros2` beside `turtlebot3`, with its check over `rosbridge` in Gazebo (#31).
 - The test job of a setup gives the meshes of its container their GLBs before its workspaces build, since a colcon workspace serves the copies of its install space, and `gitlab-ci/check-robot-model.py` reports, rather than fails, a GLB above `max_file_size` whose mesh lies in a Git submodule, third-party code that a platform pins and cannot simplify (#31).
 - `RUN-TERMINATOR-TERMINAL.bash` stops before starting the container, with the command of the `tmux` session, when neither the setup nor its platform has a Terminator layout, as for a platform on ROS 2 (#31).
 - `gitlab-ci/extensions.repos` pins `openrosde-platform-turtlebot3`, `openrosde-platform-fetch`, `openrosde-platform-sciurus17`, `openrosde-platform-cobotta`, and `openrosde-platform-hsr` at a commit of their `main`, so the CI clones them, reuses the published images of their byte-identical Dockerfiles by source hash, and tests and publishes them under the same names as before (#40).

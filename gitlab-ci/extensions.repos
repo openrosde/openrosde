@@ -32,7 +32,7 @@ repositories:
   openrosde-platform-turtlebot3:
     type: git
     url: https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git
-    version: af09da4a1daa79b58852a3830e1d84f0aeac3a2d
+    version: b6e8f0686f63ec8180471a06f47e8dade5fdecc9
   openrosde-platform-ur5e:
     type: git
     url: https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e.git
