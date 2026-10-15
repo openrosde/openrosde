@@ -5,16 +5,19 @@
 # The GLBs stay in the test container, which the CI removes, so none is ever published.
 # When the converter image cannot be pulled, such as in the pipeline of an extension before the core publishes it, it warns and returns 2, so that the caller skips the check of the robot model.
 #
-# Usage: bash ./gitlab-ci/generate-ci-mesh-glbs.bash <container> <converter-image>
+# Usage: bash ./gitlab-ci/generate-ci-mesh-glbs.bash <container> <converter-image> [ros-distro]
 #
-# <container>: Name of the running test container, whose '/opt/ros/noetic/share' and Catkin workspaces in '${OPENROSDE_CONTAINER_ROOT_DIR}' get their GLBs.
+# <container>: Name of the running test container, whose '/opt/ros/<ros-distro>/share' and Catkin or colcon workspaces in '${OPENROSDE_CONTAINER_ROOT_DIR}' get their GLBs.
 # <converter-image>: The converter image 'openrosde-mesh2glb' to run, such as the one of the pipeline.
+# [ros-distro]: The distribution of ROS of the container, such as 'noetic' or 'lyrical'.
+#               Default value is 'noetic'.
 
 ################################################################################
 
 OPENROSDE_CI_TEST_CONTAINER="$1"
 OPENROSDE_CI_MESH2GLB_IMAGE="$2"
 OPENROSDE_CI_MESH2GLB_CONTAINER="${OPENROSDE_CI_TEST_CONTAINER}-mesh2glb"
+OPENROSDE_CI_ROS_DISTRO="${3:-noetic}"
 OPENROSDE_CI_CONTAINER_ROOT_DIR="${OPENROSDE_CONTAINER_ROOT_DIR:-/root/OpenRoSDE}"
 
 if [ -z "${OPENROSDE_CI_TEST_CONTAINER}" ] || [ -z "${OPENROSDE_CI_MESH2GLB_IMAGE}" ]; then
@@ -36,8 +39,8 @@ docker run --detach --name "${OPENROSDE_CI_MESH2GLB_CONTAINER}" --network none "
 
 # Copy the meshes, the textures, and the package manifests of the test container into '/in' of the converter, at their paths from the root, leaving out the build spaces and the Git folders.
 set -o pipefail
-docker exec "${OPENROSDE_CI_TEST_CONTAINER}" bash -c "cd / && find opt/ros/noetic/share '${OPENROSDE_CI_CONTAINER_ROOT_DIR#/}/ros' '${OPENROSDE_CI_CONTAINER_ROOT_DIR#/}/extensions' \
-    \\( -name build -o -name devel -o -name install -o -name logs -o -name .git \\) -prune -o -type f \
+docker exec "${OPENROSDE_CI_TEST_CONTAINER}" bash -c "cd / && find 'opt/ros/${OPENROSDE_CI_ROS_DISTRO}/share' '${OPENROSDE_CI_CONTAINER_ROOT_DIR#/}/ros' '${OPENROSDE_CI_CONTAINER_ROOT_DIR#/}/ros2' '${OPENROSDE_CI_CONTAINER_ROOT_DIR#/}/extensions' \
+    \\( -name build -o -name devel -o -name install -o -name log -o -name logs -o -name .git \\) -prune -o -type f \
     \\( -iname '*.dae' -o -iname '*.stl' -o -iname '*.obj' -o -iname '*.mtl' -o -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.bmp' -o -iname '*.tga' -o -iname '*.tif' -o -iname '*.tiff' -o -iname '*.gif' -o -name package.xml \\) \
     -print0 2>/dev/null | tar --null --files-from - --create --file -" \
   | docker exec --interactive "${OPENROSDE_CI_MESH2GLB_CONTAINER}" bash -c "mkdir -p /in && tar --extract --file - --directory /in" || exit 1

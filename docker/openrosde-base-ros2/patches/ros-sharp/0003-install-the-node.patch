@@ -1,0 +1,51 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4f3eb74..ede80c4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -31,10 +31,11 @@ rosidl_generate_interfaces(${PROJECT_NAME}
+ # Build the executable
+ add_executable(file_server2_node src/file_server.cpp)
+ 
+-ament_target_dependencies(file_server2_node
+-  ament_index_cpp
+-  rclcpp
+-  std_msgs
++# OpenRoSDE links the targets of the dependencies, since Lyrical removed 'ament_target_dependencies'.
++target_link_libraries(file_server2_node
++  ament_index_cpp::ament_index_cpp
++  rclcpp::rclcpp
++  ${std_msgs_TARGETS}
+ )
+ 
+ # Get the typesupport targets
+@@ -50,29 +51,11 @@ install(TARGETS file_server2_node
+   DESTINATION lib/${PROJECT_NAME}
+ )
+ 
+-# Install launch files
+-install(DIRECTORY
+-  launch
+-  DESTINATION share/${PROJECT_NAME}/
+-)
+-
+-# Install directories
++# OpenRoSDE installs the node and its interfaces alone, without the examples of ROS#, whose launch files need robots that the images do not hold.
+ install(DIRECTORY
+   srv
+   DESTINATION share/${PROJECT_NAME}/
+ )
+ 
+-# Install rviz files
+-install(DIRECTORY
+-  rviz
+-  DESTINATION share/${PROJECT_NAME}
+-)
+-
+-# Install urdf file
+-install(DIRECTORY
+-  urdf
+-  DESTINATION share/${PROJECT_NAME}
+-)
+-
+ # Install package.xml
+ ament_package()

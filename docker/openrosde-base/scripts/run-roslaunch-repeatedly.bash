@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# This script runs a ROS launch file and prompts the user to select the execution mode (remote, local, or child shell).
+# This script runs a ROS launch file, with 'roslaunch' on ROS 1 or 'ros2 launch' on ROS 2, and prompts the user to select the execution mode (remote, local, or child shell).
 # It is used by Terminator sub-terminals to conveniently preload launch files.
 #
 # Usage: bash run-roslaunch-repeatedly.bash <launch-file> [launch-args...]
 #
-# <launch-file>:    The ROS launch file to run (e.g., 'example_roslaunch_file.launch').
+# <launch-file>:    The ROS launch file to run (e.g., 'example_roslaunch_file.launch', or 'example_launch_file.launch.xml' on ROS 2).
 #                   Optionally, specify the ROS package with the 'package:file.launch' format.
 #                   If no package is specified, the 'OPENROSDE_LAUNCH_PACKAGE' environment variable is used.
-# [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch' as is.
+# [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch' or 'ros2 launch' as is.
 #                   They override a launch file argument without modifying the launch file itself
 #                   (e.g., 'run-roslaunch-repeatedly.bash my_robot_launch:my_robot_bringup_default_realworld.launch robot_ip:=192.0.2.10').
 
@@ -57,7 +57,11 @@ EOF
   else
     continue;
   fi;
-  roslaunch ${OPENROSDE_LAUNCH_PACKAGE} ${OPENROSDE_LAUNCH_FILE} ${OPENROSDE_LAUNCH_ARGS};
+  if [ "${OPENROSDE_ROS_VERSION}" = "2" ]; then
+    ros2 launch ${OPENROSDE_LAUNCH_PACKAGE} ${OPENROSDE_LAUNCH_FILE} ${OPENROSDE_LAUNCH_ARGS};
+  else
+    roslaunch ${OPENROSDE_LAUNCH_PACKAGE} ${OPENROSDE_LAUNCH_FILE} ${OPENROSDE_LAUNCH_ARGS};
+  fi
   echo "" # Display an empty line.
 done
 

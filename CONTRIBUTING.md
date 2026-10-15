@@ -134,6 +134,10 @@ They copy the files of the canonical platform closest to your robot, such as the
 git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta.git extensions/openrosde-platform-cobotta
 ```
 
+> [!TIP]
+> The steps below describe a platform on ROS 1.
+> A platform on ROS 2 follows them with the differences that [docs/ros2.md](docs/ros2.md) lists: two more lines in its template, an image on `openrosde-base-ros2`, colcon workspaces in `ros2/`, and launch files of ROS 2, as `turtlebot3-ros2` of `openrosde-platform-turtlebot3` shows.
+
 ### Step 1: Create the Platform Repository
 
 Create an empty repository named `openrosde-platform-<platform>` and clone it into `extensions/`:

@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# This script converts every COLLADA, STL, and OBJ mesh of the Catkin workspaces of the core and of the cloned extensions into a GLB beside it, named by appending '.glb', such as 'base.dae.glb', for the file service that 'rosbridge_server_default.launch' starts.
-# The meshes of the packages installed in the images, under '/opt/ros/noetic/share', get their GLBs when the user overlay builds, in 'docker/user-devel/Dockerfile'.
+# This script converts every COLLADA, STL, and OBJ mesh of the Catkin and colcon workspaces of the core and of the cloned extensions into a GLB beside it, named by appending '.glb', such as 'base.dae.glb', for the file service that 'rosbridge_server_default.launch' starts.
+# The meshes of the packages installed in the images, under '/opt/ros/<distribution>/share', get their GLBs when the user overlay builds, in 'docker/user-devel/Dockerfile'.
+# On ROS 2, a colcon workspace serves its meshes from its install space, so build it again after this script, as 'docs/robot-models.md' describes.
 # GLBs are generated locally only, never committed and never published, since the meshes of some robots may not be redistributed, as 'docs/robot-models.md' explains.
 # It runs the converter image 'openrosde-mesh2glb' as the host user with no network, and converts only the meshes whose GLB is missing or older, so it can run again at any time, such as after editing a mesh.
 # It is called by 'BUILD-DOCKER-IMAGE.bash' once the images are ready, and it warns rather than fails when Docker or the image is missing, so that it never stops the script that calls it.
@@ -56,12 +57,12 @@ if ! command -v docker > /dev/null 2>&1; then
   echo "Warning: Docker is missing, so the GLBs of the robot meshes were not generated, and clients fall back to the original meshes or their bundled models."
   exit 0
 fi
-echo "Generating the GLBs of the robot meshes in '${OPENROSDE_ROOT_DIR}/ros' and '${OPENROSDE_ROOT_DIR}/extensions' with '${OPENROSDE_MESH2GLB_IMAGE}'."
+echo "Generating the GLBs of the robot meshes in '${OPENROSDE_ROOT_DIR}/ros', '${OPENROSDE_ROOT_DIR}/ros2', and '${OPENROSDE_ROOT_DIR}/extensions' with '${OPENROSDE_MESH2GLB_IMAGE}'."
 if ! docker run --rm --network none \
   --user "$(id -u):$(id -g)" \
   --volume "${OPENROSDE_ROOT_DIR}:${OPENROSDE_ROOT_DIR}" \
   "${OPENROSDE_MESH2GLB_IMAGE}" \
-  python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs "${OPENROSDE_BUILD_JOBS:-$(nproc 2> /dev/null || echo 4)}" "${OPENROSDE_ROOT_DIR}/ros" "${OPENROSDE_ROOT_DIR}/extensions" \
+  python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs "${OPENROSDE_BUILD_JOBS:-$(nproc 2> /dev/null || echo 4)}" "${OPENROSDE_ROOT_DIR}/ros" "${OPENROSDE_ROOT_DIR}/ros2" "${OPENROSDE_ROOT_DIR}/extensions" \
   | awk -F '\t' '{ count[$6 ~ /^ERROR/ ? "failed" : $6]++ } $6 ~ /^ERROR/ { print "Warning: " $1 "/" $2 ": " $6 } END { printf "Converted %d meshes, kept %d current GLBs, and could not convert %d meshes.\n", count["ok"], count["current"], count["failed"] }'; then
   echo "Warning: The converter image '${OPENROSDE_MESH2GLB_IMAGE}' could not run, so the GLBs of the robot meshes were not generated, and clients fall back to the original meshes or their bundled models."
 fi

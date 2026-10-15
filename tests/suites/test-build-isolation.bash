@@ -67,7 +67,7 @@ openrosde-test-check "builds every image in the 'local' mode, whatever the fallb
   "$(printf '%s\n' "build openrosde-base" "build openrosde-mesh2glb" "build openrosde-platform" "build openrosde" "status 0")" \
   "$(openrosde-test-print-builds)"
 openrosde-test-check "then gives the meshes of the workspaces their GLBs with the converter of the same tag, with no network" \
-  "docker run --rm --network none --user $(id -u):$(id -g) --volume .:. registry.gitlab.com/coarobo/sde/openrosde-mesh2glb:dev python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs $(nproc) ./ros ./extensions" \
+  "docker run --rm --network none --user $(id -u):$(id -g) --volume .:. registry.gitlab.com/coarobo/sde/openrosde-mesh2glb:dev python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs $(nproc) ./ros ./ros2 ./extensions" \
   "$(openrosde-test-print-calls | grep '^docker run ')"
 
 ################################################################################

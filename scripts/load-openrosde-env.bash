@@ -19,7 +19,13 @@ source "${OPENROSDE_ROOT_DIR}/.env"
 # Overwrite the default environment variables with the user's variables from the '.env.custom' file (if it exists):
 source "${OPENROSDE_ROOT_DIR}/scripts/load-env-custom.bash" "${OPENROSDE_ROOT_DIR}"
 
-# Resolve where the files of the platform and of the extensions live, in the core or in 'extensions/'.
+# Stop when the settings name no ROS that OpenRoSDE runs, '1' for ROS 1 or '2' for ROS 2, which a platform on ROS 2 sets in its template with its distribution.
+if [ "${OPENROSDE_ROS_VERSION}" != "1" ] && [ "${OPENROSDE_ROS_VERSION}" != "2" ]; then
+  echo "Error: 'OPENROSDE_ROS_VERSION' is '${OPENROSDE_ROS_VERSION}' in '.env' or '.env.custom', but it must be '1' for ROS 1 or '2' for ROS 2." >&2
+  exit 1
+fi
+
+# Resolve where the files of the platform and of the extensions live, in the core or in 'extensions/', and the workspaces and the base image of the ROS of the platform.
 source "${OPENROSDE_ROOT_DIR}/scripts/load-extension-paths.bash" "${OPENROSDE_ROOT_DIR}"
 
 # Stop with a hint when no template declares the selected platform, as in a fresh clone of the core, which holds no platform, since each platform lives in a repository of its own cloned into 'extensions/'.
@@ -57,9 +63,10 @@ if [ "${OPENROSDE_DOCKER_IMAGE_TAG}" = "auto" ]; then
 fi
 
 # Derive the user and group IDs and the Dockerfiles and commit hashes that 'docker-compose.yaml' passes to the images.
+# The base image is the one of the ROS of the platform, 'docker/openrosde-base/Dockerfile' on ROS 1 or 'docker/openrosde-base-ros2/Dockerfile' on ROS 2, as 'scripts/load-extension-paths.bash' names it.
 OPENROSDE_USER_ID="$(id -u)"
 OPENROSDE_GROUP_ID="$(id -g)"
-OPENROSDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${OPENROSDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/openrosde-base/Dockerfile)"
+OPENROSDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${OPENROSDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/${OPENROSDE_BASE_IMAGE_NAME}/Dockerfile)"
 OPENROSDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${OPENROSDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/user-devel/Dockerfile)"
 OPENROSDE_MESH2GLB_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${OPENROSDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/openrosde-mesh2glb/Dockerfile)"
 

@@ -1,0 +1,20 @@
+diff --git a/src/file_server.cpp b/src/file_server.cpp
+index 95c4cf0..3b0b07d 100644
+--- a/src/file_server.cpp
++++ b/src/file_server.cpp
+@@ -90,11 +90,12 @@ public:
+ private:
+     static const std::unordered_set<std::string>& allowed_extensions()
+     {
++        // OpenRoSDE serves the meshes of a robot description, their GLB conversions, and their textures only.
+         static const std::unordered_set<std::string> exts =
+         {
+-            ".urdf", ".xacro", ".stl", ".dae", ".obj", ".mtl",
+-            ".png",  ".jpg",   ".jpeg",".bmp", ".tga", ".yaml",
+-            ".tif",  ".tiff",  ".gif", ".material"
++            ".stl", ".dae", ".obj", ".mtl", ".glb",
++            ".png", ".jpg", ".jpeg", ".bmp", ".tga",
++            ".tif", ".tiff", ".gif"
+         };
+         return exts;
+     }

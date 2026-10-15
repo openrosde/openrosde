@@ -15,12 +15,12 @@ OPENROSDE_TEST_FAILED_COUNT=0
 
 # Name the outside commands that every suite replaces with a stub, which logs its call and succeeds.
 # 'vcs' is left out, so that a suite adds it only when it needs 'vcstool', and 'tmux' too, since the 'tmux' suite runs the real one.
-OPENROSDE_TEST_STUB_NAMES="docker git ssh sudo xhost avahi-resolve terminator roslaunch catkin catkin_init_workspace rosdep apt-get chronyc sleep clear"
+OPENROSDE_TEST_STUB_NAMES="docker git ssh sudo xhost avahi-resolve terminator roslaunch catkin catkin_init_workspace rosdep apt-get chronyc sleep clear ros2 colcon pkill"
 
 ################################################################################
 
 # Create a scratch copy of the repository under test in a new temporary folder, with stubs of the outside commands first in 'PATH'.
-# The copy leaves out the Git metadata, the cloned extensions, the local settings, and the content of the Catkin workspaces, whose folders are enough for the scripts.
+# The copy leaves out the Git metadata, the cloned extensions, the local settings, and the content of the Catkin and colcon workspaces, whose folders are enough for the scripts.
 function openrosde-test-create-copy () {
   local OPENROSDE_TEST_CATKIN_WS OPENROSDE_TEST_STUB_NAME
   OPENROSDE_TEST_WORK_DIR="$(mktemp -d)"
@@ -28,9 +28,11 @@ function openrosde-test-create-copy () {
   OPENROSDE_TEST_STUB_DIR="${OPENROSDE_TEST_WORK_DIR}/stubs"
   OPENROSDE_TEST_COMMAND_LOG="${OPENROSDE_TEST_WORK_DIR}/commands.log"
   mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/extensions" "${OPENROSDE_TEST_STUB_DIR}"
-  tar -C "${OPENROSDE_TEST_SOURCE_DIR}" --exclude=./.git --exclude=./extensions --exclude=./.env.custom --exclude=./ros -cf - . | tar -C "${OPENROSDE_TEST_ROOT_DIR}" -xf -
-  for OPENROSDE_TEST_CATKIN_WS in "${OPENROSDE_TEST_SOURCE_DIR}"/ros/*_catkin_ws; do
-    mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/ros/$(basename "${OPENROSDE_TEST_CATKIN_WS}")/src"
+  tar -C "${OPENROSDE_TEST_SOURCE_DIR}" --exclude=./.git --exclude=./extensions --exclude=./.env.custom --exclude=./ros --exclude=./ros2 -cf - . | tar -C "${OPENROSDE_TEST_ROOT_DIR}" -xf -
+  for OPENROSDE_TEST_CATKIN_WS in "${OPENROSDE_TEST_SOURCE_DIR}"/ros/*_catkin_ws "${OPENROSDE_TEST_SOURCE_DIR}"/ros2/*_colcon_ws; do
+    if [ -d "${OPENROSDE_TEST_CATKIN_WS}" ]; then
+      mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/$(basename "$(dirname "${OPENROSDE_TEST_CATKIN_WS}")")/$(basename "${OPENROSDE_TEST_CATKIN_WS}")/src"
+    fi
   done
   for OPENROSDE_TEST_STUB_NAME in ${OPENROSDE_TEST_STUB_NAMES}; do
     openrosde-test-add-stub "${OPENROSDE_TEST_STUB_NAME}"
@@ -144,7 +146,7 @@ function openrosde-test-print-core-platforms () {
   done | sort
 }
 
-# Copy an extension that the repository under test holds in 'extensions/<extension>/', such as a canonical platform that a developer cloned, into the scratch copy, as the copy of the core is made: without its Git metadata, with an empty '.git' so that it counts as a clone, and with the folders of its Catkin workspaces alone.
+# Copy an extension that the repository under test holds in 'extensions/<extension>/', such as a canonical platform that a developer cloned, into the scratch copy, as the copy of the core is made: without its Git metadata, with an empty '.git' so that it counts as a clone, and with the folders of its Catkin and colcon workspaces alone.
 # Fail when the repository under test holds no such clone.
 function openrosde-test-copy-cloned-extension () {
   local OPENROSDE_TEST_CATKIN_WS
@@ -152,10 +154,10 @@ function openrosde-test-copy-cloned-extension () {
     return 1
   fi
   openrosde-test-create-extension "$1"
-  tar -C "${OPENROSDE_TEST_SOURCE_DIR}/extensions/$1" --exclude=./.git --exclude=./ros -cf - . | tar -C "${OPENROSDE_TEST_ROOT_DIR}/extensions/$1" -xf -
-  for OPENROSDE_TEST_CATKIN_WS in "${OPENROSDE_TEST_SOURCE_DIR}/extensions/$1"/ros/*_catkin_ws; do
+  tar -C "${OPENROSDE_TEST_SOURCE_DIR}/extensions/$1" --exclude=./.git --exclude=./ros --exclude=./ros2 -cf - . | tar -C "${OPENROSDE_TEST_ROOT_DIR}/extensions/$1" -xf -
+  for OPENROSDE_TEST_CATKIN_WS in "${OPENROSDE_TEST_SOURCE_DIR}/extensions/$1"/ros/*_catkin_ws "${OPENROSDE_TEST_SOURCE_DIR}/extensions/$1"/ros2/*_colcon_ws; do
     if [ -d "${OPENROSDE_TEST_CATKIN_WS}" ]; then
-      mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/extensions/$1/ros/$(basename "${OPENROSDE_TEST_CATKIN_WS}")/src"
+      mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/extensions/$1/$(basename "$(dirname "${OPENROSDE_TEST_CATKIN_WS}")")/$(basename "${OPENROSDE_TEST_CATKIN_WS}")/src"
     fi
   done
 }

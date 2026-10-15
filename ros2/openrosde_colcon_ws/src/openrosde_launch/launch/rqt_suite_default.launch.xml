@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- OpenRoSDE-specific: Launches a suite of rqt tools for monitoring and debugging the ROS 2 system. -->
+
+  <!-- Start 'rqt_topic' to monitor and publish ROS topics. -->
+  <node name="rqt_topic" pkg="rqt_topic" exec="rqt_topic" />
+
+  <!-- Start 'rqt_image_view' to visualize image topics. -->
+  <node name="rqt_image_view" pkg="rqt_image_view" exec="rqt_image_view" />
+
+  <!-- Start 'rqt_tf_tree' to visualize the TF transform tree. -->
+  <node name="rqt_tf_tree" pkg="rqt_tf_tree" exec="rqt_tf_tree" />
+
+  <!-- Start 'rqt_service_caller' to call ROS services interactively. -->
+  <node name="rqt_service_caller" pkg="rqt_service_caller" exec="rqt_service_caller" />
+
+  <!-- Maximize the rqt windows after they open. -->
+  <executable cmd="$(find-pkg-prefix openrosde_launch)/lib/openrosde_launch/maximize-app-window.bash rqt_topic" />
+  <executable cmd="$(find-pkg-prefix openrosde_launch)/lib/openrosde_launch/maximize-app-window.bash rqt_image_view" />
+  <executable cmd="$(find-pkg-prefix openrosde_launch)/lib/openrosde_launch/maximize-app-window.bash rqt_tf_tree" />
+  <executable cmd="$(find-pkg-prefix openrosde_launch)/lib/openrosde_launch/maximize-app-window.bash rqt_service_caller" />
+
+</launch>

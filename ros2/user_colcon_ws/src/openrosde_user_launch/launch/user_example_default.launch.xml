@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- OpenRoSDE-specific: User-overlay example launch file on ROS 2. -->
+  <!-- Runs the standard 'demo_nodes_cpp' talker node to verify the user workspace. -->
+  <!-- This file is platform-agnostic: it works on any 'OPENROSDE_ROBOT_PLATFORM' on ROS 2. -->
+
+  <!-- Start the example talker node. -->
+
+  <node name="user_example_talker" pkg="demo_nodes_cpp" exec="talker" output="screen" />
+
+</launch>

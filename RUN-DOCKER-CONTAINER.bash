@@ -7,9 +7,9 @@
 # [docker-project]: Used to name the Docker container and create multiple instances if needed.
 #                   Default value is '$USER'.
 # [ros-launch]:     Used to automatically preload a ROS launch file when entering the Docker container for convenience.
-#                   Format is 'filename.launch'.
+#                   Format is 'filename.launch', or 'filename.launch.xml' or 'filename.launch.py' for a platform on ROS 2.
 #                   Use '--no-exec' to start the container without entering it.
-# [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch' after the launch file.
+# [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch', or to 'ros2 launch' on ROS 2, after the launch file.
 #                   They override a launch file argument without modifying the launch file itself
 #                   (e.g., 'bash ./RUN-DOCKER-CONTAINER.bash myproject my_robot_launch:my_robot_bringup_default_realworld.launch robot_ip:=192.0.2.10').
 

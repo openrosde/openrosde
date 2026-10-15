@@ -12,7 +12,7 @@
 
 # Load the environment that a shell of the container has: the settings of the setup, ROS, and the workspaces.
 source ${OPENROSDE_CONTAINER_ROOT_DIR}/scripts/load-openrosde-settings.bash ${OPENROSDE_CONTAINER_ROOT_DIR}
-source /opt/ros/noetic/setup.bash
+source /opt/ros/${OPENROSDE_ROS_DISTRO}/setup.bash
 source ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/source-catkin-workspaces.bash > /dev/null
 
 ################################################################################

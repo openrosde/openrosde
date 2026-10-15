@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/RobotWebTools/rosbridge_suite -->
+  <!-- Upstream default: $(find-pkg-share rosbridge_server)/launch/rosbridge_websocket_launch.xml -->
+
+  <!-- Size in bytes above which 'rosbridge' splits a message into 'fragment' messages. -->
+  <!-- It stays above every response of the file service, so that the core never fragments one, and a check of the CI lowers it to test the reassembly of a client. -->
+  <arg name="max_message_size" default="100000000" />
+
+  <!-- Start the rosbridge WebSocket server bound to all interfaces on port 9090, which calls every service in a thread of its own. -->
+
+  <include file="$(find-pkg-share rosbridge_server)/launch/rosbridge_websocket_launch.xml">
+    <arg name="address" value="0.0.0.0" />
+    <arg name="port" value="9090" />
+    <arg name="max_message_size" value="$(var max_message_size)" />
+    <arg name="call_services_in_new_thread" value="true" />
+  </include>
+
+  <!-- https://github.com/siemens/ros-sharp/tree/2.3.1/ROS%20Packages/ROS2/file_server2 -->
+
+  <!-- Serve the meshes of the robot description, their GLB conversions, and their textures through the service '/file_server/get_file', built into the base image. -->
+  <!-- Saving and 'file://' addresses stay off, and a file above 'max_file_size' bytes is answered empty, so that no response exceeds 16 MiB of JSON. -->
+
+  <node pkg="file_server2" exec="file_server2_node" name="file_server" output="screen">
+    <param name="allow_save" value="false" />
+    <param name="allow_file_url" value="false" />
+    <param name="max_file_size" value="12000000" />
+  </node>
+
+</launch>

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>openrosde_launch</name>
+  <version>1.0.0</version>
+  <description>
+    The 'openrosde_launch' package provides shared launch files common to all platforms on ROS 2.
+  </description>
+  <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">https://coarobo.com/</url>
+  <url type="repository">https://gitlab.com/coarobo/SDE</url>
+  <url type="bugtracker">https://gitlab.com/coarobo/SDE/-/issues</url>
+  <author email="lotfi@coarobo.com">Lotfi El Hafi</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>file_server2</exec_depend>
+  <exec_depend>launch_xml</exec_depend>
+  <exec_depend>rosbridge_server</exec_depend>
+  <exec_depend>rqt_image_view</exec_depend>
+  <exec_depend>rqt_service_caller</exec_depend>
+  <exec_depend>rqt_tf_tree</exec_depend>
+  <exec_depend>rqt_topic</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

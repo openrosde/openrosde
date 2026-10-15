@@ -3,6 +3,7 @@
 # This script checks, inside the container of a setup, every launch entry point of its 'tmux' sessions, as part of the CI.
 # The entry points are the panes of the pane files that 'RUN-TMUX-SESSION.bash' opens for the setup, as 'scripts/load-extension-paths.bash' lists them in 'OPENROSDE_TMUX_PANES_FILES': the panes of the setup or else of its platform, of the active extensions, and of the core, in every layout, each with its own arguments.
 # 'roslaunch --files' resolves a launch file, its includes, packages, arguments, and conditions, and 'roslaunch --nodes' lists the nodes it would start, both without starting any node, so the check moves nothing.
+# On ROS 2, 'ros2 launch --show-args' loads a launch file, with its package, its arguments, and the launch files it includes, and prints its arguments without starting any node, which ROS 2 offers in place of both, so the node names are not compared there.
 # A pane that names no package runs the launch package of the platform, 'OPENROSDE_LAUNCH_PACKAGE', which the shell configuration of the setup or of its platform may change, as in a shell of the container.
 # The check fails when neither the setup nor its platform has a pane file, since its sessions would then open the panes of the core alone.
 # It also fails when two panes of one layout start a node of the same name, since the second one would shut the first one down, unless an allowlist names that node for that layout.
@@ -11,7 +12,7 @@
 #
 # Usage: bash ./gitlab-ci/check-launch-files.bash <robot-setup>
 #
-# <robot-setup>: The setup whose entry points to check, selected in '.env.custom', such as 'ur5e', whose Catkin workspaces are already built, or 'openrosde' for the panes of the core alone, with no platform.
+# <robot-setup>: The setup whose entry points to check, selected in '.env.custom', such as 'ur5e', whose Catkin or colcon workspaces are already built, or 'openrosde' or 'openrosde-ros2' for the panes of the core alone on ROS 1 or ROS 2, with no platform.
 
 ################################################################################
 
@@ -22,13 +23,13 @@ OPENROSDE_SHELL_SCRIPT_PATH="$(openrosde-find-setup-file "scripts/%s/initialize-
 if [ -n "${OPENROSDE_SHELL_SCRIPT_PATH}" ]; then
   source ${OPENROSDE_SHELL_SCRIPT_PATH}
 fi
-source /opt/ros/noetic/setup.bash
+source /opt/ros/${OPENROSDE_ROS_DISTRO}/setup.bash
 source ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/source-catkin-workspaces.bash > /dev/null
 
 ################################################################################
 
 # Stop when the settings select another setup than the one to check, or when neither the setup nor its platform has a pane file.
-if [ "$1" = "openrosde" ]; then
+if [ "$1" = "openrosde" ] || [ "$1" = "openrosde-ros2" ]; then
   if [ -n "${OPENROSDE_ROBOT_PLATFORM}" ]; then
     echo "Error: The panes of the core alone are checked with no platform, but '.env.custom' selects the platform '${OPENROSDE_ROBOT_PLATFORM}'."
     exit 1
@@ -73,7 +74,15 @@ while read -r OPENROSDE_PANE_FILE OPENROSDE_PANE_ARGS; do
   fi
   OPENROSDE_PANE_LAUNCH="${OPENROSDE_PANE_FILE}${OPENROSDE_PANE_ARGS:+ ${OPENROSDE_PANE_ARGS}}"
   OPENROSDE_CHECKED_LAUNCH_COUNT=$((OPENROSDE_CHECKED_LAUNCH_COUNT + 1))
-  if ! roslaunch --files ${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH} < /dev/null > /dev/null; then
+  if [ "${OPENROSDE_ROS_VERSION}" = "2" ]; then
+    if ! ros2 launch --show-args ${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH} < /dev/null > /dev/null; then
+      echo "Failed to resolve '${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH}'."
+      OPENROSDE_FAILED_LAUNCH_FILES="${OPENROSDE_FAILED_LAUNCH_FILES}"$'\n'"  - ${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH}"
+    else
+      OPENROSDE_LAUNCH_NODE_NAMES["${OPENROSDE_PANE_ENTRY}"]=""
+      echo "Resolved '${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH}'."
+    fi
+  elif ! roslaunch --files ${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH} < /dev/null > /dev/null; then
     echo "Failed to resolve '${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH}'."
     OPENROSDE_FAILED_LAUNCH_FILES="${OPENROSDE_FAILED_LAUNCH_FILES}"$'\n'"  - ${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH}"
   elif ! OPENROSDE_PANE_NODE_NAMES="$(roslaunch --nodes ${OPENROSDE_PANE_PACKAGE} ${OPENROSDE_PANE_LAUNCH} < /dev/null)" \
@@ -153,7 +162,11 @@ done <<< "${OPENROSDE_LAYOUT_NAMES}"
 
 # Report the result, and fail if any entry point does not resolve or if two panes of one layout start a node of the same name.
 echo "Checked ${OPENROSDE_CHECKED_LAUNCH_COUNT} launch entry points of '$1'."
-echo "Checked the node names of ${OPENROSDE_CHECKED_LAYOUT_COUNT} layouts of '$1'."
+if [ "${OPENROSDE_ROS_VERSION}" = "2" ]; then
+  echo "Left out the node names of the ${OPENROSDE_CHECKED_LAYOUT_COUNT} layouts of '$1', which ROS 2 cannot list without starting the nodes."
+else
+  echo "Checked the node names of ${OPENROSDE_CHECKED_LAYOUT_COUNT} layouts of '$1'."
+fi
 OPENROSDE_CHECK_EXIT_CODE=0
 if [ -n "${OPENROSDE_FAILED_LAUNCH_FILES}" ]; then
   echo "These launch entry points do not resolve:${OPENROSDE_FAILED_LAUNCH_FILES}"
