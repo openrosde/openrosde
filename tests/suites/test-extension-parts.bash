@@ -12,6 +12,10 @@
 # Load the helpers and create the scratch copy.
 source "${OPENROSDE_TEST_SOURCE_DIR}/tests/load-test-helpers.bash"
 openrosde-test-create-copy
+# Write the UR5e as a platform of the core of the scratch copy, which the checks below select, since the UR5e lives in a repository of its own.
+# Its bringup and shell scripts are removed, since the UR5e has none.
+openrosde-test-write-core-platform ur5e
+rm -r "${OPENROSDE_TEST_ROOT_DIR}/scripts/ur5e"
 OPENROSDE_TEST_ACME_DIR="extensions/acme"
 OPENROSDE_TEST_BENCH_DIR="extensions/acme/parts/acme-bench"
 OPENROSDE_TEST_BINDING_DIR="extensions/acme/parts/acme-binding"

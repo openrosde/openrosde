@@ -13,7 +13,7 @@ openrosde-test-create-copy
 
 # List the platforms to check: those of the core, the canonical platforms that the repository under test holds in 'extensions/', and 'rover', whose session stays open for the checks of the second run, each with the folder that holds it.
 OPENROSDE_TEST_PLATFORM_RECORDS="$(openrosde-test-print-core-platforms | sed 's/$/ ./')"
-for OPENROSDE_TEST_PLATFORM_NAME in cobotta fetch hsr sciurus17 turtlebot3; do
+for OPENROSDE_TEST_PLATFORM_NAME in cobotta fetch hsr sciurus17 turtlebot3 ur5e; do
   if openrosde-test-copy-cloned-extension "openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"; then
     OPENROSDE_TEST_PLATFORM_RECORDS="${OPENROSDE_TEST_PLATFORM_RECORDS}"$'\n'"${OPENROSDE_TEST_PLATFORM_NAME} extensions/openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"
   else

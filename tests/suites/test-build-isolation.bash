@@ -10,6 +10,8 @@
 # Load the helpers and create the scratch copy.
 source "${OPENROSDE_TEST_SOURCE_DIR}/tests/load-test-helpers.bash"
 openrosde-test-create-copy
+# Write the UR5e as a platform of the core of the scratch copy, which the checks below select, since the UR5e lives in a repository of its own.
+openrosde-test-write-core-platform ur5e
 OPENROSDE_TEST_COMPOSE_CALL="docker compose -p [a-z]* -f ./docker/docker-compose.yaml"
 
 # Select the UR5e with a fallback mode, given as argument, in '.env.custom'.

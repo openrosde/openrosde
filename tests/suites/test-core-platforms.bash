@@ -14,7 +14,7 @@ openrosde-test-create-copy
 mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/.git"
 OPENROSDE_TEST_REGISTRY="registry.gitlab.com/coarobo/sde"
 OPENROSDE_TEST_CLONED_PLATFORM_NAMES=""
-for OPENROSDE_TEST_PLATFORM_NAME in cobotta fetch hsr sciurus17 turtlebot3; do
+for OPENROSDE_TEST_PLATFORM_NAME in cobotta fetch hsr sciurus17 turtlebot3 ur5e; do
   if openrosde-test-copy-cloned-extension "openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"; then
     OPENROSDE_TEST_CLONED_PLATFORM_NAMES="${OPENROSDE_TEST_CLONED_PLATFORM_NAMES} ${OPENROSDE_TEST_PLATFORM_NAME}"
   else
