@@ -78,8 +78,8 @@ openrosde-test-check "prints one image job per platform, from its folder, one te
     test-acme-rover-lab-workspaces-job: test-cobotta-workspaces-job: test-fetch-workspaces-job: test-hsr-workspaces-job: test-rover-workspaces-job: \
     test-sciurus17-workspaces-job: test-turtlebot3-workspaces-job: test-ur5e-workspaces-job: test-core-workspaces-job: publish-images-job: "status 0")" \
   "$(openrosde-test-print-generated-jobs)"
-openrosde-test-check "makes the test job of a setup need the image job of its platform, and the core alone the base image, and both the check of the scripts" \
-  "$(printf '%s\n' "test-acme-rover-lab-workspaces-job: build-rover-image-job" "test-acme-rover-lab-workspaces-job: check-scripts-job" "test-core-workspaces-job: build-base-image-job" "test-core-workspaces-job: check-scripts-job")" \
+openrosde-test-check "makes the test job of a setup need the image job of its platform, and the core alone the base image, and both the converter of robot meshes and the check of the scripts" \
+  "$(printf '%s\n' "test-acme-rover-lab-workspaces-job: build-rover-image-job" "test-acme-rover-lab-workspaces-job: build-mesh2glb-image-job" "test-acme-rover-lab-workspaces-job: check-scripts-job" "test-core-workspaces-job: build-base-image-job" "test-core-workspaces-job: build-mesh2glb-image-job" "test-core-workspaces-job: check-scripts-job")" \
   "$(echo "${OPENROSDE_TEST_OUTPUT}" | awk '/^test-(acme-rover-lab|core)-workspaces-job:$/ { name = $1; next } name != "" && /^    - / { print name, $2; next } /^  variables:$/ { name = "" }')"
 export OPENROSDE_CI_EXTENSION_OVERRIDE="acme-robots=feat/foo@${OPENROSDE_TEST_COMMIT}"
 openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
@@ -348,9 +348,24 @@ openrosde-test-check "selects the template of the setup, builds in the image of 
     "docker inspect --format {{ range \$name, \$network := .NetworkSettings.Networks }}{{ \$name }} {{ end }} openrosde-ci-ur5e" \
     "docker network disconnect bridge openrosde-ci-ur5e" \
     "docker inspect --format {{ len .NetworkSettings.Networks }} openrosde-ci-ur5e" \
+    "docker exec openrosde-ci-ur5e bash /root/OpenRoSDE/gitlab-ci/check-robot-model.bash" \
     "docker exec openrosde-ci-ur5e bash /root/OpenRoSDE/gitlab-ci/check-launch-files.bash ur5e" \
     "docker exec openrosde-ci-ur5e bash /root/OpenRoSDE/gitlab-ci/run-extension-checks.bash ur5e")" \
-  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; head -n "$(grep -c '' "${OPENROSDE_TEST_ROOT_DIR}/env/ur5e.env")" "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" | cmp -s - "${OPENROSDE_TEST_ROOT_DIR}/env/ur5e.env" && echo "same template"; openrosde-test-print-calls | grep '^docker ')"
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; head -n "$(grep -c '' "${OPENROSDE_TEST_ROOT_DIR}/env/ur5e.env")" "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" | cmp -s - "${OPENROSDE_TEST_ROOT_DIR}/env/ur5e.env" && echo "same template"; openrosde-test-print-calls | grep '^docker ' | grep -v -e 'mesh2glb' -e '^docker exec openrosde-ci-ur5e bash -c cd / ' -e '^docker exec --interactive openrosde-ci-ur5e tar ')"
+openrosde-test-check "gives the meshes of the container their GLBs in a converter of the same tag with no network, then checks the robot model" \
+  "$(printf '%s\n' \
+    "docker pull --quiet ${OPENROSDE_TEST_REGISTRY}/openrosde-mesh2glb:pipeline-7" \
+    "docker rm --force openrosde-ci-ur5e-mesh2glb" \
+    "docker run --detach --name openrosde-ci-ur5e-mesh2glb --network none ${OPENROSDE_TEST_REGISTRY}/openrosde-mesh2glb:pipeline-7 sleep infinity" \
+    "docker exec openrosde-ci-ur5e-mesh2glb python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs 8 --out /out /in" \
+    "docker exec --interactive openrosde-ci-ur5e tar --extract --file - --directory /" \
+    "docker rm --force openrosde-ci-ur5e-mesh2glb" \
+    "docker exec openrosde-ci-ur5e bash /root/OpenRoSDE/gitlab-ci/check-robot-model.bash")" \
+  "$(openrosde-test-print-calls | grep -E '^docker (pull|rm --force openrosde-ci-ur5e-mesh2glb|run --detach|exec openrosde-ci-ur5e-mesh2glb python3|exec --interactive openrosde-ci-ur5e tar|exec openrosde-ci-ur5e bash /root/OpenRoSDE/gitlab-ci/check-robot-model)')"
+OPENROSDE_TEST_FAILING_CALL="pull --quiet" openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
+openrosde-test-check "skips the robot model, and passes, when the converter cannot be pulled, as in the pipeline of an extension before the core publishes it" \
+  "$(printf '%s\n' "status 0" "Warning: The converter image '${OPENROSDE_TEST_REGISTRY}/openrosde-mesh2glb:pipeline-7' cannot be pulled, so the robot model is not checked." "0 checks of the robot model")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Warning: The converter'; echo "$(openrosde-test-print-calls | grep -c 'check-robot-model') checks of the robot model")"
 OPENROSDE_TEST_FAILING_CALL="reset-catkin-workspaces" openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
 openrosde-test-check "runs no check when the workspaces fail to build, and keeps the logs of every workspace of the setup" \
   "$(printf '%s\n' "status 1" \

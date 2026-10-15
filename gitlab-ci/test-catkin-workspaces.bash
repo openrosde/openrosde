@@ -6,6 +6,7 @@
 # The Docker layers are built in the Docker-in-Docker daemon of the job with 'scripts/build-extension-layers.bash', and never pushed.
 # The repository goes into the container through 'docker cp', rather than a bind mount, since the Docker-in-Docker daemon cannot see the files of the job on every runner.
 # The workspaces build with the network, which the FlexBE app needs to download its runtime, and the container is then disconnected from every network before any check runs, so that no check can reach a robot.
+# The meshes of the container then get their GLBs from the converter image of the same registry and tag, with 'generate-ci-mesh-glbs.bash', and 'check-robot-model.bash' checks the file service of the robot model through 'rosbridge'.
 # On failure, the Catkin logs of every workspace of the setup are copied to 'ci-logs/' for the artifacts of the job.
 # Outside the CI, where 'CI' is not 'true', it refuses to run in a checkout that holds '.env.custom', which it would replace, so that the setup a developer selected is never lost.
 #
@@ -92,6 +93,12 @@ if [ -z "${OPENROSDE_CI_TEST_IMAGE}" ]; then
   OPENROSDE_CI_TEST_IMAGE="${OPENROSDE_CI_DEFAULT_IMAGE}"
 fi
 
+# Name the converter of robot meshes, of the same registry and tag as the images to read, or none when an image was given without them.
+OPENROSDE_CI_MESH2GLB_IMAGE=""
+if [ -n "${OPENROSDE_CI_IMAGE_REGISTRY}" ] && [ -n "${OPENROSDE_CI_IMAGE_TAG}" ]; then
+  OPENROSDE_CI_MESH2GLB_IMAGE="${OPENROSDE_CI_IMAGE_REGISTRY}/openrosde-mesh2glb:${OPENROSDE_CI_IMAGE_TAG}"
+fi
+
 ################################################################################
 
 # Apply the patches of the core, of every cloned extension, and of every part to their own Git submodules, which the CI checks out without them.
@@ -139,6 +146,17 @@ if [ "${OPENROSDE_CI_EXIT_CODE}" -eq 0 ]; then
     exit 1
   fi
   echo "Disconnected the container '${OPENROSDE_CI_CONTAINER_NAME}' from every network before the checks."
+  # Give the meshes of the container their GLBs and check the robot model that the file service serves, unless the converter cannot be pulled, such as in the pipeline of an extension before the core publishes it.
+  if [ -n "${OPENROSDE_CI_MESH2GLB_IMAGE}" ]; then
+    bash ./gitlab-ci/generate-ci-mesh-glbs.bash "${OPENROSDE_CI_CONTAINER_NAME}" "${OPENROSDE_CI_MESH2GLB_IMAGE}"
+    case $? in
+      0) docker exec "${OPENROSDE_CI_CONTAINER_NAME}" bash ${OPENROSDE_CONTAINER_ROOT_DIR}/gitlab-ci/check-robot-model.bash || OPENROSDE_CI_EXIT_CODE=1 ;;
+      2) ;;
+      *) OPENROSDE_CI_EXIT_CODE=1 ;;
+    esac
+  else
+    echo "Warning: No converter of robot meshes is named, since 'OPENROSDE_CI_IMAGE_REGISTRY' or 'OPENROSDE_CI_IMAGE_TAG' is not set, so the robot model is not checked."
+  fi
   docker exec "${OPENROSDE_CI_CONTAINER_NAME}" bash ${OPENROSDE_CONTAINER_ROOT_DIR}/gitlab-ci/check-launch-files.bash "$1" || OPENROSDE_CI_EXIT_CODE=1
   docker exec "${OPENROSDE_CI_CONTAINER_NAME}" bash ${OPENROSDE_CONTAINER_ROOT_DIR}/gitlab-ci/run-extension-checks.bash "$1" || OPENROSDE_CI_EXIT_CODE=1
 fi

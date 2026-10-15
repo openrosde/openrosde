@@ -1,3 +1,6 @@
 # Launch files of simulations that a script of 'gitlab-ci/' may start with 'roslaunch', which 'gitlab-ci/check-no-motion.bash' reads, one file name per line, such as 'ur5e_bringup_default_gazebo.launch'.
-# The scripts of the core start no launch file, so the list is empty.
+# The core also lists the one launch file that starts no robot node, so that a check may start it with the network of its container cut.
 # An extension keeps its own list in 'ci/allowed-simulation-launches.txt', for the scripts of its own 'ci/' folder.
+
+# 'rosbridge' and the file service of the robot model, which 'gitlab-ci/check-robot-model.bash' starts.
+rosbridge_server_default.launch

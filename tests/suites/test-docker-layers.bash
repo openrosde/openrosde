@@ -55,6 +55,7 @@ openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
 openrosde-test-check "pulls the images, then builds the layers and the user overlay by default" \
   "$(printf '%s\n' \
     "docker compose -p test -f ./docker/docker-compose.yaml pull openrosde-base" \
+    "docker compose -p test -f ./docker/docker-compose.yaml pull openrosde-mesh2glb" \
     "docker compose -p test -f ./docker/docker-compose.yaml pull openrosde-platform" \
     "${OPENROSDE_TEST_BAR_BUILD}" \
     "${OPENROSDE_TEST_LAB_BUILD}" \

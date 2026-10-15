@@ -42,6 +42,7 @@ fi
 if [[ "${OPENROSDE_DOCKER_PROJECT}" == "local" ]]; then
   # Build current platform, extension, and user images with cache (fast rebuild for local development).
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde-base
+  docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde-mesh2glb
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde-platform
   source ./scripts/build-extension-layers.bash "${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_TAG}" || exit 1
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde
@@ -57,6 +58,15 @@ else
     fi
     docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde-base
   fi
+  # The converter of robot meshes is small, so it is built whenever its pull fails, unless 'OPENROSDE_DOCKER_BUILD_FALLBACK=false' forbids every build.
+  docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull openrosde-mesh2glb
+  if [[ "$?" -ne "0" ]]; then
+    if [ "${OPENROSDE_DOCKER_BUILD_FALLBACK}" = "false" ]; then
+      echo "Error: The pull of '${OPENROSDE_DOCKER_REGISTRY}/openrosde-mesh2glb:${OPENROSDE_DOCKER_IMAGE_TAG}' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=false' does not build it locally."
+      exit 1
+    fi
+    docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde-mesh2glb
+  fi
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull openrosde-platform
   if [[ "$?" -ne "0" ]]; then
     if [ "${OPENROSDE_DOCKER_BUILD_FALLBACK}" = "false" ]; then
@@ -69,3 +79,9 @@ else
   source ./scripts/build-extension-layers.bash "${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_TAG}" || exit 1
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde
 fi
+
+################################################################################
+
+# Give every mesh of the Catkin workspaces its GLB, for the file service that serves the robot model to clients of 'rosbridge', as 'docs/robot-models.md' describes.
+# The meshes installed in the images got theirs when the user overlay was built.
+bash ./scripts/generate-mesh-glbs.bash "${OPENROSDE_DOCKER_REGISTRY}/openrosde-mesh2glb:${OPENROSDE_DOCKER_IMAGE_TAG}"

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `rosbridge_server_default.launch` starts the ROS# file service `/file_server/get_file`, built from source in the base image and patched to serve only meshes, textures, and their GLB files up to 12,000,000 bytes, so that a client of `rosbridge` loads the model of any robot from `robot_description`, as `docs/robot-models.md` describes (#41).
+- The converter image `openrosde-mesh2glb` turns every COLLADA, STL, and OBJ mesh into a GLB beside it, named by appending `.glb`, for the meshes of the images when the user overlay builds and for those of the workspaces with `scripts/generate-mesh-glbs.bash`, which `BUILD-DOCKER-IMAGE.bash` runs, and GLBs are never committed or published (#41).
+- The CI checks that the converter gives the same bytes twice and valid GLBs, and every test job of a setup checks the file service through `rosbridge` with the GLBs of its container (#41).
 - The CI tests every setup it finds, in the core and in the public extensions that `gitlab-ci/extensions.repos` pins and `gitlab-ci/clone-extensions.bash` clones anonymously, with one test job per setup that builds its Docker layers and its Catkin workspaces in the image of its platform, and a test job of the core alone in the base image (#38).
 - `gitlab-ci/clone-extensions.bash` refuses a file of extensions in another layout than its own, rather than reading no name from it and testing nothing (#38).
 - A public extension tests one of its branches against the core by triggering a pipeline with `OPENROSDE_CI_EXTENSION_OVERRIDE=<name>=<branch>@<commit>`, which tests only the setups that activate it and never publishes, and `OPENROSDE_CI_EXTRA_EXTENSIONS` adds extensions to every setup that the CI tests (#38).

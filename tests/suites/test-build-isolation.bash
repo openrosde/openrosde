@@ -29,8 +29,8 @@ function openrosde-test-print-builds () {
 # Check the images that a failed pull lets 'BUILD-DOCKER-IMAGE.bash' build.
 openrosde-test-select-fallback true
 OPENROSDE_TEST_FAILING_CALL=" pull " openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
-openrosde-test-check "builds the base and platform images when their pulls fail, by default" \
-  "$(printf '%s\n' "pull openrosde-base" "build openrosde-base" "pull openrosde-platform" "build openrosde-platform" "build openrosde" "status 0")" \
+openrosde-test-check "builds the base, converter, and platform images when their pulls fail, by default" \
+  "$(printf '%s\n' "pull openrosde-base" "build openrosde-base" "pull openrosde-mesh2glb" "build openrosde-mesh2glb" "pull openrosde-platform" "build openrosde-platform" "build openrosde" "status 0")" \
   "$(openrosde-test-print-builds)"
 openrosde-test-select-fallback false
 OPENROSDE_TEST_FAILING_CALL="pull openrosde-base" openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
@@ -39,7 +39,11 @@ openrosde-test-check "fails without building anything when the pull of the base 
   "$(openrosde-test-print-builds; echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Error:')"
 OPENROSDE_TEST_FAILING_CALL="pull openrosde-platform" openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
 openrosde-test-check "fails without building anything when the pull of the platform fails with 'false'" \
-  "$(printf '%s\n' "pull openrosde-base" "pull openrosde-platform" "status 1")" \
+  "$(printf '%s\n' "pull openrosde-base" "pull openrosde-mesh2glb" "pull openrosde-platform" "status 1")" \
+  "$(openrosde-test-print-builds)"
+OPENROSDE_TEST_FAILING_CALL="pull openrosde-mesh2glb" openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
+openrosde-test-check "fails without building anything when the pull of the converter fails with 'false'" \
+  "$(printf '%s\n' "pull openrosde-base" "pull openrosde-mesh2glb" "status 1")" \
   "$(openrosde-test-print-builds)"
 openrosde-test-select-fallback platform
 OPENROSDE_TEST_FAILING_CALL="pull openrosde-base" openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
@@ -48,7 +52,7 @@ openrosde-test-check "fails without building the base when its pull fails with '
   "$(openrosde-test-print-builds)"
 OPENROSDE_TEST_FAILING_CALL="pull openrosde-platform" openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
 openrosde-test-check "builds the platform image alone when its pull fails with 'platform'" \
-  "$(printf '%s\n' "pull openrosde-base" "pull openrosde-platform" "build openrosde-platform" "build openrosde" "status 0")" \
+  "$(printf '%s\n' "pull openrosde-base" "pull openrosde-mesh2glb" "pull openrosde-platform" "build openrosde-platform" "build openrosde" "status 0")" \
   "$(openrosde-test-print-builds)"
 openrosde-test-select-fallback yes
 openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
@@ -58,8 +62,11 @@ openrosde-test-check "refuses another fallback mode before calling Docker" \
 openrosde-test-select-fallback false
 openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash local
 openrosde-test-check "builds every image in the 'local' mode, whatever the fallback mode" \
-  "$(printf '%s\n' "build openrosde-base" "build openrosde-platform" "build openrosde" "status 0")" \
+  "$(printf '%s\n' "build openrosde-base" "build openrosde-mesh2glb" "build openrosde-platform" "build openrosde" "status 0")" \
   "$(openrosde-test-print-builds)"
+openrosde-test-check "then gives the meshes of the workspaces their GLBs with the converter of the same tag, with no network" \
+  "docker run --rm --network none --user $(id -u):$(id -g) --volume .:. registry.gitlab.com/coarobo/sde/openrosde-mesh2glb:dev python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs $(nproc) ./ros ./extensions" \
+  "$(openrosde-test-print-calls | grep '^docker run ')"
 
 ################################################################################
 

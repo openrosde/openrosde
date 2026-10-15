@@ -259,6 +259,7 @@ gitlab-ci/                               # GitLab CI/CD pipeline and its scripts
 | [Robot Platforms / HSR](docs/robot-platforms/hsr.md) | Toyota HSR (Human Support Robot) simulation-only configuration, installation, and operation |
 | [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking OpenRoSDE |
 | [Extensions](docs/extensions.md) | Add a platform, a device, or other packages from a repository of their own, public or private, cloned into `extensions/` |
+| [Robot Models](docs/robot-models.md) | Serve the robot model to clients of `rosbridge`: the file service, the GLB files of the meshes, and how to generate them |
 
 ## 📄 Related Publications
 
@@ -347,5 +348,7 @@ Notable platform-specific bundling:
 | --- | --- | --- |
 | HSR | [`ghcr.io/hsr-project/tmc_wrs_binary`](https://github.com/hsr-project/tmc_wrs_docker) (full HSR ROS Noetic stack, WRS apartment world) | [BSD 3-Clause Clear](https://spdx.org/licenses/BSD-3-Clause-Clear.html) (Toyota Motor Corporation) |
 | All | [ROS Noetic](https://www.ros.org/), [Gazebo](http://gazebosim.org/), [FlexBE](http://flexbe.github.io/), and platform-specific upstream packages | Per upstream (BSD, Apache 2.0, MIT, etc.) |
+| All | [ROS#](https://github.com/siemens/ros-sharp) `file_server` `2.3.1` (Siemens AG), built from source in the base image with the patches of `docker/openrosde-base/patches/ros-sharp/` | [Apache 2.0](https://github.com/siemens/ros-sharp/blob/2.3.1/LICENSE.md) |
+| All | [`trimesh`](https://github.com/mikedh/trimesh) and [`pycollada`](https://github.com/pycollada/pycollada) in the converter image `openrosde-mesh2glb` | [MIT](https://github.com/mikedh/trimesh/blob/main/LICENSE.md) and [BSD 3-Clause](https://github.com/pycollada/pycollada/blob/master/COPYING) |
 
 See each `docs/robot-platforms/<platform>.md` document for platform-specific licensing details.
