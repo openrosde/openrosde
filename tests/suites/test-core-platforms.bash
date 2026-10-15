@@ -2,6 +2,7 @@
 
 # This suite checks the platforms of the core and the canonical platforms cloned into 'extensions/' of the repository under test, with no other extension: the switch, the folders and workspaces, the Docker Compose files, the images, and the platform scripts.
 # The canonical platforms live in repositories of their own, 'openrosde-platform-<platform>', so the suite checks those that a developer cloned into 'extensions/', and names the others that it skips.
+# A repository may hold several platforms, such as 'turtlebot3' on ROS 1 and 'turtlebot3-ros2' on ROS 2, so the suite checks every platform that the templates of a clone declare.
 # The bringup and the Chrony restart run with the fake platform 'rover' of the extension 'openrosde-platform-rover', which the suite writes.
 #
 # Usage: bash ./tests/run.bash test-core-platforms
@@ -14,9 +15,16 @@ openrosde-test-create-copy
 mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/.git"
 OPENROSDE_TEST_REGISTRY="registry.gitlab.com/coarobo/sde"
 OPENROSDE_TEST_CLONED_PLATFORM_NAMES=""
+declare -A OPENROSDE_TEST_CLONED_PLATFORM_ROOTS
 for OPENROSDE_TEST_PLATFORM_NAME in cobotta fetch hsr sciurus17 turtlebot3 ur5e; do
   if openrosde-test-copy-cloned-extension "openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"; then
-    OPENROSDE_TEST_CLONED_PLATFORM_NAMES="${OPENROSDE_TEST_CLONED_PLATFORM_NAMES} ${OPENROSDE_TEST_PLATFORM_NAME}"
+    for OPENROSDE_TEST_ENV_FILE in "${OPENROSDE_TEST_ROOT_DIR}/extensions/openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"/env/*.env; do
+      OPENROSDE_TEST_ENV_NAME="$(basename "${OPENROSDE_TEST_ENV_FILE}" .env)"
+      if grep -qxF "OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_TEST_ENV_NAME}" "${OPENROSDE_TEST_ENV_FILE}"; then
+        OPENROSDE_TEST_CLONED_PLATFORM_NAMES="${OPENROSDE_TEST_CLONED_PLATFORM_NAMES} ${OPENROSDE_TEST_ENV_NAME}"
+        OPENROSDE_TEST_CLONED_PLATFORM_ROOTS["${OPENROSDE_TEST_ENV_NAME}"]="./extensions/openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"
+      fi
+    done
   else
     echo "Skipping the platform '${OPENROSDE_TEST_PLATFORM_NAME}', which is not cloned into 'extensions/openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}/'."
   fi
@@ -39,8 +47,15 @@ for OPENROSDE_TEST_PLATFORM_NAME in ${OPENROSDE_TEST_PLATFORM_NAMES}; do
   OPENROSDE_TEST_PLATFORM_ROOT="."
   OPENROSDE_TEST_ACTIVE_ROOTS="."
   if [ ! -f "${OPENROSDE_TEST_ROOT_DIR}/env/${OPENROSDE_TEST_PLATFORM_NAME}.env" ]; then
-    OPENROSDE_TEST_PLATFORM_ROOT="./extensions/openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"
+    OPENROSDE_TEST_PLATFORM_ROOT="${OPENROSDE_TEST_CLONED_PLATFORM_ROOTS["${OPENROSDE_TEST_PLATFORM_NAME}"]}"
     OPENROSDE_TEST_ACTIVE_ROOTS=". ${OPENROSDE_TEST_PLATFORM_ROOT}"
+  fi
+
+  # A platform on ROS 2 builds the colcon workspaces of 'ros2/', those of the core and every one of its folder, and a platform on ROS 1 the Catkin workspaces of 'ros/', with its own.
+  if grep -qxF "OPENROSDE_ROS_VERSION=2" "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_PLATFORM_ROOT}/env/${OPENROSDE_TEST_PLATFORM_NAME}.env"; then
+    OPENROSDE_TEST_EXPECTED_WORKSPACES="./ros2/openrosde_colcon_ws $(cd "${OPENROSDE_TEST_ROOT_DIR}" && ls -d "${OPENROSDE_TEST_PLATFORM_ROOT}"/ros2/*_colcon_ws | tr '\n' ' ')./ros2/user_colcon_ws"
+  else
+    OPENROSDE_TEST_EXPECTED_WORKSPACES="./ros/openrosde_catkin_ws ${OPENROSDE_TEST_PLATFORM_ROOT}/ros/${OPENROSDE_TEST_PLATFORM_NAME}_catkin_ws ./ros/user_catkin_ws"
   fi
 
   # The switch copies the template of the platform to '.env.custom' and updates the Git submodules of the core first.
@@ -51,7 +66,7 @@ for OPENROSDE_TEST_PLATFORM_NAME in ${OPENROSDE_TEST_PLATFORM_NAMES}; do
 
   # The platform, its setup, and its workspace come from the folder that holds the platform.
   openrosde-test-check "resolves the folders and workspaces of '${OPENROSDE_TEST_PLATFORM_NAME}' in '${OPENROSDE_TEST_PLATFORM_ROOT}'" \
-    "$(printf '%s\n' "platform-root: ${OPENROSDE_TEST_PLATFORM_ROOT}" "setup: ${OPENROSDE_TEST_PLATFORM_NAME}" "setup-root: ${OPENROSDE_TEST_PLATFORM_ROOT}" "active: ${OPENROSDE_TEST_ACTIVE_ROOTS}" "workspaces: ./ros/openrosde_catkin_ws ${OPENROSDE_TEST_PLATFORM_ROOT}/ros/${OPENROSDE_TEST_PLATFORM_NAME}_catkin_ws ./ros/user_catkin_ws")" \
+    "$(printf '%s\n' "platform-root: ${OPENROSDE_TEST_PLATFORM_ROOT}" "setup: ${OPENROSDE_TEST_PLATFORM_NAME}" "setup-root: ${OPENROSDE_TEST_PLATFORM_ROOT}" "active: ${OPENROSDE_TEST_ACTIVE_ROOTS}" "workspaces: ${OPENROSDE_TEST_EXPECTED_WORKSPACES}")" \
     "$(openrosde-test-print-paths | grep -E '^(platform-root|setup|setup-root|active|workspaces):')"
 
   # The container runs with the base file, the overlay of the platform, and the user overlay.

@@ -94,10 +94,10 @@ openrosde-test-check "passes the child pipeline no variable of the parent pipeli
 export OPENROSDE_CI_RUNNER_TAG="privileged-docker"
 OPENROSDE_TEST_CORE_PLATFORM_NAMES="$(openrosde-test-print-core-platforms)"
 openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
-openrosde-test-check "prints one image job per platform, from its folder, one test job per setup, and the test job of the core alone" \
+openrosde-test-check "prints one image job per platform, from its folder, one test job per setup, and the test jobs of the core alone on ROS 1 and ROS 2, with the robot model through a 'rosbridge' that fragments" \
   "$( (printf '%s\n' ${OPENROSDE_TEST_CORE_PLATFORM_NAMES} rover | sort | sed 's/.*/build-&-image-job:/' | sed "s#^build-rover-image-job:\$#&\n    OPENROSDE_CI_PLATFORM_ROOT_DIR: ${OPENROSDE_TEST_ROVER_DIR}#"
     printf '%s\n' ${OPENROSDE_TEST_CORE_PLATFORM_NAMES} rover acme-rover-lab | sort | sed 's/.*/test-&-workspaces-job:/'
-    printf '%s\n' test-core-workspaces-job: publish-images-job: "status 0"))" \
+    printf '%s\n' test-core-workspaces-job: test-core-ros2-workspaces-job: robot-model-fragments-job: publish-images-job: "status 0"))" \
   "$(openrosde-test-print-generated-jobs)"
 openrosde-test-check "makes the test job of a setup need the image job of its platform, and the core alone the base image, and both the converter of robot meshes and the check of the scripts" \
   "$(printf '%s\n' "test-acme-rover-lab-workspaces-job: build-rover-image-job" "test-acme-rover-lab-workspaces-job: build-mesh2glb-image-job" "test-acme-rover-lab-workspaces-job: check-scripts-job" "test-core-workspaces-job: build-base-image-job" "test-core-workspaces-job: build-mesh2glb-image-job" "test-core-workspaces-job: check-scripts-job")" \
