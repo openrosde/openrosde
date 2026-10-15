@@ -236,6 +236,7 @@ The canonical platforms of OpenRoSDE live in public repositories of their own, u
 | `hsr` | Toyota HSR (Human Support Robot) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr) |
 | `sciurus17` | RT Sciurus17 | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17) |
 | `turtlebot3` | Robotis TurtleBot3 (Waffle Pi) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) |
+| `ur5e` | Universal Robots UR5e | [https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e) |
 
 Clone one into `extensions/`, then switch to it, as for any platform extension:
 
@@ -247,7 +248,7 @@ bash ./SWITCH-ROBOT-PLATFORM.bash fetch
 - `gitlab-ci/extensions.repos` pins each of them at a commit of its `main`, so the CI of the core clones them, builds or reuses their images, and publishes them as `registry.gitlab.com/coarobo/sde/<platform>-devel`, as it did when the core held them.
 - Each platform repository tests its own changes with the trigger that the section below describes, and a merge request of the core moves the pin once a change of the platform is merged.
 - The `NOTICE` of each platform repository records the licenses of its third-party software, some of which allow no commercial use.
-- The UR5e stays in the core until it moves to a repository of its own too.
+- The UR5e in `openrosde-platform-ur5e` is the plain robot as sold, and a setup that mounts a gripper or cameras on it names its own description package in `OPENROSDE_UR5E_DESCRIPTION_PACKAGE`, as `docs/robot-platforms/ur5e.md` of that repository describes.
 
 ## 🧪 Testing an Extension
 

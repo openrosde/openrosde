@@ -35,11 +35,9 @@ The project is hosted at <https://gitlab.com/coarobo/SDE> and works on two long-
 
 - **Title**: Conventional Commits format `type(scope): subject`.
   Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-  Scope is the name of a platform that this repository holds only, `ur5e` until it moves to a repository of its own, since every other platform takes its changes in its own repository.
-  Omit the scope entirely when the change is not specific to a single platform (cross-platform refactors, shared docs, CI, base Docker image, repository-wide changes).
+  Omit the scope, since this repository holds no platform, and every platform takes its changes in its own repository.
   Subject is imperative, lowercase, no trailing period.
-  Example: `fix(ur5e): load the calibration of the arm before MoveIt`.
-  Example without scope: `docs: adopt Keep a Changelog and document GitLab workflow`.
+  Example: `docs: adopt Keep a Changelog and document GitLab workflow`.
 - **Description**: use the following structure. Cover each section when relevant. Omit sections that do not apply.
   1. **Summary**: one paragraph explaining what changes and why.
   2. **Changes**: bullet list of notable file or behavior changes.

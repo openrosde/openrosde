@@ -82,7 +82,7 @@ Set up the environment of the Ubuntu development machine with the following inst
 
 Select the target robot platform with the following instructions.
 
-1. Clone the repository of the desired platform into `extensions/`, since the core holds no canonical platform but the UR5e:
+1. Clone the repository of the desired platform into `extensions/`, since the core holds no platform:
 
     ```shell
     git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git extensions/openrosde-platform-turtlebot3
