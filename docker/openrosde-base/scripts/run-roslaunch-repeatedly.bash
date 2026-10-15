@@ -10,7 +10,7 @@
 #                   If no package is specified, the 'OPENROSDE_LAUNCH_PACKAGE' environment variable is used.
 # [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch' as is.
 #                   They override a launch file argument without modifying the launch file itself
-#                   (e.g., 'run-roslaunch-repeatedly.bash ur5e_teleop_default_realworld.launch input_source:=sightline').
+#                   (e.g., 'run-roslaunch-repeatedly.bash my_robot_launch:my_robot_bringup_default_realworld.launch robot_ip:=192.0.2.10').
 
 ################################################################################
 
@@ -22,7 +22,7 @@ else
   OPENROSDE_LAUNCH_FILE=$1
 fi
 
-# Forward the remaining arguments to 'roslaunch' (e.g., 'input_source:=sightline').
+# Forward the remaining arguments to 'roslaunch' (e.g., 'robot_ip:=192.0.2.10').
 OPENROSDE_LAUNCH_ARGS="${*:2}"
 
 if [ -z "${OPENROSDE_LAUNCH_FILE}" ]; then
