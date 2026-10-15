@@ -39,11 +39,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ################################################################################
 
-# Install the FlexBE behavior engine, which the distribution releases.
+# Install the FlexBE behavior engine, which the distribution releases, and the dependencies of the FlexBE WebUI.
 # https://github.com/FlexBE/flexbe_behavior_engine
-# The FlexBE App is not released for ROS 2 Lyrical, so the image holds the engine alone.
+# https://github.com/FlexBE/flexbe_webui
+# The WebUI supersedes the FlexBE App on ROS 2, which ROS 1 keeps, and builds from its submodule in 'ros2/openrosde_colcon_ws', since no distribution releases it.
+# Its server runs on FastAPI, and its desktop client on PySide6 with QtWebEngine.
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-lyrical-flexbe-behavior-engine \
+  python3-fastapi \
+  python3-pydantic \
+  python3-pygments \
+  python3-pyside6.qtwebenginecore \
+  python3-pyside6.qtwebenginewidgets \
+  python3-uvicorn \
+  python3-websockets \
+  python3-yaml \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ################################################################################

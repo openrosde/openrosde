@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <!-- https://github.com/FlexBE/flexbe_webui -->
+  <!-- Upstream default: $(find-pkg-share flexbe_webui)/launch/flexbe_ocs.launch.py -->
+
+  <!-- OpenRoSDE-specific: Starts the FlexBE WebUI, the editor and operator control station of FlexBE on ROS 2, which supersedes the FlexBE App that ROS 1 keeps. -->
+  <!-- Its server listens on 'host' and 'port', and its desktop client opens it in a window, or, with 'headless:=true', any browser opens 'http://<host>:<port>'. -->
+
+  <arg name="headless" default="false" description="Start the server alone and open the WebUI in a browser instead of the desktop client." />
+  <arg name="host" default="127.0.0.1" description="Address the server of the WebUI listens on." />
+  <arg name="port" default="8000" description="Port the server of the WebUI listens on." />
+  <arg name="use_sim_time" default="false" description="Use the clock of the simulation." />
+
+  <include file="$(find-pkg-share flexbe_webui)/launch/flexbe_ocs.launch.py">
+    <arg name="headless" value="$(var headless)" />
+    <arg name="host" value="$(var host)" />
+    <arg name="port" value="$(var port)" />
+    <arg name="use_sim_time" value="$(var use_sim_time)" />
+  </include>
+
+</launch>

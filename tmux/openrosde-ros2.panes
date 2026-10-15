@@ -1,8 +1,9 @@
 # Panes of the core on ROS 2 for 'RUN-TMUX-SESSION.bash', in the windows 'tools', 'user', and 'host' of every session of a platform on ROS 2, after the windows of the platform, the extensions, and the setup.
 # Each line reads '<layouts> <window> <launch-file> [<arg:=value> ...]', where '<layouts>' is '*' or a comma-separated list such as 'default-gazebo,default-realworld'.
 # The word 'shell' opens a shell inside the Docker container, and the word 'host' opens a shell on the Ubuntu development machine.
-# The FlexBE App has no pane, since no release of it exists for ROS 2 Lyrical.
+# The FlexBE WebUI takes the place of the FlexBE App of ROS 1, as the first pane of the window 'tools'.
 
+*  tools  openrosde_launch:flexbe_webui_default.launch.xml
 *  tools  openrosde_launch:rqt_suite_default.launch.xml
 *  tools  openrosde_launch:rosbridge_server_default.launch.xml
 *  user   openrosde_user_launch:user_example_default.launch.xml
