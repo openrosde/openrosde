@@ -13,8 +13,3 @@
 	url = https://github.com/FlexBE/generic_flexbe_states.git
 	branch = master
 	ignore = dirty
-[submodule "ros/openrosde_catkin_ws/src/ros_tcp_endpoint"]
-	path = ros/openrosde_catkin_ws/src/ros_tcp_endpoint
-	url = https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
-	branch = main
-	ignore = dirty

@@ -91,6 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- The Unity ROS TCP Endpoint left the core, with `ros_tcp_endpoint_default.launch`, `ros_tcp_endpoint_server.py`, the `ros_tcp_endpoint` submodule, and its `tmux` pane, once Coarobo Sightline reached the Fetch and the UR5e through `rosbridge` alone, so `rosbridge_server_default.launch` on port `9090` is the one transport of the core, and the Terminator terminal where it ran opens a shell in the container (#41).
 - **Breaking:** the platforms `turtlebot3`, `fetch`, `sciurus17`, `cobotta`, and `hsr` leave the core for repositories of their own under the Apache License 2.0, `https://gitlab.com/coarobo/openrosde/openrosde-platform-<platform>`, with their templates, Dockerfiles, Docker Compose overlays, Catkin workspaces, Git submodules, patches, panes, Terminator layouts, scripts, and documentation (#40).
   Migration: on a machine that runs one of them, clone its repository into `extensions/` before pulling the core, such as `git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch.git extensions/openrosde-platform-fetch`, then run `bash ./scripts/update-git-submodules.bash`, and a `.env.custom` that selects the platform keeps working.
 - **Breaking:** the UR5e leaves the core for `openrosde-platform-ur5e` under the Apache License 2.0, as the plain robot as sold: its description, SRDFs, RViz layout, and Terminator and `tmux` layouts name no gripper, camera, or input device, its calibration is the nominal one of `ur_description`, its teleop launch files start MoveIt Servo without `input_source`, and its realworld bringup starts in teach pendant mode, with `headless_mode:=true` to start the program on the robot itself (#39, #40).
@@ -102,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `docs/basic-usage.md` no longer asks for GitLab credentials to pull the images, which the registry serves without a login, and says that `docker logout registry.gitlab.com` fixes a pull that an old login makes fail.
 - The converter of robot meshes clamps every color and factor of a material to [0, 1], as glTF requires, so a COLLADA emission above 1, such as in a world of `fetch_gazebo`, no longer gives a GLB that the Khronos glTF-Validator rejects (#41).
 - `gitlab-ci/check-launch-files.bash` checks the pane files that `RUN-TMUX-SESSION.bash` opens for the setup, and fails when neither the setup nor its platform has one, rather than checking the panes of the core alone and passing, as it did for a platform held by an extension (#38).
 - `gitlab-ci/check-launch-files.bash` takes the launch package of the panes that name none from `OPENROSDE_LAUNCH_PACKAGE`, which the shell configuration of a setup or a platform may change, as the shell of the container does (#38).

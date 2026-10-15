@@ -132,7 +132,7 @@ printf '%s\n' "/rover_monitor" > "${OPENROSDE_TEST_NODES_DIR}/rover_monitor_defa
 printf '%s\n' "/flexbe_app" "/maximize_flexbe" > "${OPENROSDE_TEST_NODES_DIR}/flexbe_app_default.launch"
 openrosde-test-run ${OPENROSDE_TEST_CHECK_LAUNCH} rover
 openrosde-test-check "checks every entry point of the platform and of the core once, in the launch package of the platform, and the nodes of both layouts" \
-  "$(printf '%s\n' "status 0" "Checked 9 launch entry points of 'rover'." "Checked the node names of 2 layouts of 'rover'." \
+  "$(printf '%s\n' "status 0" "Checked 8 launch entry points of 'rover'." "Checked the node names of 2 layouts of 'rover'." \
     "roslaunch --files openrosde_rover_launch rover_bringup_default_gazebo.launch" "roslaunch --files rover_tools rover_monitor_default.launch rate:=5")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | grep -E '^(Error|Checked)'; openrosde-test-print-calls | grep -E '^roslaunch --files (openrosde_rover_launch rover_bringup_default_gazebo|rover_tools)')"
 
@@ -184,7 +184,7 @@ rm "${OPENROSDE_TEST_NODES_DIR}/rover_monitor_default.launch.fail"
 openrosde-test-write-file .env.custom "OPENROSDE_ROBOT_PLATFORM=" "OPENROSDE_ROBOT_SETUP=" "OPENROSDE_ROBOT_EXTENSIONS="
 openrosde-test-run ${OPENROSDE_TEST_CHECK_LAUNCH} openrosde
 openrosde-test-check "checks the panes of the core alone in one layout, with no platform" \
-  "$(printf '%s\n' "status 0" "Checked 5 launch entry points of 'openrosde'." "Checked the node names of 1 layouts of 'openrosde'.")" \
+  "$(printf '%s\n' "status 0" "Checked 4 launch entry points of 'openrosde'." "Checked the node names of 1 layouts of 'openrosde'.")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | grep -E '^(Error|Checked)')"
 openrosde-test-select-template env/ur5e.env
 openrosde-test-run ${OPENROSDE_TEST_CHECK_LAUNCH} rover

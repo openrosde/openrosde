@@ -15,9 +15,3 @@ install(PROGRAMS
   scripts/maximize-app-window.bash
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-
-# Install the 'ros_tcp_endpoint_server.py' node, which runs the Unity ROS TCP Endpoint for 'ros_tcp_endpoint_default.launch'.
-catkin_install_python(PROGRAMS
-  scripts/ros_tcp_endpoint_server.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)

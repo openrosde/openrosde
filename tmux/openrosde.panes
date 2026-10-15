@@ -4,7 +4,6 @@
 
 *  tools  openrosde_launch:flexbe_app_default.launch
 *  tools  openrosde_launch:rqt_suite_default.launch
-*  tools  openrosde_launch:ros_tcp_endpoint_default.launch
 *  tools  openrosde_launch:rosbridge_server_default.launch
 *  user   openrosde_user_launch:user_example_default.launch
 *  user   shell
