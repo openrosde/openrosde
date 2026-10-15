@@ -3,6 +3,7 @@
 # This suite checks the parts of an extension, the lookups scoped to the active folders, and the panes of a setup that replace those of its platform.
 # A fake company extension 'acme' holds three parts: 'acme-bench' with the setup 'acme-ur5e-lab' of a UR5e, 'acme-binding' with packages beside a platform, and 'client-robot' with the private platform 'crobot' and its setup 'client-crobot-sim'.
 # A device 'openrosde-device-gripper' is cloned beside it, and so is an inactive clone 'aaa-stale-clone', which holds files named after the platforms and the setups but which no setting activates.
+# The core of the scratch copy holds the fake platform 'corebot' beside its own platforms, as a platform of the core.
 #
 # Usage: bash ./tests/run.bash test-extension-parts
 
@@ -17,6 +18,7 @@ OPENROSDE_TEST_BINDING_DIR="extensions/acme/parts/acme-binding"
 OPENROSDE_TEST_ROBOT_DIR="extensions/acme/parts/client-robot"
 OPENROSDE_TEST_GRIPPER_DIR="extensions/openrosde-device-gripper"
 OPENROSDE_TEST_STALE_DIR="extensions/aaa-stale-clone"
+openrosde-test-write-core-platform corebot
 
 # Create the company extension, whose own folder holds no unit.
 openrosde-test-create-extension acme
@@ -68,7 +70,7 @@ openrosde-test-write-file "${OPENROSDE_TEST_GRIPPER_DIR}/docker/docker-compose-u
 openrosde-test-create-extension aaa-stale-clone
 mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_STALE_DIR}/ros/stale_catkin_ws/src"
 openrosde-test-write-file "${OPENROSDE_TEST_STALE_DIR}/docker/stale-devel/Dockerfile" "FROM scratch"
-for OPENROSDE_TEST_STALE_NAME in ur5e crobot acme-ur5e-lab client-crobot-sim turtlebot3; do
+for OPENROSDE_TEST_STALE_NAME in ur5e crobot acme-ur5e-lab client-crobot-sim corebot; do
   openrosde-test-write-file "${OPENROSDE_TEST_STALE_DIR}/tmux/${OPENROSDE_TEST_STALE_NAME}.panes" "*  stale  stale.launch"
   openrosde-test-write-file "${OPENROSDE_TEST_STALE_DIR}/docker/docker-compose-${OPENROSDE_TEST_STALE_NAME}.yaml" "services: {}"
   openrosde-test-write-file "${OPENROSDE_TEST_STALE_DIR}/scripts/${OPENROSDE_TEST_STALE_NAME}/bringup-ros-robot.bash" 'ssh stale-robot "killall -9 roscore"'
@@ -104,11 +106,11 @@ OPENROSDE_TEST_STALE_LINES=""
 # Check the listings, which find the platform and the setups of the parts.
 openrosde-test-run bash ./scripts/list-robot-platforms.bash
 openrosde-test-check "lists the platform of a part" \
-  "$(printf '%s\n' cobotta crobot fetch hsr sciurus17 turtlebot3 ur5e) 0" \
+  "$( (openrosde-test-print-core-platforms; echo crobot) | sort) 0" \
   "${OPENROSDE_TEST_OUTPUT} ${OPENROSDE_TEST_EXIT_CODE}"
 openrosde-test-run bash ./scripts/list-robot-setups.bash
 openrosde-test-check "lists the setups of the parts" \
-  "$(printf '%s\n' acme-ur5e-lab client-crobot-sim cobotta crobot fetch hsr sciurus17 turtlebot3 ur5e) 0" \
+  "$( (openrosde-test-print-core-platforms; printf '%s\n' acme-ur5e-lab client-crobot-sim crobot) | sort) 0" \
   "${OPENROSDE_TEST_OUTPUT} ${OPENROSDE_TEST_EXIT_CODE}"
 
 ################################################################################
@@ -174,15 +176,15 @@ openrosde-test-check-setup crobot \
   "./${OPENROSDE_TEST_ROBOT_DIR}/tmux/crobot.panes ./tmux/openrosde.panes" \
   "$(openrosde-test-print-setup-files "./${OPENROSDE_TEST_ROBOT_DIR}/scripts/crobot/bringup-ros-robot.bash" "" "" "./${OPENROSDE_TEST_ROBOT_DIR}/terminator/crobot.config" "./${OPENROSDE_TEST_ROBOT_DIR}/tmux/crobot.panes")"
 
-# Check the default setups 'turtlebot3' and 'ur5e' of the core, which no part changes.
-openrosde-test-select-template env/turtlebot3.env
-openrosde-test-check-setup turtlebot3 \
-  "$(printf '%s\n' "platform-root: ." "setup: turtlebot3" "setup-root: ." "active: .")" \
-  "./ros/openrosde_catkin_ws ./ros/turtlebot3_catkin_ws ./ros/user_catkin_ws" \
+# Check the default setups 'corebot' and 'ur5e' of the core, which no part changes.
+openrosde-test-select-template env/corebot.env
+openrosde-test-check-setup corebot \
+  "$(printf '%s\n' "platform-root: ." "setup: corebot" "setup-root: ." "active: .")" \
+  "./ros/openrosde_catkin_ws ./ros/corebot_catkin_ws ./ros/user_catkin_ws" \
   "" \
-  "./docker/docker-compose-turtlebot3.yaml" \
-  "./tmux/turtlebot3.panes ./tmux/openrosde.panes" \
-  "$(openrosde-test-print-setup-files ./scripts/turtlebot3/bringup-ros-robot.bash "" ./scripts/turtlebot3/initialize-bash-shell.bash ./terminator/turtlebot3.config ./tmux/turtlebot3.panes)"
+  "./docker/docker-compose-corebot.yaml" \
+  "./tmux/corebot.panes ./tmux/openrosde.panes" \
+  "$(openrosde-test-print-setup-files ./scripts/corebot/bringup-ros-robot.bash "" ./scripts/corebot/initialize-bash-shell.bash ./terminator/corebot.config ./tmux/corebot.panes)"
 openrosde-test-select-template env/ur5e.env
 openrosde-test-check-setup ur5e \
   "$(printf '%s\n' "platform-root: ." "setup: ur5e" "setup-root: ." "active: .")" \
@@ -192,11 +194,11 @@ openrosde-test-check-setup ur5e \
   "./tmux/ur5e.panes ./tmux/openrosde.panes" \
   "$(openrosde-test-print-setup-files "" "" "" ./terminator/ur5e.config ./tmux/ur5e.panes)"
 
-# Check that the device, once listed in the '.env.custom' of the platform 'turtlebot3', leaves out its overlay for the UR5e, which is not active.
-openrosde-test-select-template env/turtlebot3.env
+# Check that the device, once listed in the '.env.custom' of the platform 'corebot', leaves out its overlay for the UR5e, which is not active.
+openrosde-test-select-template env/corebot.env
 echo 'OPENROSDE_ROBOT_EXTENSIONS="openrosde-device-gripper"' >> "${OPENROSDE_TEST_ROOT_DIR}/.env.custom"
 openrosde-test-check "leaves out the overlay of an active device named after a platform that is not active" \
-  "$(printf '%s\n' "./docker/docker-compose-turtlebot3.yaml" "./tmux/turtlebot3.panes ./tmux/openrosde.panes")" \
+  "$(printf '%s\n' "./docker/docker-compose-corebot.yaml" "./tmux/corebot.panes ./tmux/openrosde.panes")" \
   "$(openrosde-test-print-path overlays; openrosde-test-print-path panes)"
 
 # Check that the inactive clone supplied nothing to any of the five setups.

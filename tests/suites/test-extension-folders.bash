@@ -45,7 +45,7 @@ openrosde-test-write-file "${OPENROSDE_TEST_BAZ_DIR}/tmux/baz.panes" "*  baz  ba
 # Check the discovery of the platform and the switch to it.
 openrosde-test-run bash ./scripts/list-robot-platforms.bash
 openrosde-test-check "finds the platform of the extension" \
-  "$(printf '%s\n' cobotta fetch foo hsr sciurus17 turtlebot3 ur5e)" \
+  "$( (openrosde-test-print-core-platforms; echo foo) | sort)" \
   "${OPENROSDE_TEST_OUTPUT}"
 openrosde-test-run bash ./SWITCH-ROBOT-PLATFORM.bash foo
 openrosde-test-check "switches to the platform of the extension" \

@@ -153,14 +153,15 @@ openrosde-test-check "warns about nothing when the setup pins the checked out br
 ################################################################################
 
 # Check the version of the image that the shell of the container prints, with its commit held by the repository of the platform or not, as for a platform outside the core.
-# The shell reads the settings of the copy, with the TurtleBot3 selected, where the stubbed 'git' answers all the same.
-openrosde-test-select-template env/turtlebot3.env
+# The shell reads the settings of the copy, with the platform 'corebot' of the core selected, where the stubbed 'git' answers all the same.
+openrosde-test-write-core-platform corebot
+openrosde-test-select-template env/corebot.env
 for OPENROSDE_TEST_COMMIT_MISSING in false true; do
   OPENROSDE_TEST_GIT_COMMIT_MISSING="${OPENROSDE_TEST_COMMIT_MISSING}" openrosde-test-run bash -c 'export OPENROSDE_CONTAINER_ROOT_DIR="${PWD}" OPENROSDE_DOCKER_IMAGE_VERSION=def5678; source ./docker/openrosde-base/scripts/initialize-bash-shell.bash'
   OPENROSDE_TEST_SHELL_REPORT="${OPENROSDE_TEST_SHELL_REPORT}missing ${OPENROSDE_TEST_COMMIT_MISSING}: $(echo "${OPENROSDE_TEST_OUTPUT}" | grep -E '^(Container version|Newer image available):' | tr '\n' '|')"$'\n'
 done
 openrosde-test-check "compares the image with the latest Dockerfile only when the repository of the platform holds its commit" \
-  "$(printf '%s\n' "missing false: Container version: turtlebot3-devel:def5678 from Mon Oct 12 09:00:00 2026 +0900|Newer image available: turtlebot3-devel:abc1234 from abc1234|" "missing true: Container version: turtlebot3-devel:def5678|")" \
+  "$(printf '%s\n' "missing false: Container version: corebot-devel:def5678 from Mon Oct 12 09:00:00 2026 +0900|Newer image available: corebot-devel:abc1234 from abc1234|" "missing true: Container version: corebot-devel:def5678|")" \
   "${OPENROSDE_TEST_SHELL_REPORT%$'\n'}"
 
 # Check that the shell of the container exports the settings to the scripts it runs, as the CI does, but keeps the functions of the loader to itself.

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# This suite checks that the 'tmux' session of every platform of the core runs the same launch entry points as its Terminator layouts.
+# This suite checks that the 'tmux' session of every platform of the core, and of every platform cloned into 'extensions/' of the repository under test, runs the same launch entry points as its Terminator layouts.
 # 'AGENTS.md' asks to keep 'tmux/<platform>.panes' in step with 'terminator/<platform>.config' until Terminator is retired, since the pane files were generated from the layouts.
-# For each layout 'openrosde-<platform>-term-11-<layout>' of a Terminator config, it compares the launch files and arguments of the terminals with the panes of '<layout>' in 'tmux/<platform>.panes' and 'tmux/openrosde.panes', leaving out the shells on both sides.
+# For each layout 'openrosde-<platform>-term-11-<layout>' of a Terminator config, it compares the launch files and arguments of the terminals with the panes of '<layout>' in 'tmux/<platform>.panes' of the same folder and 'tmux/openrosde.panes' of the core, leaving out the shells on both sides.
 # It only reads the files of the repository under test, so it needs no scratch copy and starts nothing.
 #
 # Usage: bash ./tests/run.bash test-terminator-parity
@@ -41,18 +41,24 @@ function openrosde-test-print-tmux-launches () {
 
 ################################################################################
 
-# Check that the core holds Terminator configs at all, so that the suite never passes on no layout.
-OPENROSDE_TEST_CONFIG_FILES=("${OPENROSDE_TEST_SOURCE_DIR}"/terminator/*.config)
-openrosde-test-check "finds the Terminator configs of the core" \
-  "true" \
-  "$([ -f "${OPENROSDE_TEST_CONFIG_FILES[0]}" ] && echo true || echo false)"
+# List the Terminator configs of the core and of the clones, and say so when there is none, since the platforms live in repositories of their own, which a developer clones into 'extensions/'.
+OPENROSDE_TEST_CONFIG_FILES=()
+for OPENROSDE_TEST_CONFIG_FILE in "${OPENROSDE_TEST_SOURCE_DIR}"/terminator/*.config "${OPENROSDE_TEST_SOURCE_DIR}"/extensions/*/terminator/*.config "${OPENROSDE_TEST_SOURCE_DIR}"/extensions/*/parts/*/terminator/*.config; do
+  if [ -f "${OPENROSDE_TEST_CONFIG_FILE}" ]; then
+    OPENROSDE_TEST_CONFIG_FILES+=("${OPENROSDE_TEST_CONFIG_FILE}")
+  fi
+done
+if [ "${#OPENROSDE_TEST_CONFIG_FILES[@]}" -eq 0 ]; then
+  echo "No Terminator config in the core or in a clone of 'extensions/', so no layout to compare."
+fi
 
 # Check every layout of every Terminator config against the panes of the same layout.
 for OPENROSDE_TEST_CONFIG_FILE in "${OPENROSDE_TEST_CONFIG_FILES[@]}"; do
   [ -f "${OPENROSDE_TEST_CONFIG_FILE}" ] || continue
   OPENROSDE_TEST_PLATFORM_NAME="$(basename "${OPENROSDE_TEST_CONFIG_FILE}" .config)"
-  OPENROSDE_TEST_PANES_FILE="${OPENROSDE_TEST_SOURCE_DIR}/tmux/${OPENROSDE_TEST_PLATFORM_NAME}.panes"
-  echo "Platform '${OPENROSDE_TEST_PLATFORM_NAME}':"
+  OPENROSDE_TEST_CONFIG_ROOT_DIR="$(dirname "$(dirname "${OPENROSDE_TEST_CONFIG_FILE}")")"
+  OPENROSDE_TEST_PANES_FILE="${OPENROSDE_TEST_CONFIG_ROOT_DIR}/tmux/${OPENROSDE_TEST_PLATFORM_NAME}.panes"
+  echo "Platform '${OPENROSDE_TEST_PLATFORM_NAME}' in '.${OPENROSDE_TEST_CONFIG_ROOT_DIR#${OPENROSDE_TEST_SOURCE_DIR}}':"
 
   # A Terminator config needs the pane file of its platform, and at least one layout named after its platform, or a typo would leave it unchecked.
   openrosde-test-check "finds 'tmux/${OPENROSDE_TEST_PLATFORM_NAME}.panes' beside 'terminator/${OPENROSDE_TEST_PLATFORM_NAME}.config'" \

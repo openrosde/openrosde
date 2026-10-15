@@ -71,12 +71,13 @@ function openrosde-test-print-generated-jobs () {
 ################################################################################
 
 # Check the jobs that the generator prints for every platform and setup, and for an override of one extension.
+# The platforms of the core of the scratch copy, whichever it still holds, come in alphabetical order with 'rover', and their default setups with 'acme-rover-lab'.
+OPENROSDE_TEST_CORE_PLATFORM_NAMES="$(openrosde-test-print-core-platforms)"
 openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
 openrosde-test-check "prints one image job per platform, from its folder, one test job per setup, and the test job of the core alone" \
-  "$(printf '%s\n' build-cobotta-image-job: build-fetch-image-job: build-hsr-image-job: \
-    build-rover-image-job: "    OPENROSDE_CI_PLATFORM_ROOT_DIR: ${OPENROSDE_TEST_ROVER_DIR}" build-sciurus17-image-job: build-turtlebot3-image-job: build-ur5e-image-job: \
-    test-acme-rover-lab-workspaces-job: test-cobotta-workspaces-job: test-fetch-workspaces-job: test-hsr-workspaces-job: test-rover-workspaces-job: \
-    test-sciurus17-workspaces-job: test-turtlebot3-workspaces-job: test-ur5e-workspaces-job: test-core-workspaces-job: publish-images-job: "status 0")" \
+  "$( (printf '%s\n' ${OPENROSDE_TEST_CORE_PLATFORM_NAMES} rover | sort | sed 's/.*/build-&-image-job:/' | sed "s#^build-rover-image-job:\$#&\n    OPENROSDE_CI_PLATFORM_ROOT_DIR: ${OPENROSDE_TEST_ROVER_DIR}#"
+    printf '%s\n' ${OPENROSDE_TEST_CORE_PLATFORM_NAMES} rover acme-rover-lab | sort | sed 's/.*/test-&-workspaces-job:/'
+    printf '%s\n' test-core-workspaces-job: publish-images-job: "status 0"))" \
   "$(openrosde-test-print-generated-jobs)"
 openrosde-test-check "makes the test job of a setup need the image job of its platform, and the core alone the base image, and both the converter of robot meshes and the check of the scripts" \
   "$(printf '%s\n' "test-acme-rover-lab-workspaces-job: build-rover-image-job" "test-acme-rover-lab-workspaces-job: build-mesh2glb-image-job" "test-acme-rover-lab-workspaces-job: check-scripts-job" "test-core-workspaces-job: build-base-image-job" "test-core-workspaces-job: build-mesh2glb-image-job" "test-core-workspaces-job: check-scripts-job")" \
@@ -99,7 +100,7 @@ openrosde-test-check "fails when no setup activates the extension of the overrid
 export OPENROSDE_CI_EXTRA_EXTENSIONS="openrosde-device-qux"
 openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
 openrosde-test-check "tests every setup with the extension of the override when 'OPENROSDE_CI_EXTRA_EXTENSIONS' adds it to every setup" \
-  "8 setups, 7 platforms, status 0" \
+  "$(( $(echo "${OPENROSDE_TEST_CORE_PLATFORM_NAMES}" | grep -c .) + 2 )) setups, $(( $(echo "${OPENROSDE_TEST_CORE_PLATFORM_NAMES}" | grep -c .) + 1 )) platforms, status 0" \
   "$(echo "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep -c '^test-.*-workspaces-job:$') setups, $(echo "${OPENROSDE_TEST_OUTPUT}" | grep -c '^build-.*-image-job:$') platforms, status ${OPENROSDE_TEST_EXIT_CODE}")"
 unset OPENROSDE_CI_EXTENSION_OVERRIDE OPENROSDE_CI_EXTRA_EXTENSIONS
 
@@ -233,9 +234,10 @@ openrosde-test-check "finds no command that could move a robot in the scripts of
 # Check the clone of the extensions: nothing to clone, then the overrides and the URLs that it refuses before it installs anything.
 OPENROSDE_TEST_REPOS_FILE="${OPENROSDE_TEST_WORK_DIR}/test.repos"
 printf '%s\n' "repositories:" "  openrosde-platform-foo:" "    type: git" "    url: https://gitlab.example.com/acme/openrosde-platform-foo.git" "    version: v1.0.0" > "${OPENROSDE_TEST_REPOS_FILE}"
-openrosde-test-run bash ./gitlab-ci/clone-extensions.bash gitlab-ci/extensions.repos
+printf '%s\n' "# No extension for the tests, in the layout of 'gitlab-ci/extensions.repos'." "repositories: {}" > "${OPENROSDE_TEST_WORK_DIR}/empty.repos"
+openrosde-test-run bash ./gitlab-ci/clone-extensions.bash "${OPENROSDE_TEST_WORK_DIR}/empty.repos"
 openrosde-test-check "clones nothing when the file lists no repository" \
-  "$(printf '%s\n' "status 0" "No extension to clone: 'gitlab-ci/extensions.repos' lists no repository.")" \
+  "$(printf '%s\n' "status 0" "No extension to clone: '${OPENROSDE_TEST_WORK_DIR}/empty.repos' lists no repository.")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}")"
 sed 's/^ /   /' "${OPENROSDE_TEST_REPOS_FILE}" > "${OPENROSDE_TEST_WORK_DIR}/indented.repos"
 openrosde-test-run bash ./gitlab-ci/clone-extensions.bash "${OPENROSDE_TEST_WORK_DIR}/indented.repos"

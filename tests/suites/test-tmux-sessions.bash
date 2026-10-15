@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This suite checks the 'tmux' sessions of 'RUN-TMUX-SESSION.bash' with the real 'tmux', while 'docker' is stubbed, so every pane exits at once and stays visible.
-# It covers the six platforms of the core in both layouts, pane for pane, the second run that attaches, the mouse and the title, and a setup with a layout of its own.
+# It covers the platforms of the core, the canonical platforms cloned into 'extensions/' of the repository under test, and the fake platform 'rover' of an extension in both layouts, pane for pane, the second run that attaches, the mouse and the title, and a setup with a layout of its own.
 #
 # Usage: bash ./tests/run.bash test-tmux-sessions
 
@@ -10,7 +10,23 @@
 # Load the helpers and create the scratch copy.
 source "${OPENROSDE_TEST_SOURCE_DIR}/tests/load-test-helpers.bash"
 openrosde-test-create-copy
-OPENROSDE_TEST_PLATFORM_NAMES="cobotta fetch hsr sciurus17 turtlebot3 ur5e"
+
+# List the platforms to check: those of the core, the canonical platforms that the repository under test holds in 'extensions/', and 'rover', whose session stays open for the checks of the second run, each with the folder that holds it.
+OPENROSDE_TEST_PLATFORM_RECORDS="$(openrosde-test-print-core-platforms | sed 's/$/ ./')"
+for OPENROSDE_TEST_PLATFORM_NAME in cobotta fetch hsr sciurus17 turtlebot3; do
+  if openrosde-test-copy-cloned-extension "openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"; then
+    OPENROSDE_TEST_PLATFORM_RECORDS="${OPENROSDE_TEST_PLATFORM_RECORDS}"$'\n'"${OPENROSDE_TEST_PLATFORM_NAME} extensions/openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}"
+  else
+    echo "Skipping the platform '${OPENROSDE_TEST_PLATFORM_NAME}', which is not cloned into 'extensions/openrosde-platform-${OPENROSDE_TEST_PLATFORM_NAME}/'."
+  fi
+done
+openrosde-test-create-extension openrosde-platform-rover
+openrosde-test-write-platform-template extensions/openrosde-platform-rover rover
+openrosde-test-write-file extensions/openrosde-platform-rover/tmux/rover.panes \
+  "default-gazebo     robot  rover_bringup_default_gazebo.launch" \
+  "default-realworld  robot  rover_bringup_default_realworld.launch" \
+  "*                  extra  rover_tools:rover_monitor_default.launch rate:=5"
+OPENROSDE_TEST_PLATFORM_RECORDS="${OPENROSDE_TEST_PLATFORM_RECORDS}"$'\n'"rover extensions/openrosde-platform-rover"
 
 # Run a 'tmux' server of the suite alone, which keeps the panes whose command has exited.
 if ! command -v tmux > /dev/null 2>&1; then
@@ -76,35 +92,38 @@ function openrosde-test-stop-tmux-server () {
 
 ################################################################################
 
-# Check the sessions of the six platforms of the core in both layouts.
-for OPENROSDE_TEST_PLATFORM_NAME in ${OPENROSDE_TEST_PLATFORM_NAMES}; do
+# Check the sessions of every platform in both layouts.
+while read -r OPENROSDE_TEST_PLATFORM_NAME OPENROSDE_TEST_PLATFORM_ROOT; do
+  if [ -z "${OPENROSDE_TEST_PLATFORM_NAME}" ]; then
+    continue
+  fi
   for OPENROSDE_TEST_SESSION_LAYOUT in default-gazebo default-realworld; do
-    openrosde-test-select-template "env/${OPENROSDE_TEST_PLATFORM_NAME}.env"
+    openrosde-test-select-template "${OPENROSDE_TEST_PLATFORM_ROOT}/env/${OPENROSDE_TEST_PLATFORM_NAME}.env"
     openrosde-test-run bash ./RUN-TMUX-SESSION.bash test "${OPENROSDE_TEST_SESSION_LAYOUT}"
     openrosde-test-check "opens the '${OPENROSDE_TEST_SESSION_LAYOUT}' session of '${OPENROSDE_TEST_PLATFORM_NAME}' pane for pane" \
-      "$(openrosde-test-print-expected-session "${OPENROSDE_TEST_SESSION_LAYOUT}" "tmux/${OPENROSDE_TEST_PLATFORM_NAME}.panes" tmux/openrosde.panes)" \
+      "$(openrosde-test-print-expected-session "${OPENROSDE_TEST_SESSION_LAYOUT}" "${OPENROSDE_TEST_PLATFORM_ROOT}/tmux/${OPENROSDE_TEST_PLATFORM_NAME}.panes" tmux/openrosde.panes)" \
       "$(openrosde-test-print-session "openrosde-${OPENROSDE_TEST_PLATFORM_NAME}-test")"
-    if [ "${OPENROSDE_TEST_PLATFORM_NAME}" != "ur5e" ] || [ "${OPENROSDE_TEST_SESSION_LAYOUT}" != "default-realworld" ]; then
+    if [ "${OPENROSDE_TEST_PLATFORM_NAME}" != "rover" ] || [ "${OPENROSDE_TEST_SESSION_LAYOUT}" != "default-realworld" ]; then
       tmux kill-session -t "=openrosde-${OPENROSDE_TEST_PLATFORM_NAME}-test"
     fi
   done
-done
+done <<< "${OPENROSDE_TEST_PLATFORM_RECORDS}"
 
 ################################################################################
 
 # Check the second run, the mouse, and the title on the last session, which still runs.
-OPENROSDE_TEST_PANE_COUNT="$(tmux list-panes -s -t "=openrosde-ur5e-test" | wc -l)"
+OPENROSDE_TEST_PANE_COUNT="$(tmux list-panes -s -t "=openrosde-rover-test" | wc -l)"
 openrosde-test-run bash ./RUN-TMUX-SESSION.bash test default-realworld
 openrosde-test-check "attaches to a running session instead of adding panes" \
-  "Attaching to the running 'tmux' session 'openrosde-ur5e-test' ${OPENROSDE_TEST_PANE_COUNT}" \
-  "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep -o "Attaching to the running 'tmux' session 'openrosde-ur5e-test'") $(tmux list-panes -s -t "=openrosde-ur5e-test" | wc -l)"
+  "Attaching to the running 'tmux' session 'openrosde-rover-test' ${OPENROSDE_TEST_PANE_COUNT}" \
+  "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep -o "Attaching to the running 'tmux' session 'openrosde-rover-test'") $(tmux list-panes -s -t "=openrosde-rover-test" | wc -l)"
 openrosde-test-check "turns the mouse on" \
   "mouse on" \
-  "$(tmux show-options -t "=openrosde-ur5e-test:" mouse)"
+  "$(tmux show-options -t "=openrosde-rover-test:" mouse)"
 openrosde-test-check "titles the terminal after the session" \
   "$(printf '%s\n' "set-titles on" 'set-titles-string "OpenRoSDE (#{session_name})"')" \
-  "$(tmux show-options -t "=openrosde-ur5e-test:" set-titles; tmux show-options -t "=openrosde-ur5e-test:" set-titles-string)"
-tmux kill-session -t "=openrosde-ur5e-test"
+  "$(tmux show-options -t "=openrosde-rover-test:" set-titles; tmux show-options -t "=openrosde-rover-test:" set-titles-string)"
+tmux kill-session -t "=openrosde-rover-test"
 
 ################################################################################
 
