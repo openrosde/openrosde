@@ -75,6 +75,7 @@ Record a change of a topic name, a message type, a port, or the launch file that
 - `fetch_ee_cmd_vel`, relayed to the Cartesian twist controller of the Fetch: `openrosde_fetch_teleop`, started by `fetch_teleop_default.launch`.
 - Port `10000` of the Unity ROS TCP Endpoint `0.7.0`: `openrosde_launch:ros_tcp_endpoint_default.launch`.
 - Port `9090` of `rosbridge`: `openrosde_launch:rosbridge_server_default.launch`.
+- The robot model: `robot_description` through `/rosapi/get_param`, and its meshes as GLB files through the service `/file_server/get_file` of the ROS# node `file_server` that `rosbridge_server_default.launch` starts, as [Robot Models](docs/robot-models.md) describes.
 
 ### Parallel Work
 
@@ -463,6 +464,7 @@ Platform-specific behavior guidelines:
 - Generate the jobs of every platform and every setup in `gitlab-ci/generate-ci-pipeline.bash` rather than listing them by hand.
 - Keep the logic of a job in a script of `gitlab-ci/`, so that the YAML only wires the jobs together.
 - Give every artifact an `expire_in`, and hand images between jobs through the registry, never through the disk of the runner.
+- Never publish a GLB file of a robot mesh: the CI generates them only inside the containers of a job, as [Robot Models](docs/robot-models.md) describes, since some meshes may not be redistributed.
 
 ### Submodule Patches
 

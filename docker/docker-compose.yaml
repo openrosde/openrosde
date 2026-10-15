@@ -3,8 +3,9 @@
 ################################################################################
 
 # Base Docker Compose file for OpenRoSDE.
-# Defines three services:
+# Defines four services:
 #   - 'openrosde-base'     : Build-only shared base image.
+#   - 'openrosde-mesh2glb' : Build-only converter of robot meshes into GLB files, which the user overlay runs on the meshes of the images.
 #   - 'openrosde-platform' : Build-only platform-specific image (inherits from 'openrosde-base').
 #   - 'openrosde'          : Runtime user overlay container (inherits from 'openrosde-platform').
 
@@ -19,6 +20,14 @@ services:
       args:
         - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
         - OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}
+
+  openrosde-mesh2glb:
+    image: ${OPENROSDE_DOCKER_REGISTRY}/openrosde-mesh2glb:${OPENROSDE_DOCKER_IMAGE_TAG}
+    build:
+      context: ../
+      dockerfile: ./docker/openrosde-mesh2glb/Dockerfile
+      args:
+        - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_MESH2GLB_DOCKERFILE_COMMIT_SHORT_SHA}
 
   openrosde-platform:
     image: ${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_TAG}
@@ -59,6 +68,8 @@ services:
         - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
         # The parent of the user overlay is the last Docker layer of the active extensions, or else the platform image, as 'scripts/load-openrosde-env.bash' derives it.
         - OPENROSDE_PLATFORM_IMAGE=${OPENROSDE_USER_PARENT_IMAGE}
+        # The converter of robot meshes, which gives every mesh installed in the images its GLB.
+        - OPENROSDE_MESH2GLB_IMAGE=${OPENROSDE_DOCKER_REGISTRY}/openrosde-mesh2glb:${OPENROSDE_DOCKER_IMAGE_TAG}
     volumes:
       # Map repository root for convenient access.
       - ../:${OPENROSDE_CONTAINER_ROOT_DIR}/

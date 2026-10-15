@@ -34,5 +34,10 @@ ros/*_catkin_ws/install/
 # 'rosbag' files:
 *.bag
 
+# GLB files of the robot meshes, generated locally by 'scripts/generate-mesh-glbs.bash' and never committed, while a '.glb' that a package ships stays tracked:
+*.[dD][aA][eE].glb
+*.[sS][tT][lL].glb
+*.[oO][bB][jJ].glb
+
 # Terminator 'config' files:
 terminator/*.config.tmp

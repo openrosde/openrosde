@@ -12,4 +12,15 @@
     <arg name="port" value="9090" />
   </include>
 
+  <!-- https://github.com/siemens/ros-sharp/tree/2.3.1/ROS%20Packages/ROS1/file_server -->
+
+  <!-- Serve the meshes of the robot description, their GLB conversions, and their textures through the service '/file_server/get_file', built into the base image. -->
+  <!-- Saving and 'file://' addresses stay off, and a file above 'max_file_size' bytes is answered empty, so that no response exceeds 16 MiB of JSON. -->
+
+  <node pkg="file_server" type="file_server" name="file_server" output="screen">
+    <param name="allow_save" value="false" />
+    <param name="allow_file_url" value="false" />
+    <param name="max_file_size" value="12000000" />
+  </node>
+
 </launch>

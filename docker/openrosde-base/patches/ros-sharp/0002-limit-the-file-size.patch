@@ -1,0 +1,33 @@
+diff --git a/src/file_server.cpp b/src/file_server.cpp
+index 7482628..1ce22af 100644
+--- a/src/file_server.cpp
++++ b/src/file_server.cpp
+@@ -168,6 +168,17 @@ bool get_file(
+         return true;
+     }
+ 
++    // OpenRoSDE answers an empty value for a file larger than 'max_file_size' bytes, so that no response exceeds the message budget of a client after base64.
++    int max_file_size = 12000000;
++    ros::param::get("~max_file_size", max_file_size);
++    std::error_code size_error;
++    const auto file_size = std::filesystem::file_size(*full_path, size_error);
++    if (size_error || (max_file_size > 0 && file_size > static_cast<std::uintmax_t>(max_file_size)))
++    {
++        ROS_WARN("File not served, since its size is unknown or above \"max_file_size\" (%d bytes): %s", max_file_size, full_path->c_str());
++        return true;
++    }
++
+     res.value.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+     ROS_INFO("get_file: %s", req.name.c_str());
+     return true;
+@@ -227,6 +238,10 @@ int main(int argc, char **argv)
+     n.param("allow_file_url",      allow_file_url,      false);
+     n.param("allow_file_url_root", allow_file_url_root, std::string("/opt/ros/"));
+ 
++    int max_file_size = 12000000;
++    n.param("max_file_size", max_file_size, 12000000);
++    ROS_INFO("Files larger than %d bytes are not served.", max_file_size);
++
+     if (allow_save)
+         ROS_INFO("Save enabled. Overwrite: %s", allow_overwrite ? "yes" : "no");
+     else

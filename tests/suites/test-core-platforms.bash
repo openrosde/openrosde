@@ -49,6 +49,7 @@ for OPENROSDE_TEST_PLATFORM_NAME in ${OPENROSDE_TEST_PLATFORM_NAMES}; do
   openrosde-test-check "builds the images of '${OPENROSDE_TEST_PLATFORM_NAME}' without layers" \
     "$(printf '%s\n' \
       "docker compose -p test -f ./docker/docker-compose.yaml pull openrosde-base" \
+      "docker compose -p test -f ./docker/docker-compose.yaml pull openrosde-mesh2glb" \
       "docker compose -p test -f ./docker/docker-compose.yaml pull openrosde-platform" \
       "docker compose -p test -f ./docker/docker-compose.yaml build openrosde" \
       "layers: " \

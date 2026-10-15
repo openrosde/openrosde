@@ -106,6 +106,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ################################################################################
 
+# Build the file service of ROS#, which serves the meshes of the robot description to clients of 'rosbridge', such as Coarobo Viewport and Coarobo Sightline.
+# https://github.com/siemens/ros-sharp/tree/2.3.1/ROS%20Packages/ROS1/file_server
+# No ROS distribution releases it, so it is built from the release '2.3.1', checked by commit, with the patches of 'docker/openrosde-base/patches/ros-sharp/'.
+# It installs into '/opt/ros/noetic' like a package of the distribution, with the flags that 'bloom' passes for a binary package, so no setup script changes.
+ARG OPENROSDE_ROS_SHARP_VERSION=2.3.1
+ARG OPENROSDE_ROS_SHARP_COMMIT=9e2644e1b201605417308e8d1a67cdd6b012b31c
+COPY ./docker/openrosde-base/patches/ros-sharp/ /tmp/ros-sharp-patches/
+RUN git clone --quiet --depth 1 --filter=blob:none --no-checkout --branch ${OPENROSDE_ROS_SHARP_VERSION} https://github.com/siemens/ros-sharp.git /tmp/ros-sharp \
+  && test "$(git -C /tmp/ros-sharp rev-parse HEAD)" = "${OPENROSDE_ROS_SHARP_COMMIT}" \
+  && git -C /tmp/ros-sharp checkout --quiet HEAD -- "ROS Packages/ROS1/file_server" LICENSE.md \
+  && cp -R "/tmp/ros-sharp/ROS Packages/ROS1/file_server" /tmp/file_server \
+  && cd /tmp/file_server \
+  && for OPENROSDE_PATCH in /tmp/ros-sharp-patches/*.patch; do git apply "${OPENROSDE_PATCH}" || exit 1; done \
+  && mkdir build && cd build \
+  && . /opt/ros/noetic/setup.sh \
+  && cmake .. -DCMAKE_BUILD_TYPE=Release -DCATKIN_BUILD_BINARY_PACKAGE=1 -DCMAKE_INSTALL_PREFIX=/opt/ros/noetic -DCMAKE_PREFIX_PATH=/opt/ros/noetic \
+  && make -j"$(nproc)" && make install \
+  && cp /tmp/ros-sharp/LICENSE.md /opt/ros/noetic/share/file_server/LICENSE.md \
+  && cd / && rm -rf /tmp/ros-sharp /tmp/file_server /tmp/ros-sharp-patches
+
+################################################################################
+
 # Install miscellaneous Python 3 packages/tools.
 # RUN pip3 install \
 #   TODO \

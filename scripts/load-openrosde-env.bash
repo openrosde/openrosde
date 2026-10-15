@@ -49,6 +49,7 @@ OPENROSDE_USER_ID="$(id -u)"
 OPENROSDE_GROUP_ID="$(id -g)"
 OPENROSDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${OPENROSDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/openrosde-base/Dockerfile)"
 OPENROSDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${OPENROSDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/user-devel/Dockerfile)"
+OPENROSDE_MESH2GLB_DOCKERFILE_COMMIT_SHORT_SHA="$(git -C "${OPENROSDE_ROOT_DIR}" log -n 1 --pretty=format:%h ./docker/openrosde-mesh2glb/Dockerfile)"
 
 # Derive the Dockerfile of a platform, relative to the root directory that holds the platform, the core, an extension, or a part, and its commit hash in the repository that holds it.
 # 'docker-compose.yaml' builds the platform image from that root directory, so that its 'COPY' instructions read from there, as the Docker layers do.
