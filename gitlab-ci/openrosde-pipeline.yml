@@ -3,7 +3,7 @@
 # https://docs.gitlab.com/ci/docker/using_docker_build/
 
 # This file holds the jobs of the child pipeline of OpenRoSDE that every platform and every setup share.
-# 'generate-ci-pipeline.bash' includes it, then adds one image job per platform, one test job per setup, and the test job of the core alone, which OpenRoSDE finds by name in the core and in the extensions of 'gitlab-ci/extensions.repos'.
+# 'generate-ci-pipeline.bash' includes it, then adds one image job per platform, one test job per setup, and the test jobs of the core alone on ROS 1 and ROS 2, which OpenRoSDE finds by name in the core and in the extensions of 'gitlab-ci/extensions.repos'.
 # The jobs hand their images to each other through the registry only, so the pipeline needs nothing kept on the runner and runs the same on a self-managed runner and on the instance runners of GitLab.com.
 
 ################################################################################
@@ -77,6 +77,17 @@ build-base-image-job:
 
 ################################################################################
 
+# Build or reuse the base image of the platforms on ROS 2, Ubuntu 26.04 with ROS 2 Lyrical, which copies the helper scripts of 'docker/openrosde-base/scripts' that both base images share.
+
+build-base-ros2-image-job:
+  stage: base-stage
+  timeout: 4h
+  rules: *openrosde-every-pipeline
+  script:
+    - bash ./gitlab-ci/build-ci-image.bash openrosde-base-ros2 . docker/openrosde-base-ros2/Dockerfile docker/openrosde-base-ros2,docker/openrosde-base/scripts OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE
+
+################################################################################
+
 # Build or reuse the converter of robot meshes into GLB files, which the test jobs run on the meshes of their containers.
 
 build-mesh2glb-image-job:
@@ -111,6 +122,7 @@ check-mesh-glbs-job:
 ################################################################################
 
 # Build or reuse the image of a platform on top of the base image of this pipeline, from the folder that holds the platform, 'OPENROSDE_CI_PLATFORM_ROOT_DIR', the core '.' or a folder in 'extensions/'.
+# The base image is the one of ROS 1 by default, and the job of a platform on ROS 2 names the one of ROS 2, its sources, and its job instead.
 
 .build-platform-image:
   stage: platform-stage
@@ -118,19 +130,22 @@ check-mesh-glbs-job:
   rules: *openrosde-every-pipeline
   needs:
     - build-base-image-job
+  variables:
+    OPENROSDE_CI_BASE_IMAGE_NAME: openrosde-base
+    OPENROSDE_CI_BASE_SOURCE_DIRS: docker/openrosde-base
   script:
     - >-
       bash ./gitlab-ci/build-ci-image.bash
       "${OPENROSDE_ROBOT_PLATFORM}-devel"
       "${OPENROSDE_CI_PLATFORM_ROOT_DIR}"
       "docker/${OPENROSDE_ROBOT_PLATFORM}-devel/Dockerfile"
-      "docker/openrosde-base,${OPENROSDE_CI_PLATFORM_ROOT_DIR}/docker/${OPENROSDE_ROBOT_PLATFORM}-devel"
-      "OPENROSDE_BASE_IMAGE=${CI_REGISTRY_IMAGE}/openrosde-base:pipeline-${CI_PIPELINE_ID}"
+      "${OPENROSDE_CI_BASE_SOURCE_DIRS},${OPENROSDE_CI_PLATFORM_ROOT_DIR}/docker/${OPENROSDE_ROBOT_PLATFORM}-devel"
+      "OPENROSDE_BASE_IMAGE=${CI_REGISTRY_IMAGE}/${OPENROSDE_CI_BASE_IMAGE_NAME}:pipeline-${CI_PIPELINE_ID}"
       "OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}"
 
 ################################################################################
 
-# Test a setup, 'OPENROSDE_CI_ROBOT_SETUP', or the core alone with 'openrosde': build its Docker layers and its Catkin workspaces inside the image of its platform, check its robot model and its launch entry points, and run the checks of its extensions.
+# Test a setup, 'OPENROSDE_CI_ROBOT_SETUP', or the core alone with 'openrosde' or 'openrosde-ros2': build its Docker layers and its Catkin or colcon workspaces inside the image of its platform, check its robot model and its launch entry points, and run the checks of its extensions.
 # Every test job needs 'check-scripts-job' besides the image of its platform, so that no check of an extension runs before the check that it cannot move a robot passes.
 # Keep the Catkin logs for a week when the test fails.
 
@@ -183,4 +198,4 @@ check-scripts-job:
       when: never
     - if: $OPENROSDE_CI_PUBLISH_TAG == $CI_COMMIT_REF_NAME && ($OPENROSDE_CI_PUBLISH_TAG == "dev" || $OPENROSDE_CI_PUBLISH_TAG == "main" || $OPENROSDE_CI_PUBLISH_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/)
   script:
-    - bash ./gitlab-ci/publish-ci-images.bash "${OPENROSDE_CI_PUBLISH_TAG}" openrosde-base openrosde-mesh2glb ${OPENROSDE_CI_PLATFORM_IMAGES}
+    - bash ./gitlab-ci/publish-ci-images.bash "${OPENROSDE_CI_PUBLISH_TAG}" openrosde-base openrosde-base-ros2 openrosde-mesh2glb ${OPENROSDE_CI_PLATFORM_IMAGES}

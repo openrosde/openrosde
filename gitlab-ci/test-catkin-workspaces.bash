@@ -1,20 +1,20 @@
 #!/bin/bash
 
-# This script tests one setup in the CI: it builds the Catkin workspaces of the setup inside a container of the image of its platform, with the Docker layers of its extensions on top, then checks that every launch entry point of its 'tmux' sessions resolves, with 'check-launch-files.bash', and runs the checks of its extensions, with 'run-extension-checks.bash'.
+# This script tests one setup in the CI: it builds the Catkin or colcon workspaces of the setup inside a container of the image of its platform, with the Docker layers of its extensions on top, then checks that every launch entry point of its 'tmux' sessions resolves, with 'check-launch-files.bash', and runs the checks of its extensions, with 'run-extension-checks.bash'.
 # The setup is selected as 'SWITCH-ROBOT-SETUP.bash' selects it, by copying its template 'env/<setup>.env', from the core or from a cloned extension, to '.env.custom', and the extensions of 'OPENROSDE_CI_EXTRA_EXTENSIONS' are added to those it lists.
-# The setup 'openrosde' stands for the core alone, with no platform and no extension, whose shared and user workspaces build in the base image.
+# The setup 'openrosde' stands for the core alone, with no platform and no extension, whose shared and user workspaces build in the base image of ROS 1, and the setup 'openrosde-ros2' for the core alone on ROS 2, with the settings of 'env/openrosde-ros2.env', in the base image of ROS 2.
 # The Docker layers are built in the Docker-in-Docker daemon of the job with 'scripts/build-extension-layers.bash', and never pushed.
 # The repository goes into the container through 'docker cp', rather than a bind mount, since the Docker-in-Docker daemon cannot see the files of the job on every runner.
 # The workspaces build with the network, which the FlexBE app needs to download its runtime, and the container is then disconnected from every network before any check runs, so that no check can reach a robot.
-# The meshes of the container then get their GLBs from the converter image of the same registry and tag, with 'generate-ci-mesh-glbs.bash', and 'check-robot-model.bash' checks the file service of the robot model through 'rosbridge'.
-# On failure, the Catkin logs of every workspace of the setup are copied to 'ci-logs/' for the artifacts of the job.
+# The meshes of the container get their GLBs from the converter image of the same registry and tag, with 'generate-ci-mesh-glbs.bash', before the workspaces build, since a colcon workspace serves the files that its build copied into its install space, and 'check-robot-model.bash' then checks the file service of the robot model through 'rosbridge', with the arguments of 'OPENROSDE_CI_ROBOT_MODEL_ARGS', such as '--fragments'.
+# On failure, the logs of every workspace of the setup, 'logs/' of 'catkin build' or 'log/' of 'colcon build', are copied to 'ci-logs/' for the artifacts of the job.
 # Outside the CI, where 'CI' is not 'true', it refuses to run in a checkout that holds '.env.custom', which it would replace, so that the setup a developer selected is never lost.
 #
 # Usage: bash ./gitlab-ci/test-catkin-workspaces.bash <robot-setup> [<image>]
 #
-# <robot-setup>: The setup to test, such as 'ur5e' or 'acme-ur5e-lab', or 'openrosde' for the core alone.
+# <robot-setup>: The setup to test, such as 'ur5e' or 'acme-ur5e-lab', or 'openrosde' or 'openrosde-ros2' for the core alone on ROS 1 or ROS 2.
 # [<image>]:     The image to test in, below the Docker layers of the setup.
-#                Default value is the image of the platform of the setup, '${OPENROSDE_CI_IMAGE_REGISTRY}/<platform>-devel:${OPENROSDE_CI_IMAGE_TAG}', or the base image for 'openrosde'.
+#                Default value is the image of the platform of the setup, '${OPENROSDE_CI_IMAGE_REGISTRY}/<platform>-devel:${OPENROSDE_CI_IMAGE_TAG}', or the base image of its ROS for 'openrosde' and 'openrosde-ros2'.
 #                'gitlab-ci/openrosde-pipeline.yml' sets both variables to the images of the pipeline, and a pipeline of another project sets them to published images, such as 'registry.gitlab.com/coarobo/sde' and 'v3.0.0'.
 
 ################################################################################
@@ -43,13 +43,16 @@ fi
 
 ################################################################################
 
-# Select the setup in '.env.custom': the settings of the core alone for 'openrosde', or else the template of the setup, followed by the settings of the CI job.
-if [ "$1" = "openrosde" ]; then
+# Select the setup in '.env.custom': the settings of the core alone for 'openrosde', with those of ROS 2 for 'openrosde-ros2', or else the template of the setup, followed by the settings of the CI job.
+if [ "$1" = "openrosde" ] || [ "$1" = "openrosde-ros2" ]; then
   printf '%s\n' \
     "# Settings of the core alone, with no platform and no extension, written by 'gitlab-ci/test-catkin-workspaces.bash'." \
     "OPENROSDE_ROBOT_PLATFORM=" \
     "OPENROSDE_ROBOT_SETUP=" \
     "OPENROSDE_ROBOT_EXTENSIONS=" > .env.custom
+  if [ "$1" = "openrosde-ros2" ]; then
+    grep -E '^OPENROSDE_ROS_(VERSION|DISTRO)=' env/openrosde-ros2.env >> .env.custom
+  fi
 else
   source ./scripts/load-extension-paths.bash "${PWD}"
   OPENROSDE_CI_SETUP_ENV_FILE="$(openrosde-find-extension-file "env/$1.env")"
@@ -66,11 +69,11 @@ fi
 echo "OPENROSDE_QUIET=true" >> .env.custom
 
 # Load the settings of the setup as the host scripts do, with the paths of the job, and check them: the setup must be the one selected, its platform must be found, and so must every extension it lists.
-if [ "$1" = "openrosde" ]; then
+if [ "$1" = "openrosde" ] || [ "$1" = "openrosde-ros2" ]; then
   source ./scripts/load-openrosde-settings.bash "${PWD}"
   OPENROSDE_EXTENSION_DOCKERFILES=()
-  OPENROSDE_CI_DEFAULT_IMAGE="${OPENROSDE_CI_IMAGE_REGISTRY}/openrosde-base:${OPENROSDE_CI_IMAGE_TAG}"
-  echo "Testing the core alone, with no platform and no extension."
+  OPENROSDE_CI_DEFAULT_IMAGE="${OPENROSDE_CI_IMAGE_REGISTRY}/${OPENROSDE_BASE_IMAGE_NAME}:${OPENROSDE_CI_IMAGE_TAG}"
+  echo "Testing the core alone on ROS ${OPENROSDE_ROS_VERSION}, with no platform and no extension."
 else
   source ./scripts/load-openrosde-env.bash ci
   if [ "${OPENROSDE_ROBOT_SETUP}" != "$1" ]; then
@@ -138,6 +141,15 @@ docker create \
 docker cp "${PWD}/." "${OPENROSDE_CI_CONTAINER_NAME}:${OPENROSDE_CONTAINER_ROOT_DIR}/" || exit 1
 docker start "${OPENROSDE_CI_CONTAINER_NAME}" > /dev/null || exit 1
 
+# Give the meshes of the container their GLBs before the workspaces build, unless the converter cannot be pulled, such as in the pipeline of an extension before the core publishes it, which skips the check of the robot model.
+OPENROSDE_CI_MESH_GLBS_EXIT_CODE=2
+if [ -n "${OPENROSDE_CI_MESH2GLB_IMAGE}" ]; then
+  bash ./gitlab-ci/generate-ci-mesh-glbs.bash "${OPENROSDE_CI_CONTAINER_NAME}" "${OPENROSDE_CI_MESH2GLB_IMAGE}" "${OPENROSDE_ROS_DISTRO}"
+  OPENROSDE_CI_MESH_GLBS_EXIT_CODE=$?
+else
+  echo "Warning: No converter of robot meshes is named, since 'OPENROSDE_CI_IMAGE_REGISTRY' or 'OPENROSDE_CI_IMAGE_TAG' is not set, so the robot model is not checked."
+fi
+
 # Reset and build the workspaces, with the settings loaded and exported as in a shell of the container.
 docker exec "${OPENROSDE_CI_CONTAINER_NAME}" bash -c "source ${OPENROSDE_CONTAINER_ROOT_DIR}/scripts/load-openrosde-settings.bash ${OPENROSDE_CONTAINER_ROOT_DIR} && bash ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/reset-catkin-workspaces.bash"
 OPENROSDE_CI_EXIT_CODE=$?
@@ -152,29 +164,28 @@ if [ "${OPENROSDE_CI_EXIT_CODE}" -eq 0 ]; then
     exit 1
   fi
   echo "Disconnected the container '${OPENROSDE_CI_CONTAINER_NAME}' from every network before the checks."
-  # Give the meshes of the container their GLBs and check the robot model that the file service serves, unless the converter cannot be pulled, such as in the pipeline of an extension before the core publishes it.
-  if [ -n "${OPENROSDE_CI_MESH2GLB_IMAGE}" ]; then
-    bash ./gitlab-ci/generate-ci-mesh-glbs.bash "${OPENROSDE_CI_CONTAINER_NAME}" "${OPENROSDE_CI_MESH2GLB_IMAGE}"
-    case $? in
-      0) docker exec "${OPENROSDE_CI_CONTAINER_NAME}" bash ${OPENROSDE_CONTAINER_ROOT_DIR}/gitlab-ci/check-robot-model.bash || OPENROSDE_CI_EXIT_CODE=1 ;;
-      2) ;;
-      *) OPENROSDE_CI_EXIT_CODE=1 ;;
-    esac
-  else
-    echo "Warning: No converter of robot meshes is named, since 'OPENROSDE_CI_IMAGE_REGISTRY' or 'OPENROSDE_CI_IMAGE_TAG' is not set, so the robot model is not checked."
-  fi
+  # Check the robot model that the file service serves, once the meshes got their GLBs.
+  case ${OPENROSDE_CI_MESH_GLBS_EXIT_CODE} in
+    0) docker exec "${OPENROSDE_CI_CONTAINER_NAME}" bash ${OPENROSDE_CONTAINER_ROOT_DIR}/gitlab-ci/check-robot-model.bash ${OPENROSDE_CI_ROBOT_MODEL_ARGS} || OPENROSDE_CI_EXIT_CODE=1 ;;
+    2) ;;
+    *) OPENROSDE_CI_EXIT_CODE=1 ;;
+  esac
   docker exec "${OPENROSDE_CI_CONTAINER_NAME}" bash ${OPENROSDE_CONTAINER_ROOT_DIR}/gitlab-ci/check-launch-files.bash "$1" || OPENROSDE_CI_EXIT_CODE=1
   docker exec "${OPENROSDE_CI_CONTAINER_NAME}" bash ${OPENROSDE_CONTAINER_ROOT_DIR}/gitlab-ci/run-extension-checks.bash "$1" || OPENROSDE_CI_EXIT_CODE=1
 fi
 
 ################################################################################
 
-# Keep the Catkin logs of every workspace of the setup when the test fails.
+# Keep the logs of every workspace of the setup when the test fails, from 'logs/' of 'catkin build' on ROS 1 or 'log/' of 'colcon build' on ROS 2.
+OPENROSDE_CI_LOG_FOLDER=logs
+if [ "${OPENROSDE_ROS_VERSION}" = "2" ]; then
+  OPENROSDE_CI_LOG_FOLDER=log
+fi
 if [ "${OPENROSDE_CI_EXIT_CODE}" -ne 0 ]; then
   for OPENROSDE_CI_CATKIN_WS in "${OPENROSDE_CATKIN_WORKSPACE_DIRS[@]}"; do
     OPENROSDE_CI_CATKIN_WS="${OPENROSDE_CI_CATKIN_WS#${PWD}/}"
     mkdir -p "ci-logs/${OPENROSDE_CI_CATKIN_WS}"
-    docker cp "${OPENROSDE_CI_CONTAINER_NAME}:${OPENROSDE_CONTAINER_ROOT_DIR}/${OPENROSDE_CI_CATKIN_WS}/logs" "ci-logs/${OPENROSDE_CI_CATKIN_WS}/" > /dev/null 2>&1
+    docker cp "${OPENROSDE_CI_CONTAINER_NAME}:${OPENROSDE_CONTAINER_ROOT_DIR}/${OPENROSDE_CI_CATKIN_WS}/${OPENROSDE_CI_LOG_FOLDER}" "ci-logs/${OPENROSDE_CI_CATKIN_WS}/" > /dev/null 2>&1
   done
 fi
 exit ${OPENROSDE_CI_EXIT_CODE}
