@@ -108,8 +108,8 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
     bash ./BUILD-DOCKER-IMAGE.bash #[docker-project]
     ```
 
-    This script builds the shared base image (`openrosde-base`) and the platform-specific image (`${OPENROSDE_ROBOT_PLATFORM}-devel`) following the instructions found in `docker/`.
-    Enter your GitLab developer credentials if prompted.
+    This script pulls or builds the shared base image (`openrosde-base`), the converter of robot meshes (`openrosde-mesh2glb`), and the platform-specific image (`${OPENROSDE_ROBOT_PLATFORM}-devel`), builds the Docker layers of the extensions and the user overlay, then gives every robot mesh its GLB file, as [Robot Models](robot-models.md) describes.
+    The registry serves the images without a login.
 
 > [!NOTE]
 > The script `BUILD-DOCKER-IMAGE.bash` first tries to download the image from the [container registry](https://gitlab.com/coarobo/SDE/container_registry) of the project.
@@ -118,6 +118,10 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
 > In both cases, avoid using a Wi-Fi connection to greatly accelerate the process.
 > Note that future local builds will reuse cached data whenever possible.
 > Set `OPENROSDE_DOCKER_BUILD_FALLBACK=false` in `.env.custom` to stop with an error rather than build the image locally when its download fails, as a CI job should.
+
+> [!TIP]
+> A pull that fails with `unauthorized: HTTP Basic: Access denied` comes from an old login to `registry.gitlab.com` kept in the Docker configuration of the machine, which Docker sends even though the registry needs none.
+> Run `docker logout registry.gitlab.com` once, then build again.
 
 ## 🚀 Step 4: Run the Docker Container
 

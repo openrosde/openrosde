@@ -46,8 +46,7 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
   Each platform ships a default setup with the plain robot, and the user selects a setup rather than a platform.
 - A setup is a template that any extension holds, named `<owner>-<platform>-<place>`, so one private extension of a company can hold its packages and the setups of all its robots.
 - The Coarobo UR5e bench is the first setup, in the private extension of Coarobo, beside the bindings of Coarobo Sightline and Coarobo Viewport and the FastSAM segmentation, which have all left the core and its user layer, and the setup of a client takes the same shape in a private extension of that client.
-- The Unity ROS TCP Endpoint leaves the core once Coarobo Sightline reaches robots through `rosbridge`, and moves with the Sightline bindings until then.
-- `openrosde_launch:rosbridge_server_default.launch` stays in the core, since any web or Unity client can use it.
+- The Unity ROS TCP Endpoint left the core on 2026-10-15, once Coarobo Sightline reached the Fetch and the UR5e through `rosbridge` alone, so `openrosde_launch:rosbridge_server_default.launch` on port `9090` is the one transport the core provides to web and Unity clients.
 - The user layer stays in the core as the template every extension starts from.
 - Terminator gives way to `tmux` sessions built by `RUN-TMUX-SESSION.bash` from the panes each part declares, and leaves once the maintainers have run the `tmux` sessions on a real robot (#38).
 - The repository then moves to GitHub as OpenRoSDE under the Apache License 2.0, with a `NOTICE` that keeps the MIT notice of the earlier code, and the GitLab URL keeps resolving, since papers cite it.
@@ -72,7 +71,6 @@ Record a change of a topic name, a message type, a port, or the launch file that
 - `/joint_states`, `/tf`, `/tf_static`, and `clock`: the bringup of each platform.
 - `/servo_server/delta_twist_cmds`: MoveIt Servo, started by `openrosde_ur5e_teleop/launch/ur5e_teleop.launch` of `openrosde-platform-ur5e`, which `ur5e_teleop_default_<environment>.launch` includes.
 - `fetch_ee_cmd_vel`, relayed to the Cartesian twist controller of the Fetch: `openrosde_fetch_teleop`, started by `fetch_teleop_default.launch`, both in `openrosde-platform-fetch`.
-- Port `10000` of the Unity ROS TCP Endpoint `0.7.0`: `openrosde_launch:ros_tcp_endpoint_default.launch`.
 - Port `9090` of `rosbridge`: `openrosde_launch:rosbridge_server_default.launch`.
 - The robot model: `robot_description` through `/rosapi/get_param`, and its meshes as GLB files through the service `/file_server/get_file` of the ROS# node `file_server` that `rosbridge_server_default.launch` starts, as [Robot Models](docs/robot-models.md) describes.
 
@@ -82,7 +80,7 @@ The other interfaces of the products, such as the gripper action, the camera rel
 
 - Coarobo Sightline (`coarobo/coarobo-sightline`) and Coarobo Viewport (`coarobo/coarobo-viewport`) are developed in their own repositories, often by other agents at the same time as one working here.
 - An agent working here owns this repository and the extension repositories of the split, and leaves those two repositories to their own sessions.
-- Coarobo Sightline is moving from the Unity ROS TCP Endpoint to `rosbridge`, which Coarobo Viewport already uses, so that it no longer depends on OpenRoSDE and runs on ROS 1 and ROS 2 alike.
+- Coarobo Sightline reaches robots through `rosbridge`, as Coarobo Viewport does, so that it no longer depends on OpenRoSDE and runs on ROS 1 and ROS 2 alike.
 
 ## Directory Structure
 
@@ -94,7 +92,7 @@ The other interfaces of the products, such as the gripper action, the camera rel
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
   - `docker-compose-user.yaml`: User overlay (always loaded by `RUN-DOCKER-CONTAINER.bash`).
 - `ros/`: ROS Catkin workspaces.
-  - `openrosde_catkin_ws/`: Shared workspace (FlexBE packages, `ros_tcp_endpoint`, `openrosde_launch/`).
+  - `openrosde_catkin_ws/`: Shared workspace (FlexBE packages, `openrosde_launch/`).
   - `user_catkin_ws/`: User overlay workspace (`openrosde_user_launch/`, `openrosde_user_behaviors/`). Platform-agnostic.
 - `scripts/`: Shared shell scripts (`load-openrosde-env.bash`, `load-openrosde-settings.bash`, `load-extension-paths.bash`, `build-extension-layers.bash`, `list-robot-platforms.bash`, `list-robot-setups.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each setup or platform in `scripts/<setup or platform>/`.
 - `patches/`: Patches of the Git submodules, mirroring the submodule paths.
@@ -191,7 +189,7 @@ The remaining spare panes (Numbers 8-11) are free shells reserved for additional
 The session gathers the pane files of the setup (`tmux/<setup>.panes`), or else of the platform (`tmux/<platform>.panes`), of the active extensions and the setup (every other `tmux/*.panes` of their folders, apart from those named after a platform or a setup that is not active), then of the core (`tmux/openrosde.panes`), and opens a window on the first pane of each window name.
 The pane file of a setup replaces that of its platform, as its Terminator layout does, and a device ships no pane file, since its panes belong to each setup.
 Each line of a pane file reads `<layouts> <window> <launch-file> [<arg:=value> ...]`, where `<layouts>` is `*` or a comma-separated list of layouts (`default-gazebo`, `default-realworld`, or a layout of a setup), and the words `shell` and `host` open a shell in the container or on the host.
-The windows are `robot` (bringup, RViz, MoveIt, and the secondary launches of the platform), `extra` (further launches of the platform), the windows of the extensions and the setup, `tools` (FlexBE app, rqt suite, ROS TCP Endpoint, `rosbridge`), `user` (user overlay starter and a container shell), and `host`.
+The windows are `robot` (bringup, RViz, MoveIt, and the secondary launches of the platform), `extra` (further launches of the platform), the windows of the extensions and the setup, `tools` (FlexBE app, rqt suite, `rosbridge`), `user` (user overlay starter and a container shell), and `host`.
 The session turns the mouse on and titles the terminal `OpenRoSDE (<session>)`, which `maximize-app-window.bash` matches like the Terminator title.
 Until Terminator is retired, keep `tmux/<platform>.panes` in step with `terminator/<platform>.config`, since the platform pane files were generated from the Terminator layouts.
 `tests/suites/test-terminator-parity.bash` checks that every layout of a Terminator config of the core, and of every platform cloned into `extensions/`, runs the same launch files and arguments as the panes of that layout.
@@ -215,7 +213,7 @@ The top-right pair (`terminal13` / `terminal14`, Numbers: 2 / 3) is used for pla
 Spare terminals (Numbers: 8-11) are available for additional launches (e.g., the cameras of a setup at Number: 8 in the Terminator layouts of that setup).
 Number: 12 (`terminal25`) is standardized across all platforms and both environments for `openrosde_user_launch:user_example_default.launch` (user overlay starter).
 Number: 13 (`terminal26`) is standardized across all platforms and both environments for `openrosde_launch:rqt_suite_default.launch`.
-Number: 14 (`terminal28`) is standardized across all platforms and both environments for `openrosde_launch:ros_tcp_endpoint_default.launch` (Unity ROS TCP Endpoint for Coarobo Sightline).
+Number: 14 (`terminal28`) is a shell inside the container in every layout, where the Unity ROS TCP Endpoint ran until it left the core.
 Number: 15 (`terminal29`) is standardized across all platforms and both environments for `openrosde_launch:rosbridge_server_default.launch`.
 
 ### Variable Naming Convention
@@ -467,7 +465,7 @@ The Dockerfile installs their system dependencies via `apt-get`, and the package
 All submodules use `ignore = dirty` in `.gitmodules`.
 
 Current submodules:
-- Shared (`openrosde_catkin_ws`): `flexbe_behavior_engine`, `flexbe_app`, `flexbe_generic_states`, `ros_tcp_endpoint` (Unity ROS TCP Endpoint, branch `main`, wrapped by `openrosde_launch/scripts/ros_tcp_endpoint_server.py`).
+- Shared (`openrosde_catkin_ws`): `flexbe_behavior_engine`, `flexbe_app`, `flexbe_generic_states`.
 - The platforms and devices in repositories of their own declare their submodules in their own `.gitmodules`: `fetch_gazebo` in `openrosde-platform-fetch`, `sciurus17_ros` and `sciurus17_description` in `openrosde-platform-sciurus17`, `denso_cobotta_ros` in `openrosde-platform-cobotta`, and `onrobot` and `roboticsgroup_upatras_gazebo_plugins` in `openrosde-device-onrobot`, at the commits that this repository pinned.
 - UR5e (`openrosde-platform-ur5e`): no submodules, since the plain robot needs only the packages of its image.
 - HSR (`openrosde-platform-hsr`): no submodules, since its image copies the HSR stack of the Toyota binary image `ghcr.io/hsr-project/tmc_wrs_binary:noetic-latest`, as the documentation of that repository describes.
