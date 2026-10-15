@@ -8,6 +8,8 @@
 ARG OPENROSDE_ROBOT_PLATFORM
 ARG OPENROSDE_PLATFORM_IMAGE=registry.gitlab.com/coarobo/sde/${OPENROSDE_ROBOT_PLATFORM}-devel:main
 ARG OPENROSDE_MESH2GLB_IMAGE=registry.gitlab.com/coarobo/sde/openrosde-mesh2glb:main
+# The distribution of ROS of the platform image, whose installed packages live in '/opt/ros/<distribution>/share'.
+ARG OPENROSDE_ROS_DISTRO=noetic
 FROM ${OPENROSDE_PLATFORM_IMAGE} AS overlay
 
 ################################################################################
@@ -31,11 +33,13 @@ FROM ${OPENROSDE_PLATFORM_IMAGE} AS overlay
 # This layer is built locally only, so the GLBs of meshes that may not be redistributed are never published.
 # The meshes of the Catkin workspaces get theirs from 'scripts/generate-mesh-glbs.bash', since the workspaces are mounted at run time.
 FROM ${OPENROSDE_MESH2GLB_IMAGE} AS glb
-COPY --from=overlay /opt/ros/noetic/share /in
+ARG OPENROSDE_ROS_DISTRO
+COPY --from=overlay /opt/ros/${OPENROSDE_ROS_DISTRO}/share /in
 RUN python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs "$(nproc)" --out /out /in > /out.tsv && mkdir -p /out
 
 FROM overlay
-COPY --from=glb /out/ /opt/ros/noetic/share/
+ARG OPENROSDE_ROS_DISTRO
+COPY --from=glb /out/ /opt/ros/${OPENROSDE_ROS_DISTRO}/share/
 
 ################################################################################
 

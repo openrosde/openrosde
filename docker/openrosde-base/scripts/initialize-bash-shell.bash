@@ -52,19 +52,21 @@ fi
 # Disable ROS end-of-life warning messages.
 export DISABLE_ROS1_EOL_WARNINGS=1
 
-# Source the ROS distribution.
-echo "Sourcing the ROS distribution from '/opt/ros/noetic/setup.bash'."
-source /opt/ros/noetic/setup.bash
+# Source the ROS distribution of the platform, ROS 1 Noetic or ROS 2 Lyrical, as 'OPENROSDE_ROS_DISTRO' names it.
+echo "Sourcing the ROS distribution from '/opt/ros/${OPENROSDE_ROS_DISTRO}/setup.bash'."
+source /opt/ros/${OPENROSDE_ROS_DISTRO}/setup.bash
 
-# Source the Catkin workspaces.
+# Source the Catkin workspaces on ROS 1, or the colcon workspaces on ROS 2.
 source ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/source-catkin-workspaces.bash
 
 ################################################################################
 
-# Add the shared, platform-specific, extension, and user Catkin workspaces to the 'ROS_PACKAGE_PATH'.
-for OPENROSDE_CATKIN_WS in "${OPENROSDE_CATKIN_WORKSPACE_DIRS[@]}"; do
-  export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${OPENROSDE_CATKIN_WS}/src/
-done
+# Add the shared, platform-specific, extension, and user Catkin workspaces to the 'ROS_PACKAGE_PATH' on ROS 1, which ROS 2 does not read.
+if [ "${OPENROSDE_ROS_VERSION}" = "1" ]; then
+  for OPENROSDE_CATKIN_WS in "${OPENROSDE_CATKIN_WORKSPACE_DIRS[@]}"; do
+    export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${OPENROSDE_CATKIN_WS}/src/
+  done
+fi
 
 ################################################################################
 
@@ -133,45 +135,62 @@ function openrosde-kill-ros-nodes () {
 
 ################################################################################
 
-# Set the ROS network interface.
+# Set the ROS network interface, of ROS 2 below, or else of ROS 1.
 
-# Set the ROS master hostname from the '.env' configuration.
-export OPENROSDE_ROS_MASTER_HOSTNAME=${OPENROSDE_ROS_MASTER_HOSTNAME}
-
-# Set 'ROS_IP' with 'OPENROSDE_ROS_CLIENT_IP' found in '.env.custom' (if not empty).
-if [ -n "${OPENROSDE_ROS_CLIENT_IP}" ]; then
-  export ROS_IP="${OPENROSDE_ROS_CLIENT_IP}"
-else
-  # Look for the ROS master host name inside the local network and resolve it to get its IP address.
-  OPENROSDE_ROS_MASTER_IP=$(getent hosts ${OPENROSDE_ROS_MASTER_HOSTNAME} | cut -d ' ' -f 1)
-  if [ -z "${OPENROSDE_ROS_MASTER_IP}" ]; then
-    # If no ROS master host name is found, set the local 'ROS_IP' using the default Docker network interface ('docker0').
-    export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+# Set the discovery of ROS 2, which has no master: 'local_mode' keeps it on this machine, and 'remote_mode' extends it to the local network, with the robot host name as a static peer.
+# https://docs.ros.org/en/lyrical/Tutorials/Advanced/Improved-Dynamic-Discovery.html
+# The nodes of the robot must share the domain 'OPENROSDE_ROS_DOMAIN_ID' and the middleware of the container, Fast DDS by default.
+if [ "${OPENROSDE_ROS_VERSION}" = "2" ]; then
+  export ROS_DOMAIN_ID="${OPENROSDE_ROS_DOMAIN_ID}"
+  PS1_DEFAULT="${PS1}"
+  export local_mode='export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST; unset ROS_STATIC_PEERS; echo "Setting local ROS 2 discovery: ROS_AUTOMATIC_DISCOVERY_RANGE=${ROS_AUTOMATIC_DISCOVERY_RANGE}, ROS_DOMAIN_ID=${ROS_DOMAIN_ID}"; export PS1="\[\e[44;1;37m\]<local>\[\e[0m\] ${PS1_DEFAULT}"'
+  export remote_mode='export ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET; export ROS_STATIC_PEERS="${OPENROSDE_ROS_MASTER_HOSTNAME}"; echo "Setting remote ROS 2 discovery: ROS_AUTOMATIC_DISCOVERY_RANGE=${ROS_AUTOMATIC_DISCOVERY_RANGE}, ROS_STATIC_PEERS=${ROS_STATIC_PEERS}, ROS_DOMAIN_ID=${ROS_DOMAIN_ID}"; export PS1="\[\e[41;1;37m\]<remote>\[\e[0m\] ${PS1_DEFAULT}"'
+  alias local_mode="${local_mode}"
+  alias remote_mode="${remote_mode}"
+  if [ "${OPENROSDE_ROS_MASTER_HOSTNAME}" = "localhost" ]; then
+    eval ${local_mode}
   else
-    # If the ROS master host name is found, set the local 'ROS_IP' using the network interface that connects to the ROS master.
-    # TODO: Use Bash instead of Python.
-    export ROS_IP=$(python3 ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/print-interface-ip.py ${OPENROSDE_ROS_MASTER_IP})
+    eval ${remote_mode}
   fi
-  if [ -z "${ROS_IP}" ]; then
-    # If the local 'ROS_IP' is still empty, default to the Docker network interface ('docker0') for sanity.
-    export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
-  fi
-fi
-
-export ROS_HOME=~/.ros
-
-# Set the ROS master network location.
-PS1_DEFAULT="${PS1}"
-export local_mode='export ROS_MASTER_URI=http://localhost:11311; echo "Setting local ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[44;1;37m\]<local>\[\e[0m\] ${PS1_DEFAULT}"'
-export remote_mode='export ROS_MASTER_URI=http://${OPENROSDE_ROS_MASTER_HOSTNAME}:11311; echo "Setting remote ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[41;1;37m\]<remote>\[\e[0m\] ${PS1_DEFAULT}"'
-alias local_mode="${local_mode}"
-alias remote_mode="${remote_mode}"
-
-# Set the default ROS network mode based on configuration.
-if [ "${OPENROSDE_ROS_MASTER_HOSTNAME}" = "localhost" ]; then
-  eval ${local_mode}
 else
-  eval ${remote_mode}
+  # Set the ROS master hostname from the '.env' configuration.
+  export OPENROSDE_ROS_MASTER_HOSTNAME=${OPENROSDE_ROS_MASTER_HOSTNAME}
+
+  # Set 'ROS_IP' with 'OPENROSDE_ROS_CLIENT_IP' found in '.env.custom' (if not empty).
+  if [ -n "${OPENROSDE_ROS_CLIENT_IP}" ]; then
+    export ROS_IP="${OPENROSDE_ROS_CLIENT_IP}"
+  else
+    # Look for the ROS master host name inside the local network and resolve it to get its IP address.
+    OPENROSDE_ROS_MASTER_IP=$(getent hosts ${OPENROSDE_ROS_MASTER_HOSTNAME} | cut -d ' ' -f 1)
+    if [ -z "${OPENROSDE_ROS_MASTER_IP}" ]; then
+      # If no ROS master host name is found, set the local 'ROS_IP' using the default Docker network interface ('docker0').
+      export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+    else
+      # If the ROS master host name is found, set the local 'ROS_IP' using the network interface that connects to the ROS master.
+      # TODO: Use Bash instead of Python.
+      export ROS_IP=$(python3 ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/print-interface-ip.py ${OPENROSDE_ROS_MASTER_IP})
+    fi
+    if [ -z "${ROS_IP}" ]; then
+      # If the local 'ROS_IP' is still empty, default to the Docker network interface ('docker0') for sanity.
+      export ROS_IP=$(LANG=C /sbin/ifconfig docker0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*')
+    fi
+  fi
+
+  export ROS_HOME=~/.ros
+
+  # Set the ROS master network location.
+  PS1_DEFAULT="${PS1}"
+  export local_mode='export ROS_MASTER_URI=http://localhost:11311; echo "Setting local ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[44;1;37m\]<local>\[\e[0m\] ${PS1_DEFAULT}"'
+  export remote_mode='export ROS_MASTER_URI=http://${OPENROSDE_ROS_MASTER_HOSTNAME}:11311; echo "Setting remote ROS master: ROS_MASTER_URI=${ROS_MASTER_URI}"; echo "Setting local ROS client: ROS_IP=${ROS_IP}"; export PS1="\[\e[41;1;37m\]<remote>\[\e[0m\] ${PS1_DEFAULT}"'
+  alias local_mode="${local_mode}"
+  alias remote_mode="${remote_mode}"
+
+  # Set the default ROS network mode based on configuration.
+  if [ "${OPENROSDE_ROS_MASTER_HOSTNAME}" = "localhost" ]; then
+    eval ${local_mode}
+  else
+    eval ${remote_mode}
+  fi
 fi
 
 ################################################################################

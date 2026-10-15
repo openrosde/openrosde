@@ -53,7 +53,7 @@ else
   docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml pull openrosde-base
   if [[ "$?" -ne "0" ]]; then
     if [ "${OPENROSDE_DOCKER_BUILD_FALLBACK}" != "true" ]; then
-      echo "Error: The pull of '${OPENROSDE_DOCKER_REGISTRY}/openrosde-base:${OPENROSDE_DOCKER_IMAGE_TAG}' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=${OPENROSDE_DOCKER_BUILD_FALLBACK}' does not build it locally."
+      echo "Error: The pull of '${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_BASE_IMAGE_NAME}:${OPENROSDE_DOCKER_IMAGE_TAG}' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=${OPENROSDE_DOCKER_BUILD_FALLBACK}' does not build it locally."
       exit 1
     fi
     docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml build openrosde-base

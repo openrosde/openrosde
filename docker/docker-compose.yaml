@@ -4,7 +4,7 @@
 
 # Base Docker Compose file for OpenRoSDE.
 # Defines four services:
-#   - 'openrosde-base'     : Build-only shared base image.
+#   - 'openrosde-base'     : Build-only shared base image of the ROS of the platform, 'openrosde-base' on ROS 1 or 'openrosde-base-ros2' on ROS 2.
 #   - 'openrosde-mesh2glb' : Build-only converter of robot meshes into GLB files, which the user overlay runs on the meshes of the images.
 #   - 'openrosde-platform' : Build-only platform-specific image (inherits from 'openrosde-base').
 #   - 'openrosde'          : Runtime user overlay container (inherits from 'openrosde-platform').
@@ -13,10 +13,11 @@
 
 services:
   openrosde-base:
-    image: ${OPENROSDE_DOCKER_REGISTRY}/openrosde-base:${OPENROSDE_DOCKER_IMAGE_TAG}
+    # The base image of the ROS that the platform runs, as 'scripts/load-extension-paths.bash' names it from 'OPENROSDE_ROS_VERSION'.
+    image: ${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_BASE_IMAGE_NAME}:${OPENROSDE_DOCKER_IMAGE_TAG}
     build:
       context: ../
-      dockerfile: ./docker/openrosde-base/Dockerfile
+      dockerfile: ./docker/${OPENROSDE_BASE_IMAGE_NAME}/Dockerfile
       args:
         - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
         - OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}
@@ -39,7 +40,7 @@ services:
       args:
         - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
         - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
-        - OPENROSDE_BASE_IMAGE=${OPENROSDE_DOCKER_REGISTRY}/openrosde-base:${OPENROSDE_DOCKER_IMAGE_TAG}
+        - OPENROSDE_BASE_IMAGE=${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_BASE_IMAGE_NAME}:${OPENROSDE_DOCKER_IMAGE_TAG}
 
   openrosde:
     hostname: openrosde-${OPENROSDE_ROBOT_PLATFORM}
@@ -68,8 +69,9 @@ services:
         - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
         # The parent of the user overlay is the last Docker layer of the active extensions, or else the platform image, as 'scripts/load-openrosde-env.bash' derives it.
         - OPENROSDE_PLATFORM_IMAGE=${OPENROSDE_USER_PARENT_IMAGE}
-        # The converter of robot meshes, which gives every mesh installed in the images its GLB.
+        # The converter of robot meshes, which gives every mesh installed in the images its GLB, in '/opt/ros/<distribution>/share' of the ROS of the platform.
         - OPENROSDE_MESH2GLB_IMAGE=${OPENROSDE_DOCKER_REGISTRY}/openrosde-mesh2glb:${OPENROSDE_DOCKER_IMAGE_TAG}
+        - OPENROSDE_ROS_DISTRO=${OPENROSDE_ROS_DISTRO}
     volumes:
       # Map repository root for convenient access.
       - ../:${OPENROSDE_CONTAINER_ROOT_DIR}/

@@ -18,9 +18,11 @@
 # - 'OPENROSDE_ROBOT_PLATFORM_ROOT_DIR': the root directory that holds 'env/${OPENROSDE_ROBOT_PLATFORM}.env', the core, an extension, or a part.
 # - 'OPENROSDE_ROBOT_SETUP_ROOT_DIR': the root directory that holds 'env/${OPENROSDE_ROBOT_SETUP}.env', the core, an extension, or a part.
 # - 'OPENROSDE_ACTIVE_ROOT_DIRS': the core, the root directory of the platform, the extensions or parts of 'OPENROSDE_ROBOT_EXTENSIONS' in their order, then the root directory of the setup.
-# - 'OPENROSDE_CATKIN_WORKSPACE_DIRS': the Catkin workspaces to build and source, in that order.
+# - 'OPENROSDE_ROS_WORKSPACE_FOLDER' and 'OPENROSDE_ROS_WORKSPACE_SUFFIX': where the workspaces of the ROS of 'OPENROSDE_ROS_VERSION' live in every folder, 'ros/<name>_catkin_ws' on ROS 1 or 'ros2/<name>_colcon_ws' on ROS 2.
+# - 'OPENROSDE_BASE_IMAGE_NAME': the base image of that ROS, 'openrosde-base' on ROS 1 or 'openrosde-base-ros2' on ROS 2, built from 'docker/<name>/Dockerfile' of the core.
+# - 'OPENROSDE_CATKIN_WORKSPACE_DIRS': the workspaces to build and source, in that order, Catkin workspaces on ROS 1 or colcon workspaces on ROS 2.
 # - 'OPENROSDE_COMPOSE_OVERLAY_FILES': the Docker Compose overlays of the platform, then of the active extensions and the setup, in that order.
-# - 'OPENROSDE_TMUX_PANES_FILES': the pane files of the 'tmux' session, in the order their windows appear: the setup or else the platform, the active extensions and the setup, then the core.
+# - 'OPENROSDE_TMUX_PANES_FILES': the pane files of the 'tmux' session, in the order their windows appear: the setup or else the platform, the active extensions and the setup, then the core, 'tmux/openrosde.panes' on ROS 1 or 'tmux/openrosde-ros2.panes' on ROS 2.
 # - 'openrosde-find-extension-file <relative-path>': prints the first match of '<relative-path>' in 'OPENROSDE_SEARCH_ROOT_DIRS'.
 # - 'openrosde-find-extension-root <name>': prints the root directory of the extension 'extensions/<name>/' or of the single part 'extensions/<extension>/parts/<name>/', and fails when none or several hold it.
 # - 'openrosde-find-setup-file <relative-path-pattern>': prints the first match of the pattern, where '%s' stands for the setup in its root directory, then for the platform in its root directory, then for either in the core.
@@ -181,25 +183,51 @@ fi
 
 ################################################################################
 
-# List the Catkin workspaces in the order they are built and sourced:
+# Name where the workspaces of the ROS that the platform runs live, and its base image, from 'OPENROSDE_ROS_VERSION' of the settings: ROS 1 by default, or ROS 2, which a platform on ROS 2 declares in its template.
+# Any other version leaves the names empty, and is reported unless it is unset, as when a script sources this one for its functions alone, without the settings, while 'scripts/load-openrosde-env.bash' stops on it.
+case "${OPENROSDE_ROS_VERSION}" in
+  1)
+    OPENROSDE_ROS_WORKSPACE_FOLDER=ros
+    OPENROSDE_ROS_WORKSPACE_SUFFIX=catkin_ws
+    OPENROSDE_BASE_IMAGE_NAME=openrosde-base
+    OPENROSDE_CORE_PANES_NAME=openrosde
+    ;;
+  2)
+    OPENROSDE_ROS_WORKSPACE_FOLDER=ros2
+    OPENROSDE_ROS_WORKSPACE_SUFFIX=colcon_ws
+    OPENROSDE_BASE_IMAGE_NAME=openrosde-base-ros2
+    OPENROSDE_CORE_PANES_NAME=openrosde-ros2
+    ;;
+  *)
+    if [ -n "${OPENROSDE_ROS_VERSION}" ]; then
+      echo "Error: 'OPENROSDE_ROS_VERSION' is '${OPENROSDE_ROS_VERSION}', but it must be '1' for ROS 1 or '2' for ROS 2." >&2
+    fi
+    OPENROSDE_ROS_WORKSPACE_FOLDER=""
+    OPENROSDE_ROS_WORKSPACE_SUFFIX=""
+    OPENROSDE_BASE_IMAGE_NAME=""
+    OPENROSDE_CORE_PANES_NAME=""
+    ;;
+esac
+
+# List the workspaces of that ROS in the order they are built and sourced, 'ros/<name>_catkin_ws' on ROS 1 or 'ros2/<name>_colcon_ws' on ROS 2:
 # 1. The shared workspace of the core.
 # 2. The workspace of the platform.
 # 3. Every other workspace of the platform root directory (if it is an extension or a part), of the active extensions and parts in their order, then of the setup.
 # 4. The user workspace of the core, if it holds packages.
-OPENROSDE_CATKIN_WORKSPACE_DIRS=("${OPENROSDE_LOOKUP_ROOT_DIR}/ros/openrosde_catkin_ws")
-OPENROSDE_ROBOT_PLATFORM_CATKIN_WS="${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}/ros/${OPENROSDE_ROBOT_PLATFORM}_catkin_ws"
+OPENROSDE_CATKIN_WORKSPACE_DIRS=("${OPENROSDE_LOOKUP_ROOT_DIR}/${OPENROSDE_ROS_WORKSPACE_FOLDER}/openrosde_${OPENROSDE_ROS_WORKSPACE_SUFFIX}")
+OPENROSDE_ROBOT_PLATFORM_CATKIN_WS="${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}/${OPENROSDE_ROS_WORKSPACE_FOLDER}/${OPENROSDE_ROBOT_PLATFORM}_${OPENROSDE_ROS_WORKSPACE_SUFFIX}"
 if [ -d "${OPENROSDE_ROBOT_PLATFORM_CATKIN_WS}" ]; then
   OPENROSDE_CATKIN_WORKSPACE_DIRS+=("${OPENROSDE_ROBOT_PLATFORM_CATKIN_WS}")
 fi
 for OPENROSDE_EXTENSION_ROOT_DIR in "${OPENROSDE_ACTIVE_ROOT_DIRS[@]:1}"; do
-  for OPENROSDE_EXTENSION_CATKIN_WS in "${OPENROSDE_EXTENSION_ROOT_DIR}"/ros/*_catkin_ws; do
+  for OPENROSDE_EXTENSION_CATKIN_WS in "${OPENROSDE_EXTENSION_ROOT_DIR}/${OPENROSDE_ROS_WORKSPACE_FOLDER}"/*_"${OPENROSDE_ROS_WORKSPACE_SUFFIX}"; do
     if [ -d "${OPENROSDE_EXTENSION_CATKIN_WS}" ] && [ "${OPENROSDE_EXTENSION_CATKIN_WS}" != "${OPENROSDE_ROBOT_PLATFORM_CATKIN_WS}" ]; then
       OPENROSDE_CATKIN_WORKSPACE_DIRS+=("${OPENROSDE_EXTENSION_CATKIN_WS}")
     fi
   done
 done
-if [ -d "${OPENROSDE_LOOKUP_ROOT_DIR}/ros/user_catkin_ws/src" ]; then
-  OPENROSDE_CATKIN_WORKSPACE_DIRS+=("${OPENROSDE_LOOKUP_ROOT_DIR}/ros/user_catkin_ws")
+if [ -d "${OPENROSDE_LOOKUP_ROOT_DIR}/${OPENROSDE_ROS_WORKSPACE_FOLDER}/user_${OPENROSDE_ROS_WORKSPACE_SUFFIX}/src" ]; then
+  OPENROSDE_CATKIN_WORKSPACE_DIRS+=("${OPENROSDE_LOOKUP_ROOT_DIR}/${OPENROSDE_ROS_WORKSPACE_FOLDER}/user_${OPENROSDE_ROS_WORKSPACE_SUFFIX}")
 fi
 
 ################################################################################
@@ -229,7 +257,7 @@ done
 # 1. The panes of the setup, 'tmux/<setup>.panes', which replace those of the platform, 'tmux/<platform>.panes', as 'openrosde-find-setup-file' looks them up.
 # 2. Every other pane file of the platform root directory (if it is an extension or a part), of the active extensions and parts in their order, then of the setup, unless 'openrosde-select-extension-file' leaves it out.
 #    The own pane file of the platform, 'tmux/<platform>.panes' of its root directory, is left out too, since it either came first or was replaced by the panes of the setup.
-# 3. The panes of the core, 'tmux/openrosde.panes'.
+# 3. The panes of the core, 'tmux/openrosde.panes' on ROS 1 or 'tmux/openrosde-ros2.panes' on ROS 2.
 OPENROSDE_TMUX_PANES_FILES=()
 OPENROSDE_SETUP_PANES_FILE="$(openrosde-find-setup-file "tmux/%s.panes")"
 if [ -n "${OPENROSDE_SETUP_PANES_FILE}" ]; then
@@ -244,9 +272,9 @@ for OPENROSDE_EXTENSION_ROOT_DIR in "${OPENROSDE_ACTIVE_ROOT_DIRS[@]:1}"; do
     fi
   done
 done
-OPENROSDE_TMUX_PANES_FILES+=("${OPENROSDE_LOOKUP_ROOT_DIR}/tmux/openrosde.panes")
+OPENROSDE_TMUX_PANES_FILES+=("${OPENROSDE_LOOKUP_ROOT_DIR}/tmux/${OPENROSDE_CORE_PANES_NAME}.panes")
 
 # Clear the loop variables.
 unset OPENROSDE_EXTENSION_ROOT_DIR OPENROSDE_PART_ROOT_DIR OPENROSDE_EXTENSION_NAME OPENROSDE_EXTENSION_CATKIN_WS
 unset OPENROSDE_SEARCH_ROOT_DIR OPENROSDE_DECLARING_ENV_FILE OPENROSDE_DECLARED_ENV_NAME OPENROSDE_DECLARING_ENV_LINE
-unset OPENROSDE_PLATFORM_COMPOSE_FILE OPENROSDE_EXTENSION_COMPOSE_FILE OPENROSDE_EXTENSION_PANES_FILE OPENROSDE_EXTENSION_FILE_NAME OPENROSDE_SETUP_PANES_FILE
+unset OPENROSDE_PLATFORM_COMPOSE_FILE OPENROSDE_EXTENSION_COMPOSE_FILE OPENROSDE_EXTENSION_PANES_FILE OPENROSDE_EXTENSION_FILE_NAME OPENROSDE_SETUP_PANES_FILE OPENROSDE_CORE_PANES_NAME

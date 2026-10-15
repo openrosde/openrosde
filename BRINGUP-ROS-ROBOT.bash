@@ -8,6 +8,7 @@
 # Usage: bash ./BRINGUP-ROS-ROBOT.bash <rosmaster-hostname> [docker-project]
 #
 # <rosmaster-hostname>: Host name or IP address of the ROS master via 'ROS_MASTER_URI=http://<rosmaster-hostname>:11311'.
+#                       A platform on ROS 2, which has no master, passes it to its bringup script, which may ignore it.
 # [docker-project]:     Used to name the Docker container and create multiple instances if needed.
 #                       Default value is '$USER'.
 

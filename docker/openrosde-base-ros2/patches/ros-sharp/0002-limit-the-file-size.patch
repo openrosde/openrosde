@@ -1,0 +1,30 @@
+diff --git a/src/file_server.cpp b/src/file_server.cpp
+index 3b0b07d..f874cf2 100644
+--- a/src/file_server.cpp
++++ b/src/file_server.cpp
+@@ -53,6 +53,8 @@ public:
+         this->declare_parameter("allow_overwrite", false);
+         this->declare_parameter("allow_file_url",  false);
+         this->declare_parameter("allow_file_url_root",   std::string("/opt/ros/")); // containment root for file://
++        this->declare_parameter("max_file_size",   12000000);
++        RCLCPP_INFO(this->get_logger(), "Files larger than %ld bytes are not served.", this->get_parameter("max_file_size").as_int());
+ 
+         get_file_service_ = this->create_service<file_server2::srv::GetBinaryFile>(
+             "/file_server/get_file",
+@@ -224,6 +226,16 @@ private:
+             return;
+         }
+ 
++        // OpenRoSDE answers an empty value for a file larger than 'max_file_size' bytes, so that no response exceeds the message budget of a client after base64.
++        const auto max_file_size = this->get_parameter("max_file_size").as_int();
++        std::error_code size_error;
++        const auto file_size = std::filesystem::file_size(*full_path, size_error);
++        if (size_error || (max_file_size > 0 && file_size > static_cast<std::uintmax_t>(max_file_size)))
++        {
++            RCLCPP_WARN(this->get_logger(), "File not served, since its size is unknown or above \"max_file_size\" (%ld bytes): %s", max_file_size, full_path->c_str());
++            return;
++        }
++
+         response->value.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+         RCLCPP_INFO(this->get_logger(), "get_file: %s", request->name.c_str());
+     }

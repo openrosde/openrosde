@@ -14,6 +14,13 @@
 # Load the OpenRoSDE environment variables.
 source ./scripts/load-openrosde-env.bash "$1"
 
+# Stop with a hint before starting the container when neither the setup nor its platform has a Terminator layout, such as a platform on ROS 2, which only 'tmux' sessions serve.
+OPENROSDE_TERMINATOR_CONFIG_FILE="$(openrosde-find-setup-file "terminator/%s.config")"
+if [ -z "${OPENROSDE_TERMINATOR_CONFIG_FILE}" ]; then
+  echo "Error: Neither the setup '${OPENROSDE_ROBOT_SETUP}' nor its platform '${OPENROSDE_ROBOT_PLATFORM}' has a Terminator layout 'terminator/<name>.config', so open its 'tmux' session instead: bash ./RUN-TMUX-SESSION.bash ${OPENROSDE_DOCKER_PROJECT} $2"
+  exit 1
+fi
+
 ################################################################################
 
 # Pre-start the Docker container before launching Terminator.
@@ -39,7 +46,7 @@ OPENROSDE_TERMINATOR_LAYOUT="11-${OPENROSDE_TERMINATOR_LAYOUT_ARG}"
 # Its layouts are named after the platform in either case.
 # The folder './terminator/' is created first, since a clone of the core holds none once no platform of the core has a Terminator layout.
 mkdir -p ./terminator
-sed "s/\${OPENROSDE_DOCKER_PROJECT}/${OPENROSDE_DOCKER_PROJECT}/g" "$(openrosde-find-setup-file "terminator/%s.config")" > ./terminator/${OPENROSDE_ROBOT_PLATFORM}.config.tmp
+sed "s/\${OPENROSDE_DOCKER_PROJECT}/${OPENROSDE_DOCKER_PROJECT}/g" "${OPENROSDE_TERMINATOR_CONFIG_FILE}" > ./terminator/${OPENROSDE_ROBOT_PLATFORM}.config.tmp
 terminator --maximise --config ./terminator/${OPENROSDE_ROBOT_PLATFORM}.config.tmp --layout openrosde-${OPENROSDE_ROBOT_PLATFORM}-term-${OPENROSDE_TERMINATOR_LAYOUT}
 rm ./terminator/${OPENROSDE_ROBOT_PLATFORM}.config.tmp
 sleep 1

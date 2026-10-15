@@ -31,6 +31,11 @@ ros/*_catkin_ws/src/CMakeLists.txt
 ros/*_catkin_ws/.catkin_workspace
 ros/*_catkin_ws/install/
 
+# 'colcon build' auto-generated files (for all platforms on ROS 2):
+ros2/*_colcon_ws/build/
+ros2/*_colcon_ws/install/
+ros2/*_colcon_ws/log/
+
 # 'rosbag' files:
 *.bag
 
