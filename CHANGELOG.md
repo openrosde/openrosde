@@ -103,6 +103,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The parent pipeline passes its child pipeline no variable of a schedule or of the pipeline of another project, which could replace `OPENROSDE_CI_UPSTREAM_SOURCE` or `OPENROSDE_CI_PUBLISH_TAG` and publish `dev`, and the generator writes `OPENROSDE_CI_RUNNER_TAG`, `OPENROSDE_CI_EXTENSION_OVERRIDE`, and `OPENROSDE_CI_EXTRA_EXTENSIONS` into the child pipeline instead, once it has checked their format (#43).
+- `gitlab-ci/generate-ci-pipeline.bash` fails when `scripts/list-robot-platforms.bash` or `scripts/list-robot-setups.bash` fails, such as for a template that declares its setup with quotes, rather than leaving that setup out of a green pipeline (#43).
+- `gitlab-ci/check-no-motion.bash` allows a `roslaunch` of several launch files only when `allowed-simulation-launches.txt` names every one of them, rather than the first alone (#43).
+- `gitlab-ci/test-catkin-workspaces.bash` refuses an `OPENROSDE_CI_EXTRA_EXTENSIONS` that holds anything but folder names separated by spaces, since it writes it into `.env.custom`, which the job and the container source (#43).
+- The documentation names the release images `vX.Y.Z` beside `main` and `dev`, and the trigger job of an extension in `docs/extensions.md` runs in branch pipelines only, since the merge commit of a merged results pipeline is not on the branch (#43).
 - `docs/basic-usage.md` no longer asks for GitLab credentials to pull the images, which the registry serves without a login, and says that `docker logout registry.gitlab.com` fixes a pull that an old login makes fail.
 - The converter of robot meshes clamps every color and factor of a material to [0, 1], as glTF requires, so a COLLADA emission above 1, such as in a world of `fetch_gazebo`, no longer gives a GLB that the Khronos glTF-Validator rejects (#41).
 - `gitlab-ci/check-launch-files.bash` checks the pane files that `RUN-TMUX-SESSION.bash` opens for the setup, and fails when neither the setup nor its platform has one, rather than checking the panes of the core alone and passing, as it did for a platform held by an extension (#38).

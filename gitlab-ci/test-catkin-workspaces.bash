@@ -35,6 +35,12 @@ if [ -z "$2" ] && { [ -z "${OPENROSDE_CI_IMAGE_REGISTRY}" ] || [ -z "${OPENROSDE
   exit 1
 fi
 
+# Refuse extra extensions other than folder names separated by spaces, since they are written into '.env.custom', which the job and the container source.
+if ! [[ "${OPENROSDE_CI_EXTRA_EXTENSIONS}" =~ ^[A-Za-z0-9_.\ -]*$ ]]; then
+  echo "Error: 'OPENROSDE_CI_EXTRA_EXTENSIONS' may hold only folder names separated by spaces, but it is '${OPENROSDE_CI_EXTRA_EXTENSIONS}'."
+  exit 1
+fi
+
 ################################################################################
 
 # Select the setup in '.env.custom': the settings of the core alone for 'openrosde', or else the template of the setup, followed by the settings of the CI job.

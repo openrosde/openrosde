@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This suite checks the scripts of the CI in 'gitlab-ci/', with every call to Docker and to ROS stubbed, so that no check builds an image, starts a container, or starts a node.
-# It covers the child pipeline that the generator prints for platforms and setups of the core and of extensions, the launch check of a setup, the check that no script moves a robot, the refusals of the clone of the extensions, the source hash of an image, the tags that may be published, and the test of a setup, with its guard of '.env.custom' and the images it reads.
+# It covers the variables that the parent pipeline passes to the child pipeline, the child pipeline that the generator prints for platforms and setups of the core and of extensions, with the variables it writes into it, the launch check of a setup, the check that no script moves a robot, the refusals of the clone of the extensions, the source hash of an image, the tags that may be published, and the test of a setup, with its guard of '.env.custom' and the images it reads.
 # It uses the extension 'acme-robots', whose part 'acme-rover' holds the platform 'rover' and whose part 'acme-lab' holds the setup 'acme-rover-lab', and the device 'openrosde-device-bar' with a Docker layer.
 #
 # Usage: bash ./tests/run.bash test-ci-scripts
@@ -70,10 +70,28 @@ function openrosde-test-print-generated-jobs () {
   echo "status ${OPENROSDE_TEST_EXIT_CODE}"
 }
 
+# Print the global variables that the generator wrote into the child pipeline in the last run.
+function openrosde-test-print-generated-variables () {
+  echo "${OPENROSDE_TEST_OUTPUT}" | awk '/^variables:$/ { printing = 1; next } printing && !/^  / { exit } printing'
+}
+
+################################################################################
+
+# Check that the parent pipeline passes the child pipeline only the variables that GitLab sets, so that no variable that started it, such as one of a schedule, can make the child pipeline publish.
+OPENROSDE_TEST_TRIGGER_JOB="$(awk '/^run-pipeline-job:$/ { printing = 1; next } printing && /^[^[:space:]#]/ { exit } printing' "${OPENROSDE_TEST_ROOT_DIR}/gitlab-ci/gitlab-ci.yml")"
+openrosde-test-check "passes the child pipeline no variable of the parent pipeline, apart from those that GitLab sets" \
+  "$(printf '%s\n' "0 forwarded kinds" "inherits no global variable" "3 variables, 0 not set by GitLab")" \
+  "$(echo "$(echo "${OPENROSDE_TEST_TRIGGER_JOB}" | grep -c 'forward:') forwarded kinds"
+    echo "${OPENROSDE_TEST_TRIGGER_JOB}" | grep -A 1 -x '  inherit:' | grep -q -x '    variables: false' && echo "inherits no global variable"
+    OPENROSDE_TEST_TRIGGER_VARIABLES="$(echo "${OPENROSDE_TEST_TRIGGER_JOB}" | sed -n '/^  variables:$/,$p' | grep -E '^    [A-Z0-9_]+:')"
+    echo "$(echo "${OPENROSDE_TEST_TRIGGER_VARIABLES}" | grep -c .) variables, $(echo "${OPENROSDE_TEST_TRIGGER_VARIABLES}" | grep -c -v -E ': (\$CI_[A-Z_]+)+$') not set by GitLab")"
+
 ################################################################################
 
 # Check the jobs that the generator prints for every platform and setup, and for an override of one extension.
 # The platforms of the core of the scratch copy, whichever it still holds, come in alphabetical order with 'rover', and their default setups with 'acme-rover-lab'.
+# The tag of the runner is the one that 'gitlab-ci/gitlab-ci.yml' sets, which the generator writes into the child pipeline.
+export OPENROSDE_CI_RUNNER_TAG="privileged-docker"
 OPENROSDE_TEST_CORE_PLATFORM_NAMES="$(openrosde-test-print-core-platforms)"
 openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
 openrosde-test-check "prints one image job per platform, from its folder, one test job per setup, and the test job of the core alone" \
@@ -84,6 +102,9 @@ openrosde-test-check "prints one image job per platform, from its folder, one te
 openrosde-test-check "makes the test job of a setup need the image job of its platform, and the core alone the base image, and both the converter of robot meshes and the check of the scripts" \
   "$(printf '%s\n' "test-acme-rover-lab-workspaces-job: build-rover-image-job" "test-acme-rover-lab-workspaces-job: build-mesh2glb-image-job" "test-acme-rover-lab-workspaces-job: check-scripts-job" "test-core-workspaces-job: build-base-image-job" "test-core-workspaces-job: build-mesh2glb-image-job" "test-core-workspaces-job: check-scripts-job")" \
   "$(echo "${OPENROSDE_TEST_OUTPUT}" | awk '/^test-(acme-rover-lab|core)-workspaces-job:$/ { name = $1; next } name != "" && /^    - / { print name, $2; next } /^  variables:$/ { name = "" }')"
+openrosde-test-check "writes the tag of the runner into the child pipeline, with no override and no extra extension" \
+  "$(printf '%s\n' '  OPENROSDE_CI_RUNNER_TAG: "privileged-docker"' '  OPENROSDE_CI_EXTENSION_OVERRIDE: ""' '  OPENROSDE_CI_EXTRA_EXTENSIONS: ""')" \
+  "$(openrosde-test-print-generated-variables)"
 export OPENROSDE_CI_EXTENSION_OVERRIDE="acme-robots=feat/foo@${OPENROSDE_TEST_COMMIT}"
 openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
 openrosde-test-check "keeps only the setups that activate the extension of the override, and their platforms, with no job of the core alone" \
@@ -104,7 +125,47 @@ openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
 openrosde-test-check "tests every setup with the extension of the override when 'OPENROSDE_CI_EXTRA_EXTENSIONS' adds it to every setup" \
   "$(( $(echo "${OPENROSDE_TEST_CORE_PLATFORM_NAMES}" | grep -c .) + 2 )) setups, $(( $(echo "${OPENROSDE_TEST_CORE_PLATFORM_NAMES}" | grep -c .) + 1 )) platforms, status 0" \
   "$(echo "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep -c '^test-.*-workspaces-job:$') setups, $(echo "${OPENROSDE_TEST_OUTPUT}" | grep -c '^build-.*-image-job:$') platforms, status ${OPENROSDE_TEST_EXIT_CODE}")"
+openrosde-test-check "writes the override and the extra extensions into the child pipeline, which receives no variable of the parent pipeline" \
+  "$(printf '%s\n' '  OPENROSDE_CI_RUNNER_TAG: "privileged-docker"' "  OPENROSDE_CI_EXTENSION_OVERRIDE: \"openrosde-device-qux=feat/foo@${OPENROSDE_TEST_COMMIT}\"" '  OPENROSDE_CI_EXTRA_EXTENSIONS: "openrosde-device-qux"')" \
+  "$(openrosde-test-print-generated-variables)"
 unset OPENROSDE_CI_EXTENSION_OVERRIDE OPENROSDE_CI_EXTRA_EXTENSIONS
+
+# Check that the generator refuses a variable of the pipeline that it would write into the child pipeline, or that the scripts would source, in any other format than its own.
+OPENROSDE_TEST_FORMAT_REPORT=""
+for OPENROSDE_TEST_VARIABLE in \
+  'OPENROSDE_CI_EXTRA_EXTENSIONS=openrosde-device-bar" $(touch pwned) "' \
+  "OPENROSDE_CI_EXTENSION_OVERRIDE=openrosde-device-bar=feat/foo@0123abc" \
+  "OPENROSDE_CI_EXTENSION_OVERRIDE=openrosde-device-bar=feat/foo\"@${OPENROSDE_TEST_COMMIT}" \
+  "OPENROSDE_CI_RUNNER_TAG=" \
+  "OPENROSDE_CI_RUNNER_TAG=privileged-docker\""; do
+  openrosde-test-run env "${OPENROSDE_TEST_VARIABLE}" bash ./gitlab-ci/generate-ci-pipeline.bash
+  OPENROSDE_TEST_FORMAT_REPORT="${OPENROSDE_TEST_FORMAT_REPORT}${OPENROSDE_TEST_EXIT_CODE} $(echo "${OPENROSDE_TEST_OUTPUT}" | grep -c -e '-job:$') $(echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Error:')"$'\n'
+done
+openrosde-test-check "refuses extra extensions, an override, or a tag of the runner in another format, before printing any job" \
+  "$(printf '%s\n' \
+    "1 0 Error: 'OPENROSDE_CI_EXTRA_EXTENSIONS' may hold only folder names separated by spaces, but it is 'openrosde-device-bar\" \$(touch pwned) \"'." \
+    "1 0 Error: 'OPENROSDE_CI_EXTENSION_OVERRIDE' must read '<name>=<branch>@<commit>', with the full hash of the commit, but it is 'openrosde-device-bar=feat/foo@0123abc'." \
+    "1 0 Error: 'OPENROSDE_CI_EXTENSION_OVERRIDE' must read '<name>=<branch>@<commit>', with the full hash of the commit, but it is 'openrosde-device-bar=feat/foo\"@${OPENROSDE_TEST_COMMIT}'." \
+    "1 0 Error: 'OPENROSDE_CI_RUNNER_TAG' must name the tag of a runner, with letters, digits, and '_.:/-' alone, but it is ''." \
+    "1 0 Error: 'OPENROSDE_CI_RUNNER_TAG' must name the tag of a runner, with letters, digits, and '_.:/-' alone, but it is 'privileged-docker\"'.")" \
+  "${OPENROSDE_TEST_FORMAT_REPORT%$'\n'}"
+openrosde-test-check "creates no file from a value that it refuses" \
+  "no file" \
+  "$([ -e "${OPENROSDE_TEST_ROOT_DIR}/pwned" ] && echo "a file" || echo "no file")"
+
+# Check that the generator fails when the listing of the platforms or of the setups fails, such as for a template that declares its name with quotes, rather than leaving it out of the pipeline.
+openrosde-test-write-file "${OPENROSDE_TEST_ROVER_DIR}/env/rover-quoted.env" 'OPENROSDE_ROBOT_PLATFORM="rover-quoted"'
+openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
+openrosde-test-check "fails, with no job, when a template declares its platform with quotes" \
+  "$(printf '%s\n' "status 1" "0 jobs" "Error: 'scripts/list-robot-platforms.bash' failed, so the pipeline would leave out a platform.")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep -c -e '-job:$') jobs"; echo "${OPENROSDE_TEST_OUTPUT}" | grep "^Error: 'scripts/")"
+rm "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_ROVER_DIR}/env/rover-quoted.env"
+openrosde-test-write-file "${OPENROSDE_TEST_LAB_DIR}/env/acme-qux-lab.env" "OPENROSDE_ROBOT_PLATFORM=rover" 'OPENROSDE_ROBOT_SETUP="acme-qux-lab"'
+openrosde-test-run bash ./gitlab-ci/generate-ci-pipeline.bash
+openrosde-test-check "fails, with no job, when a template declares its setup with quotes" \
+  "$(printf '%s\n' "status 1" "0 jobs" "Error: 'scripts/list-robot-setups.bash' failed, so the pipeline would leave out a setup.")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep -c -e '-job:$') jobs"; echo "${OPENROSDE_TEST_OUTPUT}" | grep "^Error: 'scripts/")"
+rm "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_LAB_DIR}/env/acme-qux-lab.env"
 
 ################################################################################
 
@@ -230,6 +291,22 @@ openrosde-test-run bash ./gitlab-ci/check-no-motion.bash gitlab-ci
 openrosde-test-check "finds no command that could move a robot in the scripts of the CI of the core" \
   "status 0" \
   "status ${OPENROSDE_TEST_EXIT_CODE}"
+
+# Check a 'roslaunch' of several launch files, which starts every one of them.
+openrosde-test-write-file ci-several/check-in-container.bash \
+  "#!/bin/bash" \
+  "roslaunch ./launch/sim_world_gazebo.launch ./launch/robot_realworld.launch" \
+  "roslaunch ./launch/sim_world_gazebo.launch ./launch/sim_arm_gazebo.launch gui:=false" \
+  "roslaunch acme_bringup robot_realworld.launch sim_world_gazebo.launch" \
+  "roslaunch ./launch/sim_world_gazebo.launch \"./launch/robot_realworld.launch\""
+openrosde-test-write-file ci-several/allowed-simulation-launches.txt "sim_world_gazebo.launch" "sim_arm_gazebo.launch"
+openrosde-test-run bash ./gitlab-ci/check-no-motion.bash ci-several
+openrosde-test-check "allows a 'roslaunch' of several launch files only when the allowlist names every one, whichever comes first" \
+  "$(printf '%s\n' "status 1" \
+    "  - ci-several/check-in-container.bash:2: 'roslaunch' in: roslaunch ./launch/sim_world_gazebo.launch ./launch/robot_realworld.launch" \
+    "  - ci-several/check-in-container.bash:4: 'roslaunch' in: roslaunch acme_bringup robot_realworld.launch sim_world_gazebo.launch" \
+    "  - ci-several/check-in-container.bash:5: 'roslaunch' in: roslaunch ./launch/sim_world_gazebo.launch \"./launch/robot_realworld.launch\"")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | grep -E "^  - ")"
 
 ################################################################################
 
@@ -378,6 +455,13 @@ openrosde-test-check "runs no check when the workspaces fail to build, and keeps
     "docker cp openrosde-ci-ur5e:/root/OpenRoSDE/ros/user_catkin_ws/logs ci-logs/ros/user_catkin_ws/")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; openrosde-test-print-calls | grep -E '^docker (network|exec openrosde-ci-ur5e bash /)|^docker cp openrosde-ci')"
 rm -rf "${OPENROSDE_TEST_ROOT_DIR}/ci-logs"
+
+# Check that the test of a setup refuses extra extensions that would run as code once written into '.env.custom', before writing it or calling Docker.
+cp "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" "${OPENROSDE_TEST_WORK_DIR}/env.custom.before"
+OPENROSDE_CI_EXTRA_EXTENSIONS='openrosde-device-bar" $(touch pwned) "' openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash rover
+openrosde-test-check "refuses extra extensions other than folder names, and leaves '.env.custom' as it was" \
+  "$(printf '%s\n' "status 1" "same settings" "0 Docker calls" "no file" "Error: 'OPENROSDE_CI_EXTRA_EXTENSIONS' may hold only folder names separated by spaces, but it is 'openrosde-device-bar\" \$(touch pwned) \"'.")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; cmp -s "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" "${OPENROSDE_TEST_WORK_DIR}/env.custom.before" && echo "same settings"; echo "$(openrosde-test-print-calls | grep -c '^docker ') Docker calls"; [ -e "${OPENROSDE_TEST_ROOT_DIR}/pwned" ] && echo "a file" || echo "no file"; echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Error')"
 
 # Check a setup of an extension with a Docker layer and an extension that the CI adds to it.
 OPENROSDE_CI_EXTRA_EXTENSIONS="openrosde-device-bar" openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash rover
