@@ -23,26 +23,6 @@
 	url = https://github.com/FlexBE/generic_flexbe_states.git
 	branch = master
 	ignore = dirty
-[submodule "ros/fetch_catkin_ws/src/fetch_gazebo"]
-	path = ros/fetch_catkin_ws/src/fetch_gazebo
-	url = https://github.com/fetchrobotics/fetch_gazebo.git
-	branch = gazebo11
-	ignore = dirty
-[submodule "ros/sciurus17_catkin_ws/src/sciurus17_ros"]
-	path = ros/sciurus17_catkin_ws/src/sciurus17_ros
-	url = https://github.com/rt-net/sciurus17_ros.git
-	branch = master
-	ignore = dirty
-[submodule "ros/sciurus17_catkin_ws/src/sciurus17_description"]
-	path = ros/sciurus17_catkin_ws/src/sciurus17_description
-	url = https://github.com/rt-net/sciurus17_description.git
-	branch = main
-	ignore = dirty
-[submodule "ros/cobotta_catkin_ws/src/denso_cobotta_ros"]
-	path = ros/cobotta_catkin_ws/src/denso_cobotta_ros
-	url = https://github.com/DENSORobot/denso_cobotta_ros.git
-	branch = melodic-devel
-	ignore = dirty
 [submodule "ros/openrosde_catkin_ws/src/ros_tcp_endpoint"]
 	path = ros/openrosde_catkin_ws/src/ros_tcp_endpoint
 	url = https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
