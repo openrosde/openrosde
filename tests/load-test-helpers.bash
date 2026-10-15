@@ -116,6 +116,50 @@ function openrosde-test-write-platform-template () {
     "OPENROSDE_ROBOT_HOSTNAME="
 }
 
+# Write a platform held by the core of the scratch copy, as a platform of the core may still be: its template, its workspace, its Docker Compose overlay, its panes in two layouts, its Terminator layouts, and its bringup and shell scripts.
+# The suites use it rather than a platform of the repository under test, since the canonical platforms live in repositories of their own.
+function openrosde-test-write-core-platform () {
+  openrosde-test-write-platform-template . "$1"
+  mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/ros/$1_catkin_ws/src"
+  openrosde-test-write-file "docker/$1-devel/Dockerfile" "FROM scratch"
+  openrosde-test-write-file "docker/docker-compose-$1.yaml" "services: {}"
+  openrosde-test-write-file "tmux/$1.panes" \
+    "# Panes of the platform '$1' for the tests." \
+    "default-gazebo     robot  $1_bringup_default_gazebo.launch" \
+    "default-realworld  robot  $1_bringup_default_realworld.launch" \
+    "*                  robot  $1_rviz_default.launch"
+  openrosde-test-write-file "terminator/$1.config" "[layouts]"
+  openrosde-test-write-file "scripts/$1/bringup-ros-robot.bash" "ssh -f -t -l $1 $1.local \"export ROS_MASTER_URI=http://\$1:11311\""
+  openrosde-test-write-file "scripts/$1/initialize-bash-shell.bash" "export OPENROSDE_TEST_SHELL_PLATFORM=$1"
+}
+
+# Print the platforms that the templates of the core of the scratch copy declare, one per line in alphabetical order, so that a suite does not depend on which platforms the core of the repository under test still holds.
+function openrosde-test-print-core-platforms () {
+  local OPENROSDE_TEST_ENV_FILE OPENROSDE_TEST_ENV_NAME
+  for OPENROSDE_TEST_ENV_FILE in "${OPENROSDE_TEST_ROOT_DIR}"/env/*.env; do
+    OPENROSDE_TEST_ENV_NAME="$(basename "${OPENROSDE_TEST_ENV_FILE}" .env)"
+    if [ -f "${OPENROSDE_TEST_ENV_FILE}" ] && grep -qxF "OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_TEST_ENV_NAME}" "${OPENROSDE_TEST_ENV_FILE}"; then
+      echo "${OPENROSDE_TEST_ENV_NAME}"
+    fi
+  done | sort
+}
+
+# Copy an extension that the repository under test holds in 'extensions/<extension>/', such as a canonical platform that a developer cloned, into the scratch copy, as the copy of the core is made: without its Git metadata, with an empty '.git' so that it counts as a clone, and with the folders of its Catkin workspaces alone.
+# Fail when the repository under test holds no such clone.
+function openrosde-test-copy-cloned-extension () {
+  local OPENROSDE_TEST_CATKIN_WS
+  if [ ! -e "${OPENROSDE_TEST_SOURCE_DIR}/extensions/$1/.git" ]; then
+    return 1
+  fi
+  openrosde-test-create-extension "$1"
+  tar -C "${OPENROSDE_TEST_SOURCE_DIR}/extensions/$1" --exclude=./.git --exclude=./ros -cf - . | tar -C "${OPENROSDE_TEST_ROOT_DIR}/extensions/$1" -xf -
+  for OPENROSDE_TEST_CATKIN_WS in "${OPENROSDE_TEST_SOURCE_DIR}/extensions/$1"/ros/*_catkin_ws; do
+    if [ -d "${OPENROSDE_TEST_CATKIN_WS}" ]; then
+      mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/extensions/$1/ros/$(basename "${OPENROSDE_TEST_CATKIN_WS}")/src"
+    fi
+  done
+}
+
 # Write the environment template of a setup, with its platform and extensions, into a folder of the scratch copy.
 function openrosde-test-write-setup-template () {
   openrosde-test-write-file "$1/env/$2.env" \

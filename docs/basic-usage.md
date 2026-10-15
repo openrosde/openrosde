@@ -33,7 +33,7 @@ Follow this step-by-step guide to perform the initial setup of OpenRoSDE on an [
 
 **Recommended:**
 
-- A physical robot for full operability (see [Robot Platform Documentation](robot-platforms/)).
+- A physical robot for full operability (see [Supported Robot Platforms](../README.md#-supported-robot-platforms)).
   If not, a Gazebo simulation provides support for basic operations.
 - An Nvidia GPU capable of running CUDA 11.2, or newer, to accelerate 3D graphics and deep learning.
 
@@ -82,13 +82,20 @@ Set up the environment of the Ubuntu development machine with the following inst
 
 Select the target robot platform with the following instructions.
 
-1. Switch to the desired platform:
+1. Clone the repository of the desired platform into `extensions/`, since the core holds no canonical platform but the UR5e:
+
+    ```shell
+    git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git extensions/openrosde-platform-turtlebot3
+    ```
+
+2. Switch to the platform, which also updates the Git submodules of every clone and applies their patches:
 
     ```shell
     bash ./SWITCH-ROBOT-PLATFORM.bash turtlebot3
     ```
 
-For platform-specific details, refer to the [Robot Platform Documentation](robot-platforms/).
+The default `.env` selects `turtlebot3`, and the entry scripts stop with the commands that clone the platform when `.env` or `.env.custom` selects a platform cloned nowhere.
+For platform-specific details, refer to the documentation of each platform repository, which [Supported Robot Platforms](../README.md#-supported-robot-platforms) lists.
 For a robot whose setup lives in an extension, such as a platform with its devices for one installation, switch with `bash ./SWITCH-ROBOT-SETUP.bash <setup>` instead, as the [Extensions](extensions.md) guide explains.
 
 ## 🐳 Step 3: Build the Docker Image

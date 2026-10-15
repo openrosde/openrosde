@@ -37,6 +37,8 @@ OPENROSDE_TERMINATOR_LAYOUT="11-${OPENROSDE_TERMINATOR_LAYOUT_ARG}"
 # Run Terminator with the selected configuration file and layout after injecting the required environment variables.
 # The configuration file of the setup, or else of the platform, lives in the core or in an extension, and its injected copy always goes to './terminator/' of the core.
 # Its layouts are named after the platform in either case.
+# The folder './terminator/' is created first, since a clone of the core holds none once no platform of the core has a Terminator layout.
+mkdir -p ./terminator
 sed "s/\${OPENROSDE_DOCKER_PROJECT}/${OPENROSDE_DOCKER_PROJECT}/g" "$(openrosde-find-setup-file "terminator/%s.config")" > ./terminator/${OPENROSDE_ROBOT_PLATFORM}.config.tmp
 terminator --maximise --config ./terminator/${OPENROSDE_ROBOT_PLATFORM}.config.tmp --layout openrosde-${OPENROSDE_ROBOT_PLATFORM}-term-${OPENROSDE_TERMINATOR_LAYOUT}
 rm ./terminator/${OPENROSDE_ROBOT_PLATFORM}.config.tmp

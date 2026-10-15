@@ -52,11 +52,11 @@ openrosde-test-write-file "${OPENROSDE_TEST_LAB_DIR}/terminator/${OPENROSDE_TEST
 # Check the listings of the setups and the platforms.
 openrosde-test-run bash ./scripts/list-robot-setups.bash
 openrosde-test-check "lists the setup beside the default setups" \
-  "$(printf '%s\n' cobotta fetch foo hsr "${OPENROSDE_TEST_SETUP_NAME}" sciurus17 turtlebot3 ur5e)" \
+  "$( (openrosde-test-print-core-platforms; echo foo; echo "${OPENROSDE_TEST_SETUP_NAME}") | sort)" \
   "${OPENROSDE_TEST_OUTPUT}"
 openrosde-test-run bash ./scripts/list-robot-platforms.bash
 openrosde-test-check "lists the platform of the extension, but not the setup" \
-  "$(printf '%s\n' cobotta fetch foo hsr sciurus17 turtlebot3 ur5e)" \
+  "$( (openrosde-test-print-core-platforms; echo foo) | sort)" \
   "${OPENROSDE_TEST_OUTPUT}"
 
 ################################################################################

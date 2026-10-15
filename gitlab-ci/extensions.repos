@@ -12,4 +12,24 @@
 # Update the 'version' of an entry by hand, to a tag or a commit that a pipeline tested, such as the one that 'git -C extensions/<name> rev-parse HEAD' prints.
 # Never write this file with 'vcs export' of the whole 'extensions/' folder, which lists every clone of the checkout, private ones included, and would publish their names and URLs.
 
-repositories: {}
+repositories:
+  openrosde-platform-cobotta:
+    type: git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta.git
+    version: 43a918ca44007f70e50dd7427c8304b3d059e184
+  openrosde-platform-fetch:
+    type: git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch.git
+    version: b4de65014a1f7a1561409428d0db75e0af1eb95c
+  openrosde-platform-hsr:
+    type: git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr.git
+    version: 3c50fcc4dd192e9c7fc269022c67bf8c225d1895
+  openrosde-platform-sciurus17:
+    type: git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17.git
+    version: 2515f9ed76a43aa52779290c5074d49fc90862ca
+  openrosde-platform-turtlebot3:
+    type: git
+    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git
+    version: 8f1f6a30b429c15292ebb950b18a5950d04a4bc0

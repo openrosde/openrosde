@@ -25,14 +25,16 @@ OpenRoSDE, read "Open Robotic SDE", is the open-source reference implementation 
 
 ## 🤖 Supported Robot Platforms
 
-| Platform | Robot | Documentation |
-| --- | --- | --- |
-| `turtlebot3` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [docs/robot-platforms/turtlebot3.md](docs/robot-platforms/turtlebot3.md) |
-| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) |
-| `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [docs/robot-platforms/fetch.md](docs/robot-platforms/fetch.md) |
-| `sciurus17` | [RT Sciurus17](https://rt-net.jp/products/sciurus17/) | [docs/robot-platforms/sciurus17.md](docs/robot-platforms/sciurus17.md) |
-| `cobotta` | [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) | [docs/robot-platforms/cobotta.md](docs/robot-platforms/cobotta.md) |
-| `hsr` | [Toyota HSR (Human Support Robot)](https://github.com/hsr-project) | [docs/robot-platforms/hsr.md](docs/robot-platforms/hsr.md) |
+Each canonical platform lives in a repository of its own, which OpenRoSDE finds by name once it is cloned into `extensions/`, as the [Quick Start](#-quick-start) shows.
+
+| Platform | Robot | Repository | Documentation |
+| --- | --- | --- | --- |
+| `turtlebot3` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) | [docs/robot-platforms/turtlebot3.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/docs/robot-platforms/turtlebot3.md) |
+| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | This repository, until it moves to a repository of its own | [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) |
+| `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch) | [docs/robot-platforms/fetch.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/docs/robot-platforms/fetch.md) |
+| `sciurus17` | [RT Sciurus17](https://rt-net.jp/products/sciurus17/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17) | [docs/robot-platforms/sciurus17.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/docs/robot-platforms/sciurus17.md) |
+| `cobotta` | [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta) | [docs/robot-platforms/cobotta.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/docs/robot-platforms/cobotta.md) |
+| `hsr` | [Toyota HSR (Human Support Robot)](https://github.com/hsr-project) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr) | [docs/robot-platforms/hsr.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr/-/blob/main/docs/robot-platforms/hsr.md) |
 
 ## 💻 Supported Software Platforms
 
@@ -63,25 +65,10 @@ flowchart TD
 
     subgraph images["Docker images (Layer 1 → Layer 2 → Layer 3)"]
         base["'openrosde-base'<br/>(L1: Ubuntu 20.04, ROS Noetic,<br/>Gazebo, FlexBE, etc.)"]
-        turtlebot3["'turtlebot3-devel'<br/>(L2)"]
-        ur5e["'ur5e-devel'<br/>(L2)"]
-        base --> turtlebot3
-        base --> ur5e
-        fetch["'fetch-devel'<br/>(L2)"]
-        base --> fetch
-        sciurus17["'sciurus17-devel'<br/>(L2)"]
-        base --> sciurus17
-        cobotta["'cobotta-devel'<br/>(L2)"]
-        base --> cobotta
-        hsr["'hsr-devel'<br/>(L2)"]
-        base --> hsr
+        platform["'#lt;platform#gt;-devel'<br/>(L2: one per platform, built from<br/>the folder that holds the platform)"]
+        base --> platform
         user["'user-devel'<br/>(L3: user overlay)"]
-        turtlebot3 --> user
-        ur5e --> user
-        fetch --> user
-        sciurus17 --> user
-        cobotta --> user
-        hsr --> user
+        platform --> user
     end
 
     subgraph container["Docker container"]
@@ -99,7 +86,7 @@ flowchart TD
     run -->|"Enter container shell"| container
 ```
 
-The Docker image stack has three layers: **Layer 1** (`openrosde-base`) provides the shared ROS/Gazebo/FlexBE toolchain; **Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `OPENROSDE_ROBOT_PLATFORM`; **Layer 3** (`user-devel`) is the user overlay where you add your own packages and customizations without touching the platform images.
+The Docker image stack has three layers: **Layer 1** (`openrosde-base`) provides the shared ROS/Gazebo/FlexBE toolchain; **Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `OPENROSDE_ROBOT_PLATFORM`, from the repository of the platform cloned into `extensions/`; **Layer 3** (`user-devel`) is the user overlay where you add your own packages and customizations without touching the platform images.
 Extensions cloned into `extensions/` can add their own layers between Layers 2 and 3, as the [Extensions](docs/extensions.md) guide explains.
 
 ## 🚀 Quick Start
@@ -117,11 +104,16 @@ Extensions cloned into `extensions/` can add their own layers between Layers 2 a
     sudo reboot
     ```
 
-2. Switch to the desired robot platform (default is `turtlebot3`):
+2. Clone a robot platform into `extensions/`, then switch to it (the default `.env` selects `turtlebot3`):
 
     ```shell
+    git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git extensions/openrosde-platform-turtlebot3
     bash ./SWITCH-ROBOT-PLATFORM.bash turtlebot3
     ```
+
+    > [!NOTE]
+    > The core holds no TurtleBot3, since each canonical platform lives in a repository of its own, as [Supported Robot Platforms](#-supported-robot-platforms) lists.
+    > The entry scripts stop with the commands that clone the platform when `.env` or `.env.custom` selects a platform cloned nowhere.
 
 3. Build the Docker image:
 
@@ -157,12 +149,7 @@ For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
 ```
 .env                                     # Default platform configuration.
 env/
-  turtlebot3.env                         # TurtleBot3 platform template.
   ur5e.env                               # UR5e platform template.
-  fetch.env                              # Fetch platform template.
-  sciurus17.env                          # Sciurus17 platform template.
-  cobotta.env                            # COBOTTA platform template.
-  hsr.env                                # HSR platform template.
   user.env                               # User overlay environment template (reference).
 SETUP-DEVEL-MACHINE.bash                 # Host machine setup script.
 BUILD-DOCKER-IMAGE.bash                  # Docker image build/pull script.
@@ -182,40 +169,20 @@ scripts/
   <platform>/                            # Optional platform scripts (shell, bringup, Chrony).
 docker/
   docker-compose.yaml                    # Docker service definitions.
-  docker-compose-turtlebot3.yaml         # TurtleBot3 platform overlay.
   docker-compose-ur5e.yaml               # UR5e platform overlay.
-  docker-compose-fetch.yaml              # Fetch platform overlay.
-  docker-compose-sciurus17.yaml          # Sciurus17 platform overlay.
-  docker-compose-cobotta.yaml            # COBOTTA platform overlay.
-  docker-compose-hsr.yaml                # HSR platform overlay.
   docker-compose-user.yaml               # User overlay (always loaded).
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
   openrosde-base/                              # Shared base Docker image.
     Dockerfile
     scripts/                             # Container helper scripts.
-  turtlebot3-devel/                      # TurtleBot3 platform image.
-    Dockerfile
   ur5e-devel/                            # UR5e platform image.
-    Dockerfile
-  fetch-devel/                           # Fetch platform image.
-    Dockerfile
-  sciurus17-devel/                       # Sciurus17 platform image.
-    Dockerfile
-  cobotta-devel/                         # COBOTTA platform image.
-    Dockerfile
-  hsr-devel/                             # HSR platform image.
     Dockerfile
   user-devel/                            # User overlay image (Layer 3, runtime container).
     Dockerfile
 ros/
   openrosde_catkin_ws/                         # Shared Catkin workspace.
-  turtlebot3_catkin_ws/                  # TurtleBot3 Catkin workspace.
   ur5e_catkin_ws/                        # UR5e Catkin workspace.
-  fetch_catkin_ws/                       # Fetch Catkin workspace.
-  sciurus17_catkin_ws/                   # Sciurus17 Catkin workspace.
-  cobotta_catkin_ws/                     # COBOTTA Catkin workspace.
-  hsr_catkin_ws/                         # HSR Catkin workspace.
   user_catkin_ws/                        # User overlay Catkin workspace (openrosde_user_launch, openrosde_user_behaviors).
 docs/                                    # Documentation.
   basic-usage.md
@@ -223,24 +190,14 @@ docs/                                    # Documentation.
   user-overlay.md
   extensions.md
   robot-platforms/
-    turtlebot3.md
     ur5e.md
-    fetch.md
-    sciurus17.md
-    cobotta.md
-    hsr.md
 terminator/
-  turtlebot3.config                      # TurtleBot3 Terminator layout.
   ur5e.config                            # UR5e Terminator layout.
-  fetch.config                           # Fetch Terminator layout.
-  sciurus17.config                       # Sciurus17 Terminator layout.
-  cobotta.config                         # COBOTTA Terminator layout.
-  hsr.config                             # HSR Terminator layout.
 tmux/
   openrosde.panes                              # Panes of the core in every 'tmux' session.
   <platform>.panes                       # Panes of each platform in its 'tmux' session.
 patches/                                 # Submodule patch files.
-extensions/                              # Extensions cloned from their own repositories (ignored by Git).
+extensions/                              # Extensions cloned from their own repositories (ignored by Git), such as 'openrosde-platform-<platform>/'.
 tests/                                   # Test suites of the scripts, run by 'tests/run.bash'.
 gitlab-ci/                               # GitLab CI/CD pipeline and its scripts.
 ```
@@ -251,12 +208,8 @@ gitlab-ci/                               # GitLab CI/CD pipeline and its scripts
 | --- | --- |
 | [Basic Usage](docs/basic-usage.md) | Full setup guide: prerequisites, installation, build, and run |
 | [Advanced Usage](docs/advanced-usage.md) | Bash functions, multiple terminals, Docker configuration, environment variables |
-| [Robot Platforms / TurtleBot3](docs/robot-platforms/turtlebot3.md) | Robotis TurtleBot3 robot configuration, installation, and operation |
+| [Supported Robot Platforms](#-supported-robot-platforms) | The canonical platforms, each documented in its own repository |
 | [Robot Platforms / UR5e](docs/robot-platforms/ur5e.md) | Universal Robots UR5e setup, network, ROS communication, and operation |
-| [Robot Platforms / Fetch](docs/robot-platforms/fetch.md) | Fetch Robotics Fetch robot configuration, installation, and operation |
-| [Robot Platforms / Sciurus17](docs/robot-platforms/sciurus17.md) | RT Sciurus17 robot configuration, installation, and operation |
-| [Robot Platforms / COBOTTA](docs/robot-platforms/cobotta.md) | Denso COBOTTA robot configuration, installation, and operation |
-| [Robot Platforms / HSR](docs/robot-platforms/hsr.md) | Toyota HSR (Human Support Robot) simulation-only configuration, installation, and operation |
 | [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking OpenRoSDE |
 | [Extensions](docs/extensions.md) | Add a platform, a device, or other packages from a repository of their own, public or private, cloned into `extensions/` |
 | [Robot Models](docs/robot-models.md) | Serve the robot model to clients of `rosbridge`: the file service, the GLB files of the meshes, and how to generate them |
@@ -342,13 +295,17 @@ See [`LICENSE`](LICENSE) for details.
 ## 📜 Third-Party Software
 
 The OpenRoSDE Docker images bundle third-party robotics middleware, drivers, and simulation assets, each governed by its own license.
-Notable platform-specific bundling:
+Each platform repository records the licenses of its platform in its `NOTICE`, and some of them restrict commercial use:
 
-| Platform | Component | License |
+| Platform | Notice | Notable terms |
 | --- | --- | --- |
-| HSR | [`ghcr.io/hsr-project/tmc_wrs_binary`](https://github.com/hsr-project/tmc_wrs_docker) (full HSR ROS Noetic stack, WRS apartment world) | [BSD 3-Clause Clear](https://spdx.org/licenses/BSD-3-Clause-Clear.html) (Toyota Motor Corporation) |
+| `turtlebot3` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/NOTICE) | TurtleBot3 packages of ROBOTIS under Apache-2.0 |
+| `fetch` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/NOTICE) | `fetch_description` in the image `fetch-devel` under CC BY-NC-SA 4.0 |
+| `sciurus17` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/NOTICE) | `sciurus17_description` under the non-commercial license of RT Corporation |
+| `cobotta` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/NOTICE) | `denso_cobotta_ros` and the four patches of the platform under GPL-2.0-or-later |
+| `hsr` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr/-/blob/main/NOTICE) | `tmc_wrs_binary` in the image `hsr-devel` under BSD 3-Clause Clear, and `hsrb_meshes` under CC BY-NC-ND 4.0 |
 | All | [ROS Noetic](https://www.ros.org/), [Gazebo](http://gazebosim.org/), [FlexBE](http://flexbe.github.io/), and platform-specific upstream packages | Per upstream (BSD, Apache 2.0, MIT, etc.) |
 | All | [ROS#](https://github.com/siemens/ros-sharp) `file_server` `2.3.1` (Siemens AG), built from source in the base image with the patches of `docker/openrosde-base/patches/ros-sharp/` | [Apache 2.0](https://github.com/siemens/ros-sharp/blob/2.3.1/LICENSE.md) |
 | All | [`trimesh`](https://github.com/mikedh/trimesh) and [`pycollada`](https://github.com/pycollada/pycollada) in the converter image `openrosde-mesh2glb` | [MIT](https://github.com/mikedh/trimesh/blob/main/LICENSE.md) and [BSD 3-Clause](https://github.com/pycollada/pycollada/blob/master/COPYING) |
 
-See each `docs/robot-platforms/<platform>.md` document for platform-specific licensing details.
+See the `NOTICE` and `docs/robot-platforms/<platform>.md` of each platform repository for its licensing details, and [docs/robot-platforms/ur5e.md](docs/robot-platforms/ur5e.md) for the UR5e.

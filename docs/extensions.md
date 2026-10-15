@@ -225,6 +225,30 @@ openrosde-base  ->  <platform>-devel  ->  <device>-devel  ->  <extension>-devel 
     openrosde-reset-catkin-workspaces
     ```
 
+## 🤖 Canonical Platforms
+
+The canonical platforms of OpenRoSDE live in public repositories of their own, under the Apache License 2.0, each with the layout of the core:
+
+| Platform | Robot | Repository |
+| --- | --- | --- |
+| `cobotta` | Denso COBOTTA | [https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta) |
+| `fetch` | Fetch Robotics Fetch | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch) |
+| `hsr` | Toyota HSR (Human Support Robot) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr) |
+| `sciurus17` | RT Sciurus17 | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17) |
+| `turtlebot3` | Robotis TurtleBot3 (Waffle Pi) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) |
+
+Clone one into `extensions/`, then switch to it, as for any platform extension:
+
+```shell
+git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch.git extensions/openrosde-platform-fetch
+bash ./SWITCH-ROBOT-PLATFORM.bash fetch
+```
+
+- `gitlab-ci/extensions.repos` pins each of them at a commit of its `main`, so the CI of the core clones them, builds or reuses their images, and publishes them as `registry.gitlab.com/coarobo/sde/<platform>-devel`, as it did when the core held them.
+- Each platform repository tests its own changes with the trigger that the section below describes, and a merge request of the core moves the pin once a change of the platform is merged.
+- The `NOTICE` of each platform repository records the licenses of its third-party software, some of which allow no commercial use.
+- The UR5e stays in the core until it moves to a repository of its own too.
+
 ## 🧪 Testing an Extension
 
 The CI of OpenRoSDE tests every setup it finds, in the core and in the public extensions that `gitlab-ci/extensions.repos` pins, in the format of `vcstool`:
