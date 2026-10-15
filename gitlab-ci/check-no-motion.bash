@@ -2,7 +2,7 @@
 
 # This script checks that no script that the CI runs can move a robot, as part of the CI.
 # It fails on any 'roslaunch' that does more than resolve files, list nodes, or dump parameters, with '--files', '--nodes', or '--dump-params', and on any 'rosrun', 'rostopic pub', or 'rosservice call'.
-# A 'roslaunch' may still start a launch file of a simulation that the allowlist of its folder names, 'allowed-simulation-launches.txt', with one launch file name per line.
+# A 'roslaunch' may still start the launch files of simulations, when the allowlist of its folder, 'allowed-simulation-launches.txt', with one launch file name per line, names every launch file of the command.
 # It reads every file of the given folders, apart from itself and the allowlists, leaves out the comment lines, and splits every other line into the commands that ';', '&', '|', and the parentheses and backquotes of a subshell separate.
 # A command counts after a path, such as '/opt/ros/noetic/bin/roslaunch', and an option or a launch file in a trailing comment, such as '# see --files', does not count.
 # It reads text only, so a program that the scripts call, such as a Python node, is left to the review of the folder that holds it, and to the containers of the CI, which have no network when a check runs.
@@ -61,9 +61,19 @@ for OPENROSDE_CHECKED_DIR in "$@"; do
         if [[ "${OPENROSDE_CHECKED_COMMAND}" =~ ${OPENROSDE_MOVING_COMMAND_PATTERN} ]]; then
           OPENROSDE_MOVING_COMMAND="${BASH_REMATCH[2]}"
         elif [[ "${OPENROSDE_CHECKED_COMMAND}" =~ ${OPENROSDE_ROSLAUNCH_PATTERN} ]] && ! [[ "${OPENROSDE_CHECKED_OPTIONS}" =~ ${OPENROSDE_SAFE_OPTION_PATTERN} ]]; then
-          OPENROSDE_MOVING_COMMAND="roslaunch"
-          if [[ "${OPENROSDE_CHECKED_OPTIONS}" =~ ${OPENROSDE_LAUNCH_FILE_PATTERN} ]] && [ -n "${OPENROSDE_ALLOWED_LAUNCH_FILES}" ] && printf '%s\n' "${OPENROSDE_ALLOWED_LAUNCH_FILES}" | grep -q -x -F -e "${BASH_REMATCH[1]}"; then
-            OPENROSDE_MOVING_COMMAND=""
+          # Allow the command only when it names at least one launch file and the allowlist names every one, since 'roslaunch' starts every launch file it is given.
+          OPENROSDE_MOVING_COMMAND=""
+          OPENROSDE_LAUNCH_FILE_COUNT=0
+          OPENROSDE_UNREAD_OPTIONS="${OPENROSDE_CHECKED_OPTIONS}"
+          while [[ "${OPENROSDE_UNREAD_OPTIONS}" =~ ${OPENROSDE_LAUNCH_FILE_PATTERN} ]]; do
+            OPENROSDE_LAUNCH_FILE_COUNT=$((OPENROSDE_LAUNCH_FILE_COUNT + 1))
+            if [ -z "${OPENROSDE_ALLOWED_LAUNCH_FILES}" ] || ! printf '%s\n' "${OPENROSDE_ALLOWED_LAUNCH_FILES}" | grep -q -x -F -e "${BASH_REMATCH[1]}"; then
+              OPENROSDE_MOVING_COMMAND="roslaunch"
+            fi
+            OPENROSDE_UNREAD_OPTIONS="${OPENROSDE_UNREAD_OPTIONS#*"${BASH_REMATCH[1]}"}"
+          done
+          if [ "${OPENROSDE_LAUNCH_FILE_COUNT}" -eq 0 ]; then
+            OPENROSDE_MOVING_COMMAND="roslaunch"
           fi
         fi
         if [ -n "${OPENROSDE_MOVING_COMMAND}" ]; then

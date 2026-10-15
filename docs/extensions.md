@@ -281,23 +281,29 @@ default-gazebo /robot_state_publisher foo_navigation_default_gazebo.launch foo_m
 ```
 
 A check in `ci/` never moves a robot: `gitlab-ci/check-no-motion.bash` fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, even after a path such as `/opt/ros/noetic/bin/`, and an option in a trailing comment does not count.
-It lets a script of `ci/` start only the launch files of simulations that `ci/allowed-simulation-launches.txt` names, one file name per line, such as `foo_bringup_default_gazebo.launch`.
+It lets a script of `ci/` start only the launch files of simulations that `ci/allowed-simulation-launches.txt` names, one file name per line, such as `foo_bringup_default_gazebo.launch`, and a `roslaunch` of several launch files only when the list names every one of them.
 
-A public extension tests one of its branches against the core with a job that triggers a pipeline of OpenRoSDE on `dev`, once `gitlab-ci/extensions.repos` lists it:
+A public extension tests one of its branches against the core with a job that triggers a pipeline of OpenRoSDE on `dev` from a pipeline of that branch, once `gitlab-ci/extensions.repos` lists it:
 
 ```yaml
 test-with-openrosde-job:
+  rules:
+    - if: $CI_COMMIT_BRANCH
   trigger:
     project: coarobo/SDE
     branch: dev
     strategy: depend
   variables:
-    OPENROSDE_CI_EXTENSION_OVERRIDE: ${CI_PROJECT_NAME}=${CI_COMMIT_REF_NAME}@${CI_COMMIT_SHA}
+    OPENROSDE_CI_EXTENSION_OVERRIDE: ${CI_PROJECT_NAME}=${CI_COMMIT_BRANCH}@${CI_COMMIT_SHA}
 ```
 
 - That pipeline checks out the commit in place of the pinned version, then tests only the setups that activate the extension, with their platforms, and never publishes its images.
-- A device that no setup of OpenRoSDE lists yet also sets `OPENROSDE_CI_EXTRA_EXTENSIONS: ${CI_PROJECT_NAME}`, which adds it to every setup.
+- The job runs in branch pipelines only, where `CI_COMMIT_SHA` is the last commit of the branch.
+- In a merged results pipeline of a merge request, `CI_COMMIT_SHA` names a merge commit that is not on the branch, which `gitlab-ci/clone-extensions.bash` refuses, so a job there passes `${CI_PROJECT_NAME}=${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}@${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}` instead.
+- A tag pipeline cannot test this way, since its ref is a tag rather than a branch.
+- A device that no setup of OpenRoSDE lists yet also sets `OPENROSDE_CI_EXTRA_EXTENSIONS: ${CI_PROJECT_NAME}`, which adds it to every setup, and holds only folder names separated by spaces, or the pipeline fails.
 - The name of the project must be the name that `gitlab-ci/extensions.repos` lists, and a pipeline of a fork cannot trigger one of OpenRoSDE.
+- The pipeline of OpenRoSDE writes these two variables into its child pipeline once it has checked them, and passes on no other variable of the pipeline that triggered it.
 
 A private extension runs the same scripts in a pipeline of its own, in a private project, with OpenRoSDE checked out at the version it pins, since OpenRoSDE never clones a private repository.
 It reads the public base and platform images by setting `OPENROSDE_CI_IMAGE_REGISTRY` to `registry.gitlab.com/coarobo/sde` and `OPENROSDE_CI_IMAGE_TAG` to the tag of that version, `dev` or a release such as `v3.0.0`, and keeps its own images in its own registry.

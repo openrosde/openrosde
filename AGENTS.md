@@ -153,7 +153,7 @@ The template of every platform is its default setup and declares `OPENROSDE_ROBO
 
 `docker-compose.yaml` defines three services:
 - `openrosde-base` (build-only shared base image, no `container_name`).
-- `openrosde-platform` (build-only platform-specific image, no `container_name`; image is `<platform>-devel:${OPENROSDE_DOCKER_IMAGE_TAG}`, `main` or `dev`).
+- `openrosde-platform` (build-only platform-specific image, no `container_name`; image is `<platform>-devel:${OPENROSDE_DOCKER_IMAGE_TAG}`, `main`, `dev`, or a release `vX.Y.Z`).
 - `openrosde` (runtime user-overlay container; image is `openrosde-local/<setup>/user-devel:latest`, built locally only, inherits from `openrosde-platform` or from the last Docker layer of the extensions).
 
 Always target the `openrosde` service explicitly with `docker compose up -d openrosde` to avoid accidentally starting the build-only services, which have no `container_name` and would cause naming conflicts.
@@ -506,7 +506,7 @@ Then list a public platform in the files of this repository that name the public
 ## Build Commands
 
 - Build Docker images: `bash ./BUILD-DOCKER-IMAGE.bash`.
-  - Default behavior: pulls the `main` or `dev` images from the registry, as `OPENROSDE_DOCKER_IMAGE_TAG` selects, or builds current platform with cache, as far as `OPENROSDE_DOCKER_BUILD_FALLBACK` allows.
+  - Default behavior: pulls the `main`, `dev`, or release `vX.Y.Z` images from the registry, as `OPENROSDE_DOCKER_IMAGE_TAG` selects, or builds current platform with cache, as far as `OPENROSDE_DOCKER_BUILD_FALLBACK` allows.
   - `bash ./BUILD-DOCKER-IMAGE.bash local`: builds current platform with cache (fast iteration).
 - Build Catkin workspaces (inside container): `openrosde-reset-catkin-workspaces` or `openrosde-build-catkin-workspaces`.
 - Switch platform: `bash ./SWITCH-ROBOT-PLATFORM.bash <platform>` (e.g., `bash ./SWITCH-ROBOT-PLATFORM.bash ur5e`).
@@ -533,6 +533,7 @@ Then list a public platform in the files of this repository that name the public
 ## Deployment Considerations
 
 - The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`), with a parent pipeline that clones the public extensions of `gitlab-ci/extensions.repos` with `gitlab-ci/clone-extensions.bash`, then generates a child pipeline of one image job per platform and one test job per setup found by name, in the core and in those extensions, and a test job of the core alone, with no platform, in the base image.
+  `gitlab-ci/generate-ci-pipeline.bash` fails when `scripts/list-robot-platforms.bash` or `scripts/list-robot-setups.bash` fails, such as for a template that declares its name with quotes, rather than leaving that platform or setup out of the pipeline.
 - `gitlab-ci/extensions.repos` pins each public extension at a tag or a commit, with an anonymous HTTPS URL, and every job clones it again from the same pins, never with a token of the job, so a public pipeline can never read a private repository.
   A platform enters it in the same merge request that removes it from the core.
   Update its pins by hand, never with `vcs export` of the whole `extensions/` folder, which would add the private clones of the checkout, and keep its layout, which `gitlab-ci/clone-extensions.bash` checks.
@@ -543,11 +544,13 @@ Then list a public platform in the files of this repository that name the public
   The image of a platform is built from the folder that holds the platform, and `gitlab-ci/build-ci-image.bash` fails when a source folder is missing or not committed, rather than hashing it as a constant.
 - Every pipeline pushes its images as `pipeline-<id>`, and publishes them as `dev` and `main` from those branches, or as `vX.Y.Z` from a release tag, the only tags the cleanup policy of the registry keeps.
   Only a protected branch or tag publishes, under its own name, in a pipeline that a push or a person on the web started, never a merge request, a schedule, a pipeline of another project, or a pipeline that tests an extension at another version.
+  The child pipeline receives only the branch or tag to publish, the source of the pipeline, and the target branch of a merge request, which the trigger job takes from the variables that GitLab sets, and no variable of a schedule or of the pipeline of another project can replace them.
+  The generator writes `OPENROSDE_CI_RUNNER_TAG`, `OPENROSDE_CI_EXTENSION_OVERRIDE`, and `OPENROSDE_CI_EXTRA_EXTENSIONS` into the child pipeline instead, and fails when one of them does not match its format, as `gitlab-ci/test-catkin-workspaces.bash` does for `OPENROSDE_CI_EXTRA_EXTENSIONS`, which it writes into `.env.custom`.
 - A public extension tests a branch against the core by triggering a pipeline of `coarobo/SDE` with `OPENROSDE_CI_EXTENSION_OVERRIDE=<name>=<branch>@<commit>`, which `gitlab-ci/clone-extensions.bash` honors for an extension that `gitlab-ci/extensions.repos` lists only, and the child pipeline then tests only the setups that activate that extension, with those of `OPENROSDE_CI_EXTRA_EXTENSIONS` added to every setup.
 - The test job of a setup copies its template to `.env.custom`, builds its Docker layers with `scripts/build-extension-layers.bash` without pushing them, and builds its Catkin workspaces in a container of the image of its platform, read from `OPENROSDE_CI_IMAGE_REGISTRY` with the tag `OPENROSDE_CI_IMAGE_TAG`, the images of the pipeline by default, which a pipeline of another project sets to published images, such as `registry.gitlab.com/coarobo/sde` and `v3.0.0`.
   Outside the CI, `gitlab-ci/test-catkin-workspaces.bash` refuses to replace an existing `.env.custom`.
   It then disconnects the container from every network, checks with `gitlab-ci/check-launch-files.bash` that every launch entry point of the panes of the setup resolves with `roslaunch --files` and that no two panes of one layout start a node of the same name with `roslaunch --nodes`, both of which start no node, and runs `ci/check-in-container.bash` of every active extension that holds one.
-- `check-scripts-job` runs `gitlab-ci/check-no-motion.bash`, which fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, in `gitlab-ci/` of the core and `ci/` of the extensions, apart from the simulations that `allowed-simulation-launches.txt` of their folder names.
+- `check-scripts-job` runs `gitlab-ci/check-no-motion.bash`, which fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, in `gitlab-ci/` of the core and `ci/` of the extensions, apart from the simulations that `allowed-simulation-launches.txt` of their folder names, and allows a `roslaunch` of several launch files only when that list names every one.
   Every test job needs it, so no check of an extension runs before it passes.
 - Every artifact expires, the Catkin logs of a failed test after a week and the generated child pipeline after a day.
 - Docker images are pushed to `OPENROSDE_DOCKER_REGISTRY`, `registry.gitlab.com/coarobo/sde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
