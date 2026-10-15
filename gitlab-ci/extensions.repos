@@ -20,7 +20,7 @@ repositories:
   openrosde-platform-fetch:
     type: git
     url: https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch.git
-    version: 006f1c1814aae84f0fa1f068fde2449817ac597f
+    version: b4de65014a1f7a1561409428d0db75e0af1eb95c
   openrosde-platform-hsr:
     type: git
     url: https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr.git
