@@ -102,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The converter of robot meshes clamps every color and factor of a material to [0, 1], as glTF requires, so a COLLADA emission above 1, such as in a world of `fetch_gazebo`, no longer gives a GLB that the Khronos glTF-Validator rejects (#41).
 - `gitlab-ci/check-launch-files.bash` checks the pane files that `RUN-TMUX-SESSION.bash` opens for the setup, and fails when neither the setup nor its platform has one, rather than checking the panes of the core alone and passing, as it did for a platform held by an extension (#38).
 - `gitlab-ci/check-launch-files.bash` takes the launch package of the panes that name none from `OPENROSDE_LAUNCH_PACKAGE`, which the shell configuration of a setup or a platform may change, as the shell of the container does (#38).
 - `gitlab-ci/build-ci-image.bash` fails when a source folder is missing or not committed, rather than hashing it as a constant and reusing an outdated image for ever (#38).
