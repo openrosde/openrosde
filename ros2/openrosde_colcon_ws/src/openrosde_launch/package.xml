@@ -18,6 +18,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>file_server2</exec_depend>
+  <exec_depend>flexbe_webui</exec_depend>
   <exec_depend>launch_xml</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
   <exec_depend>rqt_image_view</exec_depend>

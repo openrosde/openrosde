@@ -188,10 +188,10 @@ openrosde-test-select-template "${OPENROSDE_TEST_FOO_DIR}/env/foo-ros2.env"
 # Check the launch entry points of the platform on ROS 2, which 'ros2 launch --show-args' resolves without starting any node.
 openrosde-test-run env OPENROSDE_CONTAINER_ROOT_DIR="${OPENROSDE_TEST_ROOT_DIR}" bash ./gitlab-ci/check-launch-files.bash foo-ros2
 openrosde-test-check "resolves every entry point of the platform and of the core on ROS 2 with 'ros2 launch --show-args', in the launch package of the platform, and no 'roslaunch'" \
-  "$(printf '%s\n' "status 0" "Checked 5 launch entry points of 'foo-ros2'." "Left out the node names of the 2 layouts of 'foo-ros2', which ROS 2 cannot list without starting the nodes." \
+  "$(printf '%s\n' "status 0" "Checked 6 launch entry points of 'foo-ros2'." "Left out the node names of the 2 layouts of 'foo-ros2', which ROS 2 cannot list without starting the nodes." \
     "ros2 launch --show-args openrosde_foo_launch foo_bringup_default_gazebo.launch.xml" \
     "ros2 launch --show-args openrosde_foo_launch foo_rviz_default.launch.py use_sim_time:=false" \
-    "ros2 launch --show-args openrosde_launch rosbridge_server_default.launch.xml" \
+    "ros2 launch --show-args openrosde_launch flexbe_webui_default.launch.xml" "ros2 launch --show-args openrosde_launch rosbridge_server_default.launch.xml" \
     "ros2 launch --show-args openrosde_launch rqt_suite_default.launch.xml" \
     "ros2 launch --show-args openrosde_user_launch user_example_default.launch.xml" \
     "0 roslaunch calls")" \
@@ -209,8 +209,8 @@ openrosde-test-write-file .env.custom "OPENROSDE_ROBOT_PLATFORM=" "OPENROSDE_ROB
 grep -E '^OPENROSDE_ROS_(VERSION|DISTRO)=' "${OPENROSDE_TEST_ROOT_DIR}/env/openrosde-ros2.env" >> "${OPENROSDE_TEST_ROOT_DIR}/.env.custom"
 openrosde-test-run env OPENROSDE_CONTAINER_ROOT_DIR="${OPENROSDE_TEST_ROOT_DIR}" bash ./gitlab-ci/check-launch-files.bash openrosde-ros2
 openrosde-test-check "checks the panes of the core alone on ROS 2, with no platform" \
-  "$(printf '%s\n' "status 0" "Checked 3 launch entry points of 'openrosde-ros2'." \
-    "ros2 launch --show-args openrosde_launch rosbridge_server_default.launch.xml" \
+  "$(printf '%s\n' "status 0" "Checked 4 launch entry points of 'openrosde-ros2'." \
+    "ros2 launch --show-args openrosde_launch flexbe_webui_default.launch.xml" "ros2 launch --show-args openrosde_launch rosbridge_server_default.launch.xml" \
     "ros2 launch --show-args openrosde_launch rqt_suite_default.launch.xml" \
     "ros2 launch --show-args openrosde_user_launch user_example_default.launch.xml")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | grep -E '^(Error|Checked)'; openrosde-test-print-calls | grep '^ros2 launch' | sort)"

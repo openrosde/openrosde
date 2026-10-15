@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Platforms on ROS 2 start the FlexBE WebUI, the successor of the FlexBE App, built from the submodule `ros2/openrosde_colcon_ws/src/flexbe_webui` and started by `openrosde_launch:flexbe_webui_default.launch.xml` in the first pane of the window `tools`, while ROS 1 keeps the FlexBE App (#31).
 - ROS 2 beside ROS 1: a platform whose template sets `OPENROSDE_ROS_VERSION=2` and `OPENROSDE_ROS_DISTRO=lyrical` runs on the base image `openrosde-base-ros2`, Ubuntu 26.04 with ROS 2 Lyrical Luth and Gazebo Jetty through `ros_gz`, with the colcon workspaces of `ros2/`, `ros2 launch`, and the panes of `tmux/openrosde-ros2.panes`, while a platform that sets neither stays on ROS 1 as before, as `docs/ros2.md` describes (#31).
 - The colcon workspaces of the core on ROS 2: `openrosde_launch` with `rosbridge_server_default.launch.xml`, which starts `rosbridge` with `max_message_size` `100000000` and `call_services_in_new_thread` set and the file service `file_server2` of ROS# `2.3.1` with the three patches adapted, and `rqt_suite_default.launch.xml`, and `openrosde_user_launch` with `user_example_default.launch.xml` (#31).
 - `OPENROSDE_ROS_DOMAIN_ID` sets the domain of the nodes on ROS 2, and `local_mode` and `remote_mode` set the discovery of ROS 2 on this machine or on the local network, with the robot as a static peer (#31).

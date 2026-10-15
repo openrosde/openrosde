@@ -38,7 +38,7 @@ OPENROSDE_ROS_DISTRO=lyrical
 | Panes of the core | `tmux/openrosde.panes` | `tmux/openrosde-ros2.panes` |
 | Network | A ROS master, at `OPENROSDE_ROS_MASTER_HOSTNAME` | No master: the domain `OPENROSDE_ROS_DOMAIN_ID` and the discovery of ROS 2 |
 | Robot model | `robot_description` as a parameter, `file_server/GetBinaryFile` | `robot_description` as a transient local topic, `file_server2/srv/GetBinaryFile` |
-| FlexBE | Behavior engine and FlexBE App | Behavior engine only, since no FlexBE App is released for Lyrical |
+| FlexBE | Behavior engine and FlexBE App | Behavior engine and FlexBE WebUI, built from its submodule, which supersedes the FlexBE App |
 | Terminator | Layouts of the platform, until `tmux` replaces them | None, `RUN-TMUX-SESSION.bash` only |
 
 Both base images share the helper scripts of `docker/openrosde-base/scripts/`, which read the ROS of the platform from the settings, so the shell functions keep their names on ROS 2, such as `openrosde-build-catkin-workspaces`, which builds the colcon workspaces there.
@@ -93,6 +93,7 @@ ROS 2 has no master, so the shell of the container sets the domain and the disco
 
 ## ⚠️ Known Limits
 
-- No FlexBE App is released for ROS 2 Lyrical, so the image holds the FlexBE behavior engine alone, and the panes of the core on ROS 2 hold no FlexBE App.
+- No FlexBE App is released for ROS 2 Lyrical, so ROS 2 takes the [FlexBE WebUI](https://github.com/FlexBE/flexbe_webui), its successor, built from the submodule `ros2/openrosde_colcon_ws/src/flexbe_webui` with the dependencies that the image installs, and started by the first pane of the window `tools` with `openrosde_launch:flexbe_webui_default.launch.xml`.
+- The WebUI opens in a desktop window, or, with `headless:=true`, in any browser at `http://127.0.0.1:8000`, whose address and port the arguments `host` and `port` change.
 - The platforms on ROS 2 have no Terminator layout, and `RUN-TERMINATOR-TERMINAL.bash` points to `RUN-TMUX-SESSION.bash` for them.
 - The first platform on ROS 2 is `turtlebot3-ros2` of `openrosde-platform-turtlebot3`, while the other canonical platforms run on ROS 1.
