@@ -312,6 +312,8 @@ openrosde-test-check "publishes 'dev', 'main', and a release, and refuses any ot
 ################################################################################
 
 # Check that the test of a setup refuses outside the CI to replace the '.env.custom' of a developer, here the template of 'ur5e', before calling Docker.
+# 'JOB_CPUS', which the runner of the CI may set for this suite too, stays unset unless a check sets it.
+unset JOB_CPUS
 export OPENROSDE_CI_IMAGE_REGISTRY="${OPENROSDE_TEST_REGISTRY}" OPENROSDE_CI_IMAGE_TAG=pipeline-7
 cp "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" "${OPENROSDE_TEST_WORK_DIR}/env.custom.before"
 openrosde-test-run env -u CI bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
@@ -335,11 +337,11 @@ openrosde-test-check "reads the image of the platform with the tag of 'OPENROSDE
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; openrosde-test-print-calls | grep '^docker create ' | grep -o '[^ ]* sleep infinity$')"
 
 # Check the test of a setup, whose calls of Docker the stub logs.
-openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
-openrosde-test-check "selects the template of the setup, builds in the image of its platform, cuts the network, then runs the checks" \
+JOB_CPUS=8 openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash ur5e
+openrosde-test-check "selects the template of the setup, builds in the image of its platform with the CPUs of the job, cuts the network, then runs the checks" \
   "$(printf '%s\n' "status 0" "same template" \
     "docker rm --force openrosde-ci-ur5e" \
-    "docker create --name openrosde-ci-ur5e --env OPENROSDE_ROBOT_PLATFORM=ur5e --env OPENROSDE_ROBOT_SETUP=ur5e --env OPENROSDE_ROBOT_EXTENSIONS= --env OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE ${OPENROSDE_TEST_REGISTRY}/ur5e-devel:pipeline-7 sleep infinity" \
+    "docker create --name openrosde-ci-ur5e --env OPENROSDE_ROBOT_PLATFORM=ur5e --env OPENROSDE_ROBOT_SETUP=ur5e --env OPENROSDE_ROBOT_EXTENSIONS= --env OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE --env OPENROSDE_BUILD_JOBS=8 ${OPENROSDE_TEST_REGISTRY}/ur5e-devel:pipeline-7 sleep infinity" \
     "docker cp ./. openrosde-ci-ur5e:/root/OpenRoSDE/" \
     "docker start openrosde-ci-ur5e" \
     "docker exec openrosde-ci-ur5e bash -c source /root/OpenRoSDE/scripts/load-openrosde-settings.bash /root/OpenRoSDE && bash /root/OpenRoSDE/docker/openrosde-base/scripts/reset-catkin-workspaces.bash" \
@@ -364,7 +366,7 @@ openrosde-test-check "adds the extensions of 'OPENROSDE_CI_EXTRA_EXTENSIONS', bu
   "$(printf '%s\n' "status 0" \
     'OPENROSDE_ROBOT_EXTENSIONS="${OPENROSDE_ROBOT_EXTENSIONS} openrosde-device-bar"' \
     "-t openrosde-local/rover/bar-devel:latest on ${OPENROSDE_TEST_REGISTRY}/rover-devel:pipeline-7" \
-    "--env OPENROSDE_ROBOT_EXTENSIONS= openrosde-device-bar --env OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE openrosde-local/rover/bar-devel:latest sleep infinity")" \
+    "--env OPENROSDE_ROBOT_EXTENSIONS= openrosde-device-bar --env OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE --env OPENROSDE_BUILD_JOBS= openrosde-local/rover/bar-devel:latest sleep infinity")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; grep '^OPENROSDE_ROBOT_EXTENSIONS=' "${OPENROSDE_TEST_ROOT_DIR}/.env.custom" | tail -n 1; openrosde-test-print-calls | grep '^docker build ' | sed -e 's/.*OPENROSDE_PARENT_IMAGE=\([^ ]*\) .* \(-t [^ ]*\) .*/\2 on \1/'; openrosde-test-print-calls | grep '^docker create ' | grep -o -e '--env OPENROSDE_ROBOT_EXTENSIONS=.*')"
 openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash acme-rover-lab
 openrosde-test-check "tests a setup of an extension in the image of its platform, with the layer of the extension it lists" \
@@ -385,7 +387,7 @@ openrosde-test-check "fails when no template declares the setup" \
 openrosde-test-run bash ./gitlab-ci/test-catkin-workspaces.bash openrosde
 openrosde-test-check "tests the core alone in the base image, with no platform and no extension" \
   "$(printf '%s\n' "status 0" "OPENROSDE_ROBOT_PLATFORM=" "OPENROSDE_ROBOT_SETUP=" "OPENROSDE_ROBOT_EXTENSIONS=" \
-    "--env OPENROSDE_ROBOT_PLATFORM= --env OPENROSDE_ROBOT_SETUP= --env OPENROSDE_ROBOT_EXTENSIONS= --env OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE ${OPENROSDE_TEST_REGISTRY}/openrosde-base:pipeline-7 sleep infinity")" \
+    "--env OPENROSDE_ROBOT_PLATFORM= --env OPENROSDE_ROBOT_SETUP= --env OPENROSDE_ROBOT_EXTENSIONS= --env OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE --env OPENROSDE_BUILD_JOBS= ${OPENROSDE_TEST_REGISTRY}/openrosde-base:pipeline-7 sleep infinity")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; grep '^OPENROSDE_ROBOT_' "${OPENROSDE_TEST_ROOT_DIR}/.env.custom"; openrosde-test-print-calls | grep '^docker create ' | grep -o -e '--env OPENROSDE_ROBOT_PLATFORM=.*')"
 
 ################################################################################
