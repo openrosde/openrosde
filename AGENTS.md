@@ -32,7 +32,6 @@ It is being split into a platform-agnostic core with extensions, as [OpenRoSDE S
 On 2026-10-10 the maintainers approved the split of the SDE into OpenRoSDE, read "Open Robotic SDE": a platform-agnostic open core, with platforms, devices, and extensions around it, composed into setups.
 The steps were tracked as issues 37 to 42 of the milestone `Split the SDE into the OpenRoSDE core and its extensions`, and the ROS 2 work in the milestone `Run OpenRoSDE on ROS 2 beside ROS 1`, in the GitLab archive at `https://gitlab.com/coarobo/SDE`.
 The issues still open moved to GitHub on 2026-10-16: the ROS 2 work is #2, the rest of the split, the retirement of Terminator included, is #3, and the follow-up of the review of the CI is #4.
-The reasoning, the full plan, and the state of the work live in the maintainers' note `Shin-Coarobo OpenRoSDE`, which is not public.
 
 ### Target Shape
 
@@ -66,8 +65,8 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
 ### Interfaces Used by Coarobo Products
 
 Coarobo Sightline and Coarobo Viewport reach the robot through the interfaces below, which the core and the public platforms start from the files named beside them.
-The contract is kept in `Docs/robot-interface.md` of `coarobo/coarobo-sightline`, a private repository, and in the maintainers' `Shin-Coarobo OpenRoSDE` note.
-Record a change of a topic name, a message type, a port, or the launch file that starts one of them in both places before making it.
+The maintainers keep this contract with the products of Coarobo GK.
+Open an issue before changing a topic name, a message type, a port, or the launch file that starts one of them.
 
 - `/joint_states`, `/tf`, `/tf_static`, and `clock`: the bringup of each platform.
 - `/servo_server/delta_twist_cmds`: MoveIt Servo, started by `openrosde_ur5e_teleop/launch/ur5e_teleop.launch` of `openrosde-platform-ur5e`, which `ur5e_teleop_default_<environment>.launch` includes.
@@ -75,11 +74,11 @@ Record a change of a topic name, a message type, a port, or the launch file that
 - Port `9090` of `rosbridge`: `openrosde_launch:rosbridge_server_default.launch`.
 - The robot model: `robot_description` through `/rosapi/get_param`, and its meshes as GLB files through the service `/file_server/get_file` of the ROS# node `file_server` that `rosbridge_server_default.launch` starts, as [Robot Models](docs/robot-models.md) describes.
 
-The other interfaces of the products, such as the gripper action, the camera relays, and the bridge of `/cmd_vel` of the UR5e bench, are started by the setups that use them, from public devices and the private bindings of Coarobo, and their contract is kept in the same two places.
+The other interfaces of the products, such as the gripper action, the camera relays, and the bridge of `/cmd_vel` of the UR5e bench, are started by the setups that use them, from public devices and the private bindings of Coarobo, under the same contract.
 
 ### Parallel Work
 
-- Coarobo Sightline (`coarobo/coarobo-sightline`) and Coarobo Viewport (`coarobo/coarobo-viewport`) are developed in their own repositories, often by other agents at the same time as one working here.
+- Coarobo Sightline and Coarobo Viewport are developed in their own repositories, often by other agents at the same time as one working here.
 - An agent working here owns this repository and the extension repositories of the split, and leaves those two repositories to their own sessions.
 - Coarobo Sightline reaches robots through `rosbridge`, as Coarobo Viewport does, so that it no longer depends on OpenRoSDE and runs on ROS 1 and ROS 2 alike.
 
