@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://openrosde.org/">
+    <img src="https://raw.githubusercontent.com/openrosde/.github/main/profile/assets/openrosde-logo.svg" alt="OpenRoSDE logo" width="96" height="96">
+  </a>
+</p>
+
 # OpenRoSDE
 
 OpenRoSDE, read "Open Robotic SDE", is the open-source reference implementation of the Software Development Environment (SDE) described in "**Software Development Environment for Collaborative Research Workflow in Robotic System Integration**" (DOI: [10.1080/01691864.2022.2068353](https://doi.org/10.1080/01691864.2022.2068353)) and maintained by [Coarobo GK](https://coarobo.com/).
