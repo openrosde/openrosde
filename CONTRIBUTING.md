@@ -241,7 +241,9 @@ default-gazebo     robot  <platform>_rviz_default.launch
 default-realworld  robot  <platform>_bringup_default_realworld.launch
 ```
 
-The core adds its own windows (`tools`, `user`, `host`) from `tmux/openrosde.panes`.
+Put every pane of the platform in the standard window `robot`, which holds its bringup, visualization, planning, and drivers, and leave the standard window `extra` to the optional processes of a setup or an extension, such as cameras or a demo.
+The core adds its own windows `tools`, `user`, and `host` from `tmux/openrosde.panes`, and every session opens the standard windows in the order `robot`, `extra`, `tools`, `user`, `host`, whatever order the pane files declare them in, as [Advanced Usage](docs/advanced-usage.md) describes.
+`gitlab-ci/check-launch-files.bash` fails on a pane in any other window.
 Until `tmux` replaces Terminator, also create the matching Terminator layout, `terminator/<platform>.config`, by copying the closest existing config:
 
 ```shell

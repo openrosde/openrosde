@@ -7,6 +7,7 @@
 # A pane that names no package runs the launch package of the platform, 'OPENROSDE_LAUNCH_PACKAGE', which the shell configuration of the setup or of its platform may change, as in a shell of the container.
 # The check fails when neither the setup nor its platform has a pane file, since its sessions would then open the panes of the core alone.
 # It also fails when two panes of one layout start a node of the same name, since the second one would shut the first one down, unless an allowlist names that node for that layout.
+# It also fails when a pane opens a window outside the standard windows that 'scripts/load-extension-paths.bash' names in 'OPENROSDE_TMUX_STANDARD_WINDOWS', so that every session shows the same tabs in the same order.
 # The allowlists are 'gitlab-ci/allowed-duplicate-nodes.txt' of the core and 'ci/allowed-duplicate-nodes.txt' of every active extension, with one '<layout> <node-name> [<launch-file> ...]' per line, where '<layout>' is '*' for every layout.
 # A line that names launch files, as written in the panes, allows the node only when every pane that starts it runs one of them, such as two panes that a session runs one at a time.
 #
@@ -55,6 +56,20 @@ for OPENROSDE_PANES_FILE in "${OPENROSDE_TMUX_PANES_FILES[@]}"; do
   OPENROSDE_PANE_RECORDS="${OPENROSDE_PANE_RECORDS}$(grep -v -e '^#' -e '^ *$' "${OPENROSDE_PANES_FILE}" \
     | awk '{ $2 = ""; print }' \
     | awk '$2 != "shell" && $2 != "host"')"$'\n'
+done
+
+# Find the panes that open a window outside the standard windows of 'OPENROSDE_TMUX_STANDARD_WINDOWS', in every layout, each with its pane file, its line, and its window.
+# 'RUN-TMUX-SESSION.bash' opens such a window after the standard ones with a warning, while every pane file that the CI checks keeps to the standard windows, so that every session shows the same tabs in the same order.
+OPENROSDE_STANDARD_WINDOW_LIST="$(printf "'%s', " ${OPENROSDE_TMUX_STANDARD_WINDOWS})"
+OPENROSDE_STANDARD_WINDOW_LIST="${OPENROSDE_STANDARD_WINDOW_LIST%, }"
+OPENROSDE_STANDARD_WINDOW_LIST="${OPENROSDE_STANDARD_WINDOW_LIST%, *}, and ${OPENROSDE_STANDARD_WINDOW_LIST##*, }"
+OPENROSDE_OTHER_WINDOW_REPORT=""
+for OPENROSDE_PANES_FILE in "${OPENROSDE_TMUX_PANES_FILES[@]}"; do
+  while read -r OPENROSDE_PANE_LINE_NUMBER OPENROSDE_PANE_WINDOW; do
+    if [[ " ${OPENROSDE_TMUX_STANDARD_WINDOWS} " != *" ${OPENROSDE_PANE_WINDOW} "* ]]; then
+      OPENROSDE_OTHER_WINDOW_REPORT="${OPENROSDE_OTHER_WINDOW_REPORT}"$'\n'"  - ${OPENROSDE_PANES_FILE}:${OPENROSDE_PANE_LINE_NUMBER}: '${OPENROSDE_PANE_WINDOW}'"
+    fi
+  done < <(awk 'NF > 0 && $1 !~ /^#/ { print FNR, $2 }' "${OPENROSDE_PANES_FILE}")
 done
 
 ################################################################################
@@ -174,6 +189,10 @@ if [ -n "${OPENROSDE_FAILED_LAUNCH_FILES}" ]; then
 fi
 if [ -n "${OPENROSDE_DUPLICATE_NODE_REPORT}" ]; then
   echo "These nodes are started by several panes of one layout, so the second one would shut the first one down:${OPENROSDE_DUPLICATE_NODE_REPORT}"
+  OPENROSDE_CHECK_EXIT_CODE=1
+fi
+if [ -n "${OPENROSDE_OTHER_WINDOW_REPORT}" ]; then
+  echo "These panes open a window outside the standard windows ${OPENROSDE_STANDARD_WINDOW_LIST}, which every session opens in that order, so move each one to the window of its role, as 'docs/advanced-usage.md' describes:${OPENROSDE_OTHER_WINDOW_REPORT}"
   OPENROSDE_CHECK_EXIT_CODE=1
 fi
 exit ${OPENROSDE_CHECK_EXIT_CODE}

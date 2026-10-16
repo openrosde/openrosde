@@ -84,12 +84,25 @@ xhost +local:docker
 
 ################################################################################
 
+# Pass the 'tmux' session into the shell of the container in the first pane of a session, whose environment alone 'RUN-TMUX-SESSION.bash' gives 'OPENROSDE_TMUX_SESSION_NAME' and 'OPENROSDE_TMUX_SESSION_LAYOUT'.
+# That shell prints the splash of 'scripts/print-tmux-splash.bash' right before the prompt of the pane, after the output that it clears when it starts, with the Docker project and the container, and plain when 'NO_COLOR' is set.
+OPENROSDE_DOCKER_EXEC_OPTIONS=()
+if [ -n "${OPENROSDE_TMUX_SESSION_NAME}" ]; then
+  OPENROSDE_DOCKER_EXEC_OPTIONS+=(--env "OPENROSDE_TMUX_SESSION_NAME=${OPENROSDE_TMUX_SESSION_NAME}" --env "OPENROSDE_TMUX_SESSION_LAYOUT=${OPENROSDE_TMUX_SESSION_LAYOUT}")
+  OPENROSDE_DOCKER_EXEC_OPTIONS+=(--env "OPENROSDE_DOCKER_PROJECT=${OPENROSDE_DOCKER_PROJECT}" --env "OPENROSDE_DOCKER_CONTAINER=${OPENROSDE_DOCKER_CONTAINER}")
+  if [ -n "${NO_COLOR}" ]; then
+    OPENROSDE_DOCKER_EXEC_OPTIONS+=(--env "NO_COLOR=${NO_COLOR}")
+  fi
+fi
+
+################################################################################
+
 # Enter the Docker container with a Bash shell (with or without preloading a custom [ros-launch] file).
 # Skip entering the container if '--no-exec' is passed as the second argument.
 if [ "$2" = "--no-exec" ]; then
   exit 0
 elif [ -z "$2" ]; then
-  docker exec -i -t ${OPENROSDE_DOCKER_CONTAINER} bash
+  docker exec -i -t "${OPENROSDE_DOCKER_EXEC_OPTIONS[@]}" ${OPENROSDE_DOCKER_CONTAINER} bash
 else
-  docker exec -i -t ${OPENROSDE_DOCKER_CONTAINER} bash -i -c "source ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/run-roslaunch-repeatedly.bash ${*:2}"
+  docker exec -i -t "${OPENROSDE_DOCKER_EXEC_OPTIONS[@]}" ${OPENROSDE_DOCKER_CONTAINER} bash -i -c "source ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/run-roslaunch-repeatedly.bash ${*:2}"
 fi

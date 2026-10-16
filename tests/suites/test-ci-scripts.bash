@@ -205,6 +205,16 @@ openrosde-test-check "takes the launch package that the shell configuration of t
   "$(openrosde-test-print-calls | grep -E '^roslaunch --(files|nodes) [a-z_]+ rover_bringup_default_gazebo' | sort -u)"
 rm -rf "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_ROVER_DIR}/scripts"
 
+# Check a pane in a window outside the standard windows, which every session would open after them, in any layout.
+echo "*                  lab    shell" >> "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_ROVER_DIR}/tmux/rover.panes"
+openrosde-test-run ${OPENROSDE_TEST_CHECK_LAUNCH} rover
+openrosde-test-check "fails on a pane in a window outside the standard windows, and names them and the pane" \
+  "$(printf '%s\n' "status 1" \
+    "These panes open a window outside the standard windows 'robot', 'extra', 'tools', 'user', and 'host', which every session opens in that order, so move each one to the window of its role, as 'docs/advanced-usage.md' describes:" \
+    "  - ${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_ROVER_DIR}/tmux/rover.panes:8: 'lab'")" \
+  "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | sed -n '/^These panes open/,$p')"
+sed -i '$d' "${OPENROSDE_TEST_ROOT_DIR}/${OPENROSDE_TEST_ROVER_DIR}/tmux/rover.panes"
+
 # Check two panes of one layout that start a node of the same name, then the allowlist of the extension.
 printf '%s\n' "/rviz" "/maximize_rviz" "/robot_state_publisher" > "${OPENROSDE_TEST_NODES_DIR}/rover_rviz_default.launch"
 openrosde-test-run ${OPENROSDE_TEST_CHECK_LAUNCH} rover

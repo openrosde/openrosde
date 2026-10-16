@@ -38,7 +38,7 @@ extensions/<extension>/
   ros/<name>_catkin_ws/src/              # One or more Catkin workspaces, for a platform on ROS 1.
   ros2/<name>_colcon_ws/src/             # One or more colcon workspaces, for a platform on ROS 2, as 'docs/ros2.md' describes.
   scripts/<platform>/                    # Optional platform scripts (shell, bringup, Chrony), as for the core.
-  tmux/<name>.panes                      # Panes of the 'tmux' session, in windows of their own.
+  tmux/<name>.panes                      # Panes of the 'tmux' session, in its standard windows 'robot' and 'extra'.
   terminator/<platform>.config           # Terminator layouts of the platform, until 'tmux' replaces them (platforms only).
   patches/                               # Patches of the Git submodules of this extension.
   ci/check-in-container.bash             # Checks that the CI runs in the container of every setup that activates the extension (optional).
@@ -96,6 +96,7 @@ extensions/<extension>/
 - A platform on ROS 2 takes the colcon workspaces of `ros2/` in the same order, from `ros2/openrosde_colcon_ws` to `ros2/user_colcon_ws`, and its sessions open the panes of the core of `tmux/openrosde-ros2.panes`, as [ROS 2](ros2.md) describes.
 - `RUN-DOCKER-CONTAINER.bash` adds the overlay of the platform, then every `docker/docker-compose*.yaml` of the active folders, apart from those named after a platform or a setup that is not active.
 - `RUN-TMUX-SESSION.bash` opens the panes of the setup, or else of the platform, whose own `tmux/<platform>.panes` the panes of the setup replace, then those of every `tmux/*.panes` of the active folders, apart from those named after a platform or a setup that is not active, then those of the core, and a setup can declare a layout of its own, such as `lab-demo`, for its demo.
+- Every pane opens in one of the standard windows of the `tmux` sessions, in the order `robot`, `extra`, `tools`, `user`, `host`, whatever part declares it: `robot` for the bringup, visualization, planning, and drivers of the platform and its devices, and `extra` for the optional processes of a setup or an extension, such as cameras, perception, or a demo, while `tools`, `user`, and `host` belong to the core, as [Advanced Usage](advanced-usage.md) describes.
 - `BUILD-DOCKER-IMAGE.bash` builds the image of the platform from the folder that holds the platform, so that the `COPY` instructions of its `docker/<platform>-devel/Dockerfile` read from there, as those of a layer do.
 - `BUILD-DOCKER-IMAGE.bash` builds every `docker/<name>-devel/Dockerfile` of the active extensions whose `<name>` is not a platform, each on top of the previous one, between the platform image and the user overlay, as the section on Docker layers below shows.
 - `bash ./scripts/update-git-submodules.bash` updates the Git submodules of the core and of every cloned extension, and applies the `patches/` of each repository and of each part to its own submodules.
