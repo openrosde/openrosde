@@ -27,8 +27,6 @@ OpenRoSDE, read "Open Robotic SDE", is the open-source reference implementation 
 > Join the [SDE Community](https://coarobo.com/en/sde-community/) and help drive this open-source effort forward.
 > For a production-ready solution with advanced features, explore [Coarobo](https://coarobo.com/).
 
-## 📑 Content
-
 ## 🤖 Supported Robot Platforms
 
 Each canonical platform lives in a repository of its own, which OpenRoSDE finds by name once it is cloned into `extensions/`, as the [Quick Start](#-quick-start) shows.
@@ -94,7 +92,10 @@ flowchart TD
     run -->|"Enter container shell"| container
 ```
 
-The Docker image stack has three layers: **Layer 1** (`openrosde-base`) provides the shared ROS/Gazebo/FlexBE toolchain; **Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `OPENROSDE_ROBOT_PLATFORM`, from the repository of the platform cloned into `extensions/`; **Layer 3** (`user-devel`) is the user overlay where you add your own packages and customizations without touching the platform images.
+The Docker image stack has three layers.
+**Layer 1** (`openrosde-base`) provides the shared ROS, Gazebo, and FlexBE toolchain.
+**Layer 2** (`<platform>-devel`) adds the robot-specific packages selected by `OPENROSDE_ROBOT_PLATFORM`, from the repository of the platform cloned into `extensions/`.
+**Layer 3** (`user-devel`) is the user overlay, where you add your own packages and customizations without touching the platform images.
 A platform on ROS 2 builds on **Layer 1** `openrosde-base-ros2` instead, Ubuntu 26.04 with ROS 2 Lyrical, with the colcon workspaces of `ros2/`, as the [ROS 2](docs/ros2.md) guide describes.
 Extensions cloned into `extensions/` can add their own layers between Layers 2 and 3, as the [Extensions](docs/extensions.md) guide explains.
 
@@ -148,8 +149,9 @@ Extensions cloned into `extensions/` can add their own layers between Layers 2 a
     bash ./RUN-TMUX-SESSION.bash
     ```
 
+    The session opens its tabs in the same standard order on every platform, `robot`, `extra`, `tools`, `user`, and `host`, and leaves out a tab with no pane.
     Its first pane shows how to use its tabs and panes, which `openrosde-help` prints again in any shell of the container.
-    The Terminator layout of earlier releases still opens with `bash ./RUN-TERMINATOR-TERMINAL.bash`.
+    The Terminator layout of earlier releases still opens with `bash ./RUN-TERMINATOR-TERMINAL.bash`, until [#3](https://github.com/openrosde/openrosde/issues/3) removes it.
 
 For detailed instructions, see the [Basic Usage](docs/basic-usage.md) guide.
 For advanced features, see the [Advanced Usage](docs/advanced-usage.md) guide.
@@ -171,11 +173,13 @@ RESTART-CHRONY-SERVICE.bash              # Host and robot clock sync script.
 SWITCH-ROBOT-PLATFORM.bash               # Platform switching script.
 SWITCH-ROBOT-SETUP.bash                  # Setup switching script, which clones the extensions of a setup.
 scripts/
-  load-openrosde-env.bash                      # Shared environment loader.
+  load-openrosde-env.bash                # Shared environment loader.
   load-extension-paths.bash              # Resolves the files of the platform and the extensions.
   build-extension-layers.bash            # Builds the Docker layers of the active extensions.
   list-robot-platforms.bash              # Lists the platforms found by name.
   list-robot-setups.bash                 # Lists the setups found by name.
+  update-git-submodules.bash             # Updates the Git submodules of the core and the extensions, and applies their patches.
+  generate-mesh-glbs.bash                # Gives every robot mesh of the workspaces its GLB file.
   print-tmux-splash.bash                 # Prints the splash and the help of the 'tmux' sessions.
   <platform>/                            # Optional platform scripts (shell, bringup, Chrony).
 docker/
@@ -183,15 +187,20 @@ docker/
   docker-compose-user.yaml               # User overlay (always loaded).
   docker-compose-nvidia.yaml             # GPU overlay for Nvidia support.
   docker-compose-wsl.yaml                # GPU overlay for WSL 2 support.
-  openrosde-base/                              # Shared base Docker image of ROS 1.
+  openrosde-base/                        # Shared base Docker image of ROS 1.
     Dockerfile
+    patches/                             # Patches of the file service of ROS#.
     scripts/                             # Container helper scripts, shared by both base images.
   openrosde-base-ros2/                   # Shared base Docker image of ROS 2.
     Dockerfile
+    patches/                             # Patches of the file service of ROS# on ROS 2.
+  openrosde-mesh2glb/                    # Converter image of the robot meshes into GLB files.
+    Dockerfile
+    scripts/                             # Converter scripts.
   user-devel/                            # User overlay image (Layer 3, runtime container).
     Dockerfile
 ros/
-  openrosde_catkin_ws/                         # Shared Catkin workspace.
+  openrosde_catkin_ws/                   # Shared Catkin workspace.
   user_catkin_ws/                        # User overlay Catkin workspace (openrosde_user_launch, openrosde_user_behaviors).
 ros2/
   openrosde_colcon_ws/                   # Shared colcon workspace of ROS 2.
@@ -202,13 +211,14 @@ docs/                                    # Documentation.
   user-overlay.md
   extensions.md
   ros2.md
+  robot-models.md
 tmux/
-  openrosde.panes                              # Panes of the core in every 'tmux' session on ROS 1.
+  openrosde.panes                        # Panes of the core in every 'tmux' session on ROS 1.
   openrosde-ros2.panes                   # Panes of the core in every 'tmux' session on ROS 2.
 patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git), such as 'openrosde-platform-<platform>/'.
 tests/                                   # Test suites of the scripts, run by 'tests/run.bash'.
-gitlab-ci/                               # Scripts of the CI, which the GitHub Actions workflows run.
+gitlab-ci/                               # Scripts of the CI, which the workflows of GitHub Actions run, in a folder named after the GitLab CI of the archive.
 .github/                                 # GitHub Actions workflows, their composite actions, and their scripts.
 ```
 
@@ -217,11 +227,11 @@ gitlab-ci/                               # Scripts of the CI, which the GitHub A
 | Document | Description |
 | --- | --- |
 | [Basic Usage](docs/basic-usage.md) | Full setup guide: prerequisites, installation, build, and run |
-| [Advanced Usage](docs/advanced-usage.md) | Bash functions, multiple terminals, Docker configuration, environment variables |
+| [Advanced Usage](docs/advanced-usage.md) | Bash functions, the `tmux` sessions and their standard tabs, Docker configuration, environment variables |
 | [Supported Robot Platforms](#-supported-robot-platforms) | The canonical platforms, each documented in its own repository |
-| [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, env vars, and Terminator panes without forking OpenRoSDE |
+| [User Overlay](docs/user-overlay.md) | Add your own ROS packages, Docker layer, and environment variables without forking OpenRoSDE, run from the tab `user` of the `tmux` sessions |
 | [Extensions](docs/extensions.md) | Add a platform, a device, or other packages from a repository of their own, public or private, cloned into `extensions/` |
-| [Robot Models](docs/robot-models.md) | Serve the robot model to clients of `rosbridge`: the file service, the GLB files of the meshes, and how to generate them |
+| [Robot Models](docs/robot-models.md) | Serve the robot model to clients of `rosbridge`: the file service, why the meshes travel as GLB files, their size limit, and how to generate them |
 | [ROS 2](docs/ros2.md) | Run a platform on ROS 2 beside those on ROS 1: the base image, the colcon workspaces, the network, and the checks of the CI |
 
 ## 📄 Related Publications
@@ -250,6 +260,8 @@ Summaries of the development history, requirements, vision, and goals of OpenRoS
 ## 🐛 Reporting Issues
 
 Please report any issue or future work using the GitHub issue tracker: [https://github.com/openrosde/openrosde/issues](https://github.com/openrosde/openrosde/issues).
+Report an issue of a platform or a device in its own repository, such as [https://github.com/openrosde/openrosde-platform-fetch/issues](https://github.com/openrosde/openrosde-platform-fetch/issues) for the Fetch.
+Report a security vulnerability privately, as the security policy of the organization describes: [https://github.com/openrosde/.github/blob/main/SECURITY.md](https://github.com/openrosde/.github/blob/main/SECURITY.md).
 
 ## 🤝 Contributing
 

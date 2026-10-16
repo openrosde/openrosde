@@ -62,10 +62,7 @@ The session sets it with options of its own, so the other sessions of `tmux` kee
 
 Each line of a pane file reads `<layouts> <window> <launch-file> [<arg:=value> ...]`, where `<layouts>` is `*` or a comma-separated list, `<window>` is one of the standard windows, and the words `shell` and `host` open a shell in the container or on the host.
 
-> [!NOTE]
-> `RUN-TERMINATOR-TERMINAL.bash` still opens the same terminals in [Terminator](https://gnometerminator.blogspot.com/) with the layout stored in `terminator/${OPENROSDE_ROBOT_PLATFORM}.config`, until `tmux` replaces it for good.
-
-Each sub-terminal automatically executes `RUN-DOCKER-CONTAINER.bash` with a predefined ROS launch file for convenience.
+Each pane of a launch file automatically executes `RUN-DOCKER-CONTAINER.bash` with its ROS launch file, and waits for a key before it launches anything.
 You can then select execution options by pressing specific keys, as shown in the example below:
 
 ```shell
@@ -74,6 +71,10 @@ Run 'example_roslaunch_file.launch'? Press:
 'l' to run as local,        # e.g., Gazebo simulation.
 'c' to enter a child shell. # e.g., Bash shell.
 ```
+
+> [!NOTE]
+> `RUN-TERMINATOR-TERMINAL.bash` still opens the same terminals in [Terminator](https://gnometerminator.blogspot.com/) with the layout stored in `terminator/${OPENROSDE_ROBOT_PLATFORM}.config` of the platform, whose panes wait for a key the same way, until [#3](https://github.com/openrosde/openrosde/issues/3) removes it.
+> The platforms on ROS 2 have no Terminator layout.
 
 ## 🤖 Developing on the Simulator/Robot
 
@@ -92,10 +93,10 @@ You can continue with one or both of the following options depending on the pres
     remote_mode
     ```
 
-2. You can also conveniently run multiple terminals simultaneously using Terminator by running:
+2. You can also conveniently run multiple terminals simultaneously in the `tmux` session by running:
 
     ```shell
-    bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] #[terminator-layout]
+    bash ./RUN-TMUX-SESSION.bash #[docker-project] #[session-layout]
     ```
 
 > [!NOTE]
@@ -158,7 +159,7 @@ Key configuration variables:
 | `OPENROSDE_DOCKER_REGISTRY` | Registry of the base and platform images | `ghcr.io/openrosde` |
 | `OPENROSDE_DOCKER_IMAGE_TAG` | Tag of the base and platform images, `main`, `dev`, or a release such as `v3.0.0` (`auto` derives `main` or `dev` from the branch) | `auto` |
 | `OPENROSDE_DOCKER_BUILD_FALLBACK` | Images that `BUILD-DOCKER-IMAGE.bash` builds locally when their pull fails: `true` for the base and platform images, `platform` for the platform image alone, or `false` for neither | `true` |
-| `OPENROSDE_BUILD_JOBS` | Parallel jobs of `catkin build`, or of `colcon build` on ROS 2, which caps both the packages built at once and their compiler jobs, set in `.env.custom` on a machine short of memory, or by the CI from `JOB_CPUS` | *(empty, every CPU)* |
+| `OPENROSDE_BUILD_JOBS` | Parallel jobs of `catkin build`, or of `colcon build` on ROS 2, which caps both the packages built at once and their compiler jobs, set in `.env.custom` on a machine short of memory, or by the CI from `JOB_CPUS` when its runner sets it | *(empty, every CPU)* |
 | `OPENROSDE_QUIET` | Leaves out the list of every `OPENROSDE_*` variable that the entry scripts print with `true`, whose passwords, tokens, and secrets always print as `<redacted>` | `false` |
 | `OPENROSDE_ROS_VERSION` | Version of ROS that the platform runs, `1` or `2`, which a platform on ROS 2 sets in its template (see [ROS 2](ros2.md)) | `1` |
 | `OPENROSDE_ROS_DISTRO` | Distribution of ROS of the base image of that version, `noetic` or `lyrical` | `noetic` |
