@@ -23,8 +23,10 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends tmux git \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 EOF
+  # Trust every repository in the container, since the mounted repository and its scratch copies belong to the user of the host, such as the runner of a CI job, while the container runs as root, which 'git' would otherwise refuse as a dubious ownership.
   docker run --rm --network none \
     --env OPENROSDE_TEST_IN_CONTAINER=true \
+    --env GIT_CONFIG_COUNT=1 --env GIT_CONFIG_KEY_0=safe.directory --env 'GIT_CONFIG_VALUE_0=*' \
     --volume "${OPENROSDE_ROOT_DIR}:/src:ro" \
     openrosde-tests:local \
     bash /src/tests/run.bash "$@"
