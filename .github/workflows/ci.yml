@@ -1,0 +1,354 @@
+# Documentation for workflows of GitHub Actions:
+# https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions
+# https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+
+# This workflow is the pipeline of OpenRoSDE on GitHub Actions, the port of the GitLab pipeline of 'gitlab-ci/', which runs the same scripts.
+# It runs on every push to 'dev' or 'main' and on every release tag 'vX.Y.Z' of 'openrosde/openrosde' that changes something that goes into an image or a workspace, and never for a pull request, which 'checks.yml' checks without any secret.
+# It calls the light checks of 'checks.yml' first, then builds or reuses the base images, the converter of meshes, and the image of every platform, pushed as 'pipeline-<run-id>' to the registry, tests every setup and the core alone in them, and publishes them as 'dev', 'main', or 'vX.Y.Z' once every test has passed.
+# An image is reused rather than built when an image of the branch, of 'dev', or of 'main' was built from identical sources, as 'gitlab-ci/build-ci-image.bash' checks with the label 'com.coarobo.openrosde.source-hash'.
+# Only the jobs that push images get the right to write packages, and they run only in 'openrosde/openrosde' once it is public, so a fork never pushes, and the private phase before the launch spends neither the minutes nor the storage of the free plan.
+
+name: CI
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    tags:
+      - "v*.*.*"
+    # Run only when something that goes into an image or a workspace changes, as the GitLab pipeline does, so that a change of the documentation alone runs nothing.
+    # GitHub Actions ignores these paths for a tag, which always runs.
+    paths:
+      - .env
+      - .gitmodules
+      - .github/**
+      - docker/**
+      - env/**
+      - gitlab-ci/**
+      - patches/**
+      - ros/**
+      - ros2/**
+      - scripts/**
+      - tmux/**
+
+# Give every job the right to read the repository alone, and give the right to write packages only to the jobs that push images.
+permissions:
+  contents: read
+
+# Cancel the run of a branch that a newer push supersedes, as 'interruptible' does on GitLab.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Run every script with Bash, which GitHub Actions then starts with '-eo pipefail'.
+defaults:
+  run:
+    shell: bash
+
+env:
+  # Registry of the images, the one place to change it, which 'run-gitlab-ci-script.bash' hands to the scripts of 'gitlab-ci/' as 'CI_REGISTRY_IMAGE'.
+  OPENROSDE_CI_REGISTRY_IMAGE: ghcr.io/openrosde
+
+jobs:
+  ##############################################################################
+
+  # Run the light checks, which every image job and test job needs, so that nothing is built for a push that fails them.
+
+  checks:
+    uses: ./.github/workflows/checks.yml
+
+  ##############################################################################
+
+  # Build or reuse the base image of ROS 1, which takes hours to build from scratch on a hosted runner.
+
+  build-base-image:
+    name: build-base-image-job
+    needs: checks
+    if: github.repository == 'openrosde/openrosde' && github.event_name == 'push' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Free disk space
+        uses: ./.github/actions/free-disk-space
+
+      - name: Log in to the registry
+        uses: ./.github/actions/log-in-to-registry
+
+      - name: Build or reuse the image
+        run: >-
+          bash ./.github/scripts/run-gitlab-ci-script.bash ./gitlab-ci/build-ci-image.bash
+          openrosde-base . docker/openrosde-base/Dockerfile docker/openrosde-base
+          OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE
+
+  ##############################################################################
+
+  # Build or reuse the base image of ROS 2, Ubuntu 26.04 with ROS 2 Lyrical, which copies the helper scripts of 'docker/openrosde-base/scripts' that both base images share.
+
+  build-base-ros2-image:
+    name: build-base-ros2-image-job
+    needs: checks
+    if: github.repository == 'openrosde/openrosde' && github.event_name == 'push' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Free disk space
+        uses: ./.github/actions/free-disk-space
+
+      - name: Log in to the registry
+        uses: ./.github/actions/log-in-to-registry
+
+      - name: Build or reuse the image
+        run: >-
+          bash ./.github/scripts/run-gitlab-ci-script.bash ./gitlab-ci/build-ci-image.bash
+          openrosde-base-ros2 . docker/openrosde-base-ros2/Dockerfile docker/openrosde-base-ros2,docker/openrosde-base/scripts
+          OPENROSDE_CONTAINER_ROOT_DIR=/root/OpenRoSDE
+
+  ##############################################################################
+
+  # Build or reuse the converter of robot meshes into GLB files, a small image that needs no extra disk space.
+
+  build-mesh2glb-image:
+    name: build-mesh2glb-image-job
+    needs: checks
+    if: github.repository == 'openrosde/openrosde' && github.event_name == 'push' && !github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Log in to the registry
+        uses: ./.github/actions/log-in-to-registry
+
+      - name: Build or reuse the image
+        run: >-
+          bash ./.github/scripts/run-gitlab-ci-script.bash ./gitlab-ci/build-ci-image.bash
+          openrosde-mesh2glb . docker/openrosde-mesh2glb/Dockerfile docker/openrosde-mesh2glb
+
+  ##############################################################################
+
+  # Build or reuse the image of every platform on the base image of its ROS from this run, from the folder that holds the platform, the core or a folder in 'extensions/', with one job per platform that the generator found.
+
+  build-platform-images:
+    name: ${{ matrix.job }}
+    needs:
+      - checks
+      - build-base-image
+      - build-base-ros2-image
+    if: needs.checks.outputs.platforms != '[]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.checks.outputs.platforms) }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Free disk space
+        uses: ./.github/actions/free-disk-space
+
+      - name: Log in to the registry
+        uses: ./.github/actions/log-in-to-registry
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+
+      - name: Build or reuse the image
+        env:
+          OPENROSDE_ROBOT_PLATFORM: ${{ matrix.platform }}
+          OPENROSDE_CI_PLATFORM_ROOT_DIR: ${{ matrix.root }}
+          OPENROSDE_CI_BASE_IMAGE_NAME: ${{ matrix.base }}
+          OPENROSDE_CI_BASE_SOURCE_DIRS: ${{ matrix.sources }}
+        run: >-
+          bash ./.github/scripts/run-gitlab-ci-script.bash ./gitlab-ci/build-ci-image.bash
+          "${OPENROSDE_ROBOT_PLATFORM}-devel"
+          "${OPENROSDE_CI_PLATFORM_ROOT_DIR}"
+          "docker/${OPENROSDE_ROBOT_PLATFORM}-devel/Dockerfile"
+          "${OPENROSDE_CI_BASE_SOURCE_DIRS},${OPENROSDE_CI_PLATFORM_ROOT_DIR}/docker/${OPENROSDE_ROBOT_PLATFORM}-devel"
+          "OPENROSDE_BASE_IMAGE=${OPENROSDE_CI_REGISTRY_IMAGE}/${OPENROSDE_CI_BASE_IMAGE_NAME}:pipeline-${GITHUB_RUN_ID}"
+          "OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}"
+
+  ##############################################################################
+
+  # Check the converter: two runs over the meshes of the base image and of the workspaces must give the same bytes, and every GLB must pass the Khronos glTF-Validator.
+  # Keep the reports of the conversion for a week.
+
+  check-mesh-glbs:
+    name: check-mesh-glbs-job
+    needs:
+      - checks
+      - build-base-image
+      - build-mesh2glb-image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Free disk space
+        uses: ./.github/actions/free-disk-space
+
+      - name: Log in to the registry
+        uses: ./.github/actions/log-in-to-registry
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+
+      - name: Check the GLB files of the converter
+        run: bash ./.github/scripts/run-gitlab-ci-script.bash ./gitlab-ci/check-mesh-glbs.bash
+
+      - name: Keep the reports of the conversion
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-logs-check-mesh-glbs-job
+          path: ci-logs/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  ##############################################################################
+
+  # Test every setup, and the core alone on ROS 1 and ROS 2, with one job per test job of the generator: build its Docker layers and its Catkin or colcon workspaces in the image of its platform from this run, check its robot model and its launch entry points with the container cut from every network, and run the checks of its extensions.
+  # A test runs even when the image of another platform failed, since it needs only its own, as on GitLab, and the run never publishes then.
+  # Keep the logs of the workspaces for a week when a test fails.
+
+  test-workspaces:
+    name: ${{ matrix.job }}
+    needs:
+      - checks
+      - build-base-image
+      - build-base-ros2-image
+      - build-mesh2glb-image
+      - build-platform-images
+    if: >-
+      ${{ !cancelled()
+      && needs.build-base-image.result == 'success'
+      && needs.build-base-ros2-image.result == 'success'
+      && needs.build-mesh2glb-image.result == 'success'
+      && needs.build-platform-images.result != 'cancelled' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.checks.outputs.tests) }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Free disk space
+        uses: ./.github/actions/free-disk-space
+
+      - name: Log in to the registry
+        uses: ./.github/actions/log-in-to-registry
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+
+      - name: Test the workspaces
+        env:
+          OPENROSDE_CI_ROBOT_SETUP: ${{ matrix.setup }}
+          OPENROSDE_CI_ROBOT_MODEL_ARGS: ${{ matrix.model-args }}
+        run: bash ./.github/scripts/run-gitlab-ci-script.bash ./gitlab-ci/test-catkin-workspaces.bash "${OPENROSDE_CI_ROBOT_SETUP}"
+
+      - name: Keep the logs of the workspaces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-logs-${{ matrix.job }}
+          path: ci-logs/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  ##############################################################################
+
+  # Publish the images of the run as 'dev' or 'main' from those branches, or as 'vX.Y.Z' from a release tag, once every image job and every test has passed, by retagging them on the registry.
+  # Publish only from a push to 'openrosde/openrosde', never from a pull request or a fork, whose runs have no job that writes packages.
+
+  publish-images:
+    name: publish-images-job
+    needs:
+      - checks
+      - build-base-image
+      - build-base-ros2-image
+      - build-mesh2glb-image
+      - build-platform-images
+      - check-mesh-glbs
+      - test-workspaces
+    if: >-
+      ${{ !cancelled()
+      && github.repository == 'openrosde/openrosde'
+      && github.event_name == 'push'
+      && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+      && needs.build-base-image.result == 'success'
+      && needs.build-base-ros2-image.result == 'success'
+      && needs.build-mesh2glb-image.result == 'success'
+      && (needs.build-platform-images.result == 'success' || needs.build-platform-images.result == 'skipped')
+      && needs.check-mesh-glbs.result == 'success'
+      && needs.test-workspaces.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Log in to the registry
+        uses: ./.github/actions/log-in-to-registry
+
+      - name: Publish the images
+        env:
+          OPENROSDE_CI_PLATFORM_IMAGES: ${{ needs.checks.outputs.platform-images }}
+        run: |
+          read -r -a OPENROSDE_CI_PLATFORM_IMAGE_NAMES <<< "${OPENROSDE_CI_PLATFORM_IMAGES}"
+          bash ./.github/scripts/run-gitlab-ci-script.bash ./gitlab-ci/publish-ci-images.bash "${GITHUB_REF_NAME}" \
+            openrosde-base openrosde-base-ros2 openrosde-mesh2glb "${OPENROSDE_CI_PLATFORM_IMAGE_NAMES[@]}"

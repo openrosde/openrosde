@@ -1,0 +1,50 @@
+# Documentation for composite actions of GitHub Actions:
+# https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-composite-action
+
+# This composite action clones the public extensions of 'gitlab-ci/extensions.repos' into 'extensions/' of the core checked out in the workspace, as every job of the GitLab pipeline does.
+# Given the name of an extension under test, it then checks out the repository that runs the workflow in place of the pinned clone of that extension, with its full history, and applies the patches of that extension and of its parts to their Git submodules, as 'gitlab-ci/clone-extensions.bash' does for every clone.
+# Its logic lives in 'clone-extensions.bash' beside this file.
+
+name: Clone the extensions
+description: Clone the public extensions that gitlab-ci/extensions.repos pins, and optionally check out the extension under test in place of its pinned clone.
+
+inputs:
+  extension-name:
+    description: Folder of the extension under test in 'extensions/', checked out from the repository that runs the workflow, or empty to keep every pinned clone.
+    required: false
+    default: ""
+  submodules:
+    description: Git submodules of the extension under test to check out, 'false', 'true', or 'recursive', as 'actions/checkout' takes them.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Clone the pinned extensions
+      shell: bash
+      env:
+        OPENROSDE_CI_TESTED_EXTENSION: ${{ inputs.extension-name }}
+      run: bash "${GITHUB_ACTION_PATH}/clone-extensions.bash" "${OPENROSDE_CI_TESTED_EXTENSION}"
+
+    - name: Check out the extension under test
+      if: inputs.extension-name != ''
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        path: extensions/${{ inputs.extension-name }}
+        fetch-depth: 0
+        submodules: ${{ inputs.submodules }}
+        persist-credentials: false
+
+    - name: Apply the patches of the extension under test
+      if: inputs.extension-name != ''
+      shell: bash
+      env:
+        OPENROSDE_CI_TESTED_EXTENSION: ${{ inputs.extension-name }}
+      run: |
+        for OPENROSDE_CI_PATCHED_ROOT_DIR in "extensions/${OPENROSDE_CI_TESTED_EXTENSION}" "extensions/${OPENROSDE_CI_TESTED_EXTENSION}"/parts/*; do
+          if [ -d "${OPENROSDE_CI_PATCHED_ROOT_DIR}/patches" ]; then
+            bash ./scripts/apply-submodule-patches.bash "${OPENROSDE_CI_PATCHED_ROOT_DIR}"
+          fi
+        done
+        echo "Checked out '${OPENROSDE_CI_TESTED_EXTENSION}' at '$(git -C "extensions/${OPENROSDE_CI_TESTED_EXTENSION}" rev-parse HEAD)'."

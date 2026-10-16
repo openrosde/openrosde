@@ -316,6 +316,52 @@ Both are needed, since the default tag, `pipeline-<id>` with the ID of the runni
 It may instead pass the image to `gitlab-ci/test-catkin-workspaces.bash` as its second argument, such as `ghcr.io/openrosde/ur5e-devel:v3.0.0`.
 Outside the CI, the script refuses to replace an existing `.env.custom`, so move it aside before running the script by hand.
 
+## 🐙 GitHub Actions
+
+OpenRoSDE moves to the GitHub organization `openrosde`, so the workflows of `.github/workflows/` run the scripts of `gitlab-ci/` beside the GitLab pipeline, with the jobs named as on GitLab.
+
+| Workflow | Runs on | What it does |
+| --- | --- | --- |
+| `checks.yml` | Every pull request, forks included, and every run of `ci.yml` | ShellCheck, actionlint, the test suites of `tests/`, `check-scripts-job`, and `generate-pipeline-job`, with no secret |
+| `ci.yml` | Every push to `dev` or `main` and every release tag `vX.Y.Z` of `openrosde/openrosde`, once it is public | The image jobs, `check-mesh-glbs-job`, one test job per setup and for the core alone, and `publish-images-job` |
+| `extension.yml` | The workflow of an extension that calls it | `check-scripts-job`, `check-mesh-glbs-job`, and the test jobs of the setups that activate the extension |
+
+- `ci.yml` pushes its images to `ghcr.io/openrosde` as `pipeline-<run-id>`, reuses an image whose sources hash the same, and publishes them as `dev`, `main`, or `vX.Y.Z`, as the GitLab pipeline does.
+- Only its image jobs and its publish job may write packages, and they run only in `openrosde/openrosde`, so a pull request builds no image and its workspaces are tested once it is merged into `dev`.
+- `OPENROSDE_CI_REGISTRY_IMAGE` names the registry in one place at the top of `ci.yml`.
+- The jobs that build or pull the base images free disk space first with `.github/actions/free-disk-space`, since a hosted runner has little room for them.
+
+An extension tests its pull requests and branches against the core with a workflow that calls `extension.yml`, in place of the trigger above:
+
+```yaml
+name: OpenRoSDE
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: openrosde-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  openrosde:
+    uses: openrosde/openrosde/.github/workflows/extension.yml@dev
+    with:
+      core-ref: dev
+```
+
+- The workflow checks out the core at `core-ref`, clones the extensions of `gitlab-ci/extensions.repos`, and checks out the commit under test in place of the pinned clone, which works for a fork, a pull request, and an extension that the file does not list.
+- It tests only the setups that activate the extension, as `OPENROSDE_CI_EXTENSION_OVERRIDE` does on GitLab, and a device that no setup lists yet passes `extra-extensions: openrosde-device-<driver>` to add it to every setup.
+- It runs in the repository that calls it, which cannot push to the registry of the core, so each test job builds the image of its platform locally on the published images of `core-ref`, with the published image of that platform as its cache, and it publishes nothing.
+- Keep `core-ref` on the version after the `@`, since the workflow runs the scripts of the core that it checks out.
+- Its other inputs name the folder of the extension when it differs from the name of the repository (`extension-name`), the core (`core-repository`), and the published images (`image-registry`, `image-tag`).
+
 ## ⚙️ Configuration
 
 | Variable | Default | Purpose |

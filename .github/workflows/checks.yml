@@ -1,0 +1,154 @@
+# Documentation for workflows of GitHub Actions:
+# https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions
+# https://docs.github.com/en/actions/sharing-automations/reusing-workflows
+
+# This workflow runs the light checks of OpenRoSDE, which need no secret and no image of the registry, for every pull request, including those of forks.
+# It checks the shell scripts with ShellCheck and the workflows with actionlint, runs the test suites of 'tests/' with every outside command stubbed, checks that no script of the CI can move a robot, and generates the pipeline of the platforms and setups found by name.
+# The workflow 'ci.yml' calls it first on every push to 'dev', 'main', or a release tag, and builds its image jobs and test jobs from the matrices that 'generate-pipeline-job' prints.
+# The jobs keep the names of the jobs of the GitLab pipeline that they mirror, beside which they run until the move to GitHub is complete.
+
+name: Checks
+
+on:
+  pull_request:
+  workflow_call:
+    outputs:
+      platforms:
+        description: JSON array of the image jobs of the platforms, from 'gitlab-ci/generate-ci-pipeline.bash'.
+        value: ${{ jobs.generate-pipeline.outputs.platforms }}
+      tests:
+        description: JSON array of the test jobs of the setups and of the core alone, from 'gitlab-ci/generate-ci-pipeline.bash'.
+        value: ${{ jobs.generate-pipeline.outputs.tests }}
+      platform-images:
+        description: Names of the platform images to publish, separated by spaces.
+        value: ${{ jobs.generate-pipeline.outputs.platform-images }}
+
+# Give every job the right to read the repository alone.
+permissions:
+  contents: read
+
+# Cancel the checks of a pull request that a newer commit supersedes.
+# The group names the event, so that the checks that 'ci.yml' calls never share the group of 'ci.yml' itself.
+concurrency:
+  group: checks-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Run every script with Bash, which GitHub Actions then starts with '-eo pipefail'.
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ##############################################################################
+
+  # Check every committed shell script with ShellCheck, at the severity 'error' for the scripts written before GitHub Actions and at every severity for those of '.github/'.
+
+  check-shell-scripts:
+    name: check-shell-scripts-job
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the shell scripts
+        run: bash ./.github/scripts/check-shell-scripts.bash
+
+  ##############################################################################
+
+  # Check the workflows with actionlint, pinned by digest, which also checks the inputs given to the composite actions and runs ShellCheck on every 'run' script of the workflows.
+
+  check-workflows:
+    name: check-workflows-job
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the workflows
+        run: >-
+          docker run --rm --network none
+          --volume "${GITHUB_WORKSPACE}:/repo:ro" --workdir /repo
+          rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+          -color
+
+  ##############################################################################
+
+  # Run the test suites of the scripts, each on scratch copies of the repository with every outside command stubbed, in a Debian container with no network.
+
+  test-scripts:
+    name: test-scripts-job
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run the test suites
+        run: bash ./tests/run.bash
+
+  ##############################################################################
+
+  # Check that no script that the CI runs can move a robot, in 'gitlab-ci/' and '.github/' of the core and in 'ci/' of the extensions, before any test job runs one.
+
+  check-scripts:
+    name: check-scripts-job
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+
+      - name: Check that no script can move a robot
+        run: bash ./gitlab-ci/check-no-motion.bash gitlab-ci .github extensions/*/ci extensions/*/parts/*/ci
+
+  ##############################################################################
+
+  # Generate the child pipeline of GitLab, with one image job per platform and one test job per setup found by name in the core and in the extensions, and print the matrices of 'ci.yml' from it.
+  # Keep the generated pipeline for a day.
+
+  generate-pipeline:
+    name: generate-pipeline-job
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      platforms: ${{ steps.matrices.outputs.platforms }}
+      tests: ${{ steps.matrices.outputs.tests }}
+      platform-images: ${{ steps.matrices.outputs.platform-images }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+
+      - name: Generate the pipeline and its matrices
+        id: matrices
+        env:
+          OPENROSDE_CI_RUNNER_TAG: ubuntu-24.04
+          OPENROSDE_CI_GENERATED_PIPELINE: ${{ runner.temp }}/openrosde-pipeline-generated.yml
+        run: |
+          bash ./gitlab-ci/generate-ci-pipeline.bash > "${OPENROSDE_CI_GENERATED_PIPELINE}"
+          cat "${OPENROSDE_CI_GENERATED_PIPELINE}"
+          bash ./.github/scripts/print-ci-matrices.bash "${OPENROSDE_CI_GENERATED_PIPELINE}" | tee -a "${GITHUB_OUTPUT}"
+
+      - name: Keep the generated pipeline
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: openrosde-pipeline-generated
+          path: ${{ runner.temp }}/openrosde-pipeline-generated.yml
+          retention-days: 1

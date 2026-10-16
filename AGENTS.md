@@ -21,7 +21,7 @@ It is being split into a platform-agnostic core with extensions, as [OpenRoSDE S
 - Multi-Terminal: [tmux](https://github.com/tmux/tmux/wiki), and [Terminator](https://gnometerminator.blogspot.com/) until `tmux` replaces it.
 - Scripting: [Bash](https://www.gnu.org/software/bash/).
 - Configuration: `.env` / `.env.custom` files.
-- CI/CD: [GitLab CI](https://docs.gitlab.com/ee/ci/).
+- CI/CD: [GitHub Actions](https://docs.github.com/actions), which runs the scripts of `gitlab-ci/`, beside the [GitLab CI](https://docs.gitlab.com/ee/ci/) of the archive.
 - Repository: [Git](https://git-scm.com/) (versioning), [GitHub](https://github.com/) (hosting).
 - Editor: [VS Code](https://code.visualstudio.com/).
 - Agents: [Claude Code](https://claude.com/claude-code), [GitHub Copilot](https://github.com/features/copilot).
@@ -113,6 +113,7 @@ The other interfaces of the products, such as the gripper action, the camera rel
 - `terminator/`: The injected copies of `RUN-TERMINATOR-TERMINAL.bash`, which creates the folder when a clone lacks it, while each platform holds its own Terminator layouts in its repository.
 - `tests/`: Test suites of the scripts (`tests/suites/`), which `tests/run.bash` runs in a Debian container on scratch copies of the repository, with every outside command stubbed.
 - `gitlab-ci/`: GitLab CI/CD pipeline: the parent `gitlab-ci.yml`, the shared jobs of the child pipeline (`openrosde-pipeline.yml`), the public extensions it tests (`extensions.repos`), and the scripts that clone them (`clone-extensions.bash`), generate the child pipeline (`generate-ci-pipeline.bash`), build or reuse an image (`build-ci-image.bash`), test a setup (`test-catkin-workspaces.bash`, `check-launch-files.bash`, `run-extension-checks.bash`), check that no script moves a robot (`check-no-motion.bash`), and publish the images (`publish-ci-images.bash`), with the allowlists of those checks (`allowed-duplicate-nodes.txt`, `allowed-simulation-launches.txt`).
+- `.github/`: GitHub Actions beside the GitLab pipeline, which run the scripts of `gitlab-ci/`: the workflows (`workflows/checks.yml`, `workflows/ci.yml`, and the reusable `workflows/extension.yml`), the composite actions that free disk space, clone the extensions, and log in to the registry (`actions/`), and the scripts that wire the workflows to `gitlab-ci/` (`scripts/`).
 
 ## Agent Persona
 
@@ -464,6 +465,16 @@ Platform-specific behavior guidelines:
 - Give every artifact an `expire_in`, and hand images between jobs through the registry, never through the disk of the runner.
 - Never publish a GLB file of a robot mesh: the CI generates them only inside the containers of a job, as [Robot Models](docs/robot-models.md) describes, since some meshes may not be redistributed.
 
+### GitHub Actions
+
+- Keep the logic in the scripts of `gitlab-ci/`, which both CI systems run, and in `.github/scripts/` only for what GitHub Actions alone needs, so that a workflow only wires the jobs together.
+- Take the platforms and the setups from the child pipeline that `gitlab-ci/generate-ci-pipeline.bash` prints, through `.github/scripts/print-ci-matrices.bash`, rather than listing them in a workflow.
+- Use only the actions of GitHub and of verified creators, which the organization allows, and pin each to a full commit hash with its version in a comment, looked up with `git ls-remote`.
+- Run only on GitHub-hosted runners, and give a job that builds or pulls the base images `.github/actions/free-disk-space` first.
+- Set `permissions: contents: read` at the top of every workflow, and give `packages: write` only to a job that pushes images, which runs only on a push to `openrosde/openrosde`.
+- Check out every repository with `persist-credentials: false`, since `gitlab-ci/test-catkin-workspaces.bash` copies the checkout into the test container.
+- Pass every value of a context to a script through `env`, never inside the text of a `run` script.
+
 ### Submodule Patches
 
 - Patch files for Git submodules live in `patches/` mirroring the full submodule path (e.g., `patches/ros/openrosde_catkin_ws/src/flexbe_app/`).
@@ -592,6 +603,12 @@ Then list a public platform in the files of this repository that name the public
 - Every artifact expires, the Catkin logs of a failed test after a week and the generated child pipeline after a day.
 - Docker images are pushed to `OPENROSDE_DOCKER_REGISTRY`, `ghcr.io/openrosde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
 - Image traceability: each image embeds `OPENROSDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash, and the labels `org.opencontainers.image.revision` and `org.opencontainers.image.source`.
+- GitHub Actions runs the same scripts beside the GitLab pipeline for the move to GitHub, as the section GitHub Actions of `docs/extensions.md` describes.
+  `checks.yml` runs for every pull request, forks included, with no secret: ShellCheck through `.github/scripts/check-shell-scripts.bash`, actionlint, `tests/run.bash`, `check-scripts-job`, and `generate-pipeline-job`.
+  `ci.yml` calls it on every push to `dev` or `main` and every release tag of `openrosde/openrosde`, then builds or reuses the images in the registry that `OPENROSDE_CI_REGISTRY_IMAGE` names, `ghcr.io/openrosde`, tests every setup and the core alone, and publishes the images, with the jobs that write packages running only in that repository and only once it is public, so the private phase spends neither the minutes nor the storage of the free plan.
+  `.github/scripts/run-gitlab-ci-script.bash` sets the variables of GitLab CI that the scripts read from those of GitHub Actions, with the ID of the run in place of the ID of the pipeline.
+  `extension.yml` is the reusable workflow that an extension calls in place of the multi-project trigger, and since the repository of an extension cannot push to the registry of the core, each of its test jobs builds the image of its platform locally on the published images, with `.github/scripts/build-local-platform-image.bash`.
+  A pull request builds no image, so its images and workspaces are tested once it is merged into `dev`.
 
 ## Versioning & Commits
 

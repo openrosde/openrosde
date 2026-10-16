@@ -201,6 +201,7 @@ patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git), such as 'openrosde-platform-<platform>/'.
 tests/                                   # Test suites of the scripts, run by 'tests/run.bash'.
 gitlab-ci/                               # Scripts of the CI, which the GitHub Actions workflows run.
+.github/                                 # GitHub Actions workflows, their composite actions, and their scripts.
 ```
 
 ## 📖 Documentation

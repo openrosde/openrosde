@@ -1,0 +1,23 @@
+# Documentation for composite actions of GitHub Actions:
+# https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-composite-action
+
+# This composite action frees disk space on a GitHub-hosted Ubuntu runner, whose root disk holds too little room for the base images of OpenRoSDE, for every job that builds or pulls them.
+# Its logic lives in 'free-disk-space.bash' beside this file.
+
+name: Free disk space
+description: Remove the preinstalled toolchains that OpenRoSDE never uses, prune Docker, and move the storage of Docker to /mnt when that disk has more room.
+
+inputs:
+  docker-on-mnt:
+    description: "'true' to move the storage of Docker and containerd to '/mnt' when it has more free space than the root disk, or 'false' to keep it on the root disk."
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Free disk space
+      shell: bash
+      env:
+        OPENROSDE_CI_DOCKER_ON_MNT: ${{ inputs.docker-on-mnt }}
+      run: bash "${GITHUB_ACTION_PATH}/free-disk-space.bash" "${OPENROSDE_CI_DOCKER_ON_MNT}"
