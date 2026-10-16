@@ -362,6 +362,7 @@ jobs:
 - It runs in the repository that calls it, which cannot push to the registry of the core, so each test job builds the image of its platform locally on the published images of `core-ref`, with the published image of that platform as its cache, and it publishes nothing.
 - Keep `core-ref` on the version after the `@`, since the workflow runs the scripts of the core that it checks out.
 - Its other inputs name the folder of the extension when it differs from the name of the repository (`extension-name`), the core (`core-repository`), and the published images (`image-registry`, `image-tag`).
+- `setups` keeps the test jobs of the setups it names, separated by spaces, such as `ur5e` for a device of ROS 1 that `extra-extensions` adds to every setup, so that the device is never built on a setup of ROS 2, and the workflow fails when none of them activates the extension.
 
 ## ⚙️ Configuration
 
