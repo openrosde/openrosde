@@ -30,6 +30,7 @@ on:
       - ros/**
       - ros2/**
       - scripts/**
+      - tests/**
       - tmux/**
 
 # Give every job the right to read the repository alone, and give the right to write packages only to the jobs that push images.
