@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Breaking:** OpenRoSDE moves from `https://gitlab.com/coarobo/SDE` to `https://github.com/openrosde/openrosde` under the Apache License 2.0, with a `NOTICE` that keeps the MIT notice of the earlier code, its platforms and devices move to `https://github.com/openrosde/openrosde-<extension>`, and its images to `ghcr.io/openrosde`, the default of `OPENROSDE_DOCKER_REGISTRY`, while the GitLab project stays as an archive.
-  Migration: run `git remote set-url origin https://github.com/openrosde/openrosde.git` in the clone of the core and in each clone of `extensions/` with its own name, and remove `OPENROSDE_DOCKER_REGISTRY` from `.env.custom` if it names `registry.gitlab.com/coarobo/sde`.
+  Migration: clone the core again from `https://github.com/openrosde/openrosde.git`, since its history on GitHub starts at the public release `v0.0.0` and was rewritten once, then copy `.env.custom` and the clones of `extensions/` into it, run `git remote set-url origin https://github.com/openrosde/<repository>.git` in each clone of a platform or a device, whose history is unchanged, and remove `OPENROSDE_DOCKER_REGISTRY` from `.env.custom` if it names `registry.gitlab.com/coarobo/sde`.
 - `RUN-TMUX-SESSION.bash` opens the windows of every session as tabs numbered from 1 in the standard order `robot`, `extra`, `tools`, `user`, `host`, which `OPENROSDE_TMUX_STANDARD_WINDOWS` of `scripts/load-extension-paths.bash` names, whatever order the pane files declare them in, and leaves out a standard window with no pane, while a window outside them opens after them with a warning (#5).
 
 ### Added
