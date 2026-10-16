@@ -1,7 +1,5 @@
 # Extensions
 
-[[_TOC_]]
-
 An **extension** is a Git repository cloned into `extensions/<extension>/` that adds a robot platform, a device, or any other package to OpenRoSDE without forking it.
 Extensions keep OpenRoSDE a platform-agnostic core, with everything specific to a robot or a product around it, as the [OpenRoSDE Split](../AGENTS.md#openrosde-split) describes.
 
@@ -131,11 +129,11 @@ Beside the template, `env/<setup>.repos` lists where to clone the repositories t
 repositories:
   openrosde-device-onrobot:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-device-onrobot.git
+    url: https://github.com/openrosde/openrosde-device-onrobot.git
     version: v1.0.0
   openrosde-device-realsense:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-device-realsense.git
+    url: https://github.com/openrosde/openrosde-device-realsense.git
     version: v1.2.0
 ```
 
@@ -236,21 +234,21 @@ The canonical platforms of OpenRoSDE live in public repositories of their own, u
 
 | Platform | Robot | Repository |
 | --- | --- | --- |
-| `cobotta` | Denso COBOTTA | [https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta) |
-| `fetch` | Fetch Robotics Fetch | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch) |
-| `hsr` | Toyota HSR (Human Support Robot) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr) |
-| `sciurus17` | RT Sciurus17 | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17) |
-| `turtlebot3` | Robotis TurtleBot3 (Waffle Pi) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) |
-| `ur5e` | Universal Robots UR5e | [https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e) |
+| `cobotta` | Denso COBOTTA | [https://github.com/openrosde/openrosde-platform-cobotta](https://github.com/openrosde/openrosde-platform-cobotta) |
+| `fetch` | Fetch Robotics Fetch | [https://github.com/openrosde/openrosde-platform-fetch](https://github.com/openrosde/openrosde-platform-fetch) |
+| `hsr` | Toyota HSR (Human Support Robot) | [https://github.com/openrosde/openrosde-platform-hsr](https://github.com/openrosde/openrosde-platform-hsr) |
+| `sciurus17` | RT Sciurus17 | [https://github.com/openrosde/openrosde-platform-sciurus17](https://github.com/openrosde/openrosde-platform-sciurus17) |
+| `turtlebot3` | Robotis TurtleBot3 (Waffle Pi) | [https://github.com/openrosde/openrosde-platform-turtlebot3](https://github.com/openrosde/openrosde-platform-turtlebot3) |
+| `ur5e` | Universal Robots UR5e | [https://github.com/openrosde/openrosde-platform-ur5e](https://github.com/openrosde/openrosde-platform-ur5e) |
 
 Clone one into `extensions/`, then switch to it, as for any platform extension:
 
 ```shell
-git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch.git extensions/openrosde-platform-fetch
+git clone https://github.com/openrosde/openrosde-platform-fetch.git extensions/openrosde-platform-fetch
 bash ./SWITCH-ROBOT-PLATFORM.bash fetch
 ```
 
-- `gitlab-ci/extensions.repos` pins each of them at a commit of its `main`, so the CI of the core clones them, builds or reuses their images, and publishes them as `registry.gitlab.com/coarobo/sde/<platform>-devel`, as it did when the core held them.
+- `gitlab-ci/extensions.repos` pins each of them at a commit of its `main`, so the CI of the core clones them, builds or reuses their images, and publishes them as `ghcr.io/openrosde/<platform>-devel`, as it did when the core held them.
 - Each platform repository tests its own changes with the trigger that the section below describes, and a merge request of the core moves the pin once a change of the platform is merged.
 - The `NOTICE` of each platform repository records the licenses of its third-party software, some of which allow no commercial use.
 - The UR5e in `openrosde-platform-ur5e` is the plain robot as sold, and a setup that mounts a gripper or cameras on it names its own description package in `OPENROSDE_UR5E_DESCRIPTION_PACKAGE`, as `docs/robot-platforms/ur5e.md` of that repository describes.
@@ -263,7 +261,7 @@ The CI of OpenRoSDE tests every setup it finds, in the core and in the public ex
 repositories:
   openrosde-platform-foo:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-foo.git
+    url: https://github.com/openrosde/openrosde-platform-foo.git
     version: v1.0.0
 ```
 
@@ -313,9 +311,9 @@ test-with-openrosde-job:
 - The pipeline of OpenRoSDE writes these two variables into its child pipeline once it has checked them, and passes on no other variable of the pipeline that triggered it.
 
 A private extension runs the same scripts in a pipeline of its own, in a private project, with OpenRoSDE checked out at the version it pins, since OpenRoSDE never clones a private repository.
-It reads the public base and platform images by setting `OPENROSDE_CI_IMAGE_REGISTRY` to `registry.gitlab.com/coarobo/sde` and `OPENROSDE_CI_IMAGE_TAG` to the tag of that version, `dev` or a release such as `v3.0.0`, and keeps its own images in its own registry.
+It reads the public base and platform images by setting `OPENROSDE_CI_IMAGE_REGISTRY` to `ghcr.io/openrosde` and `OPENROSDE_CI_IMAGE_TAG` to the tag of that version, `dev` or a release such as `v3.0.0`, and keeps its own images in its own registry.
 Both are needed, since the default tag, `pipeline-<id>` with the ID of the running pipeline, names only the images that a pipeline of OpenRoSDE pushes for itself.
-It may instead pass the image to `gitlab-ci/test-catkin-workspaces.bash` as its second argument, such as `registry.gitlab.com/coarobo/sde/ur5e-devel:v3.0.0`.
+It may instead pass the image to `gitlab-ci/test-catkin-workspaces.bash` as its second argument, such as `ghcr.io/openrosde/ur5e-devel:v3.0.0`.
 Outside the CI, the script refuses to replace an existing `.env.custom`, so move it aside before running the script by hand.
 
 ## ⚙️ Configuration
@@ -324,7 +322,7 @@ Outside the CI, the script refuses to replace an existing `.env.custom`, so move
 | --- | --- | --- |
 | `OPENROSDE_ROBOT_SETUP` | The platform | Active setup, named after its template `env/<setup>.env` |
 | `OPENROSDE_ROBOT_EXTENSIONS` | Empty | Folder names of the active extensions in `extensions/` or of their parts, separated by spaces, in the order their workspaces build |
-| `OPENROSDE_DOCKER_REGISTRY` | `registry.gitlab.com/coarobo/sde` | Registry where the base and platform images are pulled from and pushed to |
+| `OPENROSDE_DOCKER_REGISTRY` | `ghcr.io/openrosde` | Registry where the base and platform images are pulled from and pushed to |
 | `OPENROSDE_DOCKER_BUILD_FALLBACK` | `true` | Images that `BUILD-DOCKER-IMAGE.bash` builds locally when their pull fails: `true` for the base and platform images, `platform` for the platform image alone, or `false` for neither |
 | `OPENROSDE_QUIET` | `false` | Leaves out the list of every `OPENROSDE_*` variable that the entry scripts print, whose passwords, tokens, and secrets always print as `<redacted>` |
 | `OPENROSDE_CORE_VERSION` | Empty | Version of OpenRoSDE that a setup template pins, as a release tag or a branch, which `SWITCH-ROBOT-SETUP.bash` compares with the checkout |
@@ -335,4 +333,4 @@ Set `OPENROSDE_DOCKER_REGISTRY` in `.env.custom` to use a registry of your own.
 
 ## 🛣️ What Comes Next
 
-Terminator leaves OpenRoSDE once the `tmux` sessions have run on a real robot, which closes [#38](https://gitlab.com/coarobo/SDE/-/issues/38).
+Terminator leaves OpenRoSDE once the `tmux` sessions have run on a real robot, which closes [#38](https://github.com/openrosde/openrosde/issues/38).

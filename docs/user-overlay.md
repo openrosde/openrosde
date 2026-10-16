@@ -1,7 +1,5 @@
 # User Overlay
 
-[[_TOC_]]
-
 The **user overlay** is Layer 3 of the OpenRoSDE image stack:
 
 - **Layer 1** — `openrosde-base`: shared Ubuntu 20.04 / ROS Noetic / Gazebo / FlexBE toolchain, built once and shared by all platforms.
@@ -121,7 +119,7 @@ The user workspace is automatically:
 | Use case | Project-specific or personal customization | Upstream contribution adding support for a new robot |
 | Where it lives | Local fork/branch, not pushed to `coarobo/sde` | Merge request to `coarobo/sde` `main` |
 | Files touched | This page only | The step-by-step list in [CONTRIBUTING.md](../CONTRIBUTING.md#adding-a-new-robot-platform) |
-| CI/CD | None (built locally) | Full GitLab CI matrix |
-| Image registry | Local-only (`openrosde-local/<setup>/user-devel:latest`, which no `docker push` can publish) | Published by the CI to `registry.gitlab.com/coarobo/sde/<platform>-devel` as `main` and `dev`, and as `vX.Y.Z` for a release |
+| CI/CD | None (built locally) | Full CI matrix |
+| Image registry | Local-only (`openrosde-local/<setup>/user-devel:latest`, which no `docker push` can publish) | Published by the CI to `ghcr.io/openrosde/<platform>-devel` as `main` and `dev`, and as `vX.Y.Z` for a release |
 
 If you need anything beyond the user overlay (custom Gazebo worlds for an existing platform, additional FlexBE behaviors, etc.), keep it in the user overlay first; only promote it to a platform package or a new platform when it stabilizes and is ready to be shared upstream.

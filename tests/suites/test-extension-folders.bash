@@ -11,7 +11,7 @@
 source "${OPENROSDE_TEST_SOURCE_DIR}/tests/load-test-helpers.bash"
 openrosde-test-create-copy
 mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/.git"
-OPENROSDE_TEST_REGISTRY="registry.gitlab.com/coarobo/sde"
+OPENROSDE_TEST_REGISTRY="ghcr.io/openrosde"
 OPENROSDE_TEST_FOO_DIR="extensions/openrosde-platform-foo"
 OPENROSDE_TEST_BAR_DIR="extensions/openrosde-device-bar"
 OPENROSDE_TEST_BAZ_DIR="extensions/baz"

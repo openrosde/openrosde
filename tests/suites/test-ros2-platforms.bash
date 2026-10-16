@@ -108,7 +108,7 @@ openrosde-test-check "builds the base image of ROS 2 for a platform on ROS 2, wi
 echo "OPENROSDE_DOCKER_BUILD_FALLBACK=false" >> "${OPENROSDE_TEST_ROOT_DIR}/.env.custom"
 OPENROSDE_TEST_FAILING_CALL="pull openrosde-base" openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
 openrosde-test-check "names the base image of ROS 2 when its pull fails" \
-  "Error: The pull of 'registry.gitlab.com/coarobo/sde/openrosde-base-ros2:dev' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=false' does not build it locally." \
+  "Error: The pull of 'ghcr.io/openrosde/openrosde-base-ros2:dev' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=false' does not build it locally." \
   "$(echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Error:')"
 openrosde-test-select-template "${OPENROSDE_TEST_FOO_DIR}/env/foo-ros2.env"
 

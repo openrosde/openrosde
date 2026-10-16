@@ -37,7 +37,7 @@ openrosde-test-check "builds the base, converter, and platform images when their
 openrosde-test-select-fallback false
 OPENROSDE_TEST_FAILING_CALL="pull openrosde-base" openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
 openrosde-test-check "fails without building anything when the pull of the base fails with 'false'" \
-  "$(printf '%s\n' "pull openrosde-base" "status 1" "Error: The pull of 'registry.gitlab.com/coarobo/sde/openrosde-base:dev' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=false' does not build it locally.")" \
+  "$(printf '%s\n' "pull openrosde-base" "status 1" "Error: The pull of 'ghcr.io/openrosde/openrosde-base:dev' failed, and 'OPENROSDE_DOCKER_BUILD_FALLBACK=false' does not build it locally.")" \
   "$(openrosde-test-print-builds; echo "${OPENROSDE_TEST_OUTPUT}" | grep '^Error:')"
 OPENROSDE_TEST_FAILING_CALL="pull openrosde-platform" openrosde-test-run bash ./BUILD-DOCKER-IMAGE.bash test
 openrosde-test-check "fails without building anything when the pull of the platform fails with 'false'" \
@@ -67,7 +67,7 @@ openrosde-test-check "builds every image in the 'local' mode, whatever the fallb
   "$(printf '%s\n' "build openrosde-base" "build openrosde-mesh2glb" "build openrosde-platform" "build openrosde" "status 0")" \
   "$(openrosde-test-print-builds)"
 openrosde-test-check "then gives the meshes of the workspaces their GLBs with the converter of the same tag, with no network" \
-  "docker run --rm --network none --user $(id -u):$(id -g) --volume .:. registry.gitlab.com/coarobo/sde/openrosde-mesh2glb:dev python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs $(nproc) ./ros ./ros2 ./extensions" \
+  "docker run --rm --network none --user $(id -u):$(id -g) --volume .:. ghcr.io/openrosde/openrosde-mesh2glb:dev python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs $(nproc) ./ros ./ros2 ./extensions" \
   "$(openrosde-test-print-calls | grep '^docker run ')"
 
 ################################################################################
@@ -82,7 +82,7 @@ openrosde-test-check "derives 'main' on 'main' and on any detached checkout, eve
   "$(printf '%s\n' "main: main" "dev: dev" "feat/foo:v3.1.0 dev" "HEAD:v3.1.0 main" "HEAD:v3.1.0-rc.1 main" "HEAD:v3.1 main" "HEAD: main")" \
   "${OPENROSDE_TEST_TAG_REPORT%$'\n'}"
 openrosde-test-check "builds the user overlay on the 'main' platform image on a detached checkout of a release" \
-  "user-parent: registry.gitlab.com/coarobo/sde/ur5e-devel:main" \
+  "user-parent: ghcr.io/openrosde/ur5e-devel:main" \
   "$(OPENROSDE_TEST_GIT_BRANCH=HEAD OPENROSDE_TEST_GIT_TAG=v3.1.0 openrosde-test-print-paths | grep '^user-parent:')"
 
 ################################################################################

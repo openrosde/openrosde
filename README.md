@@ -10,20 +10,18 @@ OpenRoSDE, read "Open Robotic SDE", is the open-source reference implementation 
 [![CUDA 11.2](https://img.shields.io/badge/CUDA_11.2-GPU_Acceleration-blue?logo=nvidia&logoColor=white)](https://developer.nvidia.com/cuda-toolkit)
 [![Gazebo](https://img.shields.io/badge/Gazebo-Simulator-blue)](http://gazebosim.org/)
 [![FlexBE](https://img.shields.io/badge/FlexBE-Behavior_Engine-blue)](http://flexbe.github.io/)
-[![GitLab CI](https://img.shields.io/badge/GitLab_CI-CI%2FCD-blue?logo=gitlab&logoColor=white)](https://docs.gitlab.com/ee/ci/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-blue?logo=githubactions&logoColor=white)](https://docs.github.com/actions)
 [![Git](https://img.shields.io/badge/Git-Repository-blue?logo=git&logoColor=white)](https://git-scm.com/)
 [![VS Code](https://img.shields.io/badge/VS_Code-Editor-blue?logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com/)
 [![GitHub Copilot](https://img.shields.io/badge/GitHub_Copilot-Agent-blue?logo=githubcopilot&logoColor=white)](https://github.com/features/copilot)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-green)](LICENSE)
 
 > [!TIP]
 > Join the [SDE Community](https://coarobo.com/en/sde-community/) and help drive this open-source effort forward.
 > For a production-ready solution with advanced features, explore [Coarobo](https://coarobo.com/).
 
 ## 📑 Content
-
-[[_TOC_]]
 
 ## 🤖 Supported Robot Platforms
 
@@ -32,13 +30,13 @@ Every platform runs ROS 1 Noetic, apart from `turtlebot3-ros2`, which runs ROS 2
 
 | Platform | Robot | Repository | Documentation |
 | --- | --- | --- | --- |
-| `turtlebot3` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) | [docs/robot-platforms/turtlebot3.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/docs/robot-platforms/turtlebot3.md) |
-| `turtlebot3-ros2` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) on ROS 2 | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3) | [docs/robot-platforms/turtlebot3-ros2.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/docs/robot-platforms/turtlebot3-ros2.md) |
-| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e) | [docs/robot-platforms/ur5e.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e/-/blob/main/docs/robot-platforms/ur5e.md) |
-| `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch) | [docs/robot-platforms/fetch.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/docs/robot-platforms/fetch.md) |
-| `sciurus17` | [RT Sciurus17](https://rt-net.jp/products/sciurus17/) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17) | [docs/robot-platforms/sciurus17.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/docs/robot-platforms/sciurus17.md) |
-| `cobotta` | [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta) | [docs/robot-platforms/cobotta.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/docs/robot-platforms/cobotta.md) |
-| `hsr` | [Toyota HSR (Human Support Robot)](https://github.com/hsr-project) | [https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr) | [docs/robot-platforms/hsr.md](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr/-/blob/main/docs/robot-platforms/hsr.md) |
+| `turtlebot3` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) | [https://github.com/openrosde/openrosde-platform-turtlebot3](https://github.com/openrosde/openrosde-platform-turtlebot3) | [docs/robot-platforms/turtlebot3.md](https://github.com/openrosde/openrosde-platform-turtlebot3/blob/main/docs/robot-platforms/turtlebot3.md) |
+| `turtlebot3-ros2` | [Robotis TurtleBot3 (Waffle Pi)](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/) on ROS 2 | [https://github.com/openrosde/openrosde-platform-turtlebot3](https://github.com/openrosde/openrosde-platform-turtlebot3) | [docs/robot-platforms/turtlebot3-ros2.md](https://github.com/openrosde/openrosde-platform-turtlebot3/blob/main/docs/robot-platforms/turtlebot3-ros2.md) |
+| `ur5e` | [Universal Robots UR5e](https://www.universal-robots.com/products/ur5e/) | [https://github.com/openrosde/openrosde-platform-ur5e](https://github.com/openrosde/openrosde-platform-ur5e) | [docs/robot-platforms/ur5e.md](https://github.com/openrosde/openrosde-platform-ur5e/blob/main/docs/robot-platforms/ur5e.md) |
+| `fetch` | [Fetch Robotics Fetch](https://fetchrobotics.github.io/docs/) | [https://github.com/openrosde/openrosde-platform-fetch](https://github.com/openrosde/openrosde-platform-fetch) | [docs/robot-platforms/fetch.md](https://github.com/openrosde/openrosde-platform-fetch/blob/main/docs/robot-platforms/fetch.md) |
+| `sciurus17` | [RT Sciurus17](https://rt-net.jp/products/sciurus17/) | [https://github.com/openrosde/openrosde-platform-sciurus17](https://github.com/openrosde/openrosde-platform-sciurus17) | [docs/robot-platforms/sciurus17.md](https://github.com/openrosde/openrosde-platform-sciurus17/blob/main/docs/robot-platforms/sciurus17.md) |
+| `cobotta` | [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) | [https://github.com/openrosde/openrosde-platform-cobotta](https://github.com/openrosde/openrosde-platform-cobotta) | [docs/robot-platforms/cobotta.md](https://github.com/openrosde/openrosde-platform-cobotta/blob/main/docs/robot-platforms/cobotta.md) |
+| `hsr` | [Toyota HSR (Human Support Robot)](https://github.com/hsr-project) | [https://github.com/openrosde/openrosde-platform-hsr](https://github.com/openrosde/openrosde-platform-hsr) | [docs/robot-platforms/hsr.md](https://github.com/openrosde/openrosde-platform-hsr/blob/main/docs/robot-platforms/hsr.md) |
 
 ## 💻 Supported Software Platforms
 
@@ -104,7 +102,7 @@ Extensions cloned into `extensions/` can add their own layers between Layers 2 a
 
     ```shell
     sudo apt-get update && sudo apt-get install -y git
-    git clone https://gitlab.com/coarobo/SDE.git && cd SDE/
+    git clone https://github.com/openrosde/openrosde.git && cd openrosde/
     bash ./SETUP-DEVEL-MACHINE.bash
     sudo reboot
     ```
@@ -112,7 +110,7 @@ Extensions cloned into `extensions/` can add their own layers between Layers 2 a
 2. Clone a robot platform into `extensions/`, then switch to it (the default `.env` selects `turtlebot3`):
 
     ```shell
-    git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git extensions/openrosde-platform-turtlebot3
+    git clone https://github.com/openrosde/openrosde-platform-turtlebot3.git extensions/openrosde-platform-turtlebot3
     bash ./SWITCH-ROBOT-PLATFORM.bash turtlebot3
     ```
 
@@ -202,7 +200,7 @@ tmux/
 patches/                                 # Submodule patch files.
 extensions/                              # Extensions cloned from their own repositories (ignored by Git), such as 'openrosde-platform-<platform>/'.
 tests/                                   # Test suites of the scripts, run by 'tests/run.bash'.
-gitlab-ci/                               # GitLab CI/CD pipeline and its scripts.
+gitlab-ci/                               # Scripts of the CI, which the GitHub Actions workflows run.
 ```
 
 ## 📖 Documentation
@@ -235,12 +233,14 @@ Summaries of the development history, requirements, vision, and goals of OpenRoS
 
 - Coarobo GK:
   - Official website: [https://coarobo.com/](https://coarobo.com/)
-  - GitLab group: [https://gitlab.com/coarobo](https://gitlab.com/coarobo)
   - GitHub organization: [https://github.com/coarobo](https://github.com/coarobo)
+- OpenRoSDE:
+  - GitHub organization: [https://github.com/openrosde](https://github.com/openrosde)
+  - Archive of the versions before 3.0.0: [https://gitlab.com/coarobo/SDE](https://gitlab.com/coarobo/SDE)
 
 ## 🐛 Reporting Issues
 
-Please report any issue or future work using the GitLab issue tracker: [https://gitlab.com/coarobo/SDE/issues](https://gitlab.com/coarobo/SDE/issues).
+Please report any issue or future work using the GitHub issue tracker: [https://github.com/openrosde/openrosde/issues](https://github.com/openrosde/openrosde/issues).
 
 ## 🤝 Contributing
 
@@ -288,12 +288,13 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for detailed contribution guidelines, i
 ## ⚖️ License
 
 ```
-MIT License
+Copyright 2019 Coarobo GK
 
-Copyright (c) 2019 Coarobo GK
+Licensed under the Apache License, Version 2.0
 ```
 
 See [`LICENSE`](LICENSE) for details.
+The versions before 3.0.0 were published under the MIT License, whose notice [`NOTICE`](NOTICE) keeps.
 
 ## 📜 Third-Party Software
 
@@ -302,12 +303,12 @@ Each platform repository records the licenses of its platform in its `NOTICE`, a
 
 | Platform | Notice | Notable terms |
 | --- | --- | --- |
-| `turtlebot3` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3/-/blob/main/NOTICE) | TurtleBot3 packages of ROBOTIS under Apache-2.0 |
-| `fetch` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch/-/blob/main/NOTICE) | `fetch_description` in the image `fetch-devel` under CC BY-NC-SA 4.0 |
-| `sciurus17` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17/-/blob/main/NOTICE) | `sciurus17_description` under the non-commercial license of RT Corporation |
-| `cobotta` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta/-/blob/main/NOTICE) | `denso_cobotta_ros` and the four patches of the platform under GPL-2.0-or-later |
-| `ur5e` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e/-/blob/main/NOTICE) | The default kinematics of `ur_description` under BSD 3-Clause, and the meshes of some UR models in the image `ur5e-devel` under the terms of Universal Robots A/S |
-| `hsr` | [https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr/-/blob/main/NOTICE](https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr/-/blob/main/NOTICE) | `tmc_wrs_binary` in the image `hsr-devel` under BSD 3-Clause Clear, and `hsrb_meshes` under CC BY-NC-ND 4.0 |
+| `turtlebot3` | [https://github.com/openrosde/openrosde-platform-turtlebot3/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-turtlebot3/blob/main/NOTICE) | TurtleBot3 packages of ROBOTIS under Apache-2.0 |
+| `fetch` | [https://github.com/openrosde/openrosde-platform-fetch/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-fetch/blob/main/NOTICE) | `fetch_description` in the image `fetch-devel` under CC BY-NC-SA 4.0 |
+| `sciurus17` | [https://github.com/openrosde/openrosde-platform-sciurus17/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-sciurus17/blob/main/NOTICE) | `sciurus17_description` under the non-commercial license of RT Corporation |
+| `cobotta` | [https://github.com/openrosde/openrosde-platform-cobotta/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-cobotta/blob/main/NOTICE) | `denso_cobotta_ros` and the four patches of the platform under GPL-2.0-or-later |
+| `ur5e` | [https://github.com/openrosde/openrosde-platform-ur5e/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-ur5e/blob/main/NOTICE) | The default kinematics of `ur_description` under BSD 3-Clause, and the meshes of some UR models in the image `ur5e-devel` under the terms of Universal Robots A/S |
+| `hsr` | [https://github.com/openrosde/openrosde-platform-hsr/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-hsr/blob/main/NOTICE) | `tmc_wrs_binary` in the image `hsr-devel` under BSD 3-Clause Clear, and `hsrb_meshes` under CC BY-NC-ND 4.0 |
 | All | [ROS Noetic](https://www.ros.org/), [Gazebo](http://gazebosim.org/), [FlexBE](http://flexbe.github.io/), and platform-specific upstream packages | Per upstream (BSD, Apache 2.0, MIT, etc.) |
 | All | [ROS#](https://github.com/siemens/ros-sharp) `file_server` `2.3.1` (Siemens AG), built from source in the base image with the patches of `docker/openrosde-base/patches/ros-sharp/` | [Apache 2.0](https://github.com/siemens/ros-sharp/blob/2.3.1/LICENSE.md) |
 | All | [`trimesh`](https://github.com/mikedh/trimesh) and [`pycollada`](https://github.com/pycollada/pycollada) in the converter image `openrosde-mesh2glb` | [MIT](https://github.com/mikedh/trimesh/blob/main/LICENSE.md) and [BSD 3-Clause](https://github.com/pycollada/pycollada/blob/master/COPYING) |

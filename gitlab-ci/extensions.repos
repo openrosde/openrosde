@@ -4,7 +4,7 @@
 #   repositories:
 #     openrosde-platform-<name>:
 #       type: git
-#       url: https://gitlab.com/coarobo/openrosde/openrosde-platform-<name>.git
+#       url: https://github.com/openrosde/openrosde-platform-<name>.git
 #       version: v1.0.0
 #
 # Keep this layout, with each name indented by two spaces and its keys by four, since 'gitlab-ci/clone-extensions.bash' refuses any other.
@@ -15,25 +15,25 @@
 repositories:
   openrosde-platform-cobotta:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-cobotta.git
+    url: https://github.com/openrosde/openrosde-platform-cobotta.git
     version: 9f5566c8f3592d9fef2d3f1020e851d99020bf0b
   openrosde-platform-fetch:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-fetch.git
+    url: https://github.com/openrosde/openrosde-platform-fetch.git
     version: 2bbc18facad64fadedf84065c07b7e9597edf886
   openrosde-platform-hsr:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-hsr.git
+    url: https://github.com/openrosde/openrosde-platform-hsr.git
     version: 03df8dc89e671a6fb7bbaa6f9d99cf67284067c5
   openrosde-platform-sciurus17:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-sciurus17.git
+    url: https://github.com/openrosde/openrosde-platform-sciurus17.git
     version: 95ff6e1e3436b04f2b54a76735b2d68e845b08e1
   openrosde-platform-turtlebot3:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git
+    url: https://github.com/openrosde/openrosde-platform-turtlebot3.git
     version: b6e8f0686f63ec8180471a06f47e8dade5fdecc9
   openrosde-platform-ur5e:
     type: git
-    url: https://gitlab.com/coarobo/openrosde/openrosde-platform-ur5e.git
+    url: https://github.com/openrosde/openrosde-platform-ur5e.git
     version: a267cc55b2a66054761a5e836860d761f792ad64

@@ -21,7 +21,7 @@ OPENROSDE_CI_ROS_DISTRO="${3:-noetic}"
 OPENROSDE_CI_CONTAINER_ROOT_DIR="${OPENROSDE_CONTAINER_ROOT_DIR:-/root/OpenRoSDE}"
 
 if [ -z "${OPENROSDE_CI_TEST_CONTAINER}" ] || [ -z "${OPENROSDE_CI_MESH2GLB_IMAGE}" ]; then
-  echo "Error: Give the test container and the converter image, such as 'bash ./gitlab-ci/generate-ci-mesh-glbs.bash openrosde-ci-ur5e registry.gitlab.com/coarobo/sde/openrosde-mesh2glb:dev'."
+  echo "Error: Give the test container and the converter image, such as 'bash ./gitlab-ci/generate-ci-mesh-glbs.bash openrosde-ci-ur5e ghcr.io/openrosde/openrosde-mesh2glb:dev'."
   exit 1
 fi
 

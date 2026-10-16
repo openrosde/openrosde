@@ -1,7 +1,5 @@
 # ROS 2
 
-[[_TOC_]]
-
 OpenRoSDE runs ROS 1 and ROS 2 side by side, and never drops ROS 1, since robots such as the Fetch run only on ROS 1.
 Each platform declares the ROS it runs in its template, and everything else follows from that choice: the base image, the workspaces, the launch tool, the `tmux` panes of the core, the network settings, and the jobs of the CI.
 Clients such as Coarobo Viewport and Coarobo Sightline reach either ROS through `rosbridge` on port `9090`, so no bridge between ROS 1 and ROS 2 is needed.
@@ -49,7 +47,7 @@ Both base images share the helper scripts of `docker/openrosde-base/scripts/`, w
 A platform on ROS 2 takes the layout of any platform, as the [Extensions](extensions.md) guide describes, with these differences:
 
 1. Its template `env/<platform>.env` sets `OPENROSDE_ROS_VERSION=2` and `OPENROSDE_ROS_DISTRO=lyrical`, and may set `OPENROSDE_ROS_DOMAIN_ID`.
-2. Its `docker/<platform>-devel/Dockerfile` builds on `ARG OPENROSDE_BASE_IMAGE=registry.gitlab.com/coarobo/sde/openrosde-base-ros2:main`, which the build and the CI replace with the base image of ROS 2.
+2. Its `docker/<platform>-devel/Dockerfile` builds on `ARG OPENROSDE_BASE_IMAGE=ghcr.io/openrosde/openrosde-base-ros2:main`, which the build and the CI replace with the base image of ROS 2.
 3. Its packages live in colcon workspaces, `ros2/<name>_colcon_ws/src/`, with the sources that no distribution releases as Git submodules pinned by commit, and patches for Lyrical in `patches/ros2/<name>_colcon_ws/src/<submodule>/`.
 4. Its panes in `tmux/<platform>.panes` name launch files of ROS 2, such as `turtlebot3_bringup_default_gazebo.launch.py`, in its launch package.
 5. A platform whose name holds a dash, such as `turtlebot3-ros2`, names its launch package in `scripts/<platform>/initialize-bash-shell.bash`, with `OPENROSDE_LAUNCH_PACKAGE=openrosde_turtlebot3_launch`, since no ROS package may take the name `openrosde_turtlebot3-ros2_launch` that the core derives.

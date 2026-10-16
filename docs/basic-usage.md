@@ -50,10 +50,9 @@ Set up the environment of the Ubuntu development machine with the following inst
 2. Clone the OpenRoSDE repository:
 
     ```shell
-    git clone https://gitlab.com/coarobo/SDE.git && cd SDE/
+    git clone https://github.com/openrosde/openrosde.git && cd openrosde/
     ```
 
-    Enter your GitLab developer credentials if prompted.
 3. Configure the system environment:
 
     ```shell
@@ -85,7 +84,7 @@ Select the target robot platform with the following instructions.
 1. Clone the repository of the desired platform into `extensions/`, since the core holds no platform:
 
     ```shell
-    git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3.git extensions/openrosde-platform-turtlebot3
+    git clone https://github.com/openrosde/openrosde-platform-turtlebot3.git extensions/openrosde-platform-turtlebot3
     ```
 
 2. Switch to the platform, which also updates the Git submodules of every clone and applies their patches:
@@ -112,7 +111,7 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
     The registry serves the images without a login.
 
 > [!NOTE]
-> The script `BUILD-DOCKER-IMAGE.bash` first tries to download the image from the [container registry](https://gitlab.com/coarobo/SDE/container_registry) of the project.
+> The script `BUILD-DOCKER-IMAGE.bash` first tries to download the image from the [container registry](https://github.com/orgs/openrosde/packages) of the project.
 > If, for whatever reason, the image cannot be downloaded, the script will build it locally.
 > The latter process is slow and can take up to 1 hour.
 > In both cases, avoid using a Wi-Fi connection to greatly accelerate the process.
@@ -120,8 +119,8 @@ Create a virtual environment using Docker (= Docker image) on the Ubuntu develop
 > Set `OPENROSDE_DOCKER_BUILD_FALLBACK=false` in `.env.custom` to stop with an error rather than build the image locally when its download fails, as a CI job should.
 
 > [!TIP]
-> A pull that fails with `unauthorized: HTTP Basic: Access denied` comes from an old login to `registry.gitlab.com` kept in the Docker configuration of the machine, which Docker sends even though the registry needs none.
-> Run `docker logout registry.gitlab.com` once, then build again.
+> A pull that fails with `denied` or `unauthorized` comes from an old login to `ghcr.io` kept in the Docker configuration of the machine, which Docker sends even though the public images need none.
+> Run `docker logout ghcr.io` once, then build again.
 
 ## 🚀 Step 4: Run the Docker Container
 

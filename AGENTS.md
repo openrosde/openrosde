@@ -22,7 +22,7 @@ It is being split into a platform-agnostic core with extensions, as [OpenRoSDE S
 - Scripting: [Bash](https://www.gnu.org/software/bash/).
 - Configuration: `.env` / `.env.custom` files.
 - CI/CD: [GitLab CI](https://docs.gitlab.com/ee/ci/).
-- Repository: [Git](https://git-scm.com/) (versioning), [GitLab](https://about.gitlab.com/) (hosting).
+- Repository: [Git](https://git-scm.com/) (versioning), [GitHub](https://github.com/) (hosting).
 - Editor: [VS Code](https://code.visualstudio.com/).
 - Agents: [Claude Code](https://claude.com/claude-code), [GitHub Copilot](https://github.com/features/copilot).
 - License: [MIT](LICENSE), until the move to GitHub as OpenRoSDE under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
@@ -38,7 +38,7 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
 - The core keeps the entry scripts, `scripts/`, `gitlab-ci/`, the `openrosde-base` image, the generic Docker Compose files, and `ros/openrosde_catkin_ws/` with FlexBE and `openrosde_launch`.
 - Every file named after a platform (`env/<platform>.env`, `docker/<platform>-devel/`, `docker/docker-compose-<platform>.yaml`, `ros/<platform>_catkin_ws/`, `terminator/<platform>.config`, `docs/robot-platforms/<platform>.md`, and its patches) moves to the repository of that platform, or to a device or a setup where it belongs to one.
 - A platform is one robot as sold, with its public drivers, and each canonical robot moves to an `openrosde-platform-<name>` repository: `turtlebot3`, `fetch`, `sciurus17`, `cobotta`, `hsr`, and the plain Universal Robots UR5e.
-  All six live in `https://gitlab.com/coarobo/openrosde/openrosde-platform-<name>` since #40, each starting from one import commit that names the commit of this repository it comes from.
+  All six live in `https://github.com/openrosde/openrosde-platform-<name>` since #40, each starting from one import commit that names the commit of this repository it comes from.
   The UR5e there is the plain robot, fixed to `world` with nothing on its flange, whose description package a setup replaces to mount its devices, as `docs/robot-platforms/ur5e.md` of `openrosde-platform-ur5e` describes.
   The package that `OPENROSDE_UR5E_DESCRIPTION_PACKAGE` names holds `urdf/ur5e_<environment>.xacro`, `config/ur5e/ur5e_<environment>.srdf`, `config/ur5e/ur5e_calibration.yaml`, and `config/rviz/ur5e_rviz_default.rviz`, and its xacro files call the macro `openrosde_ur5e` of `urdf/inc/ur5e_macro.xacro` of `openrosde_ur5e_launch`, so the robot is described once for every setup.
 - A device is one upstream driver of hardware anyone can buy, such as a gripper, a camera, or an input device, with every model that driver supports, which names no robot and moves to a public `openrosde-device-<driver>` repository: first `openrosde-device-onrobot` for the OnRobot RG and VG grippers with the gripper action shim, `openrosde-device-realsense` for the RealSense cameras, and `openrosde-device-spacenav` for the 3Dconnexion SpaceMouse.
@@ -49,7 +49,7 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
 - The Unity ROS TCP Endpoint left the core on 2026-10-15, once Coarobo Sightline reached the Fetch and the UR5e through `rosbridge` alone, so `openrosde_launch:rosbridge_server_default.launch` on port `9090` is the one transport the core provides to web and Unity clients.
 - The user layer stays in the core as the template every extension starts from.
 - Terminator gives way to `tmux` sessions built by `RUN-TMUX-SESSION.bash` from the panes each part declares, and leaves once the maintainers have run the `tmux` sessions on a real robot (#38).
-- The repository then moves to GitHub as OpenRoSDE under the Apache License 2.0, with a `NOTICE` that keeps the MIT notice of the earlier code, and the GitLab URL keeps resolving, since papers cite it.
+- The repository moved to GitHub as OpenRoSDE, `https://github.com/openrosde/openrosde`, under the Apache License 2.0 from version 3.0.0, with a `NOTICE` that keeps the MIT notice of the earlier code, while `https://gitlab.com/coarobo/SDE` stays as an archive, since papers cite it.
 - ROS 2 comes beside ROS 1 and never replaces it, since robots such as the Fetch run only on ROS 1, and each platform declares the ROS it runs, as [ROS 2](#ros-2) describes (#31).
 
 ### Rules During the Split
@@ -177,7 +177,7 @@ The user overlay is a third Docker stage on top of `<platform>-devel`, intended 
 It is always built locally by `BUILD-DOCKER-IMAGE.bash`, never pushed to the registry, and platform-agnostic (the same overlay rebuilds on top of whichever `OPENROSDE_ROBOT_PLATFORM` is selected).
 
 Components:
-- `docker/user-devel/Dockerfile`: third-stage image. `FROM ${OPENROSDE_PLATFORM_IMAGE}` where `OPENROSDE_PLATFORM_IMAGE` defaults to `registry.gitlab.com/coarobo/sde/${OPENROSDE_ROBOT_PLATFORM}-devel:latest`.
+- `docker/user-devel/Dockerfile`: third-stage image. `FROM ${OPENROSDE_PLATFORM_IMAGE}` where `OPENROSDE_PLATFORM_IMAGE` defaults to `ghcr.io/openrosde/${OPENROSDE_ROBOT_PLATFORM}-devel:latest`.
 - `docker/docker-compose-user.yaml`: always loaded by `RUN-DOCKER-CONTAINER.bash` (no `if -f` guard). Exposes `OPENROSDE_USER_*` environment variables and is the place to add user-specific volume mounts.
 - `ros/user_catkin_ws/`: fourth Catkin workspace, sourced after the platform workspace in `source-catkin-workspaces.bash`, built by `build-catkin-workspaces.bash` and rebuilt by `reset-catkin-workspaces.bash`.
 - `ros/user_catkin_ws/src/openrosde_user_launch/`: starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for user assets.
@@ -229,7 +229,7 @@ All custom environment variables use the `OPENROSDE_` prefix. Examples:
 - `OPENROSDE_ROBOT_SETUP`: Active setup, named after its template `env/<setup>.env` (the platform name for a default setup).
 - `OPENROSDE_PLATFORM_REPOSITORY_URL`: Repository of a public platform, with `%s` for its name, which `scripts/load-openrosde-env.bash` names in its hint when the selected platform is cloned nowhere.
 - `OPENROSDE_ROBOT_EXTENSIONS`: Names of the active extensions in `extensions/` or of their parts in `extensions/<extension>/parts/`, separated by spaces, each held by one folder only.
-- `OPENROSDE_DOCKER_REGISTRY`: Registry of the base and platform images (`registry.gitlab.com/coarobo/sde` by default).
+- `OPENROSDE_DOCKER_REGISTRY`: Registry of the base and platform images (`ghcr.io/openrosde` by default).
 - `OPENROSDE_DOCKER_IMAGE_TAG`: Tag of the base and platform images, `main`, `dev`, or a release such as `v3.0.0`, or `auto` to derive `main` or `dev` from the branch.
 - `OPENROSDE_DOCKER_BUILD_FALLBACK`: Images that `BUILD-DOCKER-IMAGE.bash` builds when their pull fails, `true` for the base and platform images, `platform` for the platform image alone, or `false` for neither, which a CI job sets so that a failed pull fails rather than building the base for hours.
 - `OPENROSDE_QUIET`: `true` leaves out the list of every `OPENROSDE_*` variable that the entry scripts print.
@@ -428,7 +428,7 @@ Platform-specific behavior guidelines:
 
 - Use [GitHub Flavored Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) (GFM) syntax.
 - Follow the [Make a README](https://www.makeareadme.com/) structure for `README.md`: title, badges, description, quick start, directory structure, documentation links, publications, external resources, issues, contributing, authors, license.
-- Use `[[_TOC_]]` for GitLab auto-generated table of contents (GitLab-specific, harmless on other platforms).
+- Write no table of contents by hand or with `[[_TOC_]]`, since GitHub shows the outline of every Markdown file in its own menu.
 - Use `- ` (dash + space) for unordered list items.
 - Use `1. `, `2. `, `3. ` (sequential numbers) for ordered list items.
 - Align continuation content (code blocks, paragraphs, nested lists) with the text of the parent list item: 2 spaces after `- `, 4 spaces after `N. `.
@@ -513,7 +513,7 @@ OpenRoSDE runs ROS 1 and ROS 2 side by side (#31), and `docs/ros2.md` is the gui
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full step-by-step guide.
 The platforms are found by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `OPENROSDE_ROBOT_PLATFORM=<platform>` alone on its line, with no quotes and no trailing comment, and the rest of the extension system of the [OpenRoSDE Split](#openrosde-split) (#38) changes this section again.
 A new platform goes into an extension repository of its own with the layout of the core, cloned into `extensions/` (see `docs/extensions.md`), where it needs no registration at all, rather than into the core.
-Start from a copy of a platform repository, such as `https://gitlab.com/coarobo/openrosde/openrosde-platform-turtlebot3`, with its `LICENSE`, `NOTICE`, `README.md`, `.gitignore`, and `.gitlab-ci.yml`.
+Start from a copy of a platform repository, such as `https://github.com/openrosde/openrosde-platform-turtlebot3`, with its `LICENSE`, `NOTICE`, `README.md`, `.gitignore`, and `.gitlab-ci.yml`.
 When adding a platform named `<platform>`, create these files in its repository:
 
 - `env/<platform>.env`: environment template, which declares `OPENROSDE_ROBOT_PLATFORM=<platform>` and `OPENROSDE_ROBOT_SETUP=<platform>`, since it is the default setup of the platform.
@@ -581,7 +581,7 @@ Then list a public platform in the files of this repository that name the public
   The child pipeline receives only the branch or tag to publish, the source of the pipeline, and the target branch of a merge request, which the trigger job takes from the variables that GitLab sets, and no variable of a schedule or of the pipeline of another project can replace them.
   The generator writes `OPENROSDE_CI_RUNNER_TAG`, `OPENROSDE_CI_EXTENSION_OVERRIDE`, and `OPENROSDE_CI_EXTRA_EXTENSIONS` into the child pipeline instead, and fails when one of them does not match its format, as `gitlab-ci/test-catkin-workspaces.bash` does for `OPENROSDE_CI_EXTRA_EXTENSIONS`, which it writes into `.env.custom`.
 - A public extension tests a branch against the core by triggering a pipeline of `coarobo/SDE` with `OPENROSDE_CI_EXTENSION_OVERRIDE=<name>=<branch>@<commit>`, which `gitlab-ci/clone-extensions.bash` honors for an extension that `gitlab-ci/extensions.repos` lists only, and the child pipeline then tests only the setups that activate that extension, with those of `OPENROSDE_CI_EXTRA_EXTENSIONS` added to every setup.
-- The test job of a setup copies its template to `.env.custom`, builds its Docker layers with `scripts/build-extension-layers.bash` without pushing them, and builds its Catkin workspaces in a container of the image of its platform, read from `OPENROSDE_CI_IMAGE_REGISTRY` with the tag `OPENROSDE_CI_IMAGE_TAG`, the images of the pipeline by default, which a pipeline of another project sets to published images, such as `registry.gitlab.com/coarobo/sde` and `v3.0.0`.
+- The test job of a setup copies its template to `.env.custom`, builds its Docker layers with `scripts/build-extension-layers.bash` without pushing them, and builds its Catkin workspaces in a container of the image of its platform, read from `OPENROSDE_CI_IMAGE_REGISTRY` with the tag `OPENROSDE_CI_IMAGE_TAG`, the images of the pipeline by default, which a pipeline of another project sets to published images, such as `ghcr.io/openrosde` and `v3.0.0`.
   Outside the CI, `gitlab-ci/test-catkin-workspaces.bash` refuses to replace an existing `.env.custom`.
   It then disconnects the container from every network, checks with `gitlab-ci/check-launch-files.bash` that every launch entry point of the panes of the setup resolves with `roslaunch --files` and that no two panes of one layout start a node of the same name with `roslaunch --nodes`, both of which start no node, and runs `ci/check-in-container.bash` of every active extension that holds one.
   On ROS 2, it builds the colcon workspaces, loads every launch entry point with `ros2 launch --show-args`, which starts no node either, and compares no node names.
@@ -590,39 +590,39 @@ Then list a public platform in the files of this repository that name the public
   On ROS 2, it fails the same way on any `ros2 launch` beyond `--show-args`, `--show-arguments`, `-s`, `--print`, `--print-description`, or `-p`, and on any `ros2 run`, `ros2 topic pub`, `ros2 service call`, `ros2 action send_goal`, `ros2 bag play`, or `ros2 lifecycle set`.
   Every test job needs it, so no check of an extension runs before it passes.
 - Every artifact expires, the Catkin logs of a failed test after a week and the generated child pipeline after a day.
-- Docker images are pushed to `OPENROSDE_DOCKER_REGISTRY`, `registry.gitlab.com/coarobo/sde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
+- Docker images are pushed to `OPENROSDE_DOCKER_REGISTRY`, `ghcr.io/openrosde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
 - Image traceability: each image embeds `OPENROSDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash, and the labels `org.opencontainers.image.revision` and `org.opencontainers.image.source`.
 
 ## Versioning & Commits
 
-- Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages and merge request titles.
+- Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for all commit messages and pull request titles.
 - Follow [Semantic Versioning](https://semver.org/) for releases.
 - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for `CHANGELOG.md`.
 - Follow the [Make a README](https://www.makeareadme.com/) guidelines for `README.md` structure.
 
-## GitLab Workflow
+## GitHub Workflow
 
-The project is hosted at <https://gitlab.com/coarobo/SDE>.
-See [`CONTRIBUTING.md`](CONTRIBUTING.md#gitlab-project-organization) for the full human-facing description.
+The project is hosted at <https://github.com/openrosde/openrosde>.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md#github-project-organization) for the full human-facing description.
 
 Agent rules:
 
 - Default branch is `main`, which holds the releases.
   `dev` is the protected integration branch, where agents work and from which the Coarobo UR5e bench runs its demos.
-- Short-lived branches are named `<type>/<slug>` after the Conventional Commit type (e.g., `feat/atr-open-house-demo`, `fix/registry-anonymous-pull`), branch from the latest `dev`, and merge back into `dev` through an MR.
-- `dev` merges into `main` through an MR when the maintainers decide that a release is due.
+- Short-lived branches are named `<type>/<slug>` after the Conventional Commit type (e.g., `feat/atr-open-house-demo`, `fix/registry-anonymous-pull`), branch from the latest `dev`, and merge back into `dev` through a PR.
+- `dev` merges into `main` through a PR when the maintainers decide that a release is due.
 - Ask the maintainer before every `git add`, commit, merge, rebase, reset, push, or branch deletion, and show the diff first.
 - Never stash, reset, restore, check out over, or clean work that someone else left in a working tree.
 - End every commit an agent writes with a `Co-authored-by: <agent and model> <noreply address>` trailer after a blank line, as [GitHub documents it](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/creating-a-commit-with-multiple-authors), while the maintainer stays the author.
-- Commit messages and MR titles use Conventional Commits: `type(scope): subject`.
+- Commit messages and PR titles use Conventional Commits: `type(scope): subject`.
   - Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
   - Omit the scope, since this repository holds no platform, and every platform takes its commits in its own repository.
   - Subject is imperative, lowercase, no trailing period.
-- MR descriptions follow the structure documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#merge-requests). Sections: Summary, Changes, Testing, Related, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
-- Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues and MRs with the labels of the `coarobo` group (`default:bug`, `default:enhancement`, `default:documentation`, `default:discussion`, `default:critical`, `default:suggestion`, `default:support`, `default:confirmed`, `custom:hardware`, `custom:administration`).
+- PR descriptions follow the structure documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#pull-requests). Sections: Summary, Changes, Testing, Related, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
+- Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues and PRs with the labels of the repository (`bug`, `enhancement`, `documentation`, `question`, `good first issue`).
 - Milestones are long-lived thematic epics with a verb-first descriptive title (e.g., `Refactor OpenRoSDE into a multi-platform reference implementation`), not per-release versions. A release belongs to the epic milestone that contains its work.
-- Every MR adds a one-line entry under the matching subsection of `## [Unreleased]` in `CHANGELOG.md`, referencing its MR number (e.g., `- Add HSR platform support (!42).`).
-- Releases are tagged `vX.Y.Z` on `main` and published on GitLab via `glab release create`, with notes sourced from the matching `CHANGELOG.md` section and linked to their epic milestone. Note that `glab release create --milestone` closes the linked milestone, so reopen the epic afterward with `glab api -X PUT "projects/:id/milestones/:milestone_id" -f "state_event=activate"`.
-- Never force-push to `main`. Never rewrite published history. MR title and description edits are safe and do not touch Git history.
-- Do not use semicolons (`;`), en dashes (`–`), or em dashes (`—`) in any GitLab text: issue titles/descriptions, milestone titles/descriptions, MR titles/descriptions. Use a full stop or a new sentence instead of a semicolon. Use `: ` or a plain hyphen `-` instead of a dash.
-- Use backticks for code identifiers (file names, commands, environment variables, functions, ROS packages, paths) in all GitLab text: issue titles/descriptions, milestone titles/descriptions, MR titles/descriptions. Do not use single quotes for code identifiers in GitLab text. Single quotes are reserved for Bash and ROS launch-file comments.
+- Every PR adds a one-line entry under the matching subsection of `## [Unreleased]` in `CHANGELOG.md`, referencing its PR number (e.g., `- Add HSR platform support (#42).`).
+- Releases are tagged `vX.Y.Z` on `main` and published on GitHub via `gh release create`, with notes sourced from the matching `CHANGELOG.md` section, while the epic milestone stays open.
+- Never force-push to `main`. Never rewrite published history. PR title and description edits are safe and do not touch Git history.
+- Do not use semicolons (`;`), en dashes (`–`), or em dashes (`—`) in any GitHub text: issue titles/descriptions, milestone titles/descriptions, PR titles/descriptions. Use a full stop or a new sentence instead of a semicolon. Use `: ` or a plain hyphen `-` instead of a dash.
+- Use backticks for code identifiers (file names, commands, environment variables, functions, ROS packages, paths) in all GitHub text: issue titles/descriptions, milestone titles/descriptions, PR titles/descriptions. Do not use single quotes for code identifiers in GitHub text. Single quotes are reserved for Bash and ROS launch-file comments.

@@ -6,8 +6,8 @@
 # Inherit from the platform-specific OpenRoSDE image which provides the platform tools, or from the last Docker layer of the active extensions on top of it.
 # The 'OPENROSDE_ROBOT_PLATFORM' and 'OPENROSDE_PLATFORM_IMAGE' build arguments are injected from the OpenRoSDE environment.
 ARG OPENROSDE_ROBOT_PLATFORM
-ARG OPENROSDE_PLATFORM_IMAGE=registry.gitlab.com/coarobo/sde/${OPENROSDE_ROBOT_PLATFORM}-devel:main
-ARG OPENROSDE_MESH2GLB_IMAGE=registry.gitlab.com/coarobo/sde/openrosde-mesh2glb:main
+ARG OPENROSDE_PLATFORM_IMAGE=ghcr.io/openrosde/${OPENROSDE_ROBOT_PLATFORM}-devel:main
+ARG OPENROSDE_MESH2GLB_IMAGE=ghcr.io/openrosde/openrosde-mesh2glb:main
 # The distribution of ROS of the platform image, whose installed packages live in '/opt/ros/<distribution>/share'.
 ARG OPENROSDE_ROS_DISTRO=noetic
 FROM ${OPENROSDE_PLATFORM_IMAGE} AS overlay

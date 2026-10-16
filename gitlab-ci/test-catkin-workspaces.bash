@@ -15,7 +15,7 @@
 # <robot-setup>: The setup to test, such as 'ur5e' or 'acme-ur5e-lab', or 'openrosde' or 'openrosde-ros2' for the core alone on ROS 1 or ROS 2.
 # [<image>]:     The image to test in, below the Docker layers of the setup.
 #                Default value is the image of the platform of the setup, '${OPENROSDE_CI_IMAGE_REGISTRY}/<platform>-devel:${OPENROSDE_CI_IMAGE_TAG}', or the base image of its ROS for 'openrosde' and 'openrosde-ros2'.
-#                'gitlab-ci/openrosde-pipeline.yml' sets both variables to the images of the pipeline, and a pipeline of another project sets them to published images, such as 'registry.gitlab.com/coarobo/sde' and 'v3.0.0'.
+#                'gitlab-ci/openrosde-pipeline.yml' sets both variables to the images of the pipeline, and a pipeline of another project sets them to published images, such as 'ghcr.io/openrosde' and 'v3.0.0'.
 
 ################################################################################
 

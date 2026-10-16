@@ -1,7 +1,5 @@
 # Robot Models
 
-[[_TOC_]]
-
 OpenRoSDE serves the model of the robot to any client of `rosbridge`, so that a web or Unity application can draw the robot it connects to without bundling its meshes.
 A client reads the robot description, then fetches each mesh it names through a file service, as a GLB that loads the same way in three.js, Unity, and most other engines.
 Coarobo Viewport and Coarobo Sightline load robot models this way.

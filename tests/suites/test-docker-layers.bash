@@ -12,7 +12,7 @@ source "${OPENROSDE_TEST_SOURCE_DIR}/tests/load-test-helpers.bash"
 openrosde-test-create-copy
 # Write the UR5e as a platform of the core of the scratch copy, which the checks below select, since the UR5e lives in a repository of its own.
 openrosde-test-write-core-platform ur5e
-OPENROSDE_TEST_REGISTRY="registry.gitlab.com/coarobo/sde"
+OPENROSDE_TEST_REGISTRY="ghcr.io/openrosde"
 OPENROSDE_TEST_FOO_DIR="extensions/openrosde-platform-foo"
 OPENROSDE_TEST_BAR_DIR="extensions/openrosde-device-bar"
 OPENROSDE_TEST_LAB_DIR="extensions/my-lab"

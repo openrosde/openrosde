@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** OpenRoSDE moves from `https://gitlab.com/coarobo/SDE` to `https://github.com/openrosde/openrosde` under the Apache License 2.0, with a `NOTICE` that keeps the MIT notice of the earlier code, its platforms and devices move to `https://github.com/openrosde/openrosde-<extension>`, and its images to `ghcr.io/openrosde`, the default of `OPENROSDE_DOCKER_REGISTRY`, while the GitLab project stays as an archive.
+  Migration: run `git remote set-url origin https://github.com/openrosde/openrosde.git` in the clone of the core and in each clone of `extensions/` with its own name, and remove `OPENROSDE_DOCKER_REGISTRY` from `.env.custom` if it names `registry.gitlab.com/coarobo/sde`.
+
 ### Added
 
 - Platforms on ROS 2 start the FlexBE WebUI, the successor of the FlexBE App, built from the submodule `ros2/openrosde_colcon_ws/src/flexbe_webui` and started by `openrosde_launch:flexbe_webui_default.launch.xml` in the first pane of the window `tools`, while ROS 1 keeps the FlexBE App (#31).
@@ -453,19 +458,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial public release of the SDE: Docker-based ROS Noetic development environment with Gazebo, RViz, and Terminator integration.
 
-[Unreleased]: https://gitlab.com/coarobo/SDE/-/compare/v2.9.0...main
-[2.9.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.8.0...v2.9.0
-[2.8.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.7.0...v2.8.0
-[2.7.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.6.0...v2.7.0
-[2.6.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.5.0...v2.6.0
-[2.5.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.4.0...v2.5.0
-[2.4.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.3.0...v2.4.0
-[2.3.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.2.0...v2.3.0
-[2.2.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.1.0...v2.2.0
-[2.1.0]: https://gitlab.com/coarobo/SDE/-/compare/v2.0.0...v2.1.0
-[2.0.0]: https://gitlab.com/coarobo/SDE/-/compare/v1.3.0...v2.0.0
-[1.3.0]: https://gitlab.com/coarobo/SDE/-/compare/v1.2.0...v1.3.0
-[1.2.0]: https://gitlab.com/coarobo/SDE/-/compare/v1.1.0...v1.2.0
-[1.1.0]: https://gitlab.com/coarobo/SDE/-/compare/v1.0.0...v1.1.0
-[1.0.0]: https://gitlab.com/coarobo/SDE/-/compare/v0.0.0...v1.0.0
-[0.0.0]: https://gitlab.com/coarobo/SDE/-/tags/v0.0.0
+[Unreleased]: https://github.com/openrosde/openrosde/compare/v2.9.0...dev
+[2.9.0]: https://github.com/openrosde/openrosde/compare/v2.8.0...v2.9.0
+[2.8.0]: https://github.com/openrosde/openrosde/compare/v2.7.0...v2.8.0
+[2.7.0]: https://github.com/openrosde/openrosde/compare/v2.6.0...v2.7.0
+[2.6.0]: https://github.com/openrosde/openrosde/compare/v2.5.0...v2.6.0
+[2.5.0]: https://github.com/openrosde/openrosde/compare/v2.4.0...v2.5.0
+[2.4.0]: https://github.com/openrosde/openrosde/compare/v2.3.0...v2.4.0
+[2.3.0]: https://github.com/openrosde/openrosde/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/openrosde/openrosde/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/openrosde/openrosde/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/openrosde/openrosde/compare/v1.3.0...v2.0.0
+[1.3.0]: https://github.com/openrosde/openrosde/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/openrosde/openrosde/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/openrosde/openrosde/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/openrosde/openrosde/compare/v0.0.0...v1.0.0
+[0.0.0]: https://github.com/openrosde/openrosde/releases/tag/v0.0.0

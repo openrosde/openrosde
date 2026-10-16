@@ -13,7 +13,7 @@
 source "${OPENROSDE_TEST_SOURCE_DIR}/tests/load-test-helpers.bash"
 openrosde-test-create-copy
 mkdir -p "${OPENROSDE_TEST_ROOT_DIR}/.git"
-OPENROSDE_TEST_REGISTRY="registry.gitlab.com/coarobo/sde"
+OPENROSDE_TEST_REGISTRY="ghcr.io/openrosde"
 OPENROSDE_TEST_CLONED_PLATFORM_NAMES=""
 declare -A OPENROSDE_TEST_CLONED_PLATFORM_ROOTS
 for OPENROSDE_TEST_PLATFORM_NAME in cobotta fetch hsr sciurus17 turtlebot3 ur5e; do
@@ -127,7 +127,7 @@ openrosde-test-run bash ./RUN-DOCKER-CONTAINER.bash test --no-exec
 openrosde-test-check "stops before Docker with the clone of the platform when it is cloned nowhere" \
   "$(printf '%s\n' "status 1" \
     "Error: The platform 'missingbot' that '.env' or '.env.custom' selects is found neither in the core nor in a repository cloned into 'extensions/'." \
-    "  git clone https://gitlab.com/coarobo/openrosde/openrosde-platform-missingbot.git extensions/openrosde-platform-missingbot" \
+    "  git clone https://github.com/openrosde/openrosde-platform-missingbot.git extensions/openrosde-platform-missingbot" \
     "  bash ./SWITCH-ROBOT-PLATFORM.bash missingbot" \
     "docker calls: 0")" \
   "$(echo "status ${OPENROSDE_TEST_EXIT_CODE}"; echo "${OPENROSDE_TEST_OUTPUT}" | grep -E "^(Error|  git clone|  bash)"; echo "docker calls: $(openrosde-test-print-calls | grep -c '^docker ')")"

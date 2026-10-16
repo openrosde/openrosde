@@ -7,7 +7,7 @@
 #
 # Usage: source ./scripts/build-extension-layers.bash <parent-image>
 #
-# <parent-image>: Image below the first layer, usually the platform image, such as 'registry.gitlab.com/coarobo/sde/ur5e-devel:dev'.
+# <parent-image>: Image below the first layer, usually the platform image, such as 'ghcr.io/openrosde/ur5e-devel:dev'.
 
 ################################################################################
 
