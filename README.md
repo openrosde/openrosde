@@ -148,6 +148,7 @@ Extensions cloned into `extensions/` can add their own layers between Layers 2 a
     bash ./RUN-TMUX-SESSION.bash
     ```
 
+    Its first pane shows how to use its tabs and panes, which `openrosde-help` prints again in any shell of the container.
     The Terminator layout of earlier releases still opens with `bash ./RUN-TERMINATOR-TERMINAL.bash`.
 
 For detailed instructions, see the [Basic Usage](docs/basic-usage.md) guide.
@@ -175,6 +176,7 @@ scripts/
   build-extension-layers.bash            # Builds the Docker layers of the active extensions.
   list-robot-platforms.bash              # Lists the platforms found by name.
   list-robot-setups.bash                 # Lists the setups found by name.
+  print-tmux-splash.bash                 # Prints the splash and the help of the 'tmux' sessions.
   <platform>/                            # Optional platform scripts (shell, bringup, Chrony).
 docker/
   docker-compose.yaml                    # Docker service definitions.

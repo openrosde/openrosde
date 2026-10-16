@@ -22,7 +22,8 @@
 # - 'OPENROSDE_BASE_IMAGE_NAME': the base image of that ROS, 'openrosde-base' on ROS 1 or 'openrosde-base-ros2' on ROS 2, built from 'docker/<name>/Dockerfile' of the core.
 # - 'OPENROSDE_CATKIN_WORKSPACE_DIRS': the workspaces to build and source, in that order, Catkin workspaces on ROS 1 or colcon workspaces on ROS 2.
 # - 'OPENROSDE_COMPOSE_OVERLAY_FILES': the Docker Compose overlays of the platform, then of the active extensions and the setup, in that order.
-# - 'OPENROSDE_TMUX_PANES_FILES': the pane files of the 'tmux' session, in the order their windows appear: the setup or else the platform, the active extensions and the setup, then the core, 'tmux/openrosde.panes' on ROS 1 or 'tmux/openrosde-ros2.panes' on ROS 2.
+# - 'OPENROSDE_TMUX_PANES_FILES': the pane files of the 'tmux' session, in the order their panes open within each window: the setup or else the platform, the active extensions and the setup, then the core, 'tmux/openrosde.panes' on ROS 1 or 'tmux/openrosde-ros2.panes' on ROS 2.
+# - 'OPENROSDE_TMUX_STANDARD_WINDOWS': the standard windows of every 'tmux' session, in the order of their tabs, separated by spaces.
 # - 'openrosde-find-extension-file <relative-path>': prints the first match of '<relative-path>' in 'OPENROSDE_SEARCH_ROOT_DIRS'.
 # - 'openrosde-find-extension-root <name>': prints the root directory of the extension 'extensions/<name>/' or of the single part 'extensions/<extension>/parts/<name>/', and fails when none or several hold it.
 # - 'openrosde-find-setup-file <relative-path-pattern>': prints the first match of the pattern, where '%s' stands for the setup in its root directory, then for the platform in its root directory, then for either in the core.
@@ -253,7 +254,15 @@ for OPENROSDE_EXTENSION_ROOT_DIR in "${OPENROSDE_ACTIVE_ROOT_DIRS[@]:1}"; do
   done
 done
 
-# List the pane files of the 'tmux' session in the order their windows appear:
+# Name the standard windows of every 'tmux' session, in the order of their tabs, which 'RUN-TMUX-SESSION.bash' opens whatever order the pane files declare them in, and 'gitlab-ci/check-launch-files.bash' checks the pane files against:
+# 1. 'robot': the bringup, visualization, planning, and drivers of the platform and its devices.
+# 2. 'extra': the optional processes of a setup or an extension, such as cameras, perception, or a demo.
+# 3. 'tools': the tools of the core, FlexBE, the rqt suite, and 'rosbridge'.
+# 4. 'user': the example of the user overlay and a shell in the container.
+# 5. 'host': a shell on the Ubuntu development machine.
+OPENROSDE_TMUX_STANDARD_WINDOWS="robot extra tools user host"
+
+# List the pane files of the 'tmux' session in the order their panes open within each window:
 # 1. The panes of the setup, 'tmux/<setup>.panes', which replace those of the platform, 'tmux/<platform>.panes', as 'openrosde-find-setup-file' looks them up.
 # 2. Every other pane file of the platform root directory (if it is an extension or a part), of the active extensions and parts in their order, then of the setup, unless 'openrosde-select-extension-file' leaves it out.
 #    The own pane file of the platform, 'tmux/<platform>.panes' of its root directory, is left out too, since it either came first or was replaced by the panes of the setup.

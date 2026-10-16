@@ -133,6 +133,11 @@ function openrosde-kill-ros-nodes () {
   popd
 }
 
+function openrosde-help () {
+  # Print how to use the tabs and the panes of the 'tmux' sessions, with the platform and the setup of this shell, as the splash of a session does.
+  bash ${OPENROSDE_CONTAINER_ROOT_DIR}/scripts/print-tmux-splash.bash --help
+}
+
 ################################################################################
 
 # Set the ROS network interface, of ROS 2 below, or else of ROS 1.
@@ -211,3 +216,12 @@ fi
 
 # Move to the working directory.
 cd ${OPENROSDE_CONTAINER_ROOT_DIR}/
+
+################################################################################
+
+# Print the splash of the 'tmux' session right before the prompt of the first pane of a session, whose shell 'RUN-DOCKER-CONTAINER.bash' gives 'OPENROSDE_TMUX_SESSION_NAME', since this shell cleared the pane when it started.
+# The variables of the session are cleared once the splash is printed, so that a child shell of the pane does not print it again.
+if [ -n "${OPENROSDE_TMUX_SESSION_NAME}" ]; then
+  bash ${OPENROSDE_CONTAINER_ROOT_DIR}/scripts/print-tmux-splash.bash
+  unset OPENROSDE_TMUX_SESSION_NAME OPENROSDE_TMUX_SESSION_LAYOUT OPENROSDE_DOCKER_PROJECT OPENROSDE_DOCKER_CONTAINER
+fi
