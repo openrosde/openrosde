@@ -319,7 +319,7 @@ bash ./tests/run.bash
 ### Step 12: Publish the Platform
 
 1. Commit the platform on `main` of its repository, and push it.
-2. For a public platform, open a pull request of the core that lists it, as Step 10 describes, with the title `feat: add the <Platform Name> platform` and the structure documented in [Merge Requests](#merge-requests).
+2. For a public platform, open a pull request of the core that lists it, as Step 10 describes, with the title `feat: add the <Platform Name> platform` and the structure documented in [Merge Requests](#pull-requests).
 3. Add a `- Add the <Platform Name> platform from its own repository (!N).` entry under `### Added` in the `## [Unreleased]` section of `CHANGELOG.md` of the core.
 
 ## Code Style Quick Reference

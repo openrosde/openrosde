@@ -72,7 +72,7 @@ In the FlexBE App, load and execute `User Example Behavior` to confirm the FlexB
 3. Source the new package and run it:
 
     ```shell
-    source ~/SDE/ros/user_catkin_ws/devel/setup.bash
+    source "${OPENROSDE_CONTAINER_ROOT_DIR}/ros/user_catkin_ws/devel/setup.bash"
     rosrun <your_package> <your_node>
     ```
 
