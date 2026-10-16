@@ -17,6 +17,8 @@ flowchart TD
     ros2 --> bridge
 ```
 
+The template of the platform selects the base image, the workspaces, and the launch tool, and both versions of ROS meet again at `rosbridge` on port `9090`.
+
 ## 🧭 Choosing the ROS of a Platform
 
 A platform runs ROS 1 unless its template sets the two lines that `env/openrosde-ros2.env` of the core holds:

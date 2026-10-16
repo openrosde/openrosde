@@ -15,7 +15,7 @@ This guide describes how to contribute to the project, with a focus on the most 
 
 ## GitHub Project Organization
 
-The project is hosted at <https://github.com/openrosde/openrosde> and works on two long-lived branches: `dev` for the work in progress, and `main` for the releases.
+The project is hosted at [https://github.com/openrosde/openrosde](https://github.com/openrosde/openrosde) and works on two long-lived branches: `dev` for the work in progress, and `main` for the releases.
 
 ### Branches
 
@@ -36,7 +36,9 @@ The project is hosted at <https://github.com/openrosde/openrosde> and works on t
   Omit the scope, since this repository holds no platform, and every platform takes its changes in its own repository, apart from `chore(release): vX.Y.Z` of a release.
   Subject is imperative, lowercase, no trailing period.
   Example: `docs: adopt Keep a Changelog and document the GitHub workflow`.
-- **Description**: use the following structure. Cover each section when relevant. Omit sections that do not apply.
+- **Description**: use the following structure.
+  Cover each section when relevant.
+  Omit sections that do not apply.
   1. **Summary**: one paragraph explaining what changes and why.
   2. **Changes**: bullet list of notable file or behavior changes.
   3. **Testing**: commands run and platforms verified.
@@ -48,25 +50,32 @@ The project is hosted at <https://github.com/openrosde/openrosde> and works on t
 ### Issues
 
 - Use plain descriptive titles, not Conventional Commit format.
-  Issues describe a problem or request. Commits describe a change.
+  Issues describe a problem or request.
+  Commits describe a change.
   Example: `Gripper does not respond on UR5e realworld bringup` (good), `fix(ur5e): gripper does not respond` (avoid).
-  Report an issue of a platform in its own repository, such as https://github.com/openrosde/openrosde-platform-fetch/issues for the Fetch.
+  Report an issue of a platform in its own repository, such as [https://github.com/openrosde/openrosde-platform-fetch/issues](https://github.com/openrosde/openrosde-platform-fetch/issues) for the Fetch.
 - Categorize with the labels of the repository rather than title prefixes, such as `bug`, `enhancement`, `documentation`, `question`, and `good first issue`.
 - Link issues to the milestone of the release that will include the fix or feature.
-- Close issues automatically by referencing them from the `## Related` section of the merging PR with `Closes #N`. Use `Refs #N` to link without closing.
+- Close issues automatically by referencing them from the `## Related` section of the merging PR with `Closes #N`.
+  Use `Refs #N` to link without closing.
 
 ### Style for GitHub Text
 
 These rules apply to all GitHub issue, milestone, and pull request titles and descriptions:
 
-- Use backticks for code identifiers: file names, commands, environment variables, functions, ROS packages, paths. Do not use single quotes for code identifiers (single quotes are reserved for Bash and ROS launch-file comments inside the repository).
-- Do not use semicolons (`;`), en dashes (`–`), or em dashes (`—`). Use a full stop or a new sentence instead of a semicolon. Use `: ` or a plain hyphen `-` instead of a dash.
+- Use backticks for code identifiers: file names, commands, environment variables, functions, ROS packages, paths.
+  Do not use single quotes for code identifiers (single quotes are reserved for Bash and ROS launch-file comments inside the repository).
+- Do not use semicolons (`;`), en dashes (`–`), or em dashes (`—`).
+  Use a full stop or a new sentence instead of a semicolon.
+  Use `: ` or a plain hyphen `-` instead of a dash.
 
 ### Milestones
 
 - Name milestones as long-lived thematic epics with a verb-first descriptive title (e.g., `Port OpenRoSDE to ROS 2 on Ubuntu 26.04 LTS`), not after individual release versions.
-- A release belongs to the epic milestone that contains its work. Link the release and its pull requests to that epic.
-- Keep epic milestones open until the epic itself is complete. Do not close an epic when one of its releases is published.
+- A release belongs to the epic milestone that contains its work.
+  Link the release and its pull requests to that epic.
+- Keep epic milestones open until the epic itself is complete.
+  Do not close an epic when one of its releases is published.
 
 ### Changelog
 
@@ -86,19 +95,19 @@ Release procedure (per release):
 2. Open a PR from `dev` to `main` titled `chore(release): vX.Y.Z`, get it reviewed, and merge it, which makes the CI publish the images as `main`.
 3. Tag the merge commit, which makes the CI publish the images of the release as `vX.Y.Z`, retagged from the `main` images whose sources are identical:
 
-   ```shell
-   git checkout main && git pull
-   git tag -a vX.Y.Z -m "Release vX.Y.Z"
-   git push origin vX.Y.Z
-   ```
+    ```shell
+    git checkout main && git pull
+    git tag -a vX.Y.Z -m "Release vX.Y.Z"
+    git push origin vX.Y.Z
+    ```
 
 4. Create the GitHub release with `gh`, sourcing the notes from the changelog section, and keep the epic milestone open, since epics span many releases:
 
-   ```shell
-   gh release create vX.Y.Z \
-     --title "vX.Y.Z" \
-     --notes-file <(awk '/^## \[X.Y.Z\]/{p=1;next} p&&/^## \[/{exit} p' CHANGELOG.md)
-   ```
+    ```shell
+    gh release create vX.Y.Z \
+      --title "vX.Y.Z" \
+      --notes-file <(awk '/^## \[X.Y.Z\]/{p=1;next} p&&/^## \[/{exit} p' CHANGELOG.md)
+    ```
 
 ## Reporting Issues
 
@@ -110,7 +119,8 @@ Report a security vulnerability privately, with **Report a vulnerability** in th
 
 > [!NOTE]
 > If you only need to add your own ROS packages, system dependencies, or environment variables, **do not add a new platform**.
-> Use the [User Overlay](docs/user-overlay.md) (Layer 3) instead. It lives in [docker/user-devel/Dockerfile](docker/user-devel/Dockerfile), [ros/user_catkin_ws/](ros/user_catkin_ws/), and [docker/docker-compose-user.yaml](docker/docker-compose-user.yaml), and works on top of any selected `OPENROSDE_ROBOT_PLATFORM` without any of the steps below.
+> Use the [User Overlay](docs/user-overlay.md) (Layer 3) instead.
+> It lives in [`docker/user-devel/Dockerfile`](docker/user-devel/Dockerfile), [`ros/user_catkin_ws/`](ros/user_catkin_ws/), and [`docker/docker-compose-user.yaml`](docker/docker-compose-user.yaml), and works on top of any selected `OPENROSDE_ROBOT_PLATFORM` without any of the steps below.
 
 OpenRoSDE is designed to make adding a new platform straightforward.
 A platform lives in an extension repository of its own, `openrosde-platform-<platform>`, cloned into `extensions/`, with the files of the platform at the same places as in the core (see [docs/extensions.md](docs/extensions.md)).
@@ -128,7 +138,7 @@ git clone https://github.com/openrosde/openrosde-platform-cobotta.git extensions
 
 > [!TIP]
 > The steps below describe a platform on ROS 1.
-> A platform on ROS 2 follows them with the differences that [docs/ros2.md](docs/ros2.md) lists: two more lines in its template, an image on `openrosde-base-ros2`, colcon workspaces in `ros2/`, and launch files of ROS 2, as `turtlebot3-ros2` of `openrosde-platform-turtlebot3` shows.
+> A platform on ROS 2 follows them with the differences that [docs/ros2.md](docs/ros2.md#-adding-a-platform-on-ros-2) lists: two more lines in its template, an image on `openrosde-base-ros2`, colcon workspaces in `ros2/`, and launch files of ROS 2, as `turtlebot3-ros2` of `openrosde-platform-turtlebot3` shows.
 
 ### Step 1: Create the Platform Repository
 
@@ -172,19 +182,19 @@ OPENROSDE_ROBOT_SETUP=<platform>
 The template of a platform is its default setup, so it declares its own name as the setup too.
 The first line is how OpenRoSDE finds the platform: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` of the core and of the clones that declares its own name, and `SWITCH-ROBOT-PLATFORM.bash` and the CI pipeline use that list.
 
-Update the `OPENROSDE_ROBOT_HOSTNAME` comment and value to match your platform's connectivity (SSH hostname, or empty if USB/local).
+Update the `OPENROSDE_ROBOT_HOSTNAME` comment and value to match your platform's connectivity (SSH hostname, or empty if USB or local).
 Leave all defaults in this file: do not add `${VAR:-default}` fallback syntax in scripts.
 
 ### Step 3: Create the Docker Image
 
 Create `docker/<platform>-devel/Dockerfile`, using the Dockerfile of the closest platform as a template, such as `docker/cobotta-devel/Dockerfile` of `openrosde-platform-cobotta`.
 The image is built from the folder of the platform repository, so its `COPY` instructions read from there.
-Follow the Dockerfile code style from [`AGENTS.md`](AGENTS.md#dockerfiles):
+Follow the Dockerfile code style of [`AGENTS.md`](AGENTS.md#dockerfiles):
 
 - Start from the `openrosde-base` image via `ARG OPENROSDE_BASE_IMAGE`.
 - Install platform-specific ROS packages with `apt-get install`.
-- Set `OPENROSDE_ROBOT_PLATFORM` via `ARG`/`ENV`.
-- Pass `OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA` via `ARG`/`ENV OPENROSDE_DOCKER_IMAGE_VERSION`.
+- Set `OPENROSDE_ROBOT_PLATFORM` via `ARG` and `ENV`.
+- Pass `OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA` via `ARG` and `ENV OPENROSDE_DOCKER_IMAGE_VERSION`.
 
 ### Step 4: Create the Docker Compose Overlay
 
@@ -201,7 +211,7 @@ mkdir -p ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/launch
 touch ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/.gitignore
 ```
 
-Create the following files following the conventions in [`AGENTS.md`](AGENTS.md#ros-packages):
+Create the following files following the conventions of [`AGENTS.md`](AGENTS.md#ros-packages):
 
 - `ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/package.xml`: use format 2, with the license and the URLs of the platform repository.
 - `ros/<platform>_catkin_ws/src/openrosde_<platform>_launch/CMakeLists.txt`: minimal launch-only template.

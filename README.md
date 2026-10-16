@@ -42,6 +42,17 @@ Every platform runs ROS 1 Noetic, apart from `turtlebot3-ros2`, which runs ROS 2
 | `cobotta` | [Denso COBOTTA](https://www.denso-wave.com/en/robot/product/collaborative/cobotta.html) | [https://github.com/openrosde/openrosde-platform-cobotta](https://github.com/openrosde/openrosde-platform-cobotta) | [docs/robot-platforms/cobotta.md](https://github.com/openrosde/openrosde-platform-cobotta/blob/main/docs/robot-platforms/cobotta.md) |
 | `hsr` | [Toyota HSR (Human Support Robot)](https://github.com/hsr-project) | [https://github.com/openrosde/openrosde-platform-hsr](https://github.com/openrosde/openrosde-platform-hsr) | [docs/robot-platforms/hsr.md](https://github.com/openrosde/openrosde-platform-hsr/blob/main/docs/robot-platforms/hsr.md) |
 
+## 🔌 Supported Devices
+
+Each device holds one upstream driver of hardware anyone can buy, such as a gripper, a camera, or an input device, with every model that driver supports, and names no robot.
+A setup activates the devices it mounts in `OPENROSDE_ROBOT_EXTENSIONS`, as the [Extensions](docs/extensions.md#-setups) guide describes.
+
+| Device | Hardware | Repository |
+| --- | --- | --- |
+| `openrosde-device-onrobot` | The OnRobot RG and VG grippers | [https://github.com/openrosde/openrosde-device-onrobot](https://github.com/openrosde/openrosde-device-onrobot) |
+| `openrosde-device-realsense` | The RealSense cameras | [https://github.com/openrosde/openrosde-device-realsense](https://github.com/openrosde/openrosde-device-realsense) |
+| `openrosde-device-spacenav` | Every 3Dconnexion device that `spacenavd` supports, such as the SpaceMouse | [https://github.com/openrosde/openrosde-device-spacenav](https://github.com/openrosde/openrosde-device-spacenav) |
+
 ## 💻 Supported Software Platforms
 
 | Platform | GPU Acceleration | Notes |
@@ -102,7 +113,7 @@ Extensions cloned into `extensions/` can add their own layers between Layers 2 a
 ## 🚀 Quick Start
 
 > [!NOTE]
-> The whole OpenRoSDE is containerized/virtualized using [Docker](https://www.docker.com/).
+> The whole OpenRoSDE is containerized with [Docker](https://www.docker.com/).
 > This ensures that all the contributors work in the exact same software environment.
 
 1. Clone and set up:
@@ -330,8 +341,9 @@ Each platform repository records the licenses of its platform in its `NOTICE`, a
 | `cobotta` | [https://github.com/openrosde/openrosde-platform-cobotta/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-cobotta/blob/main/NOTICE) | `denso_cobotta_ros` and the four patches of the platform under GPL-2.0-or-later |
 | `ur5e` | [https://github.com/openrosde/openrosde-platform-ur5e/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-ur5e/blob/main/NOTICE) | The default kinematics of `ur_description` under BSD 3-Clause, and the meshes of some UR models in the image `ur5e-devel` under the terms of Universal Robots A/S |
 | `hsr` | [https://github.com/openrosde/openrosde-platform-hsr/blob/main/NOTICE](https://github.com/openrosde/openrosde-platform-hsr/blob/main/NOTICE) | `tmc_wrs_binary` in the image `hsr-devel` under BSD 3-Clause Clear, and `hsrb_meshes` under CC BY-NC-ND 4.0 |
-| All | [ROS Noetic](https://www.ros.org/), [Gazebo](http://gazebosim.org/), [FlexBE](http://flexbe.github.io/), and platform-specific upstream packages | Per upstream (BSD, Apache 2.0, MIT, etc.) |
-| All | [ROS#](https://github.com/siemens/ros-sharp) `file_server` `2.3.1` (Siemens AG), built from source in the base image with the patches of `docker/openrosde-base/patches/ros-sharp/` | [Apache 2.0](https://github.com/siemens/ros-sharp/blob/2.3.1/LICENSE.md) |
+| All | [ROS Noetic](https://www.ros.org/), [ROS 2 Lyrical](https://docs.ros.org/en/lyrical/), [Gazebo](http://gazebosim.org/), [FlexBE](http://flexbe.github.io/), and platform-specific upstream packages | Per upstream (BSD, Apache 2.0, MIT, etc.) |
+| All | [ROS#](https://github.com/siemens/ros-sharp) `file_server` and `file_server2` `2.3.1` (Siemens AG), built from source in the base images with the patches of `docker/openrosde-base/patches/ros-sharp/` and `docker/openrosde-base-ros2/patches/ros-sharp/` | [Apache 2.0](https://github.com/siemens/ros-sharp/blob/2.3.1/LICENSE.md) |
 | All | [`trimesh`](https://github.com/mikedh/trimesh) and [`pycollada`](https://github.com/pycollada/pycollada) in the converter image `openrosde-mesh2glb` | [MIT](https://github.com/mikedh/trimesh/blob/main/LICENSE.md) and [BSD 3-Clause](https://github.com/pycollada/pycollada/blob/master/COPYING) |
 
 See the `NOTICE` and `docs/robot-platforms/<platform>.md` of each platform repository for its licensing details.
+Each device repository records the licenses of its driver and of the packages of its Docker layer in its `NOTICE` and its `README.md` the same way.

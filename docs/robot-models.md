@@ -19,6 +19,8 @@ sequenceDiagram
     end
 ```
 
+The client first checks that the file service exists, then reads the robot description, then fetches each mesh through `rosbridge`, which answers with the bytes of the file in base64.
+
 ## 🗂️ File Service
 
 A robot describes itself in `robot_description`, a URDF whose links name their meshes by `package://` addresses, such as `package://ur_description/meshes/ur5e/visual/base.dae`.

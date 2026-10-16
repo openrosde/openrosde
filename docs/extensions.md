@@ -21,7 +21,10 @@ A device ships no `tmux/*.panes`, since which of its launch files run, and with 
 
 A **setup** is one installation of a robot: the platform, devices, and extensions it pins, the description that mounts the devices, and the calibration, addresses, serial numbers, layouts, and runbook of that installation alone.
 A setup is a template that any extension holds rather than a repository of its own, so one private extension of a company or a lab can hold its packages and the setups of all its robots.
-A setup is named `<owner>-<platform>-<place>`, such as `my-lab-ur5e-bench`, so that the setups of the core, of a company, and of its clients never share a name, and platforms and devices anyone can buy are usually public, while setups are usually private.
+A setup is named `<owner>-<platform>-<place>`, such as `my-lab-ur5e-bench`, so that the setups of the core, of a company, and of its clients never share a name.
+Platforms and devices anyone can buy are usually public, while setups are usually private.
+
+The canonical platforms and the public devices are listed in [Supported Robot Platforms](../README.md#-supported-robot-platforms) and [Supported Devices](../README.md#-supported-devices).
 
 ## 📁 Layout
 
@@ -285,9 +288,11 @@ A line that names launch files, as written in the panes, allows the node only wh
 default-gazebo /robot_state_publisher foo_navigation_default_gazebo.launch foo_mapping_default.launch
 ```
 
-A check in `ci/` never moves a robot: `gitlab-ci/check-no-motion.bash` fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, even after a path such as `/opt/ros/noetic/bin/`, and an option in a trailing comment does not count.
-On ROS 2, it fails on any `ros2 launch` beyond `--show-args`, `--show-arguments`, `-s`, `--print`, `--print-description`, or `-p`, and on any `ros2 run`, `ros2 topic pub`, `ros2 service call`, `ros2 action send_goal`, `ros2 bag play`, or `ros2 lifecycle set`.
-It lets a script of `ci/` start only the launch files of simulations that `ci/allowed-simulation-launches.txt` names, one file name per line, such as `foo_bringup_default_gazebo.launch` or `foo_bringup_default_gazebo.launch.xml`, and a `roslaunch` or a `ros2 launch` of several launch files only when the list names every one of them.
+> [!IMPORTANT]
+> A check in `ci/` never moves a robot.
+> `gitlab-ci/check-no-motion.bash` fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, even after a path such as `/opt/ros/noetic/bin/`, and an option in a trailing comment does not count.
+> On ROS 2, it fails on any `ros2 launch` beyond `--show-args`, `--show-arguments`, `-s`, `--print`, `--print-description`, or `-p`, and on any `ros2 run`, `ros2 topic pub`, `ros2 service call`, `ros2 action send_goal`, `ros2 bag play`, or `ros2 lifecycle set`.
+> It lets a script of `ci/` start only the launch files of simulations that `ci/allowed-simulation-launches.txt` names, one file name per line, such as `foo_bringup_default_gazebo.launch` or `foo_bringup_default_gazebo.launch.xml`, and a `roslaunch` or a `ros2 launch` of several launch files only when the list names every one of them.
 
 A private extension runs the same scripts in a CI of its own, in a private repository, with OpenRoSDE checked out at the version it pins, since OpenRoSDE never clones a private repository.
 It reads the public base and platform images by setting `OPENROSDE_CI_IMAGE_REGISTRY` to `ghcr.io/openrosde` and `OPENROSDE_CI_IMAGE_TAG` to the tag of that version, `dev` or a release such as `v3.0.0`, and keeps its own images in its own registry.

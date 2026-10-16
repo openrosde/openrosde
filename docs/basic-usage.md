@@ -3,11 +3,11 @@
 Follow this step-by-step guide to perform the initial setup of OpenRoSDE on an [Ubuntu](https://www.ubuntu.com/) development machine.
 
 > [!NOTE]
-> The whole OpenRoSDE is containerized/virtualized using [Docker](https://www.docker.com/).
+> The whole OpenRoSDE is containerized with [Docker](https://www.docker.com/).
 > This ensures that all the contributors work in the exact same software environment.
 
 > [!NOTE]
-> The OpenRoSDE robot, simulator, visualization, and behavior interfaces are primarily implemented with [ROS](http://www.ros.org/), [Gazebo](http://gazebosim.org/), [Rviz](https://github.com/ros-visualization/rviz), and [FlexBE](http://flexbe.github.io/).
+> The OpenRoSDE robot, simulator, visualization, and behavior interfaces are primarily implemented with [ROS](http://www.ros.org/), [Gazebo](http://gazebosim.org/), [RViz](https://github.com/ros-visualization/rviz), and [FlexBE](http://flexbe.github.io/).
 
 > [!NOTE]
 > OpenRoSDE primarily targets Nvidia GPU-equipped Ubuntu development machines and the Nvidia [CUDA](https://developer.nvidia.com/cuda-toolkit) platform.
@@ -22,7 +22,7 @@ Follow this step-by-step guide to perform the initial setup of OpenRoSDE on an [
 
 > [!NOTE]
 > Although this initial setup is meant to be performed only once, you can run it again should you want to reset the development environment as the project evolves.
-> However, make sure to backup your latest changes beforehand.
+> However, make sure to back up your latest changes beforehand.
 
 ## ✅ Step 0: Verify the Prerequisites
 

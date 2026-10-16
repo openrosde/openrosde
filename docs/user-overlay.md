@@ -18,17 +18,18 @@ The user overlay is platform-agnostic: the same overlay rebuilds on top of which
 
 | Path | Purpose |
 | --- | --- |
-| [docker/user-devel/Dockerfile](../docker/user-devel/Dockerfile) | User Docker layer. Add your `apt-get` / `pip3` dependencies here. |
-| [docker/docker-compose-user.yaml](../docker/docker-compose-user.yaml) | User Docker Compose overlay. Add extra `environment:` and `volumes:` here. |
-| [ros/user_catkin_ws/](../ros/user_catkin_ws/) | User Catkin workspace. Drop your packages under `src/`. |
-| [ros/user_catkin_ws/src/openrosde_user_launch/](../ros/user_catkin_ws/src/openrosde_user_launch/) | Starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for your assets. |
-| [ros/user_catkin_ws/src/openrosde_user_behaviors/](../ros/user_catkin_ws/src/openrosde_user_behaviors/) | Starter FlexBE behaviors package with `User Example Behavior`. |
-| [ros2/user_colcon_ws/src/openrosde_user_launch/](../ros2/user_colcon_ws/src/openrosde_user_launch/) | Starter launch package of the platforms on ROS 2, with `user_example_default.launch.xml`, which a colcon workspace builds, as [ROS 2](ros2.md) describes. |
-| [env/user.env](../env/user.env) | User overlay environment template (reference only). |
+| [`docker/user-devel/Dockerfile`](../docker/user-devel/Dockerfile) | User Docker layer. Add your `apt-get` or `pip3` dependencies here. |
+| [`docker/docker-compose-user.yaml`](../docker/docker-compose-user.yaml) | User Docker Compose overlay. Add extra `environment:` and `volumes:` here. |
+| [`ros/user_catkin_ws/`](../ros/user_catkin_ws/) | User Catkin workspace. Drop your packages under `src/`. |
+| [`ros/user_catkin_ws/src/openrosde_user_launch/`](../ros/user_catkin_ws/src/openrosde_user_launch/) | Starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for your assets. |
+| [`ros/user_catkin_ws/src/openrosde_user_behaviors/`](../ros/user_catkin_ws/src/openrosde_user_behaviors/) | Starter FlexBE behaviors package with `User Example Behavior`. |
+| [`ros2/user_colcon_ws/src/openrosde_user_launch/`](../ros2/user_colcon_ws/src/openrosde_user_launch/) | Starter launch package of the platforms on ROS 2, with `user_example_default.launch.xml`, which a colcon workspace builds, as [ROS 2](ros2.md) describes. |
+| [`env/user.env`](../env/user.env) | User overlay environment template (reference only). |
 
 ## 🚀 Quick Start
 
-The user overlay ships with working starter content. To verify it on the currently selected platform:
+The user overlay ships with working starter content.
+To verify it on the currently selected platform:
 
 ```shell
 bash ./BUILD-DOCKER-IMAGE.bash local
@@ -65,7 +66,7 @@ In the FlexBE App on ROS 1, which the tab `tools` starts, load and execute `User
 
 ## ➕ Adding Your Own ROS Package
 
-1. Create your package under [ros/user_catkin_ws/src/](../ros/user_catkin_ws/src/) (you can also `git clone` an existing package there).
+1. Create your package under [`ros/user_catkin_ws/src/`](../ros/user_catkin_ws/src/) (you can also `git clone` an existing package there).
 2. Inside the container, rebuild the user workspace:
 
     ```shell
@@ -81,13 +82,13 @@ In the FlexBE App on ROS 1, which the tab `tools` starts, load and execute `User
 
 The user workspace is automatically:
 
-- Sourced at container startup ([source-catkin-workspaces.bash](../docker/openrosde-base/scripts/source-catkin-workspaces.bash)).
-- Rebuilt by `openrosde-reset-catkin-workspaces` ([reset-catkin-workspaces.bash](../docker/openrosde-base/scripts/reset-catkin-workspaces.bash)).
-- Added to `ROS_PACKAGE_PATH` ([initialize-bash-shell.bash](../docker/openrosde-base/scripts/initialize-bash-shell.bash)).
+- Sourced at container startup ([`source-catkin-workspaces.bash`](../docker/openrosde-base/scripts/source-catkin-workspaces.bash)).
+- Rebuilt by `openrosde-reset-catkin-workspaces` ([`reset-catkin-workspaces.bash`](../docker/openrosde-base/scripts/reset-catkin-workspaces.bash)).
+- Added to `ROS_PACKAGE_PATH` ([`initialize-bash-shell.bash`](../docker/openrosde-base/scripts/initialize-bash-shell.bash)).
 
 ## ➕ Adding a System Dependency
 
-1. Edit [docker/user-devel/Dockerfile](../docker/user-devel/Dockerfile) and add your `apt-get install` or `pip3 install` block.
+1. Edit [`docker/user-devel/Dockerfile`](../docker/user-devel/Dockerfile) and add your `apt-get install` or `pip3 install` block.
 2. Rebuild only the user image (the platform image is reused from cache):
 
     ```shell
@@ -102,9 +103,9 @@ The user workspace is automatically:
 
 ## ➕ Adding an Environment Variable
 
-1. Add a default in [.env](../.env) under the `User overlay configuration` section (example: `OPENROSDE_USER_MY_VAR=default-value`).
+1. Add a default in [`.env`](../.env) under the `User overlay configuration` section (example: `OPENROSDE_USER_MY_VAR=default-value`).
 2. Override it in `.env.custom` if needed.
-3. Expose it to the container by editing [docker/docker-compose-user.yaml](../docker/docker-compose-user.yaml):
+3. Expose it to the container by editing [`docker/docker-compose-user.yaml`](../docker/docker-compose-user.yaml):
 
     ```yaml
     services:
@@ -113,7 +114,7 @@ The user workspace is automatically:
           - OPENROSDE_USER_MY_VAR=${OPENROSDE_USER_MY_VAR}
     ```
 
-[scripts/load-openrosde-env.bash](../scripts/load-openrosde-env.bash) exports every `OPENROSDE_*` variable, so Docker Compose interpolates it with no further step.
+[`scripts/load-openrosde-env.bash`](../scripts/load-openrosde-env.bash) exports every `OPENROSDE_*` variable, so Docker Compose interpolates it with no further step.
 
 ## 🆚 User Overlay vs. New Platform
 
@@ -125,4 +126,5 @@ The user workspace is automatically:
 | CI/CD | None (built locally) | The CI of the core, and the workflow `test-with-openrosde.yml` of the platform repository |
 | Image registry | Local-only (`openrosde-local/<setup>/user-devel:latest`, which no `docker push` can publish) | Published by the CI to `ghcr.io/openrosde/<platform>-devel` as `main` and `dev`, and as `vX.Y.Z` for a release |
 
-If you need anything beyond the user overlay (custom Gazebo worlds for an existing platform, additional FlexBE behaviors, etc.), keep it in the user overlay first, and promote it to a platform package or a new platform only when it stabilizes and is ready to be shared upstream.
+If you need anything beyond the user overlay (custom Gazebo worlds for an existing platform, additional FlexBE behaviors, etc.), keep it in the user overlay first.
+Promote it to a platform package or a new platform only when it stabilizes and is ready to be shared upstream.

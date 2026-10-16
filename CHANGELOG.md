@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/robot-models.md` explains why the meshes travel as GLB files, why the file service serves 12,000,000 bytes at most, and how a robot without OpenRoSDE serves its model the same way (#14).
 - `docs/basic-usage.md` ends with the `tmux` session and its standard tabs, and every guide presents the `tmux` sessions first and the Terminator layouts as kept until #3 removes them (#14).
 - The VS Code workspace recommends the extensions of GitHub Actions and of GitHub pull requests in place of the extension of GitLab (#14).
+- `README.md` lists the public devices beside the platforms, and its third-party software names ROS 2 Lyrical, the file service of ROS# on ROS 2, and the notices of the devices (#14).
 
 ### Fixed
 

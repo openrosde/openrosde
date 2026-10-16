@@ -15,7 +15,7 @@ It is being split into a platform-agnostic core with extensions, as [OpenRoSDE S
 - Container OS: [Ubuntu](https://ubuntu.com/) 20.04 (Focal Fossa) on ROS 1, and [Ubuntu](https://ubuntu.com/) 26.04 (Resolute Raccoon) on ROS 2.
 - Robotics Framework: [ROS](http://www.ros.org/) Noetic, and [ROS 2](https://docs.ros.org/en/lyrical/) Lyrical Luth beside it for the platforms that declare it (see [ROS 2](#ros-2)).
 - Simulator: [Gazebo](http://gazebosim.org/).
-- Visualization: [Rviz](https://github.com/ros-visualization/rviz).
+- Visualization: [RViz](https://github.com/ros-visualization/rviz).
 - Behavior Engine: [FlexBE](http://flexbe.github.io/).
 - Build System: [catkin](https://wiki.ros.org/catkin) (via `catkin build`) on ROS 1, and [colcon](https://colcon.readthedocs.io/) (via `colcon build`) on ROS 2.
 - Multi-Terminal: [tmux](https://github.com/tmux/tmux/wiki), and [Terminator](https://gnometerminator.blogspot.com/) until `tmux` replaces it.
