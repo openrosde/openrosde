@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The input `setups` of `.github/workflows/extension.yml` keeps the test jobs of the setups it names, so that a device of ROS 1 added to every setup by `extra-extensions` is tested on `ur5e` alone, as on GitLab, rather than built on a setup of ROS 2.
+
 ## [3.0.0] - 2026-10-16
 
 ### Changed

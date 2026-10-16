@@ -42,6 +42,11 @@ on:
         type: string
         required: false
         default: ""
+      setups:
+        description: Setups to test, separated by spaces, among those that activate the extension, such as 'ur5e' for a device of ROS 1 that 'extra-extensions' adds to every setup, or empty for all of them.
+        type: string
+        required: false
+        default: ""
 
 # Give every job the right to read the repositories alone.
 permissions:
@@ -103,12 +108,24 @@ jobs:
           OPENROSDE_CI_RUNNER_TAG: ubuntu-24.04
           OPENROSDE_CI_EXTENSION_NAME: ${{ steps.settings.outputs.extension-name }}
           OPENROSDE_CI_GENERATED_PIPELINE: ${{ runner.temp }}/openrosde-pipeline-generated.yml
+          OPENROSDE_CI_SETUPS: ${{ inputs.setups }}
         run: |
           OPENROSDE_CI_EXTENSION_OVERRIDE="${OPENROSDE_CI_EXTENSION_NAME}=checkout@$(git -C "extensions/${OPENROSDE_CI_EXTENSION_NAME}" rev-parse HEAD)"
           export OPENROSDE_CI_EXTENSION_OVERRIDE
           bash ./gitlab-ci/generate-ci-pipeline.bash > "${OPENROSDE_CI_GENERATED_PIPELINE}"
           cat "${OPENROSDE_CI_GENERATED_PIPELINE}"
-          bash ./.github/scripts/print-ci-matrices.bash "${OPENROSDE_CI_GENERATED_PIPELINE}" | tee -a "${GITHUB_OUTPUT}"
+          OPENROSDE_CI_MATRICES="$(bash ./.github/scripts/print-ci-matrices.bash "${OPENROSDE_CI_GENERATED_PIPELINE}")"
+          # Keep only the test jobs of the setups that 'setups' names, and fail when none of them activates the extension, rather than test nothing.
+          if [ -n "${OPENROSDE_CI_SETUPS}" ]; then
+            OPENROSDE_CI_TESTS="$(printf '%s\n' "${OPENROSDE_CI_MATRICES}" | sed -n 's/^tests=//p' \
+              | jq --compact-output --arg setups "${OPENROSDE_CI_SETUPS}" '($setups | split(" ") | map(select(. != ""))) as $keep | map(select(.setup as $setup | $keep | index($setup)))')"
+            if [ "${OPENROSDE_CI_TESTS}" = "[]" ]; then
+              echo "Error: none of the setups '${OPENROSDE_CI_SETUPS}' activates '${OPENROSDE_CI_EXTENSION_NAME}'."
+              exit 1
+            fi
+            OPENROSDE_CI_MATRICES="$(printf '%s\n' "${OPENROSDE_CI_MATRICES}" | grep -v '^tests='; echo "tests=${OPENROSDE_CI_TESTS}")"
+          fi
+          printf '%s\n' "${OPENROSDE_CI_MATRICES}" | tee -a "${GITHUB_OUTPUT}"
 
       - name: Keep the generated pipeline
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
