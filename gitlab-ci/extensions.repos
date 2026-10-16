@@ -16,24 +16,24 @@ repositories:
   openrosde-platform-cobotta:
     type: git
     url: https://github.com/openrosde/openrosde-platform-cobotta.git
-    version: 9f5566c8f3592d9fef2d3f1020e851d99020bf0b
+    version: f6e2007e72f39a568f1d9b5f1539c58352cc1055
   openrosde-platform-fetch:
     type: git
     url: https://github.com/openrosde/openrosde-platform-fetch.git
-    version: 2bbc18facad64fadedf84065c07b7e9597edf886
+    version: 130f44befb01f311be8a0e4a132b33aa2e39e888
   openrosde-platform-hsr:
     type: git
     url: https://github.com/openrosde/openrosde-platform-hsr.git
-    version: 03df8dc89e671a6fb7bbaa6f9d99cf67284067c5
+    version: 0a4bae031372e0afea73ad46176ca8eb2376a9cd
   openrosde-platform-sciurus17:
     type: git
     url: https://github.com/openrosde/openrosde-platform-sciurus17.git
-    version: 95ff6e1e3436b04f2b54a76735b2d68e845b08e1
+    version: 5fc7b45a245d16676e6db18b9b75f19eec39fad3
   openrosde-platform-turtlebot3:
     type: git
     url: https://github.com/openrosde/openrosde-platform-turtlebot3.git
-    version: b6e8f0686f63ec8180471a06f47e8dade5fdecc9
+    version: a46be8738065a3b61781d19c3961fff6a3e7a315
   openrosde-platform-ur5e:
     type: git
     url: https://github.com/openrosde/openrosde-platform-ur5e.git
-    version: a267cc55b2a66054761a5e836860d761f792ad64
+    version: 055fb67e1a4eecb9fe0b8c572a3a9bf7ba754e18
