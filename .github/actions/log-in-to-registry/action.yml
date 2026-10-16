@@ -1,0 +1,28 @@
+# Documentation for composite actions of GitHub Actions:
+# https://docs.github.com/en/actions/sharing-automations/creating-actions/creating-a-composite-action
+
+# This composite action logs Docker in to the registry of the images of OpenRoSDE with the token of the job, 'GITHUB_TOKEN', which reads or writes the packages as the 'permissions' of the job allow.
+# It reads the registry from 'OPENROSDE_CI_REGISTRY_IMAGE', which the workflow sets in one place, such as 'ghcr.io/openrosde', and logs in to its host, such as 'ghcr.io'.
+
+name: Log in to the registry
+description: Log Docker in to the host of OPENROSDE_CI_REGISTRY_IMAGE with the token of the job.
+
+runs:
+  using: composite
+  steps:
+    - name: Name the host of the registry
+      id: registry
+      shell: bash
+      run: |
+        if [ -z "${OPENROSDE_CI_REGISTRY_IMAGE}" ]; then
+          echo "Error: 'OPENROSDE_CI_REGISTRY_IMAGE' names no registry, such as 'ghcr.io/openrosde'."
+          exit 1
+        fi
+        echo "host=${OPENROSDE_CI_REGISTRY_IMAGE%%/*}" >> "${GITHUB_OUTPUT}"
+
+    - name: Log in to the registry
+      uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+      with:
+        registry: ${{ steps.registry.outputs.host }}
+        username: ${{ github.actor }}
+        password: ${{ github.token }}

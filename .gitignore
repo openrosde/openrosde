@@ -15,6 +15,10 @@
 # User-specific environment overrides (created from a platform template in 'env/'):
 .env.custom
 
+# Extensions cloned into 'extensions/', each a Git repository of its own:
+extensions/*
+!extensions/README.md
+
 # 'catkin build' auto-generated files (for all platforms):
 ros/*_catkin_ws/CMakeLists.txt
 ros/*_catkin_ws/.catkin_tools/
@@ -27,8 +31,18 @@ ros/*_catkin_ws/src/CMakeLists.txt
 ros/*_catkin_ws/.catkin_workspace
 ros/*_catkin_ws/install/
 
+# 'colcon build' auto-generated files (for all platforms on ROS 2):
+ros2/*_colcon_ws/build/
+ros2/*_colcon_ws/install/
+ros2/*_colcon_ws/log/
+
 # 'rosbag' files:
 *.bag
+
+# GLB files of the robot meshes, generated locally by 'scripts/generate-mesh-glbs.bash' and never committed, while a '.glb' that a package ships stays tracked:
+*.[dD][aA][eE].glb
+*.[sS][tT][lL].glb
+*.[oO][bB][jJ].glb
 
 # Terminator 'config' files:
 terminator/*.config.tmp

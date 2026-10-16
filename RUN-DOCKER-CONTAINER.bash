@@ -7,72 +7,73 @@
 # [docker-project]: Used to name the Docker container and create multiple instances if needed.
 #                   Default value is '$USER'.
 # [ros-launch]:     Used to automatically preload a ROS launch file when entering the Docker container for convenience.
-#                   Format is 'filename.launch'.
+#                   Format is 'filename.launch', or 'filename.launch.xml' or 'filename.launch.py' for a platform on ROS 2.
 #                   Use '--no-exec' to start the container without entering it.
-# [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch' after the launch file.
+# [launch-args...]: Optional 'arg:=value' tokens forwarded to 'roslaunch', or to 'ros2 launch' on ROS 2, after the launch file.
 #                   They override a launch file argument without modifying the launch file itself
-#                   (e.g., 'bash ./RUN-DOCKER-CONTAINER.bash myproject ur5e_teleop_default_realworld.launch input_source:=sightline').
+#                   (e.g., 'bash ./RUN-DOCKER-CONTAINER.bash myproject my_robot_launch:my_robot_bringup_default_realworld.launch robot_ip:=192.0.2.10').
 
 ################################################################################
 
-# Load the SDE environment variables.
-source ./scripts/load-sde-env.bash "$1"
+# Load the OpenRoSDE environment variables.
+source ./scripts/load-openrosde-env.bash "$1"
 
 ################################################################################
 
-# Stop and remove any SDE container from a different platform under the same Docker project.
+# Stop and remove any OpenRoSDE container from a different platform under the same Docker project.
 # This allows switching platforms by simply changing '.env.custom' without manual cleanup.
 # Uses 'docker compose down' to properly clean up the Docker Compose project state.
-SDE_OTHER_CONTAINERS=$(docker ps -a --format "{{.Names}}" | grep "sde-.*-${SDE_DOCKER_PROJECT}-1" | grep -v "^${SDE_DOCKER_CONTAINER}$")
-if [ -n "${SDE_OTHER_CONTAINERS}" ]; then
+OPENROSDE_OTHER_CONTAINERS=$(docker ps -a --format "{{.Names}}" | grep "openrosde-.*-${OPENROSDE_DOCKER_PROJECT}-1" | grep -v "^${OPENROSDE_DOCKER_CONTAINER}$")
+if [ -n "${OPENROSDE_OTHER_CONTAINERS}" ]; then
   echo "Switching platform: stopping previous container(s)..."
-  docker compose -p ${SDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml down 2>/dev/null
+  docker compose -p ${OPENROSDE_DOCKER_PROJECT} -f ./docker/docker-compose.yaml down 2>/dev/null
 fi
 
 ################################################################################
 
 # Build the list of Docker Compose files.
-SDE_COMPOSE_FILES="-f ./docker/docker-compose.yaml"
+OPENROSDE_COMPOSE_FILES="-f ./docker/docker-compose.yaml"
 
-# Add platform-specific overlay if available.
-if [ -f "./docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml" ]; then
-  SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ./docker/docker-compose-${SDE_ROBOT_PLATFORM}.yaml"
-fi
+# Add the overlay of the platform, then the overlays of the active extensions and the setup, in the order 'scripts/load-extension-paths.bash' lists them.
+# Relative paths in an overlay are resolved against './docker/' of the core, as Docker Compose resolves them against the first file.
+for OPENROSDE_COMPOSE_OVERLAY_FILE in "${OPENROSDE_COMPOSE_OVERLAY_FILES[@]}"; do
+  OPENROSDE_COMPOSE_FILES="${OPENROSDE_COMPOSE_FILES} -f ${OPENROSDE_COMPOSE_OVERLAY_FILE}"
+done
 
-# Add the user overlay (always present, ships with the SDE).
-SDE_COMPOSE_FILES="${SDE_COMPOSE_FILES} -f ./docker/docker-compose-user.yaml"
+# Add the user overlay (always present, ships with OpenRoSDE).
+OPENROSDE_COMPOSE_FILES="${OPENROSDE_COMPOSE_FILES} -f ./docker/docker-compose-user.yaml"
 
 # Run the Docker container in the background.
 # Any changes made to './docker/docker-compose*.yaml' will recreate and overwrite the container.
 if [ -e /proc/driver/nvidia/version ]; then
   # Native Nvidia GPU detected: enable GPU acceleration via Nvidia Container Toolkit.
-  docker compose -p ${SDE_DOCKER_PROJECT} ${SDE_COMPOSE_FILES} -f ./docker/docker-compose-nvidia.yaml up -d sde
+  docker compose -p ${OPENROSDE_DOCKER_PROJECT} ${OPENROSDE_COMPOSE_FILES} -f ./docker/docker-compose-nvidia.yaml up -d openrosde
 elif [ -e /dev/dxg ]; then
   # WSL 2 GPU detected: enable GPU-accelerated rendering via the WSLg D3D12 Mesa driver.
-  docker compose -p ${SDE_DOCKER_PROJECT} ${SDE_COMPOSE_FILES} -f ./docker/docker-compose-wsl.yaml up -d sde
+  docker compose -p ${OPENROSDE_DOCKER_PROJECT} ${OPENROSDE_COMPOSE_FILES} -f ./docker/docker-compose-wsl.yaml up -d openrosde
 else
-  docker compose -p ${SDE_DOCKER_PROJECT} ${SDE_COMPOSE_FILES} up -d sde
+  docker compose -p ${OPENROSDE_DOCKER_PROJECT} ${OPENROSDE_COMPOSE_FILES} up -d openrosde
 fi
 
 ################################################################################
 
 # Configure the known host names with '/etc/hosts' in the Docker container.
 
-if [ -n "${SDE_ROBOT_HOSTNAME}" ]; then
-  SDE_ROBOT_RESOLVED_HOSTNAME=${SDE_ROBOT_HOSTNAME}
-  echo "Now resolving local host name '${SDE_ROBOT_RESOLVED_HOSTNAME}'..."
-  SDE_ROBOT_IP=$(avahi-resolve -4 --name ${SDE_ROBOT_RESOLVED_HOSTNAME} | cut -f 2)
+if [ -n "${OPENROSDE_ROBOT_HOSTNAME}" ]; then
+  OPENROSDE_ROBOT_RESOLVED_HOSTNAME=${OPENROSDE_ROBOT_HOSTNAME}
+  echo "Now resolving local host name '${OPENROSDE_ROBOT_RESOLVED_HOSTNAME}'..."
+  OPENROSDE_ROBOT_IP=$(avahi-resolve -4 --name ${OPENROSDE_ROBOT_RESOLVED_HOSTNAME} | cut -f 2)
   if [ "$?" != "0" ]; then
     echo "Failed to execute 'avahi-resolve'. You may need to install 'avahi-utils'."
-  elif [ ! -z "${SDE_ROBOT_IP}" ]; then
-    echo "Successfully resolved host name '${SDE_ROBOT_RESOLVED_HOSTNAME}' as '${SDE_ROBOT_IP}': '/etc/hosts' in the container is automatically updated."
-    docker exec -i ${SDE_DOCKER_CONTAINER} bash <<EOF
-sed -n -e '/^[^#[:space:]]*[[:space:]]\+${SDE_ROBOT_RESOLVED_HOSTNAME}\$/!p' /etc/hosts > /etc/hosts.tmp;
-echo '${SDE_ROBOT_IP} ${SDE_ROBOT_RESOLVED_HOSTNAME}' >> /etc/hosts.tmp
+  elif [ ! -z "${OPENROSDE_ROBOT_IP}" ]; then
+    echo "Successfully resolved host name '${OPENROSDE_ROBOT_RESOLVED_HOSTNAME}' as '${OPENROSDE_ROBOT_IP}': '/etc/hosts' in the container is automatically updated."
+    docker exec -i ${OPENROSDE_DOCKER_CONTAINER} bash <<EOF
+sed -n -e '/^[^#[:space:]]*[[:space:]]\+${OPENROSDE_ROBOT_RESOLVED_HOSTNAME}\$/!p' /etc/hosts > /etc/hosts.tmp;
+echo '${OPENROSDE_ROBOT_IP} ${OPENROSDE_ROBOT_RESOLVED_HOSTNAME}' >> /etc/hosts.tmp
 cp /etc/hosts.tmp /etc/hosts;
 EOF
   else
-    echo "Failed to resolve host name '${SDE_ROBOT_RESOLVED_HOSTNAME}': '/etc/hosts' in the container was not automatically updated."
+    echo "Failed to resolve host name '${OPENROSDE_ROBOT_RESOLVED_HOSTNAME}': '/etc/hosts' in the container was not automatically updated."
   fi
 fi
 
@@ -83,12 +84,25 @@ xhost +local:docker
 
 ################################################################################
 
+# Pass the 'tmux' session into the shell of the container in the first pane of a session, whose environment alone 'RUN-TMUX-SESSION.bash' gives 'OPENROSDE_TMUX_SESSION_NAME' and 'OPENROSDE_TMUX_SESSION_LAYOUT'.
+# That shell prints the splash of 'scripts/print-tmux-splash.bash' right before the prompt of the pane, after the output that it clears when it starts, with the Docker project and the container, and plain when 'NO_COLOR' is set.
+OPENROSDE_DOCKER_EXEC_OPTIONS=()
+if [ -n "${OPENROSDE_TMUX_SESSION_NAME}" ]; then
+  OPENROSDE_DOCKER_EXEC_OPTIONS+=(--env "OPENROSDE_TMUX_SESSION_NAME=${OPENROSDE_TMUX_SESSION_NAME}" --env "OPENROSDE_TMUX_SESSION_LAYOUT=${OPENROSDE_TMUX_SESSION_LAYOUT}")
+  OPENROSDE_DOCKER_EXEC_OPTIONS+=(--env "OPENROSDE_DOCKER_PROJECT=${OPENROSDE_DOCKER_PROJECT}" --env "OPENROSDE_DOCKER_CONTAINER=${OPENROSDE_DOCKER_CONTAINER}")
+  if [ -n "${NO_COLOR}" ]; then
+    OPENROSDE_DOCKER_EXEC_OPTIONS+=(--env "NO_COLOR=${NO_COLOR}")
+  fi
+fi
+
+################################################################################
+
 # Enter the Docker container with a Bash shell (with or without preloading a custom [ros-launch] file).
 # Skip entering the container if '--no-exec' is passed as the second argument.
 if [ "$2" = "--no-exec" ]; then
   exit 0
 elif [ -z "$2" ]; then
-  docker exec -i -t ${SDE_DOCKER_CONTAINER} bash
+  docker exec -i -t "${OPENROSDE_DOCKER_EXEC_OPTIONS[@]}" ${OPENROSDE_DOCKER_CONTAINER} bash
 else
-  docker exec -i -t ${SDE_DOCKER_CONTAINER} bash -i -c "source ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/run-roslaunch-repeatedly.bash ${*:2}"
+  docker exec -i -t "${OPENROSDE_DOCKER_EXEC_OPTIONS[@]}" ${OPENROSDE_DOCKER_CONTAINER} bash -i -c "source ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/run-roslaunch-repeatedly.bash ${*:2}"
 fi

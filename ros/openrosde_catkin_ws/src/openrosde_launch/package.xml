@@ -1,0 +1,20 @@
+<package>
+  <name>openrosde_launch</name>
+  <version>1.0.0</version>
+  <description>
+    The 'openrosde_launch' package provides shared launch files common to all platforms.
+  </description>
+  <maintainer email="lotfi@coarobo.com">Lotfi El Hafi</maintainer>
+
+  <license>Apache-2.0</license>
+
+  <url type="website">https://coarobo.com/</url>
+  <url type="repository">https://github.com/openrosde/openrosde</url>
+  <url type="bugtracker">https://github.com/openrosde/openrosde/issues</url>
+  <author email="lotfi@coarobo.com">Lotfi El Hafi</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>rospy</run_depend>
+
+</package>

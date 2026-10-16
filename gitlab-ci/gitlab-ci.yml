@@ -1,103 +1,101 @@
 # Documentation for configuration of GitLab CI jobs with 'gitlab-ci.yml':
-# https://docs.gitlab.com/ee/ci/yaml/
-# https://docs.gitlab.com/ee/ci/docker/using_docker_build.html
-# https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#limitations-of-docker-in-docker
+# https://docs.gitlab.com/ci/yaml/
+# https://docs.gitlab.com/ci/pipelines/downstream_pipelines/#dynamic-child-pipelines
 
-# See 'SETUP-GITLAB-RUNNER.bash' for the runner configuration details.
+# This parent pipeline clones the public extensions of 'gitlab-ci/extensions.repos', generates the child pipeline of OpenRoSDE, with one image job per platform and one test job per setup found by name, then runs it.
+# The child pipeline builds or reuses the base and platform images, builds the Catkin workspaces of every setup inside the image of its platform, and publishes the images as 'dev' or 'main' from those branches, or as 'vX.Y.Z' from a release tag.
+# Every job hands its results through the registry, and every artifact expires, so the pipeline runs the same on a self-managed runner and on the instance runners of GitLab.com.
+
+################################################################################
+
+# Run one pipeline per change: for a merge request, for a branch without an open merge request, or for a tag, such as a release.
+# Also run the pipeline that the pipeline of an extension triggers, even on a branch with an open merge request, such as 'dev' during a release.
+# https://docs.gitlab.com/ci/yaml/workflow/#switch-between-branch-pipelines-and-merge-request-pipelines
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG
+
+################################################################################
+
+# Select the runner by its tag.
+# 'privileged-docker' is the tag of a self-managed Docker executor with privileged mode, which Docker-in-Docker needs.
+# To run on the instance runners of GitLab.com instead, enable them on the project and run the pipeline with 'OPENROSDE_CI_RUNNER_TAG' set to one of their tags, such as 'saas-linux-medium-amd64'.
+
+variables:
+  OPENROSDE_CI_RUNNER_TAG: privileged-docker
 
 ################################################################################
 
 # Define the pipeline stages.
-# https://docs.gitlab.com/ee/ci/yaml/#stage
 
 stages:
-  - build-stage
-  - test-stage
-  - deploy-stage
+  - generate-stage
+  - run-stage
 
 ################################################################################
 
-# Define the common configuration of Docker-in-Docker for all jobs.
+# Run the pipeline only when something that goes into an image or a workspace changes, so that a change of the documentation alone runs nothing.
+# A pipeline started by hand or on a schedule always runs.
 
-# Use Docker-in-Docker with TLS disabled in the Docker executor.
-# https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#docker-in-docker-with-tls-disabled-in-the-docker-executor
-image: docker:latest
-
-# Create a mount point to share files between the Docker-in-Docker container and the child containers.
-# https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#limitations-of-docker-in-docker
-# https://gitlab.com/gitlab-org/gitlab-foss/-/issues/41227
-variables:
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
-  SDE_MOUNT_POINT: /builds/${CI_PROJECT_PATH}/mnt
-  SDE_CONTAINER_ROOT_DIR: /root/SDE
-services:
-  - docker:dind
-
-before_script:
-  - docker info
-  # Download all the missing Git submodules inside the project workspace.
-  - apk update
-  - apk add git
-  - git submodule update --init --recursive
-  # Copy the content of the project workspace to the mount point.
-  - mkdir -p ${SDE_MOUNT_POINT}/
-  - cp -r ./ros/ ./docker/ ./scripts/ ./.env ${SDE_MOUNT_POINT}/
-
-after_script:
-  # Copy the content of the mount point back to the project workspace.
-  # Note: This extra step is required due to some path limitations with the GitLab CI 'artifacts' command.
-  - cp -r ${SDE_MOUNT_POINT}/. ./
+.openrosde-image-changes:
+  rules: &openrosde-image-changes-rules
+    - changes:
+        - .env
+        - .gitmodules
+        - docker/**/*
+        - env/**/*
+        - gitlab-ci/**/*
+        - patches/**/*
+        - ros/**/*
+        - ros2/**/*
+        - scripts/**/*
+        - tmux/**/*
 
 ################################################################################
 
-# Build the Catkin workspace inside a Docker container instance of the platform-specific image.
+# Clone the extensions, then generate the child pipeline, which lives for a day as an artifact.
 
-build-catkin-workspaces-job:
-  stage: build-stage
-  parallel:
-    matrix:
-      - SDE_ROBOT_PLATFORM: [turtlebot3, ur5e, fetch, sciurus17, cobotta, hsr]
+generate-pipeline-job:
+  stage: generate-stage
+  image: docker:29.8.1-cli
+  tags:
+    - $OPENROSDE_CI_RUNNER_TAG
+  interruptible: true
+  rules: *openrosde-image-changes-rules
   script:
-    # Build the Catkin workspace inside the Docker container of the project workspace that is mapped to the mount point.
-    - docker login -u ${SDE_DEPLOY_TOKEN_USERNAME} --password-stdin ${CI_REGISTRY}
-    - docker run
-      -e CI=${CI}
-      -e SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
-      -e SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
-      -v ${SDE_MOUNT_POINT}/:${SDE_CONTAINER_ROOT_DIR}/
-      ${CI_REGISTRY_IMAGE}/${SDE_ROBOT_PLATFORM}-devel:latest ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/reset-catkin-workspaces.bash
-  # Save the build result to pass it to the next jobs.
+    - apk add --no-cache bash > /dev/null
+    - bash ./gitlab-ci/clone-extensions.bash gitlab-ci/extensions.repos
+    - bash ./gitlab-ci/generate-ci-pipeline.bash > openrosde-pipeline-generated.yml
+    - cat openrosde-pipeline-generated.yml
   artifacts:
-    name: ${CI_COMMIT_SHA}-${SDE_ROBOT_PLATFORM}
     paths:
-      # Note: Only paths relative to the project workspace can be used, thus '${SDE_MOUNT_POINT}/' is not permitted.
-      # https://docs.gitlab.com/ee/ci/yaml/#artifacts
-      # https://gitlab.com/gitlab-org/gitlab-foss/-/issues/15530
-      - ./ros/sde_catkin_ws/
-      - ./ros/${SDE_ROBOT_PLATFORM}_catkin_ws/
-    expire_in: 1 week
+      - openrosde-pipeline-generated.yml
+    expire_in: 1 day
 
 ################################################################################
 
-# Run unit tests inside Docker container instances of the platform-specific image.
+# Run the child pipeline, which passes the branch or the tag to publish, if any, the source of this pipeline, and the target branch of a merge request, if any, all set by GitLab.
+# No other variable reaches the child pipeline: neither the global ones of this file nor those that started this pipeline, such as those of a schedule or of the pipeline of an extension, so none can replace the three above and publish.
+# The generator writes the variables of this pipeline that the child pipeline needs into it instead, once it has checked them: 'OPENROSDE_CI_RUNNER_TAG', 'OPENROSDE_CI_EXTENSION_OVERRIDE', and 'OPENROSDE_CI_EXTRA_EXTENSIONS'.
+# https://docs.gitlab.com/ci/pipelines/downstream_pipelines/#pass-cicd-variables-to-a-downstream-pipeline
 
-run-unit-test1-job:
-  stage: test-stage
-  script:
-    - echo "Running unit test 1... Completed!"
-
-run-unit-test2-job:
-  stage: test-stage
-  script:
-    - echo "Running unit test 2... Completed!"
-
-
-################################################################################
-
-# Deploy results of the unit tests inside a Docker container instance of the platform-specific image.
-
-deploy-test-results-job:
-  stage: deploy-stage
-  script:
-    - echo "Deploying test results... Completed!"
+run-pipeline-job:
+  stage: run-stage
+  rules: *openrosde-image-changes-rules
+  trigger:
+    include:
+      - artifact: openrosde-pipeline-generated.yml
+        job: generate-pipeline-job
+    strategy: depend
+  inherit:
+    variables: false
+  variables:
+    OPENROSDE_CI_PUBLISH_TAG: $CI_COMMIT_BRANCH$CI_COMMIT_TAG
+    OPENROSDE_CI_UPSTREAM_SOURCE: $CI_PIPELINE_SOURCE
+    OPENROSDE_CI_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME

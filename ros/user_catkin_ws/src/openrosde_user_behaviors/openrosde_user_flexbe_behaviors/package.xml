@@ -1,0 +1,26 @@
+<package format="2">
+  <name>openrosde_user_flexbe_behaviors</name>
+  <version>1.0.0</version>
+  <description>
+    The 'openrosde_user_flexbe_behaviors' package provides user-overlay FlexBE behaviors.
+  </description>
+  <maintainer email="user@example.com">OpenRoSDE User</maintainer>
+
+  <license>Apache-2.0</license>
+
+  <url type="website">https://coarobo.com/</url>
+  <url type="repository">https://github.com/openrosde/openrosde</url>
+  <url type="bugtracker">https://github.com/openrosde/openrosde/issues</url>
+  <author email="user@example.com">OpenRoSDE User</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>flexbe_core</exec_depend>
+  <exec_depend>flexbe_states</exec_depend>
+
+  <export>
+    <flexbe_behaviors />
+  </export>
+
+</package>

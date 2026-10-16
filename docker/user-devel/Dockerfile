@@ -3,11 +3,14 @@
 
 ################################################################################
 
-# Inherit from the platform-specific SDE image which provides the platform tools.
-# The 'SDE_ROBOT_PLATFORM' build argument is injected from the SDE environment.
-ARG SDE_ROBOT_PLATFORM
-ARG SDE_PLATFORM_IMAGE=registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest
-FROM ${SDE_PLATFORM_IMAGE}
+# Inherit from the platform-specific OpenRoSDE image which provides the platform tools, or from the last Docker layer of the active extensions on top of it.
+# The 'OPENROSDE_ROBOT_PLATFORM' and 'OPENROSDE_PLATFORM_IMAGE' build arguments are injected from the OpenRoSDE environment.
+ARG OPENROSDE_ROBOT_PLATFORM
+ARG OPENROSDE_PLATFORM_IMAGE=ghcr.io/openrosde/${OPENROSDE_ROBOT_PLATFORM}-devel:main
+ARG OPENROSDE_MESH2GLB_IMAGE=ghcr.io/openrosde/openrosde-mesh2glb:main
+# The distribution of ROS of the platform image, whose installed packages live in '/opt/ros/<distribution>/share'.
+ARG OPENROSDE_ROS_DISTRO=noetic
+FROM ${OPENROSDE_PLATFORM_IMAGE} AS overlay
 
 ################################################################################
 
@@ -25,6 +28,21 @@ FROM ${SDE_PLATFORM_IMAGE}
 
 ################################################################################
 
+# Convert every COLLADA, STL, and OBJ mesh installed in the images into a GLB beside it, for the file service of 'rosbridge_server_default.launch', as 'docs/robot-models.md' describes.
+# The converter runs in its own image, since it needs a newer Python than the one of the ROS images, and only the GLBs come back into this one.
+# This layer is built locally only, so the GLBs of meshes that may not be redistributed are never published.
+# The meshes of the Catkin workspaces get theirs from 'scripts/generate-mesh-glbs.bash', since the workspaces are mounted at run time.
+FROM ${OPENROSDE_MESH2GLB_IMAGE} AS glb
+ARG OPENROSDE_ROS_DISTRO
+COPY --from=overlay /opt/ros/${OPENROSDE_ROS_DISTRO}/share /in
+RUN python3 -I /opt/mesh2glb/generate-mesh-glbs.py --jobs "$(nproc)" --out /out /in > /out.tsv && mkdir -p /out
+
+FROM overlay
+ARG OPENROSDE_ROS_DISTRO
+COPY --from=glb /out/ /opt/ros/${OPENROSDE_ROS_DISTRO}/share/
+
+################################################################################
+
 # Pass variables for version traceability.
-ARG SDE_DOCKERFILE_COMMIT_SHORT_SHA
-ENV SDE_DOCKER_IMAGE_VERSION=${SDE_DOCKERFILE_COMMIT_SHORT_SHA}
+ARG OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA
+ENV OPENROSDE_DOCKER_IMAGE_VERSION=${OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA}

@@ -1,0 +1,254 @@
+# Documentation for reusable workflows of GitHub Actions:
+# https://docs.github.com/en/actions/sharing-automations/reusing-workflows
+
+# This reusable workflow tests an extension of OpenRoSDE against the core, called from a workflow of the repository of that extension, such as 'openrosde/openrosde-platform-<name>' or 'openrosde/openrosde-device-<driver>', in place of the multi-project trigger of the GitLab pipeline.
+# It checks out the core at 'core-ref', clones the public extensions of 'gitlab-ci/extensions.repos', and checks out the commit of the calling repository in place of the pinned clone of the extension, with the patches of that extension applied, which also works for a fork, a pull request, or an extension that the file does not list.
+# It then generates the pipeline with 'gitlab-ci/generate-ci-pipeline.bash', which keeps only the setups that activate the extension, checks that no script of the CI can move a robot, checks the GLB files of the converter, and tests every setup it kept, as the GitLab pipeline does for 'OPENROSDE_CI_EXTENSION_OVERRIDE'.
+# The workflow runs in the repository that calls it, which cannot push to the registry of the core, so it reads the published images of the core, such as 'ghcr.io/openrosde/openrosde-base:dev', and each test job builds the image of its platform locally on top of them, with the published image of that platform as its cache.
+# It needs no secret and publishes nothing.
+
+name: Extension
+
+on:
+  workflow_call:
+    inputs:
+      extension-name:
+        description: Folder of the extension under test in 'extensions/', or empty for the name of the calling repository.
+        type: string
+        required: false
+        default: ""
+      core-repository:
+        description: Repository of the core to test against.
+        type: string
+        required: false
+        default: openrosde/openrosde
+      core-ref:
+        description: Branch or tag of the core to test against, such as 'dev', 'main', or a release 'v3.0.0'.
+        type: string
+        required: false
+        default: dev
+      image-registry:
+        description: Registry of the published images of the core.
+        type: string
+        required: false
+        default: ghcr.io/openrosde
+      image-tag:
+        description: Tag of the published images of the core, or empty for 'core-ref' when it is 'dev', 'main', or a release, and for 'dev' otherwise.
+        type: string
+        required: false
+        default: ""
+      extra-extensions:
+        description: Folder names in 'extensions/', separated by spaces, to add to every setup, such as the name of a device that no setup lists yet.
+        type: string
+        required: false
+        default: ""
+
+# Give every job the right to read the repositories alone.
+permissions:
+  contents: read
+
+# Run every script with Bash, which GitHub Actions then starts with '-eo pipefail'.
+defaults:
+  run:
+    shell: bash
+
+env:
+  # Registry of the published images that the jobs read, the one place where this workflow names it.
+  OPENROSDE_CI_IMAGE_REGISTRY: ${{ inputs.image-registry }}
+  # Extensions to add to every setup, which the generator and the test script check before they use them.
+  OPENROSDE_CI_EXTRA_EXTENSIONS: ${{ inputs.extra-extensions }}
+
+jobs:
+  ##############################################################################
+
+  # Name the extension and the tag of the images, then generate the pipeline of the setups that activate the extension, and print the matrix of their test jobs.
+  # Keep the generated pipeline for a day.
+
+  generate-pipeline:
+    name: generate-pipeline-job
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      extension-name: ${{ steps.settings.outputs.extension-name }}
+      image-tag: ${{ steps.settings.outputs.image-tag }}
+      tests: ${{ steps.matrices.outputs.tests }}
+    steps:
+      - name: Check out the core
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ inputs.core-repository }}
+          ref: ${{ inputs.core-ref }}
+          persist-credentials: false
+
+      - name: Name the extension and the tag of the images
+        id: settings
+        env:
+          OPENROSDE_CI_EXTENSION_NAME: ${{ inputs.extension-name }}
+          OPENROSDE_CI_CORE_REF: ${{ inputs.core-ref }}
+          OPENROSDE_CI_IMAGE_TAG: ${{ inputs.image-tag }}
+        run: >-
+          bash ./.github/scripts/print-extension-settings.bash
+          "${OPENROSDE_CI_EXTENSION_NAME}" "${OPENROSDE_CI_CORE_REF}" "${OPENROSDE_CI_IMAGE_TAG}"
+          | tee -a "${GITHUB_OUTPUT}"
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+        with:
+          extension-name: ${{ steps.settings.outputs.extension-name }}
+
+      # The generator reads only the name of the override, to keep the setups that activate the extension, since the job has already checked out the extension, so the branch is a placeholder.
+      - name: Generate the pipeline and its matrices
+        id: matrices
+        env:
+          OPENROSDE_CI_RUNNER_TAG: ubuntu-24.04
+          OPENROSDE_CI_EXTENSION_NAME: ${{ steps.settings.outputs.extension-name }}
+          OPENROSDE_CI_GENERATED_PIPELINE: ${{ runner.temp }}/openrosde-pipeline-generated.yml
+        run: |
+          OPENROSDE_CI_EXTENSION_OVERRIDE="${OPENROSDE_CI_EXTENSION_NAME}=checkout@$(git -C "extensions/${OPENROSDE_CI_EXTENSION_NAME}" rev-parse HEAD)"
+          export OPENROSDE_CI_EXTENSION_OVERRIDE
+          bash ./gitlab-ci/generate-ci-pipeline.bash > "${OPENROSDE_CI_GENERATED_PIPELINE}"
+          cat "${OPENROSDE_CI_GENERATED_PIPELINE}"
+          bash ./.github/scripts/print-ci-matrices.bash "${OPENROSDE_CI_GENERATED_PIPELINE}" | tee -a "${GITHUB_OUTPUT}"
+
+      - name: Keep the generated pipeline
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: openrosde-pipeline-generated
+          path: ${{ runner.temp }}/openrosde-pipeline-generated.yml
+          retention-days: 1
+
+  ##############################################################################
+
+  # Check that no script that the CI runs can move a robot, in 'gitlab-ci/' and '.github/' of the core and in 'ci/' of the extensions, the one under test included, before any test job runs one.
+
+  check-scripts:
+    name: check-scripts-job
+    needs: generate-pipeline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the core
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ inputs.core-repository }}
+          ref: ${{ inputs.core-ref }}
+          persist-credentials: false
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+        with:
+          extension-name: ${{ needs.generate-pipeline.outputs.extension-name }}
+
+      - name: Check that no script can move a robot
+        run: bash ./gitlab-ci/check-no-motion.bash gitlab-ci .github extensions/*/ci extensions/*/parts/*/ci
+
+  ##############################################################################
+
+  # Check the converter on the meshes of the published base image and of the workspaces, the extension under test included: two runs must give the same bytes, and every GLB must pass the Khronos glTF-Validator.
+  # Keep the reports of the conversion for a week.
+
+  check-mesh-glbs:
+    name: check-mesh-glbs-job
+    needs: generate-pipeline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      OPENROSDE_CI_IMAGE_TAG: ${{ needs.generate-pipeline.outputs.image-tag }}
+    steps:
+      - name: Check out the core
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ inputs.core-repository }}
+          ref: ${{ inputs.core-ref }}
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Free disk space
+        uses: ./.github/actions/free-disk-space
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+        with:
+          extension-name: ${{ needs.generate-pipeline.outputs.extension-name }}
+          submodules: recursive
+
+      - name: Check the GLB files of the converter
+        run: bash ./gitlab-ci/check-mesh-glbs.bash
+
+      - name: Keep the reports of the conversion
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-logs-check-mesh-glbs-job
+          path: ci-logs/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  ##############################################################################
+
+  # Test every setup that activates the extension: build the image of its platform locally, then build its Docker layers and its Catkin or colcon workspaces in that image, check its robot model and its launch entry points with the container cut from every network, and run the checks of its extensions.
+  # Keep the logs of the workspaces for a week when a test fails.
+
+  test-workspaces:
+    name: ${{ matrix.job }}
+    needs:
+      - generate-pipeline
+      - check-scripts
+    if: needs.generate-pipeline.outputs.tests != '[]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.generate-pipeline.outputs.tests) }}
+    env:
+      OPENROSDE_CI_IMAGE_TAG: ${{ needs.generate-pipeline.outputs.image-tag }}
+    steps:
+      - name: Check out the core
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ inputs.core-repository }}
+          ref: ${{ inputs.core-ref }}
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Free disk space
+        uses: ./.github/actions/free-disk-space
+
+      - name: Clone the extensions
+        uses: ./.github/actions/clone-extensions
+        with:
+          extension-name: ${{ needs.generate-pipeline.outputs.extension-name }}
+          submodules: recursive
+
+      - name: Build the image of the platform
+        if: matrix.platform != ''
+        env:
+          OPENROSDE_ROBOT_PLATFORM: ${{ matrix.platform }}
+          OPENROSDE_CI_PLATFORM_ROOT_DIR: ${{ matrix.root }}
+          OPENROSDE_CI_BASE_IMAGE_NAME: ${{ matrix.base }}
+        run: >-
+          bash ./.github/scripts/build-local-platform-image.bash
+          "${OPENROSDE_ROBOT_PLATFORM}" "${OPENROSDE_CI_PLATFORM_ROOT_DIR}"
+          "${OPENROSDE_CI_IMAGE_REGISTRY}/${OPENROSDE_CI_BASE_IMAGE_NAME}:${OPENROSDE_CI_IMAGE_TAG}"
+
+      - name: Test the workspaces
+        env:
+          OPENROSDE_ROBOT_PLATFORM: ${{ matrix.platform }}
+          OPENROSDE_CI_ROBOT_SETUP: ${{ matrix.setup }}
+          OPENROSDE_CI_ROBOT_MODEL_ARGS: ${{ matrix.model-args }}
+        run: |
+          OPENROSDE_CI_TEST_IMAGES=()
+          if [ -n "${OPENROSDE_ROBOT_PLATFORM}" ]; then
+            OPENROSDE_CI_TEST_IMAGES=("openrosde-ci-local/${OPENROSDE_ROBOT_PLATFORM}-devel:latest")
+          fi
+          bash ./gitlab-ci/test-catkin-workspaces.bash "${OPENROSDE_CI_ROBOT_SETUP}" "${OPENROSDE_CI_TEST_IMAGES[@]}"
+
+      - name: Keep the logs of the workspaces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ci-logs-${{ matrix.job }}
+          path: ci-logs/
+          retention-days: 7
+          if-no-files-found: ignore

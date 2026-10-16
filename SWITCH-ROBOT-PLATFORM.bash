@@ -1,45 +1,46 @@
 #!/bin/bash
 
-# This script switches the active robot platform by copying the corresponding environment template from 'env/' to '.env.custom'.
+# This script switches the active robot platform by switching to its default setup, its own environment template 'env/<platform>.env'.
+# The template lives in 'env/' of the core or of an extension cloned into 'extensions/', and 'SWITCH-ROBOT-SETUP.bash' copies it to '.env.custom'.
 #
 # Usage: bash ./SWITCH-ROBOT-PLATFORM.bash <robot-platform>
 #
 # <robot-platform>: The target robot platform to switch to.
-#                   Available platforms are listed in the 'env/' directory.
+#                   Available platforms are found by name, as 'scripts/list-robot-platforms.bash' lists them.
 
 ################################################################################
+
+# Resolve the repository root directory relative to this script.
+OPENROSDE_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# List the available platforms, found by name.
+OPENROSDE_AVAILABLE_PLATFORM_NAMES="$(bash "${OPENROSDE_ROOT_DIR}/scripts/list-robot-platforms.bash")"
 
 # Validate the required argument.
 if [ -z "$1" ]; then
   echo "Usage: bash ./SWITCH-ROBOT-PLATFORM.bash <robot-platform>"
   echo ""
   echo "Available platforms:"
-  for SDE_ENV_FILE in ./env/*.env; do
-    echo "  - $(basename "${SDE_ENV_FILE}" .env)"
+  for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_AVAILABLE_PLATFORM_NAMES}; do
+    echo "  - ${OPENROSDE_PLATFORM_NAME}"
   done
   exit 1
 fi
 
 ################################################################################
 
-# Verify the platform template exists.
-if [ ! -f "./env/$1.env" ]; then
-  echo "Error: Platform template 'env/$1.env' not found."
+# Verify the platform is one of the available platforms.
+if ! echo "${OPENROSDE_AVAILABLE_PLATFORM_NAMES}" | grep -qxF "$1"; then
+  echo "Error: Platform '$1' not found."
   echo ""
   echo "Available platforms:"
-  for SDE_ENV_FILE in ./env/*.env; do
-    echo "  - $(basename "${SDE_ENV_FILE}" .env)"
+  for OPENROSDE_PLATFORM_NAME in ${OPENROSDE_AVAILABLE_PLATFORM_NAMES}; do
+    echo "  - ${OPENROSDE_PLATFORM_NAME}"
   done
   exit 1
 fi
 
 ################################################################################
 
-# Copy the platform template to '.env.custom'.
-cp "./env/$1.env" ./.env.custom
-echo "Switched to '$1' platform."
-
-################################################################################
-
-# Update Git submodules and apply patches to ensure the workspace is in sync.
-bash ./scripts/update-git-submodules.bash
+# Switch to the default setup of the platform, its own template, named after it.
+bash "${OPENROSDE_ROOT_DIR}/SWITCH-ROBOT-SETUP.bash" "$1"

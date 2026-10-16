@@ -2,17 +2,17 @@
 
 ################################################################################
 
-# User overlay for the SDE.
+# User overlay for OpenRoSDE.
 # Passes user-defined environment variables and mounts to the container.
-# Add your custom 'SDE_USER_*' variables to '.env' (defaults) or '.env.custom' (overrides), then expose them here.
+# Add your custom 'OPENROSDE_USER_*' variables to '.env' (defaults) or '.env.custom' (overrides), then expose them here.
 
 ################################################################################
 
 services:
-  sde:
+  openrosde:
     environment:
       # User-defined example variable (defined in '.env').
-      - SDE_USER_EXAMPLE_VAR=${SDE_USER_EXAMPLE_VAR}
+      - OPENROSDE_USER_EXAMPLE_VAR=${OPENROSDE_USER_EXAMPLE_VAR}
     # Add extra volume mounts here. Example:
     #
     # volumes:

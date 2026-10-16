@@ -1,0 +1,39 @@
+# Public extensions that the CI of OpenRoSDE clones into 'extensions/' with 'gitlab-ci/clone-extensions.bash' and tests with the core, in the format of 'vcstool'.
+# Each entry reads as below, with an anonymous HTTPS URL and a version pinned to a tag or a commit, so that every pipeline of the core is reproducible:
+#
+#   repositories:
+#     openrosde-platform-<name>:
+#       type: git
+#       url: https://github.com/openrosde/openrosde-platform-<name>.git
+#       version: v1.0.0
+#
+# Keep this layout, with each name indented by two spaces and its keys by four, since 'gitlab-ci/clone-extensions.bash' refuses any other.
+# A platform is added here in the same merge request that removes it from the core.
+# Update the 'version' of an entry by hand, to a tag or a commit that a pipeline tested, such as the one that 'git -C extensions/<name> rev-parse HEAD' prints.
+# Never write this file with 'vcs export' of the whole 'extensions/' folder, which lists every clone of the checkout, private ones included, and would publish their names and URLs.
+
+repositories:
+  openrosde-platform-cobotta:
+    type: git
+    url: https://github.com/openrosde/openrosde-platform-cobotta.git
+    version: f6e2007e72f39a568f1d9b5f1539c58352cc1055
+  openrosde-platform-fetch:
+    type: git
+    url: https://github.com/openrosde/openrosde-platform-fetch.git
+    version: 130f44befb01f311be8a0e4a132b33aa2e39e888
+  openrosde-platform-hsr:
+    type: git
+    url: https://github.com/openrosde/openrosde-platform-hsr.git
+    version: 0a4bae031372e0afea73ad46176ca8eb2376a9cd
+  openrosde-platform-sciurus17:
+    type: git
+    url: https://github.com/openrosde/openrosde-platform-sciurus17.git
+    version: 5fc7b45a245d16676e6db18b9b75f19eec39fad3
+  openrosde-platform-turtlebot3:
+    type: git
+    url: https://github.com/openrosde/openrosde-platform-turtlebot3.git
+    version: a46be8738065a3b61781d19c3961fff6a3e7a315
+  openrosde-platform-ur5e:
+    type: git
+    url: https://github.com/openrosde/openrosde-platform-ur5e.git
+    version: 055fb67e1a4eecb9fe0b8c572a3a9bf7ba754e18

@@ -2,60 +2,79 @@
 
 ################################################################################
 
-# Base Docker Compose file for the SDE.
-# Defines three services:
-#   - 'sde-base'     : Build-only shared base image.
-#   - 'sde-platform' : Build-only platform-specific image (inherits from 'sde-base').
-#   - 'sde'          : Runtime user overlay container (inherits from 'sde-platform').
+# Base Docker Compose file for OpenRoSDE.
+# Defines four services:
+#   - 'openrosde-base'     : Build-only shared base image of the ROS of the platform, 'openrosde-base' on ROS 1 or 'openrosde-base-ros2' on ROS 2.
+#   - 'openrosde-mesh2glb' : Build-only converter of robot meshes into GLB files, which the user overlay runs on the meshes of the images.
+#   - 'openrosde-platform' : Build-only platform-specific image (inherits from 'openrosde-base').
+#   - 'openrosde'          : Runtime user overlay container (inherits from 'openrosde-platform').
 
 ################################################################################
 
 services:
-  sde-base:
-    image: registry.gitlab.com/coarobo/sde/sde-base:latest
+  openrosde-base:
+    # The base image of the ROS that the platform runs, as 'scripts/load-extension-paths.bash' names it from 'OPENROSDE_ROS_VERSION'.
+    image: ${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_BASE_IMAGE_NAME}:${OPENROSDE_DOCKER_IMAGE_TAG}
     build:
       context: ../
-      dockerfile: ./docker/sde-base/Dockerfile
+      dockerfile: ./docker/${OPENROSDE_BASE_IMAGE_NAME}/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
-        - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
+        - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_BASE_DOCKERFILE_COMMIT_SHORT_SHA}
+        - OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}
 
-  sde-platform:
-    image: registry.gitlab.com/coarobo/sde/${SDE_ROBOT_PLATFORM}-devel:latest
+  openrosde-mesh2glb:
+    image: ${OPENROSDE_DOCKER_REGISTRY}/openrosde-mesh2glb:${OPENROSDE_DOCKER_IMAGE_TAG}
     build:
       context: ../
-      dockerfile: ./docker/${SDE_ROBOT_PLATFORM}-devel/Dockerfile
+      dockerfile: ./docker/openrosde-mesh2glb/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
-        - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+        - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_MESH2GLB_DOCKERFILE_COMMIT_SHORT_SHA}
 
-  sde:
-    hostname: sde-${SDE_ROBOT_PLATFORM}
-    container_name: sde-${SDE_ROBOT_PLATFORM}-${SDE_DOCKER_PROJECT}-1
+  openrosde-platform:
+    image: ${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_ROBOT_PLATFORM}-devel:${OPENROSDE_DOCKER_IMAGE_TAG}
+    build:
+      # The platform builds from the folder that holds it, the core, an extension, or a part, so that its 'COPY' instructions read from there, as 'scripts/load-extension-paths.bash' resolves it.
+      context: ${OPENROSDE_ROBOT_PLATFORM_ROOT_DIR}
+      # The Dockerfile of the platform, relative to that folder, as 'scripts/load-openrosde-env.bash' derives it.
+      dockerfile: ./${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE}
+      args:
+        - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_ROBOT_PLATFORM_DOCKERFILE_COMMIT_SHORT_SHA}
+        - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
+        - OPENROSDE_BASE_IMAGE=${OPENROSDE_DOCKER_REGISTRY}/${OPENROSDE_BASE_IMAGE_NAME}:${OPENROSDE_DOCKER_IMAGE_TAG}
+
+  openrosde:
+    hostname: openrosde-${OPENROSDE_ROBOT_PLATFORM}
+    container_name: openrosde-${OPENROSDE_ROBOT_PLATFORM}-${OPENROSDE_DOCKER_PROJECT}-1
     privileged: true
     environment:
       # Pass current user and group IDs.
-      - SDE_USER_ID=${SDE_USER_ID}
-      - SDE_GROUP_ID=${SDE_GROUP_ID}
+      - OPENROSDE_USER_ID=${OPENROSDE_USER_ID}
+      - OPENROSDE_GROUP_ID=${OPENROSDE_GROUP_ID}
       # Display X Server GUIs.
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
       # Configure the PulseAudio interface.
       - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
       # Pass the platform identifier to the container.
-      - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
-      # Pass the SDE root directory path.
-      - SDE_CONTAINER_ROOT_DIR=${SDE_CONTAINER_ROOT_DIR}
-    image: registry.gitlab.com/coarobo/sde/user-devel:latest
+      - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
+      # Pass the OpenRoSDE root directory path.
+      - OPENROSDE_CONTAINER_ROOT_DIR=${OPENROSDE_CONTAINER_ROOT_DIR}
+    # The user overlay is built locally only, under 'openrosde-local/<setup>/', which no 'docker push' can publish, as 'scripts/load-openrosde-env.bash' names it.
+    image: ${OPENROSDE_LOCAL_IMAGE_PREFIX}/user-devel:latest
     build:
       context: ../
       dockerfile: ./docker/user-devel/Dockerfile
       args:
-        - SDE_DOCKERFILE_COMMIT_SHORT_SHA=${SDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}
-        - SDE_ROBOT_PLATFORM=${SDE_ROBOT_PLATFORM}
+        - OPENROSDE_DOCKERFILE_COMMIT_SHORT_SHA=${OPENROSDE_USER_DEVEL_DOCKERFILE_COMMIT_SHORT_SHA}
+        - OPENROSDE_ROBOT_PLATFORM=${OPENROSDE_ROBOT_PLATFORM}
+        # The parent of the user overlay is the last Docker layer of the active extensions, or else the platform image, as 'scripts/load-openrosde-env.bash' derives it.
+        - OPENROSDE_PLATFORM_IMAGE=${OPENROSDE_USER_PARENT_IMAGE}
+        # The converter of robot meshes, which gives every mesh installed in the images its GLB, in '/opt/ros/<distribution>/share' of the ROS of the platform.
+        - OPENROSDE_MESH2GLB_IMAGE=${OPENROSDE_DOCKER_REGISTRY}/openrosde-mesh2glb:${OPENROSDE_DOCKER_IMAGE_TAG}
+        - OPENROSDE_ROS_DISTRO=${OPENROSDE_ROS_DISTRO}
     volumes:
       # Map repository root for convenient access.
-      - ../:${SDE_CONTAINER_ROOT_DIR}/
+      - ../:${OPENROSDE_CONTAINER_ROOT_DIR}/
       # Grant display access to X Server.
       - /tmp/.X11-unix:/tmp/.X11-unix
       # Grant audio access to PulseAudio.
@@ -65,4 +84,4 @@ services:
     network_mode: host
     ipc: host
     pid: host
-    command: ${SDE_CONTAINER_ROOT_DIR}/docker/sde-base/scripts/initialize-docker-container.bash
+    command: ${OPENROSDE_CONTAINER_ROOT_DIR}/docker/openrosde-base/scripts/initialize-docker-container.bash
