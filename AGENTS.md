@@ -15,30 +15,30 @@ It is being split into a platform-agnostic core with extensions, as [OpenRoSDE S
 - Container OS: [Ubuntu](https://ubuntu.com/) 20.04 (Focal Fossa) on ROS 1, and [Ubuntu](https://ubuntu.com/) 26.04 (Resolute Raccoon) on ROS 2.
 - Robotics Framework: [ROS](http://www.ros.org/) Noetic, and [ROS 2](https://docs.ros.org/en/lyrical/) Lyrical Luth beside it for the platforms that declare it (see [ROS 2](#ros-2)).
 - Simulator: [Gazebo](http://gazebosim.org/).
-- Visualization: [Rviz](https://github.com/ros-visualization/rviz).
+- Visualization: [RViz](https://github.com/ros-visualization/rviz).
 - Behavior Engine: [FlexBE](http://flexbe.github.io/).
 - Build System: [catkin](https://wiki.ros.org/catkin) (via `catkin build`) on ROS 1, and [colcon](https://colcon.readthedocs.io/) (via `colcon build`) on ROS 2.
 - Multi-Terminal: [tmux](https://github.com/tmux/tmux/wiki), and [Terminator](https://gnometerminator.blogspot.com/) until `tmux` replaces it.
 - Scripting: [Bash](https://www.gnu.org/software/bash/).
 - Configuration: `.env` / `.env.custom` files.
-- CI/CD: [GitHub Actions](https://docs.github.com/actions), which runs the scripts of `gitlab-ci/`, beside the [GitLab CI](https://docs.gitlab.com/ee/ci/) of the archive.
+- CI/CD: [GitHub Actions](https://docs.github.com/actions), whose workflows run the scripts of `gitlab-ci/`, a folder named after the GitLab CI that ran the versions before 3.0.0, until #13 renames it.
 - Repository: [Git](https://git-scm.com/) (versioning), [GitHub](https://github.com/) (hosting).
 - Editor: [VS Code](https://code.visualstudio.com/).
 - Agents: [Claude Code](https://claude.com/claude-code), [GitHub Copilot](https://github.com/features/copilot).
-- License: [MIT](LICENSE), until the move to GitHub as OpenRoSDE under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+- License: [Apache License 2.0](LICENSE) from version 3.0.0, with a [`NOTICE`](NOTICE) that keeps the MIT License of the earlier versions.
 
 ## OpenRoSDE Split
 
 On 2026-10-10 the maintainers approved the split of the SDE into OpenRoSDE, read "Open Robotic SDE": a platform-agnostic open core, with platforms, devices, and extensions around it, composed into setups.
-The steps are tracked as issues #37 to #42 of the `Split the SDE into the OpenRoSDE core and its extensions` milestone (%5), and the ROS 2 work in the `Run OpenRoSDE on ROS 2 beside ROS 1` milestone (%3).
-The reasoning, the full plan, and the state of the work live in the maintainers' note `Shin-Coarobo OpenRoSDE`, which is not public.
+The steps were tracked as issues 37 to 42 of the milestone `Split the SDE into the OpenRoSDE core and its extensions`, and the ROS 2 work in the milestone `Run OpenRoSDE on ROS 2 beside ROS 1`, in the GitLab archive at `https://gitlab.com/coarobo/SDE`.
+The issues still open moved to GitHub on 2026-10-16: the ROS 2 work is #2, the rest of the split, the retirement of Terminator included, is #3, and the follow-up of the review of the CI is #4.
 
 ### Target Shape
 
 - The core keeps the entry scripts, `scripts/`, `gitlab-ci/`, the `openrosde-base` image, the generic Docker Compose files, and `ros/openrosde_catkin_ws/` with FlexBE and `openrosde_launch`.
 - Every file named after a platform (`env/<platform>.env`, `docker/<platform>-devel/`, `docker/docker-compose-<platform>.yaml`, `ros/<platform>_catkin_ws/`, `terminator/<platform>.config`, `docs/robot-platforms/<platform>.md`, and its patches) moves to the repository of that platform, or to a device or a setup where it belongs to one.
 - A platform is one robot as sold, with its public drivers, and each canonical robot moves to an `openrosde-platform-<name>` repository: `turtlebot3`, `fetch`, `sciurus17`, `cobotta`, `hsr`, and the plain Universal Robots UR5e.
-  All six live in `https://github.com/openrosde/openrosde-platform-<name>` since #40, each starting from one import commit that names the commit of this repository it comes from.
+  All six live in `https://github.com/openrosde/openrosde-platform-<name>`, each starting from one import commit that names the commit of the GitLab archive it comes from.
   The UR5e there is the plain robot, fixed to `world` with nothing on its flange, whose description package a setup replaces to mount its devices, as `docs/robot-platforms/ur5e.md` of `openrosde-platform-ur5e` describes.
   The package that `OPENROSDE_UR5E_DESCRIPTION_PACKAGE` names holds `urdf/ur5e_<environment>.xacro`, `config/ur5e/ur5e_<environment>.srdf`, `config/ur5e/ur5e_calibration.yaml`, and `config/rviz/ur5e_rviz_default.rviz`, and its xacro files call the macro `openrosde_ur5e` of `urdf/inc/ur5e_macro.xacro` of `openrosde_ur5e_launch`, so the robot is described once for every setup.
 - A device is one upstream driver of hardware anyone can buy, such as a gripper, a camera, or an input device, with every model that driver supports, which names no robot and moves to a public `openrosde-device-<driver>` repository: first `openrosde-device-onrobot` for the OnRobot RG and VG grippers with the gripper action shim, `openrosde-device-realsense` for the RealSense cameras, and `openrosde-device-spacenav` for the 3Dconnexion SpaceMouse.
@@ -48,9 +48,9 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
 - The Coarobo UR5e bench is the first setup, in the private extension of Coarobo, beside the bindings of Coarobo Sightline and Coarobo Viewport and the FastSAM segmentation, which have all left the core and its user layer, and the setup of a client takes the same shape in a private extension of that client.
 - The Unity ROS TCP Endpoint left the core on 2026-10-15, once Coarobo Sightline reached the Fetch and the UR5e through `rosbridge` alone, so `openrosde_launch:rosbridge_server_default.launch` on port `9090` is the one transport the core provides to web and Unity clients.
 - The user layer stays in the core as the template every extension starts from.
-- Terminator gives way to `tmux` sessions built by `RUN-TMUX-SESSION.bash` from the panes each part declares, and leaves once the maintainers have run the `tmux` sessions on a real robot (#38).
+- Terminator gives way to `tmux` sessions built by `RUN-TMUX-SESSION.bash` from the panes each part declares, which ran on a real UR5e on 2026-10-16 (#5), and leaves the core with #3.
 - The repository moved to GitHub as OpenRoSDE, `https://github.com/openrosde/openrosde`, under the Apache License 2.0 from version 3.0.0, with a `NOTICE` that keeps the MIT notice of the earlier code, while `https://gitlab.com/coarobo/SDE` stays as an archive, since papers cite it.
-- ROS 2 comes beside ROS 1 and never replaces it, since robots such as the Fetch run only on ROS 1, and each platform declares the ROS it runs, as [ROS 2](#ros-2) describes (#31).
+- ROS 2 comes beside ROS 1 and never replaces it, since robots such as the Fetch run only on ROS 1, and each platform declares the ROS it runs, as [ROS 2](#ros-2) describes (#2).
 
 ### Rules During the Split
 
@@ -58,15 +58,15 @@ The reasoning, the full plan, and the state of the work live in the maintainers'
 - Add no Coarobo setup or product binding to the core, to a platform, or to a device, since they live in the private extension of Coarobo.
 - Design every mechanism so that a private setup or extension, cloned from a private repository of a client, works exactly as a public one does.
   Hard-code no Git group, registry, or host, and give the setups and extensions of Coarobo no special case.
-- Keep `LICENSE` and the `<license>` of every `package.xml` of this repository on MIT until the move to GitHub, and change them only as part of that step.
-  A new public repository of the split starts under the Apache License 2.0 instead, with a `NOTICE` that reads `Copyright 2019 Coarobo GK`, keeps the MIT notice of the earlier code, and records the third-party software of that repository.
+- `LICENSE` and the `<license>` of every `package.xml` of this repository are the Apache License 2.0 since the move to GitHub in version 3.0.0, with a `NOTICE` that keeps the MIT notice of the earlier versions.
+  A new public repository of the split starts under the Apache License 2.0 too, with a `NOTICE` that reads `Copyright 2019 Coarobo GK`, keeps the MIT notice of the earlier code, and records the third-party software of that repository.
 - Keep the interfaces that Coarobo products use working through every step, as [Interfaces Used by Coarobo Products](#interfaces-used-by-coarobo-products) lists.
 
 ### Interfaces Used by Coarobo Products
 
 Coarobo Sightline and Coarobo Viewport reach the robot through the interfaces below, which the core and the public platforms start from the files named beside them.
-The contract is kept in `Docs/robot-interface.md` of `coarobo/coarobo-sightline`, a private repository, and in the maintainers' `Shin-Coarobo OpenRoSDE` note.
-Record a change of a topic name, a message type, a port, or the launch file that starts one of them in both places before making it.
+The maintainers keep this contract with the products of Coarobo GK.
+Open an issue before changing a topic name, a message type, a port, or the launch file that starts one of them.
 
 - `/joint_states`, `/tf`, `/tf_static`, and `clock`: the bringup of each platform.
 - `/servo_server/delta_twist_cmds`: MoveIt Servo, started by `openrosde_ur5e_teleop/launch/ur5e_teleop.launch` of `openrosde-platform-ur5e`, which `ur5e_teleop_default_<environment>.launch` includes.
@@ -74,11 +74,11 @@ Record a change of a topic name, a message type, a port, or the launch file that
 - Port `9090` of `rosbridge`: `openrosde_launch:rosbridge_server_default.launch`.
 - The robot model: `robot_description` through `/rosapi/get_param`, and its meshes as GLB files through the service `/file_server/get_file` of the ROS# node `file_server` that `rosbridge_server_default.launch` starts, as [Robot Models](docs/robot-models.md) describes.
 
-The other interfaces of the products, such as the gripper action, the camera relays, and the bridge of `/cmd_vel` of the UR5e bench, are started by the setups that use them, from public devices and the private bindings of Coarobo, and their contract is kept in the same two places.
+The other interfaces of the products, such as the gripper action, the camera relays, and the bridge of `/cmd_vel` of the UR5e bench, are started by the setups that use them, from public devices and the private bindings of Coarobo, under the same contract.
 
 ### Parallel Work
 
-- Coarobo Sightline (`coarobo/coarobo-sightline`) and Coarobo Viewport (`coarobo/coarobo-viewport`) are developed in their own repositories, often by other agents at the same time as one working here.
+- Coarobo Sightline and Coarobo Viewport are developed in their own repositories, often by other agents at the same time as one working here.
 - An agent working here owns this repository and the extension repositories of the split, and leaves those two repositories to their own sessions.
 - Coarobo Sightline reaches robots through `rosbridge`, as Coarobo Viewport does, so that it no longer depends on OpenRoSDE and runs on ROS 1 and ROS 2 alike.
 
@@ -87,7 +87,7 @@ The other interfaces of the products, such as the gripper action, the camera rel
 - `docker/`: Docker images and container scripts.
   - `openrosde-base/`: Shared base image of ROS 1 (`Dockerfile`, helper `scripts/`, which both base images copy, and the patches of ROS# in `patches/ros-sharp/`).
   - `openrosde-base-ros2/`: Shared base image of ROS 2 (`Dockerfile`, and the patches of ROS# for `file_server2` in `patches/ros-sharp/`).
-  - `user-devel/`: User overlay image (Layer 3, runtime container; inherits from `${OPENROSDE_ROBOT_PLATFORM}-devel`, built locally only).
+  - `user-devel/`: User overlay image (Layer 3, runtime container, which inherits from `${OPENROSDE_ROBOT_PLATFORM}-devel`, built locally only).
   - `docker-compose.yaml`: Base service definitions (defines `openrosde-base`, `openrosde-platform`, and `openrosde`).
   - `docker-compose-nvidia.yaml`: Nvidia GPU overlay.
   - `docker-compose-wsl.yaml`: WSL 2 GPU overlay.
@@ -98,7 +98,7 @@ The other interfaces of the products, such as the gripper action, the camera rel
 - `ros2/`: colcon workspaces of the platforms on ROS 2.
   - `openrosde_colcon_ws/`: Shared workspace (`openrosde_launch/` with `rosbridge_server_default.launch.xml` and `rqt_suite_default.launch.xml`).
   - `user_colcon_ws/`: User overlay workspace (`openrosde_user_launch/` with `user_example_default.launch.xml`). Platform-agnostic.
-- `scripts/`: Shared shell scripts (`load-openrosde-env.bash`, `load-openrosde-settings.bash`, `load-extension-paths.bash`, `build-extension-layers.bash`, `list-robot-platforms.bash`, `list-robot-setups.bash`, `print-tmux-splash.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each setup or platform in `scripts/<setup or platform>/`.
+- `scripts/`: Shared shell scripts (`load-openrosde-env.bash`, `load-openrosde-settings.bash`, `load-env-custom.bash`, `load-extension-paths.bash`, `build-extension-layers.bash`, `list-robot-platforms.bash`, `list-robot-setups.bash`, `generate-mesh-glbs.bash`, `print-tmux-splash.bash`, `update-git-submodules.bash`, `apply-submodule-patches.bash`), and the optional scripts of each setup or platform in `scripts/<setup or platform>/`.
 - `patches/`: Patches of the Git submodules, mirroring the submodule paths.
 - `env/`: `user.env` (user overlay reference template) and `openrosde-ros2.env` (the settings of ROS 2, which the template of a platform on ROS 2 repeats and the CI tests the core alone with), while every platform holds its own template in its repository.
 - `extensions/`: Extensions, each a Git repository cloned into `extensions/<extension>/` and ignored by the Git of the core, apart from `README.md`, such as the canonical platforms `openrosde-platform-<platform>/` with the layout of the core.
@@ -109,11 +109,13 @@ The other interfaces of the products, such as the gripper action, the camera rel
   - `user-overlay.md`: User overlay (Layer 3) usage and customization.
   - `extensions.md`: Extensions cloned into `extensions/`, and how OpenRoSDE finds their files.
   - `ros2.md`: Platforms on ROS 2 beside those on ROS 1.
+  - `robot-models.md`: The robot model that `rosbridge` serves to its clients, with the GLB files of the meshes.
 - `tmux/`: Pane files of the `tmux` sessions: `openrosde.panes` for the core on ROS 1 and `openrosde-ros2.panes` on ROS 2, while each platform holds its own `<platform>.panes` in its repository.
 - `terminator/`: The injected copies of `RUN-TERMINATOR-TERMINAL.bash`, which creates the folder when a clone lacks it, while each platform holds its own Terminator layouts in its repository.
 - `tests/`: Test suites of the scripts (`tests/suites/`), which `tests/run.bash` runs in a Debian container on scratch copies of the repository, with every outside command stubbed.
-- `gitlab-ci/`: GitLab CI/CD pipeline: the parent `gitlab-ci.yml`, the shared jobs of the child pipeline (`openrosde-pipeline.yml`), the public extensions it tests (`extensions.repos`), and the scripts that clone them (`clone-extensions.bash`), generate the child pipeline (`generate-ci-pipeline.bash`), build or reuse an image (`build-ci-image.bash`), test a setup (`test-catkin-workspaces.bash`, `check-launch-files.bash`, `run-extension-checks.bash`), check that no script moves a robot (`check-no-motion.bash`), and publish the images (`publish-ci-images.bash`), with the allowlists of those checks (`allowed-duplicate-nodes.txt`, `allowed-simulation-launches.txt`).
-- `.github/`: GitHub Actions beside the GitLab pipeline, which run the scripts of `gitlab-ci/`: the workflows (`workflows/checks.yml`, `workflows/ci.yml`, and the reusable `workflows/extension.yml`), the composite actions that free disk space, clone the extensions, and log in to the registry (`actions/`), and the scripts that wire the workflows to `gitlab-ci/` (`scripts/`).
+- `gitlab-ci/`: The scripts of the CI, which the workflows of `.github/` run, in a folder named after the GitLab CI that ran the versions before 3.0.0, until #13 renames it: the public extensions that the CI tests (`extensions.repos`), and the scripts that clone them (`clone-extensions.bash`), generate the pipeline of the platforms and setups found by name (`generate-ci-pipeline.bash`), build or reuse an image (`build-ci-image.bash`), check the GLB files of the converter (`check-mesh-glbs.bash`), test a setup (`test-catkin-workspaces.bash`, `generate-ci-mesh-glbs.bash`, `check-robot-model.bash`, `check-launch-files.bash`, `run-extension-checks.bash`), check that no script moves a robot (`check-no-motion.bash`), and publish the images (`publish-ci-images.bash`), with the allowlists of those checks (`allowed-duplicate-nodes.txt`, `allowed-simulation-launches.txt`).
+  `generate-ci-pipeline.bash` prints the pipeline as a GitLab child pipeline whose jobs extend the hidden jobs of `openrosde-pipeline.yml`, which `.github/scripts/print-ci-matrices.bash` reads to build the matrices of the workflows, while `gitlab-ci.yml`, the parent pipeline of the GitLab archive, runs nowhere and stays for the checks of `tests/suites/test-ci-scripts.bash` until #13.
+- `.github/`: GitHub Actions, which run the scripts of `gitlab-ci/`: the workflows (`workflows/checks.yml`, `workflows/ci.yml`, and the reusable `workflows/extension.yml`), the composite actions that free disk space, clone the extensions, and log in to the registry (`actions/`), and the scripts that wire the workflows to `gitlab-ci/` (`scripts/`).
 
 ## Agent Persona
 
@@ -142,7 +144,7 @@ OpenRoSDE supports multiple robot platforms through a single codebase controlled
 
 ### Configuration System
 
-- `.env`: Default configuration (committed to Git). Do not add fallback defaults (`:-`) in scripts; all defaults live here.
+- `.env`: Default configuration (committed to Git). Do not add fallback defaults (`:-`) in scripts, since all defaults live here.
 - `.env.custom`: User overrides (Git-ignored, created from a platform template in `env/`).
 - `scripts/load-openrosde-env.bash`: Shared loader sourced by all top-level `*.bash` scripts. Resolves `OPENROSDE_ROOT_DIR`, loads `.env`/`.env.custom`, and exports every `OPENROSDE_*` variable for Docker Compose interpolation and for the platform scripts.
 - `scripts/load-openrosde-settings.bash`: Shared loader of the shell of the container and of the CI scripts that run in it. Loads `.env`/`.env.custom` and the paths of the extensions with every variable exported, so a script that the shell runs reads the same setup.
@@ -160,11 +162,11 @@ The template of every platform is its default setup and declares `OPENROSDE_ROBO
 
 `docker-compose.yaml` defines three services:
 - `openrosde-base` (build-only shared base image, no `container_name`).
-- `openrosde-platform` (build-only platform-specific image, no `container_name`; image is `<platform>-devel:${OPENROSDE_DOCKER_IMAGE_TAG}`, `main`, `dev`, or a release `vX.Y.Z`).
-- `openrosde` (runtime user-overlay container; image is `openrosde-local/<setup>/user-devel:latest`, built locally only, inherits from `openrosde-platform` or from the last Docker layer of the extensions).
+- `openrosde-platform` (build-only platform-specific image, no `container_name`, whose image is `<platform>-devel:${OPENROSDE_DOCKER_IMAGE_TAG}`, `main`, `dev`, or a release `vX.Y.Z`).
+- `openrosde` (runtime user-overlay container, whose image is `openrosde-local/<setup>/user-devel:latest`, built locally only, inherits from `openrosde-platform` or from the last Docker layer of the extensions).
 
 Always target the `openrosde` service explicitly with `docker compose up -d openrosde` to avoid accidentally starting the build-only services, which have no `container_name` and would cause naming conflicts.
-`BUILD-DOCKER-IMAGE.bash` builds all three services in order: `openrosde-base` -> `openrosde-platform` -> `openrosde`. The `user-devel` image is always built locally and is not pushed by `gitlab-ci/PUSH-DOCKER-IMAGE.bash`.
+`BUILD-DOCKER-IMAGE.bash` builds all three services in order: `openrosde-base` -> `openrosde-platform` -> `openrosde`. The `user-devel` image is always built locally and is never published by `gitlab-ci/publish-ci-images.bash`.
 
 ### Docker Compose Platform Overlays
 
@@ -178,16 +180,17 @@ The user overlay is a third Docker stage on top of `<platform>-devel`, intended 
 It is always built locally by `BUILD-DOCKER-IMAGE.bash`, never pushed to the registry, and platform-agnostic (the same overlay rebuilds on top of whichever `OPENROSDE_ROBOT_PLATFORM` is selected).
 
 Components:
-- `docker/user-devel/Dockerfile`: third-stage image. `FROM ${OPENROSDE_PLATFORM_IMAGE}` where `OPENROSDE_PLATFORM_IMAGE` defaults to `ghcr.io/openrosde/${OPENROSDE_ROBOT_PLATFORM}-devel:latest`.
+- `docker/user-devel/Dockerfile`: third-stage image. `FROM ${OPENROSDE_PLATFORM_IMAGE}` where `OPENROSDE_PLATFORM_IMAGE` defaults to `ghcr.io/openrosde/${OPENROSDE_ROBOT_PLATFORM}-devel:main`.
 - `docker/docker-compose-user.yaml`: always loaded by `RUN-DOCKER-CONTAINER.bash` (no `if -f` guard). Exposes `OPENROSDE_USER_*` environment variables and is the place to add user-specific volume mounts.
-- `ros/user_catkin_ws/`: fourth Catkin workspace, sourced after the platform workspace in `source-catkin-workspaces.bash`, built by `build-catkin-workspaces.bash` and rebuilt by `reset-catkin-workspaces.bash`.
+- `ros/user_catkin_ws/`: last Catkin workspace, sourced after the platform workspace and those of the active extensions in `source-catkin-workspaces.bash`, built by `build-catkin-workspaces.bash` and rebuilt by `reset-catkin-workspaces.bash`.
 - `ros/user_catkin_ws/src/openrosde_user_launch/`: starter launch package with `user_example_default.launch` and a `config/` directory (`rviz/`, `maps/`) for user assets.
 - `ros/user_catkin_ws/src/openrosde_user_behaviors/`: starter FlexBE behaviors package with `User Example Behavior` (uses only `LogState` + `WaitState`, runs on every platform).
-- `env/user.env`: reference template documenting `OPENROSDE_USER_*` variables. Not auto-loaded; users add overrides to `.env.custom` instead.
+- `env/user.env`: reference template documenting `OPENROSDE_USER_*` variables. Not auto-loaded, so users add overrides to `.env.custom` instead.
 
 `OPENROSDE_USER_*` defaults live in the top-level `.env` and in every per-platform `env/*.env` template (so platform switching does not erase the user-overlay defaults).
 `scripts/load-openrosde-env.bash` exports every `OPENROSDE_*` variable, the `OPENROSDE_USER_*` ones included, so it can be interpolated by `docker-compose-user.yaml`.
-The user overlay reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${OPENROSDE_ROBOT_PLATFORM}.config`, and Number 12 (`terminal25`) of every platform layout is pre-wired to the user-overlay starter (`openrosde_user_launch:user_example_default.launch`).
+In the `tmux` sessions, the window `user` of `tmux/openrosde.panes` runs the user-overlay starter (`openrosde_user_launch:user_example_default.launch`, or `user_example_default.launch.xml` on ROS 2) and a shell in the container.
+Until #3 removes Terminator, the user overlay also reuses the platform Terminator layout: `RUN-TERMINATOR-TERMINAL.bash` always opens `terminator/${OPENROSDE_ROBOT_PLATFORM}.config`, and Number 12 (`terminal25`) of every platform layout is pre-wired to the user-overlay starter (`openrosde_user_launch:user_example_default.launch`).
 The remaining spare panes (Numbers 8-11) are free shells reserved for additional user-overlay launches.
 
 ### Tmux Sessions
@@ -204,7 +207,7 @@ Set every option of a session with `tmux set-option -t <session>`, or on each of
 The first pane that enters the container gets `OPENROSDE_TMUX_SESSION_NAME` and `OPENROSDE_TMUX_SESSION_LAYOUT` in its environment, which `RUN-DOCKER-CONTAINER.bash` passes into the container with the Docker project, the container, and `NO_COLOR`.
 `initialize-bash-shell.bash` then prints the splash of `scripts/print-tmux-splash.bash`, a wordmark drawn in the script and a short help, right before the prompt of the pane, since it clears the pane when it starts, and clears those variables.
 `openrosde-help` prints the same help under a one-line wordmark in every shell of the container, as `bash ./scripts/print-tmux-splash.bash --help` does on the host.
-Until Terminator is retired, keep `tmux/<platform>.panes` in step with `terminator/<platform>.config`, since the platform pane files were generated from the Terminator layouts.
+Until #3 retires Terminator, keep `tmux/<platform>.panes` in step with `terminator/<platform>.config`, since the platform pane files were generated from the Terminator layouts.
 `tests/suites/test-terminator-parity.bash` checks that every layout of a Terminator config of the core, and of every platform cloned into `extensions/`, runs the same launch files and arguments as the panes of that layout.
 
 ### Terminator Layouts
@@ -267,7 +270,7 @@ All custom environment variables use the `OPENROSDE_` prefix. Examples:
 - Use `${VARIABLE}` syntax (with curly braces) for all variable references.
 - Prefix all custom variables with `OPENROSDE_` (e.g., `OPENROSDE_ROBOT_PLATFORM`, not `PLATFORM`).
 - Use at least 3 words for variable names (including `OPENROSDE_`), e.g., `OPENROSDE_ROBOT_PLATFORM`, not `OPENROSDE_PLATFORM`.
-- Do not use fallback default syntax (`${VAR:-default}`) in scripts; all defaults belong in `.env`.
+- Do not use fallback default syntax (`${VAR:-default}`) in scripts, since all defaults belong in `.env`.
 - Use `source` instead of `.` for sourcing scripts.
 - Use `pushd` / `popd` for temporary directory changes in functions.
 - Quote variables in paths: `"${OPENROSDE_ROOT_DIR}"` (host scripts) but `${OPENROSDE_CONTAINER_ROOT_DIR}` (container scripts where paths are controlled).
@@ -322,7 +325,7 @@ fi
 
 - Use 80-character `#` lines as section separators.
 - Add inline comments with `#` to explain non-obvious fields.
-- Do not use fallback default syntax (`${VAR:-default}`); all defaults belong in `.env`.
+- Do not use fallback default syntax (`${VAR:-default}`), since all defaults belong in `.env`.
 - Variable interpolation uses `${VAR}` syntax.
 
 ### ROS Launch Files
@@ -353,18 +356,18 @@ Formatting conventions:
 - Group related `<arg>` declarations together, separated by blank lines from other groups or elements.
 - Use single quotes `' '` around code-related names in `<!-- -->` comments (e.g., `<!-- Start 'robot_state_publisher'. -->`, `<!-- Load 'kinematics.yaml'. -->`). This mirrors the Bash comment convention.
 - Add a source comment block at the top of every launch file, immediately after `<launch>`, using this pattern:
-  - `<!-- https://github.com/<upstream-repo> -->` — URL of the upstream repository this file is based on or extends.
-  - `<!-- Upstream default: $(find <pkg>)/launch/<file>.launch -->` — path to the upstream launch file used as the starting point, when one exists.
-  - `<!-- OpenRoSDE-specific: <one-line description> -->` — instead of the upstream line, when the file has no direct upstream counterpart.
+  - `<!-- https://github.com/<upstream-repo> -->`: URL of the upstream repository this file is based on or extends.
+  - `<!-- Upstream default: $(find <pkg>)/launch/<file>.launch -->`: path to the upstream launch file used as the starting point, when one exists.
+  - `<!-- OpenRoSDE-specific: <one-line description> -->`: instead of the upstream line, when the file has no direct upstream counterpart.
 
 RViz launch files use an OpenRoSDE-owned `.rviz` config file stored in `config/rviz/` within the `openrosde_<platform>_launch` package.
 These config files are copied from the upstream default and modified to set `Fullscreen: false` under `Window Geometry:`.
 All RViz launch nodes use `required="true"` so the layout closes when RViz exits.
 Each RViz launch file also includes a `<node name="maximize_rviz" pkg="openrosde_launch" type="maximize-app-window.bash" args="RViz" />` node that maximizes the window via `wmctrl` after it opens.
 The corresponding bringup Gazebo launch files include the same pattern with `name="maximize_gazebo"` and `args="Gazebo"` to maximize the Gazebo window.
-The `flexbe_app_default.launch` file includes the same pattern with `name="maximize_flexbe"` and `args="FlexBE"` to maximize the FlexBE App window (the `"FlexBE"` substring matches the `"FlexBE App"` window title; using a single word avoids roslaunch splitting the arg on the space).
+The `flexbe_app_default.launch` file includes the same pattern with `name="maximize_flexbe"` and `args="FlexBE"` to maximize the FlexBE App window (the `"FlexBE"` substring matches the `"FlexBE App"` window title, and a single word keeps roslaunch from splitting the arg on the space).
 The `maximize-app-window.bash` script lives in `ros/openrosde_catkin_ws/src/openrosde_launch/scripts/` and is installed via `openrosde_launch`'s `CMakeLists.txt`.
-The script retries for up to 60 seconds to handle slow application startup (e.g. the FlexBE App nwjs window), then runs a short focus-restore loop that re-asserts the maximized state and refocuses Terminator (matched by its window title `OpenRoSDE (` set in `terminator/*.config`).
+The script retries for up to 60 seconds to handle slow application startup (e.g. the FlexBE App nwjs window), then runs a short focus-restore loop that re-asserts the maximized state and refocuses the terminal of the `tmux` session or of Terminator, matched by its window title `OpenRoSDE (`, which `RUN-TMUX-SESSION.bash` and `terminator/*.config` set.
 A non-blocking `flock` on `/tmp/openrosde_maximize_focus.lock` ensures only one concurrent instance runs the focus-restore loop at a time, which prevents flickering when several maximize nodes run in parallel (e.g. RViz, FlexBE, the rqt suite).
 `wmctrl` must be installed in the container (it is included in the `openrosde-base` Dockerfile).
 
@@ -398,12 +401,12 @@ Each platform has a `openrosde_<platform>_behaviors/` directory in its Catkin wo
 - `openrosde_<platform>_flexbe_behaviors/`: Contains FlexBE behavior state machines.
   - `src/openrosde_<platform>_flexbe_behaviors/`: Python modules, one `<behavior_name>_sm.py` per behavior.
   - `manifest/<behavior_name>.xml`: FlexBE behavior manifest (loaded by the FlexBE app).
-    The `<description>` element must be a single line with no embedded newlines; multi-line descriptions render as literal whitespace in the FlexBE app.
-  - `config/<behavior_name>.yaml`: Behavior parameters (placeholder; values are set in the manifest).
+    The `<description>` element must be a single line with no embedded newlines, since multi-line descriptions render as literal whitespace in the FlexBE app.
+  - `config/<behavior_name>.yaml`: Behavior parameters (placeholder, since the values are set in the manifest).
   - `setup.py`, `CMakeLists.txt`, `package.xml`: Standard catkin Python package boilerplate.
   - `package.xml` uses `format="2"`, exports `<flexbe_behaviors />`, and lists `flexbe_core`, `flexbe_states`, and any generic state packages (`flexbe_navigation_states`, `flexbe_manipulation_states`) as `exec_depend`.
-    `format="2"` requires `<exec_depend>` tags; using `<run_depend>` causes a `catkin_pkg.package.InvalidPackage` error at build time.
-- `openrosde_<platform>_flexbe_states/`: Reserved for platform-specific custom FlexBE states (empty by default; only add states here that cannot be satisfied by `flexbe_behavior_engine` or `flexbe_generic_states`).
+    `format="2"` requires `<exec_depend>` tags, and `<run_depend>` causes a `catkin_pkg.package.InvalidPackage` error at build time.
+- `openrosde_<platform>_flexbe_states/`: Reserved for platform-specific custom FlexBE states (empty by default, so only add states here that cannot be satisfied by `flexbe_behavior_engine` or `flexbe_generic_states`).
   - `src/openrosde_<platform>_flexbe_states/`: Python modules.
   - `setup.py`, `CMakeLists.txt`, `package.xml`: Standard catkin Python package boilerplate.
   - `package.xml` uses `format="2"` and exports `<flexbe_states />`.
@@ -417,7 +420,7 @@ Behavior state machine files (`*_sm.py`) follow the code-generation format used 
 - Use descriptive state names with a `MoveTo*` / `WaitAt*` prefix pattern (e.g., `MoveToHome`, `WaitAtHome`).
   Never use auto-generated `_1` / `_2` suffixes (e.g., `MoveBaseState_1`).
 - `OperatableStateMachine.add()` calls inside `with _state_machine:` use **3 tabs** for the call itself and **10 tabs** for all continuation argument lines (`state_class`, `transitions=`, `autonomy=`, `remapping=`).
-  When manually editing state names, ensure the 3-tab indentation of the `OperatableStateMachine.add(` line is preserved; dropping it to column 0 causes an `expected an indented block` `SyntaxError` at runtime.
+  When manually editing state names, ensure the 3-tab indentation of the `OperatableStateMachine.add(` line is preserved, since dropping it to column 0 causes an `expected an indented block` `SyntaxError` at runtime.
 
 `SrdfStateToMoveit` reads `/robot_description_semantic` once in `__init__` when the FlexBE app instantiates the behavior class.
 This means the SRDF parameter must be on the ROS parameter server before the behavior is loaded in the FlexBE app, not just before it executes.
@@ -444,7 +447,7 @@ Platform-specific behavior guidelines:
 - Use GitHub alerts for callout blocks: `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`.
   Each continuation line must be prefixed with `> `.
 - Use `shell` as the language identifier for shell code blocks.
-- Use `mermaid` fenced code blocks for diagrams (rendered natively by GitHub, GitLab, and VS Code with extensions).
+- Use `mermaid` fenced code blocks for diagrams (rendered natively by GitHub, by the website `https://openrosde.org/`, and by VS Code with extensions).
   Use the `neutral` theme via a YAML frontmatter config block.
   Use `<br/>` for line breaks inside node labels.
   Wrap code-related names in single quotes `' '` inside labels.
@@ -462,18 +465,18 @@ Platform-specific behavior guidelines:
   Use a single emoji that reflects the section topic, placed before the header text (e.g., `## 🚀 Quick Start`).
   Reuse the same emoji for semantically equivalent headers across files (e.g., `🔗 External Resources`, `⚙️ Platform Configuration`).
 
-### GitLab CI
+### CI Scripts
 
 - Use 80-character `#` lines as section separators.
 - Use `OPENROSDE_` prefix for all custom CI variables.
 - Generate the jobs of every platform and every setup in `gitlab-ci/generate-ci-pipeline.bash` rather than listing them by hand.
 - Keep the logic of a job in a script of `gitlab-ci/`, so that the YAML only wires the jobs together.
-- Give every artifact an `expire_in`, and hand images between jobs through the registry, never through the disk of the runner.
+- Give every artifact a retention, and hand images between jobs through the registry, never through the disk of the runner.
 - Never publish a GLB file of a robot mesh: the CI generates them only inside the containers of a job, as [Robot Models](docs/robot-models.md) describes, since some meshes may not be redistributed.
 
 ### GitHub Actions
 
-- Keep the logic in the scripts of `gitlab-ci/`, which both CI systems run, and in `.github/scripts/` only for what GitHub Actions alone needs, so that a workflow only wires the jobs together.
+- Keep the logic in the scripts of `gitlab-ci/`, which the workflows run, and in `.github/scripts/` only for what GitHub Actions alone needs, so that a workflow only wires the jobs together.
 - Take the platforms and the setups from the child pipeline that `gitlab-ci/generate-ci-pipeline.bash` prints, through `.github/scripts/print-ci-matrices.bash`, rather than listing them in a workflow.
 - Use only the actions of GitHub and of verified creators, which the organization allows, and pin each to a full commit hash with its version in a comment, looked up with `git ls-remote`.
 - Run only on GitHub-hosted runners, and give a job that builds or pulls the base images `.github/actions/free-disk-space` first.
@@ -514,7 +517,7 @@ Current patches:
 
 ## ROS 2
 
-OpenRoSDE runs ROS 1 and ROS 2 side by side (#31), and `docs/ros2.md` is the guide.
+OpenRoSDE runs ROS 1 and ROS 2 side by side (#2), and `docs/ros2.md` is the guide.
 
 - A platform runs ROS 1 unless its template sets `OPENROSDE_ROS_VERSION=2` and `OPENROSDE_ROS_DISTRO=lyrical`, the two lines of `env/openrosde-ros2.env`, and nothing of ROS 1 changes behavior for a platform that sets neither.
 - Keep every script generic: a script branches on `OPENROSDE_ROS_VERSION` and reads `OPENROSDE_ROS_DISTRO`, `OPENROSDE_BASE_IMAGE_NAME`, `OPENROSDE_ROS_WORKSPACE_FOLDER`, and `OPENROSDE_ROS_WORKSPACE_SUFFIX`, and never names a platform.
@@ -528,9 +531,9 @@ OpenRoSDE runs ROS 1 and ROS 2 side by side (#31), and `docs/ros2.md` is the gui
 ## Adding a New Platform
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full step-by-step guide.
-The platforms are found by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `OPENROSDE_ROBOT_PLATFORM=<platform>` alone on its line, with no quotes and no trailing comment, and the rest of the extension system of the [OpenRoSDE Split](#openrosde-split) (#38) changes this section again.
+The platforms are found by name: `scripts/list-robot-platforms.bash` lists every `env/<platform>.env` that declares `OPENROSDE_ROBOT_PLATFORM=<platform>` alone on its line, with no quotes and no trailing comment, and the rest of the extension system of the [OpenRoSDE Split](#openrosde-split) (#3) changes this section again.
 A new platform goes into an extension repository of its own with the layout of the core, cloned into `extensions/` (see `docs/extensions.md`), where it needs no registration at all, rather than into the core.
-Start from a copy of a platform repository, such as `https://github.com/openrosde/openrosde-platform-turtlebot3`, with its `LICENSE`, `NOTICE`, `README.md`, `.gitignore`, and `.gitlab-ci.yml`.
+Start from a copy of a platform repository, such as `https://github.com/openrosde/openrosde-platform-turtlebot3`, with its `LICENSE`, `NOTICE`, `README.md`, `.gitignore`, and `.github/workflows/test-with-openrosde.yml`, which tests it with the core through `extension.yml`.
 When adding a platform named `<platform>`, create these files in its repository:
 
 - `env/<platform>.env`: environment template, which declares `OPENROSDE_ROBOT_PLATFORM=<platform>` and `OPENROSDE_ROBOT_SETUP=<platform>`, since it is the default setup of the platform.
@@ -583,38 +586,37 @@ Then list a public platform in the files of this repository that name the public
 
 ## Deployment Considerations
 
-- The project is configured for GitLab CI/CD (see `gitlab-ci/gitlab-ci.yml`), with a parent pipeline that clones the public extensions of `gitlab-ci/extensions.repos` with `gitlab-ci/clone-extensions.bash`, then generates a child pipeline of one image job per platform and one test job per setup found by name, in the core and in those extensions, and a test job of the core alone, with no platform, in the base image.
+- The CI runs on GitHub Actions, as the section GitHub Actions of `docs/extensions.md` describes, with the scripts of `gitlab-ci/`, which `.github/scripts/run-gitlab-ci-script.bash` runs with the variables of GitLab CI that they read set from those of GitHub Actions, and the ID of the run in place of the ID of the pipeline.
+  The parent pipeline `gitlab-ci/gitlab-ci.yml` of the GitLab archive runs nowhere, and #13 renames `gitlab-ci/` and removes what only GitLab CI used.
+- `checks.yml` runs for every pull request, forks included, with no secret: ShellCheck through `.github/scripts/check-shell-scripts.bash`, actionlint, `tests/run.bash`, `check-scripts-job`, and `generate-pipeline-job`.
+  `generate-pipeline-job` clones the public extensions of `gitlab-ci/extensions.repos` with `gitlab-ci/clone-extensions.bash`, generates one image job per platform and one test job per setup found by name, in the core and in those extensions, and the test jobs of the core alone on ROS 1 and ROS 2, with `gitlab-ci/generate-ci-pipeline.bash`, then prints the matrices of the workflows from them with `.github/scripts/print-ci-matrices.bash`.
   `gitlab-ci/generate-ci-pipeline.bash` fails when `scripts/list-robot-platforms.bash` or `scripts/list-robot-setups.bash` fails, such as for a template that declares its name with quotes, rather than leaving that platform or setup out of the pipeline.
-- `gitlab-ci/extensions.repos` pins each public extension at a tag or a commit, with an anonymous HTTPS URL, and every job clones it again from the same pins, never with a token of the job, so a public pipeline can never read a private repository.
-  A platform enters it in the same merge request that removes it from the core.
+- `ci.yml` calls `checks.yml` on every push to `dev` or `main` and every release tag of `openrosde/openrosde` that changes something that goes into an image or a workspace, then builds or reuses the images in the registry that `OPENROSDE_CI_REGISTRY_IMAGE` names, `ghcr.io/openrosde`, tests every setup and the core alone, and publishes the images.
+  A change of the documentation alone runs no image job, and a pull request builds no image, so its images and workspaces are tested once it is merged into `dev`.
+- `gitlab-ci/extensions.repos` pins each public extension at a tag or a commit, with an anonymous HTTPS URL, and every job clones it again from the same pins, never with a token of the job, so a public run can never read a private repository.
+  A platform enters it in the same pull request that removes it from the core.
   Update its pins by hand, never with `vcs export` of the whole `extensions/` folder, which would add the private clones of the checkout, and keep its layout, which `gitlab-ci/clone-extensions.bash` checks.
-- The jobs run on the runner whose tag `OPENROSDE_CI_RUNNER_TAG` names, `privileged-docker` by default for a self-managed Docker executor in privileged mode, or the tag of an instance runner of GitLab.com when shared runners are enabled.
-- Jobs hand their images to each other through the registry only, with Docker-in-Docker over TLS, so nothing is kept on the runner between jobs.
-- A self-managed runner may set `JOB_CPUS` to the CPUs that a job may use, which `test-catkin-workspaces.bash` passes into the container as `OPENROSDE_BUILD_JOBS`, so that `catkin build` does not start a compiler for every CPU of the machine inside a smaller share.
+- The jobs run on GitHub-hosted runners, and a job that builds or pulls the base images frees disk space first with `.github/actions/free-disk-space`.
+- Jobs hand their images to each other through the registry only, so nothing is kept on the runner between jobs.
+- A self-managed runner, such as one that runs the CI of a private extension, may set `JOB_CPUS` to the CPUs that a job may use, which `test-catkin-workspaces.bash` passes into the container as `OPENROSDE_BUILD_JOBS`, so that `catkin build` does not start a compiler for every CPU of the machine inside a smaller share.
 - An image carries the label `com.coarobo.openrosde.source-hash`, the hash of the folders it is built from, each hashed in the Git repository that holds it, the core or a clone in `extensions/`, and a job retags an identical image on the registry instead of building it again.
   The image of a platform is built from the folder that holds the platform, and `gitlab-ci/build-ci-image.bash` fails when a source folder is missing or not committed, rather than hashing it as a constant.
-- Every pipeline pushes its images as `pipeline-<id>`, and publishes them as `dev` and `main` from those branches, or as `vX.Y.Z` from a release tag, the only tags the cleanup policy of the registry keeps.
-  Only a protected branch or tag publishes, under its own name, in a pipeline that a push or a person on the web started, never a merge request, a schedule, a pipeline of another project, or a pipeline that tests an extension at another version.
-  The child pipeline receives only the branch or tag to publish, the source of the pipeline, and the target branch of a merge request, which the trigger job takes from the variables that GitLab sets, and no variable of a schedule or of the pipeline of another project can replace them.
-  The generator writes `OPENROSDE_CI_RUNNER_TAG`, `OPENROSDE_CI_EXTENSION_OVERRIDE`, and `OPENROSDE_CI_EXTRA_EXTENSIONS` into the child pipeline instead, and fails when one of them does not match its format, as `gitlab-ci/test-catkin-workspaces.bash` does for `OPENROSDE_CI_EXTRA_EXTENSIONS`, which it writes into `.env.custom`.
-- A public extension tests a branch against the core by triggering a pipeline of `coarobo/SDE` with `OPENROSDE_CI_EXTENSION_OVERRIDE=<name>=<branch>@<commit>`, which `gitlab-ci/clone-extensions.bash` honors for an extension that `gitlab-ci/extensions.repos` lists only, and the child pipeline then tests only the setups that activate that extension, with those of `OPENROSDE_CI_EXTRA_EXTENSIONS` added to every setup.
-- The test job of a setup copies its template to `.env.custom`, builds its Docker layers with `scripts/build-extension-layers.bash` without pushing them, and builds its Catkin workspaces in a container of the image of its platform, read from `OPENROSDE_CI_IMAGE_REGISTRY` with the tag `OPENROSDE_CI_IMAGE_TAG`, the images of the pipeline by default, which a pipeline of another project sets to published images, such as `ghcr.io/openrosde` and `v3.0.0`.
+- Every run of `ci.yml` pushes its images as `pipeline-<run-id>`, and `publish-images-job` publishes them as `dev` and `main` from those branches, or as `vX.Y.Z` from a release tag, by retagging them on the registry once every image job and every test has passed.
+  Only the image jobs and `publish-images-job` may write packages, and they run only on a push to `openrosde/openrosde`, so a pull request, a fork, or the workflow of an extension never publishes.
+- `extension.yml` is the reusable workflow that an extension calls from its own `.github/workflows/test-with-openrosde.yml`.
+  It checks out the core at `core-ref`, clones the extensions of `gitlab-ci/extensions.repos`, checks out the commit under test in place of the pinned clone, and generates the pipeline with `OPENROSDE_CI_EXTENSION_OVERRIDE=<name>=checkout@<commit>`, so that it tests only the setups that activate that extension, with those of `OPENROSDE_CI_EXTRA_EXTENSIONS`, its input `extra-extensions`, added to every setup, and only those that its input `setups` names, when it names any.
+  Since the repository of an extension cannot push to the registry of the core, each of its test jobs builds the image of its platform locally on the published images, with `.github/scripts/build-local-platform-image.bash`, and it publishes nothing.
+- The test job of a setup copies its template to `.env.custom`, builds its Docker layers with `scripts/build-extension-layers.bash` without pushing them, and builds its Catkin workspaces in a container of the image of its platform, read from `OPENROSDE_CI_IMAGE_REGISTRY` with the tag `OPENROSDE_CI_IMAGE_TAG`, the images of the run by default, which `extension.yml` and the CI of a private extension set to published images, such as `ghcr.io/openrosde` and `v3.0.0`.
   Outside the CI, `gitlab-ci/test-catkin-workspaces.bash` refuses to replace an existing `.env.custom`.
   It then disconnects the container from every network, checks with `gitlab-ci/check-launch-files.bash` that every pane of the setup opens in a standard window, that every launch entry point of its panes resolves with `roslaunch --files`, and that no two panes of one layout start a node of the same name with `roslaunch --nodes`, both of which start no node, and runs `ci/check-in-container.bash` of every active extension that holds one.
   On ROS 2, it builds the colcon workspaces, loads every launch entry point with `ros2 launch --show-args`, which starts no node either, and compares no node names.
 - The base image of ROS 2 builds in `build-base-ros2-image-job`, the image of a platform on ROS 2 builds on it, and the core alone is tested on ROS 2 in `test-core-ros2-workspaces-job` and again in `robot-model-fragments-job`, through a `rosbridge` that fragments every message above 1,000,000 bytes, as `docs/ros2.md` describes.
-- `check-scripts-job` runs `gitlab-ci/check-no-motion.bash`, which fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, in `gitlab-ci/` of the core and `ci/` of the extensions, apart from the simulations that `allowed-simulation-launches.txt` of their folder names, and allows a `roslaunch` of several launch files only when that list names every one.
+- `check-scripts-job` runs `gitlab-ci/check-no-motion.bash`, which fails on any `roslaunch` beyond `--files`, `--nodes`, or `--dump-params`, and on any `rosrun`, `rostopic pub`, or `rosservice call`, in `gitlab-ci/` and `.github/` of the core and `ci/` of the extensions, apart from the simulations that `allowed-simulation-launches.txt` of their folder names, and allows a `roslaunch` of several launch files only when that list names every one.
   On ROS 2, it fails the same way on any `ros2 launch` beyond `--show-args`, `--show-arguments`, `-s`, `--print`, `--print-description`, or `-p`, and on any `ros2 run`, `ros2 topic pub`, `ros2 service call`, `ros2 action send_goal`, `ros2 bag play`, or `ros2 lifecycle set`.
   Every test job needs it, so no check of an extension runs before it passes.
-- Every artifact expires, the Catkin logs of a failed test after a week and the generated child pipeline after a day.
+- Every artifact expires, the logs of a failed test and the reports of the converter after a week, and the generated pipeline after a day.
 - Docker images are pushed to `OPENROSDE_DOCKER_REGISTRY`, `ghcr.io/openrosde/` by default, which serves them to anyone without a token, so never write a registry token in a script.
 - Image traceability: each image embeds `OPENROSDE_DOCKER_IMAGE_VERSION` from the Dockerfile's Git commit hash, and the labels `org.opencontainers.image.revision` and `org.opencontainers.image.source`.
-- GitHub Actions runs the same scripts beside the GitLab pipeline for the move to GitHub, as the section GitHub Actions of `docs/extensions.md` describes.
-  `checks.yml` runs for every pull request, forks included, with no secret: ShellCheck through `.github/scripts/check-shell-scripts.bash`, actionlint, `tests/run.bash`, `check-scripts-job`, and `generate-pipeline-job`.
-  `ci.yml` calls it on every push to `dev` or `main` and every release tag of `openrosde/openrosde`, then builds or reuses the images in the registry that `OPENROSDE_CI_REGISTRY_IMAGE` names, `ghcr.io/openrosde`, tests every setup and the core alone, and publishes the images, with the jobs that write packages running only in that repository and only once it is public, so the private phase spends neither the minutes nor the storage of the free plan.
-  `.github/scripts/run-gitlab-ci-script.bash` sets the variables of GitLab CI that the scripts read from those of GitHub Actions, with the ID of the run in place of the ID of the pipeline.
-  `extension.yml` is the reusable workflow that an extension calls in place of the multi-project trigger, and since the repository of an extension cannot push to the registry of the core, each of its test jobs builds the image of its platform locally on the published images, with `.github/scripts/build-local-platform-image.bash`.
-  A pull request builds no image, so its images and workspaces are tested once it is merged into `dev`.
 
 ## Versioning & Commits
 
@@ -632,14 +634,14 @@ Agent rules:
 
 - Default branch is `main`, which holds the releases.
   `dev` is the protected integration branch, where agents work and from which the Coarobo UR5e bench runs its demos.
-- Short-lived branches are named `<type>/<slug>` after the Conventional Commit type (e.g., `feat/atr-open-house-demo`, `fix/registry-anonymous-pull`), branch from the latest `dev`, and merge back into `dev` through a PR.
+- Short-lived branches are named `<type>/<slug>` after the Conventional Commit type (e.g., `feat/extension-parts`, `fix/registry-anonymous-pull`), branch from the latest `dev`, and merge back into `dev` through a PR.
 - `dev` merges into `main` through a PR when the maintainers decide that a release is due.
 - Ask the maintainer before every `git add`, commit, merge, rebase, reset, push, or branch deletion, and show the diff first.
 - Never stash, reset, restore, check out over, or clean work that someone else left in a working tree.
 - End every commit an agent writes with a `Co-authored-by: <agent and model> <noreply address>` trailer after a blank line, as [GitHub documents it](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/creating-a-commit-with-multiple-authors), while the maintainer stays the author.
 - Commit messages and PR titles use Conventional Commits: `type(scope): subject`.
   - Allowed types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-  - Omit the scope, since this repository holds no platform, and every platform takes its commits in its own repository.
+  - Omit the scope, since this repository holds no platform, and every platform takes its commits in its own repository, apart from `chore(release): vX.Y.Z` of a release.
   - Subject is imperative, lowercase, no trailing period.
 - PR descriptions follow the structure documented in [`CONTRIBUTING.md`](CONTRIBUTING.md#pull-requests). Sections: Summary, Changes, Testing, Related, Changelog (which `CHANGELOG.md` subsection the change belongs to: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`).
 - Issue titles are plain descriptive English, not Conventional Commit format. Categorize issues and PRs with the labels of the repository (`bug`, `enhancement`, `documentation`, `question`, `good first issue`).

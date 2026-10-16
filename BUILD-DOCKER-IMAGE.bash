@@ -37,7 +37,7 @@ fi
 # Determine build strategy based on the Docker project name.
 # - 'local': Build current platform image with cache (fast iteration on local machine).
 # Otherwise, try to pull from registry, fall back to build with cache if pull fails, as far as 'OPENROSDE_DOCKER_BUILD_FALLBACK' allows.
-# The CI builds and publishes the base and platform images itself, as 'gitlab-ci/gitlab-ci.yml' describes.
+# The CI builds and publishes the base and platform images itself, as '.github/workflows/ci.yml' describes.
 # The Docker layers of the active extensions are built locally on top of the platform image by 'scripts/build-extension-layers.bash', and the script stops if one fails.
 if [[ "${OPENROSDE_DOCKER_PROJECT}" == "local" ]]; then
   # Build current platform, extension, and user images with cache (fast rebuild for local development).

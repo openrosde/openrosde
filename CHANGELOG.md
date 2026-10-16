@@ -9,7 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The input `setups` of `.github/workflows/extension.yml` keeps the test jobs of the setups it names, so that a device of ROS 1 added to every setup by `extra-extensions` is tested on `ur5e` alone, as on GitLab, rather than built on a setup of ROS 2.
+- The input `setups` of `.github/workflows/extension.yml` keeps the test jobs of the setups it names, so that a device of ROS 1 that `extra-extensions` adds to every setup is tested on `ur5e` alone rather than built on a setup of ROS 2 (#11).
+
+### Changed
+
+- The documentation describes the CI on GitHub Actions, the workflow `test-with-openrosde.yml` that a platform or a device calls, and `gitlab-ci/` as the scripts that the workflows run until #13 renames it, in place of the GitLab pipeline and its trigger, and names the open issues by their numbers on GitHub (#14).
+- `docs/robot-models.md` explains why the meshes travel as GLB files, why the file service serves 12,000,000 bytes at most, and how a robot without OpenRoSDE serves its model the same way (#14).
+- `docs/basic-usage.md` ends with the `tmux` session and its standard tabs, and every guide presents the `tmux` sessions first and the Terminator layouts as kept until #3 removes them (#14).
+- The VS Code workspace recommends the extensions of GitHub Actions and of GitHub pull requests in place of the extension of GitLab (#14).
+- `README.md` lists the public devices beside the platforms, and its third-party software names ROS 2 Lyrical, the file service of ROS# on ROS 2, and the notices of the devices (#14).
+
+### Fixed
+
+- `docs/user-overlay.md` names Number 12 (`terminal25`) of the Terminator layouts as the pane of the user overlay, as the layouts and `AGENTS.md` do, rather than Number 13 (#14).
+- `AGENTS.md` names `gitlab-ci/publish-ci-images.bash` and the `main` image of the platform under the user overlay, in place of a removed script and of the `latest` tag that the registry no longer keeps (#14).
 
 ## [3.0.0] - 2026-10-16
 

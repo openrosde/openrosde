@@ -17,4 +17,4 @@ The `openrosde_launch` package provides shared launch files common to all platfo
 
 | Script | Description |
 | --- | --- |
-| `maximize-app-window.bash` | Maximizes an X11 window by title substring and then restores focus to the Terminator window (used by RViz, Gazebo, FlexBE, and rqt launch files) |
+| `maximize-app-window.bash` | Maximizes an X11 window by title substring and then restores focus to the terminal titled `OpenRoSDE (`, the `tmux` session or the Terminator layout (used by RViz, Gazebo, FlexBE, and rqt launch files) |

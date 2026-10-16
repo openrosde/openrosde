@@ -1,18 +1,18 @@
-# Getting Started
+# Basic Usage
 
 Follow this step-by-step guide to perform the initial setup of OpenRoSDE on an [Ubuntu](https://www.ubuntu.com/) development machine.
 
 > [!NOTE]
-> The whole OpenRoSDE is containerized/virtualized using [Docker](https://www.docker.com/).
+> The whole OpenRoSDE is containerized with [Docker](https://www.docker.com/).
 > This ensures that all the contributors work in the exact same software environment.
 
 > [!NOTE]
-> The OpenRoSDE robot, simulator, visualization, and behavior interfaces are primarily implemented with [ROS](http://www.ros.org/), [Gazebo](http://gazebosim.org/), [Rviz](https://github.com/ros-visualization/rviz), and [FlexBE](http://flexbe.github.io/).
+> The OpenRoSDE robot, simulator, visualization, and behavior interfaces are primarily implemented with [ROS](http://www.ros.org/), [Gazebo](http://gazebosim.org/), [RViz](https://github.com/ros-visualization/rviz), and [FlexBE](http://flexbe.github.io/).
 
 > [!NOTE]
 > OpenRoSDE primarily targets Nvidia GPU-equipped Ubuntu development machines and the Nvidia [CUDA](https://developer.nvidia.com/cuda-toolkit) platform.
 > Although OpenRoSDE can be run on other GPU platforms such as Intel integrated graphics, some 3D acceleration issues may arise.
-> For example, the [FlexBE App](https://github.com/FlexBE/flexbe_app) may appear partially broken due to [OpenGL](https://www.opengl.org/) errors.
+> For example, the [FlexBE App](https://github.com/FlexBE/flexbe_app) of ROS 1 may appear partially broken due to [OpenGL](https://www.opengl.org/) errors.
 
 > [!NOTE]
 > OpenRoSDE also supports [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/) on Windows 11 with GPU-accelerated rendering via the [WSLg](https://github.com/microsoft/wslg) D3D12 Mesa driver.
@@ -22,7 +22,7 @@ Follow this step-by-step guide to perform the initial setup of OpenRoSDE on an [
 
 > [!NOTE]
 > Although this initial setup is meant to be performed only once, you can run it again should you want to reset the development environment as the project evolves.
-> However, make sure to backup your latest changes beforehand.
+> However, make sure to back up your latest changes beforehand.
 
 ## ✅ Step 0: Verify the Prerequisites
 
@@ -59,7 +59,7 @@ Set up the environment of the Ubuntu development machine with the following inst
     bash ./SETUP-DEVEL-MACHINE.bash
     ```
 
-    The execution of `SETUP-DEVEL-MACHINE.bash` requires `sudo` permissions to install the tools that allow virtualization, i.e., [Docker](https://www.docker.com/) (with [Docker Compose](https://github.com/docker/compose)), [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html), and [Terminator](https://gnometerminator.blogspot.com/).
+    The execution of `SETUP-DEVEL-MACHINE.bash` requires `sudo` permissions to install the tools that allow virtualization, i.e., [Docker](https://www.docker.com/) (with [Docker Compose](https://github.com/docker/compose)) and [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html), together with [`tmux`](https://github.com/tmux/tmux/wiki), [`vcstool`](https://github.com/dirk-thomas/vcstool), and [Terminator](https://gnometerminator.blogspot.com/) until [#3](https://github.com/openrosde/openrosde/issues/3) removes it.
     System changes made with `sudo` are kept to a strict minimum.
 4. Reboot the system (or log out and back in) for the changes to users and groups to take effect:
 
@@ -70,7 +70,7 @@ Set up the environment of the Ubuntu development machine with the following inst
 > [!NOTE]
 > The `SETUP-DEVEL-MACHINE.bash` script is divided into two parts: system-wide installations (with `sudo`) and local user environment setup (without `sudo`).
 > The system-wide part makes changes that require a reboot or re-login to take effect.
-> However, if your system already has the necessary tools installed (Docker, Nvidia Container Toolkit, Terminator), you can skip the script and manually run `bash ./scripts/update-git-submodules.bash` from the OpenRoSDE root directory to initialize the Git submodules and apply patches.
+> However, if your system already has the necessary tools installed (Docker, Nvidia Container Toolkit, `tmux`, `vcstool`, and Terminator), you can skip the script and manually run `bash ./scripts/update-git-submodules.bash` from the OpenRoSDE root directory to initialize the Git submodules and apply patches.
 
 > [!NOTE]
 > You do not need to reboot if your local user has already been added to the `docker` group.
@@ -163,4 +163,23 @@ Enter a virtual instance of the Docker image (= Docker container) on the Ubuntu 
 > [!NOTE]
 > Note that the Bash function `openrosde-initialize-new-container` should be used only once after instantiating a new container from the Docker image.
 
-For advanced features and Docker configuration details, refer to the [Advanced Usage](advanced-usage.md) guide.
+## 🖥️ Step 5: Open the Multi-Terminal Session
+
+Run the terminals of the platform together in a [`tmux`](https://github.com/tmux/tmux/wiki) session with the following instructions.
+
+1. Exit the container (`Ctrl+d`) and launch the session from the Ubuntu development machine:
+
+    ```shell
+    bash ./RUN-TMUX-SESSION.bash #[docker-project] #[session-layout]
+    ```
+
+    The optional `[session-layout]` selects the panes of a layout, `default-gazebo` by default, or `default-realworld` for the real robot.
+2. The session opens its tabs in the same standard order on every platform, `robot`, `extra`, `tools`, `user`, and `host`, and leaves out a tab with no pane.
+    Its first pane shows the OpenRoSDE wordmark and how to use the tabs and the panes, which `openrosde-help` prints again in any shell of the container.
+3. Each pane that runs a launch file waits for a key before it launches anything, as [Advanced Usage](advanced-usage.md) shows, so you choose when each one starts.
+4. Press `Ctrl+b` then `d` to detach from the session, which keeps running, and run the same command again to attach to it.
+
+> [!NOTE]
+> The Terminator layout of earlier releases still opens with `bash ./RUN-TERMINATOR-TERMINAL.bash #[docker-project] #[terminator-layout]`, until [#3](https://github.com/openrosde/openrosde/issues/3) removes it.
+
+For the tabs, the panes, and the other advanced features, refer to the [Advanced Usage](advanced-usage.md) guide.

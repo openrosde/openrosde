@@ -17,6 +17,8 @@ flowchart TD
     ros2 --> bridge
 ```
 
+The template of the platform selects the base image, the workspaces, and the launch tool, and both versions of ROS meet again at `rosbridge` on port `9090`.
+
 ## 🧭 Choosing the ROS of a Platform
 
 A platform runs ROS 1 unless its template sets the two lines that `env/openrosde-ros2.env` of the core holds:
@@ -37,7 +39,7 @@ OPENROSDE_ROS_DISTRO=lyrical
 | Network | A ROS master, at `OPENROSDE_ROS_MASTER_HOSTNAME` | No master: the domain `OPENROSDE_ROS_DOMAIN_ID` and the discovery of ROS 2 |
 | Robot model | `robot_description` as a parameter, `file_server/GetBinaryFile` | `robot_description` as a transient local topic, `file_server2/srv/GetBinaryFile` |
 | FlexBE | Behavior engine and FlexBE App | Behavior engine and FlexBE WebUI, built from its submodule, which supersedes the FlexBE App |
-| Terminator | Layouts of the platform, until `tmux` replaces them | None, `RUN-TMUX-SESSION.bash` only |
+| Terminator | Layouts of the platform, until [#3](https://github.com/openrosde/openrosde/issues/3) removes them | None, `RUN-TMUX-SESSION.bash` only |
 
 Both base images share the helper scripts of `docker/openrosde-base/scripts/`, which read the ROS of the platform from the settings, so the shell functions keep their names on ROS 2, such as `openrosde-build-catkin-workspaces`, which builds the colcon workspaces there.
 `scripts/load-extension-paths.bash` derives `OPENROSDE_BASE_IMAGE_NAME`, `OPENROSDE_ROS_WORKSPACE_FOLDER`, and `OPENROSDE_ROS_WORKSPACE_SUFFIX` from `OPENROSDE_ROS_VERSION`, and the entry scripts stop on any version other than `1` or `2`.
