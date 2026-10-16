@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-10-16
+
 ### Changed
 
 - **Breaking:** OpenRoSDE moves from `https://gitlab.com/coarobo/SDE` to `https://github.com/openrosde/openrosde` under the Apache License 2.0, with a `NOTICE` that keeps the MIT notice of the earlier code, its platforms and devices move to `https://github.com/openrosde/openrosde-<extension>`, and its images to `ghcr.io/openrosde`, the default of `OPENROSDE_DOCKER_REGISTRY`, while the GitLab project stays as an archive.
@@ -463,7 +465,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial public release of the SDE: Docker-based ROS Noetic development environment with Gazebo, RViz, and Terminator integration.
 
-[Unreleased]: https://github.com/openrosde/openrosde/compare/v2.9.0...dev
+[Unreleased]: https://github.com/openrosde/openrosde/compare/v3.0.0...dev
+[3.0.0]: https://github.com/openrosde/openrosde/compare/v2.12.0...v3.0.0
+[2.12.0]: https://github.com/openrosde/openrosde/compare/v2.11.0...v2.12.0
+[2.11.0]: https://github.com/openrosde/openrosde/compare/v2.10.0...v2.11.0
+[2.10.0]: https://github.com/openrosde/openrosde/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/openrosde/openrosde/compare/v2.8.0...v2.9.0
 [2.8.0]: https://github.com/openrosde/openrosde/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/openrosde/openrosde/compare/v2.6.0...v2.7.0
